@@ -202,6 +202,18 @@ VarNode *VarNode::alloc(S32 lineNumber, StringTableEntry varName, ExprNode *arra
    return ret;
 }
 
+VectorNode* VectorNode::alloc(S32 lineNumber, ExprNode* index0, ExprNode* index1, ExprNode* index2, ExprNode* index3)
+{
+   VectorNode *ret = (VectorNode *)consoleAlloc(sizeof(VectorNode));
+   constructInPlace(ret);
+   ret->dbgLineNumber = lineNumber;
+   ret->index0 = index0;
+   ret->index1 = index1;
+   ret->index2 = index2;
+   ret->index3 = index3;
+   return ret;
+}
+
 IntNode *IntNode::alloc(S32 lineNumber, S32 value)
 {
    IntNode *ret = (IntNode *)consoleAlloc(sizeof(IntNode));

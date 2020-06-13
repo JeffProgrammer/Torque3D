@@ -235,6 +235,20 @@ static U32 conversionOp(TypeReq src, TypeReq dst)
             break;
       }
    }
+   else if (src == TypeReqVector)
+   {
+      switch (dst)
+      {
+      case TypeReqString:
+         return OP_VEC_TO_STR;
+      case TypeReqNone:
+         return OP_VEC_TO_NONE;
+      case TypeReqVar:
+         return OP_SAVEVAR_VEC;
+      default:
+         break;
+      }
+   }
    return OP_INVALID;
 }
 
@@ -852,6 +866,9 @@ U32 VarNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
       case TypeReqVar:
          codeStream.emit(OP_LOADVAR_VAR);
          break;
+      case TypeReqVector:
+         codeStream.emit(OP_LOADVAR_VEC);
+         break;
       case TypeReqNone:
          break;
       default:
@@ -863,6 +880,41 @@ U32 VarNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
 TypeReq VarNode::getPreferredType()
 {
    return TypeReqNone; // no preferred type
+}
+
+//------------------------------------------------------------
+
+U32 VectorNode::compile(CodeStream& codeStream, U32 ip, TypeReq type)
+{
+   U32 numComponents = 2;
+
+   ip = index0->compile(codeStream, ip, TypeReqFloat);
+   ip = index1->compile(codeStream, ip, TypeReqFloat);
+
+   // Note that we could be only 2, 3, or 4 point vector.
+   if (index2)
+   {
+      ip = index2->compile(codeStream, ip, TypeReqFloat);
+      numComponents++;
+   }
+
+   if (index3)
+   {
+      ip = index3->compile(codeStream, ip, TypeReqFloat);
+      numComponents++;
+   }
+
+   // Emit number of components when we create the vector.
+   // values are on the stack.
+   codeStream.emit(OP_LOADIMMED_VEC);
+   codeStream.emit(numComponents);
+
+   return codeStream.tell();
+}
+
+TypeReq VectorNode::getPreferredType()
+{
+   return TypeReqVector;
 }
 
 //------------------------------------------------------------
@@ -1153,6 +1205,9 @@ U32 AssignExprNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
       case TypeReqVar:
          codeStream.emit(OP_SAVEVAR_VAR);
          break;
+      case TypeReqVector:
+         codeStream.emit(OP_SAVEVAR_VEC);
+         break;
       case TypeReqNone:
          break;
    }
@@ -1259,6 +1314,9 @@ U32 AssignOpExprNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
    // if subtype != type
    //    convert type
    // endif
+
+   // If we are a vector node, that's bad. We don't support assign op expression nodes with vectors..
+   AssertISV(dynamic_cast<VectorNode*>(expr) == NULL, "Cannot assign a vector to an assignment expression (eg +=).");
 
    // conversion OP if necessary.
    getAssignOpTypeOp(op, subType, operand);

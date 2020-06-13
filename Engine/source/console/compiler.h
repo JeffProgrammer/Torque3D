@@ -108,11 +108,13 @@ namespace Compiler
       OP_LOADVAR_FLT,
       OP_LOADVAR_STR,
       OP_LOADVAR_VAR,
+      OP_LOADVAR_VEC,
 
       OP_SAVEVAR_UINT,
       OP_SAVEVAR_FLT,
       OP_SAVEVAR_STR,
       OP_SAVEVAR_VAR,
+      OP_SAVEVAR_VEC,
 
       OP_SETCUROBJECT,
       OP_SETCUROBJECT_NEW,
@@ -141,6 +143,8 @@ namespace Compiler
       OP_UINT_TO_FLT,
       OP_UINT_TO_STR,
       OP_UINT_TO_NONE,
+      OP_VEC_TO_STR,
+      OP_VEC_TO_NONE,
       OP_COPYVAR_TO_NONE,
 
       OP_LOADIMMED_UINT,
@@ -149,6 +153,7 @@ namespace Compiler
       OP_LOADIMMED_STR, // 70
       OP_DOCBLOCK_STR,
       OP_LOADIMMED_IDENT,
+      OP_LOADIMMED_VEC,
 
       OP_CALLFUNC_RESOLVE,
       OP_CALLFUNC,
@@ -167,6 +172,7 @@ namespace Compiler
       OP_PUSH_UINT,     // Integer
       OP_PUSH_FLT,      // Float
       OP_PUSH_VAR,      // Variable
+      OP_PUSH_VEC,      // Vector
       OP_PUSH_THIS,     // This pointer
       OP_PUSH_FRAME,    // Frame
 

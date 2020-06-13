@@ -2672,6 +2672,11 @@ bool ConsoleValue::getBoolValue()
    }
 }
 
+F32* ConsoleValue::getVecValue()
+{
+   return vec;
+}
+
 void ConsoleValue::setIntValue(S32 val)
 {
    setFloatValue(val);
@@ -2723,6 +2728,14 @@ void ConsoleValue::setFloatValue(F32 val)
       const char *dptr = Con::getData(TypeF32, &val, 0);
       Con::setData(type, dataPtr, 0, 1, &dptr, enumTable);
    }
+}
+
+void ConsoleValue::setVecValue(F32* vector)
+{
+   vec[0] = vector[0];
+   vec[1] = vector[1];
+   vec[2] = vector[2];
+   vec[3] = vector[3];
 }
 
 //------------------------------------------------------------------------------

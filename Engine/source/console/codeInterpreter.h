@@ -144,10 +144,12 @@ private:
    OPCodeReturn op_loadvar_flt(U32 &ip);
    OPCodeReturn op_loadvar_str(U32 &ip);
    OPCodeReturn op_loadvar_var(U32 &ip);
+   OPCodeReturn op_loadvar_vec(U32 &ip);
    OPCodeReturn op_savevar_uint(U32 &ip);
    OPCodeReturn op_savevar_flt(U32 &ip);
    OPCodeReturn op_savevar_str(U32 &ip);
    OPCodeReturn op_savevar_var(U32 &ip);
+   OPCodeReturn op_savevar_vec(U32 &ip);
    OPCodeReturn op_setcurobject(U32 &ip);
    OPCodeReturn op_setcurobject_internal(U32 &ip);
    OPCodeReturn op_setcurobject_new(U32 &ip);
@@ -171,6 +173,8 @@ private:
    OPCodeReturn op_uint_to_flt(U32 &ip);
    OPCodeReturn op_uint_to_str(U32 &ip);
    OPCodeReturn op_uint_to_none(U32 &ip);
+   OPCodeReturn op_vec_to_str(U32 &ip);
+   OPCodeReturn op_vec_to_none(U32 &ip);
    OPCodeReturn op_copyvar_to_none(U32 &ip);
    OPCodeReturn op_loadimmed_uint(U32 &ip);
    OPCodeReturn op_loadimmed_flt(U32 &ip);
@@ -178,6 +182,7 @@ private:
    OPCodeReturn op_loadimmed_str(U32 &ip);
    OPCodeReturn op_docblock_str(U32 &ip);
    OPCodeReturn op_loadimmed_ident(U32 &ip);
+   OPCodeReturn op_loadimmed_vec(U32 &ip);
    OPCodeReturn op_callfunc_resolve(U32 &ip);
    OPCodeReturn op_callfunc(U32 &ip);
    OPCodeReturn op_callfunc_pointer(U32 &ip);
@@ -193,6 +198,7 @@ private:
    OPCodeReturn op_push_uint(U32 &ip);
    OPCodeReturn op_push_flt(U32 &ip);
    OPCodeReturn op_push_var(U32 &ip);
+   OPCodeReturn op_push_vec(U32 &ip);
    OPCodeReturn op_push_this(U32 &ip);
    OPCodeReturn op_push_frame(U32 &ip);
    OPCodeReturn op_assert(U32 &ip);

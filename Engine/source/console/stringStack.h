@@ -105,6 +105,9 @@ struct StringStack
    /// Set a string value on the top of the stack.
    void setStringValue(const char *s);
 
+   /// Set top of the stack to a vector string value
+   void setVecValue(const F32 *vec);
+
    /// Get the top of the stack, as a StringTableEntry.
    ///
    /// @note Don't free this memory!

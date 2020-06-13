@@ -187,11 +187,14 @@ ConsoleValueStack CSTK;
 U32 _FLT = 0;     ///< Stack pointer for floatStack.
 U32 _UINT = 0;    ///< Stack pointer for intStack.
 U32 _ITER = 0;    ///< Stack pointer for iterStack.
+U32 _VEC = 0;     ///< Stack pointer for vecStack.
 
 IterStackRecord iterStack[MaxStackSize];
 
 F64 floatStack[MaxStackSize];
 S64 intStack[MaxStackSize];
+
+F32 vectorStack[MaxStackSize][4];
 
 char curFieldArray[256];
 char prevFieldArray[256];
@@ -285,10 +288,12 @@ void CodeInterpreter::init()
    gOpCodeArray[OP_LOADVAR_FLT] = &CodeInterpreter::op_loadvar_flt;
    gOpCodeArray[OP_LOADVAR_STR] = &CodeInterpreter::op_loadvar_str;
    gOpCodeArray[OP_LOADVAR_VAR] = &CodeInterpreter::op_loadvar_var;
+   gOpCodeArray[OP_LOADVAR_VEC] = &CodeInterpreter::op_loadvar_vec;
    gOpCodeArray[OP_SAVEVAR_UINT] = &CodeInterpreter::op_savevar_uint;
    gOpCodeArray[OP_SAVEVAR_FLT] = &CodeInterpreter::op_savevar_flt;
    gOpCodeArray[OP_SAVEVAR_STR] = &CodeInterpreter::op_savevar_str;
    gOpCodeArray[OP_SAVEVAR_VAR] = &CodeInterpreter::op_savevar_var;
+   gOpCodeArray[OP_SAVEVAR_VEC] = &CodeInterpreter::op_savevar_vec;
    gOpCodeArray[OP_SETCUROBJECT] = &CodeInterpreter::op_setcurobject;
    gOpCodeArray[OP_SETCUROBJECT_INTERNAL] = &CodeInterpreter::op_setcurobject_internal;
    gOpCodeArray[OP_SETCUROBJECT_NEW] = &CodeInterpreter::op_setcurobject_new;
@@ -312,6 +317,8 @@ void CodeInterpreter::init()
    gOpCodeArray[OP_UINT_TO_FLT] = &CodeInterpreter::op_uint_to_flt;
    gOpCodeArray[OP_UINT_TO_STR] = &CodeInterpreter::op_uint_to_str;
    gOpCodeArray[OP_UINT_TO_NONE] = &CodeInterpreter::op_uint_to_none;
+   gOpCodeArray[OP_VEC_TO_STR] = &CodeInterpreter::op_vec_to_str;
+   gOpCodeArray[OP_VEC_TO_NONE] = &CodeInterpreter::op_vec_to_none;
    gOpCodeArray[OP_COPYVAR_TO_NONE] = &CodeInterpreter::op_copyvar_to_none;
    gOpCodeArray[OP_LOADIMMED_UINT] = &CodeInterpreter::op_loadimmed_uint;
    gOpCodeArray[OP_LOADIMMED_FLT] = &CodeInterpreter::op_loadimmed_flt;
@@ -319,6 +326,7 @@ void CodeInterpreter::init()
    gOpCodeArray[OP_LOADIMMED_STR] = &CodeInterpreter::op_loadimmed_str;
    gOpCodeArray[OP_DOCBLOCK_STR] = &CodeInterpreter::op_docblock_str;
    gOpCodeArray[OP_LOADIMMED_IDENT] = &CodeInterpreter::op_loadimmed_ident;
+   gOpCodeArray[OP_LOADIMMED_VEC] = &CodeInterpreter::op_loadimmed_vec;
    gOpCodeArray[OP_CALLFUNC_RESOLVE] = &CodeInterpreter::op_callfunc_resolve;
    gOpCodeArray[OP_CALLFUNC] = &CodeInterpreter::op_callfunc;
    gOpCodeArray[OP_CALLFUNC_POINTER] = &CodeInterpreter::op_callfunc_pointer;
@@ -334,6 +342,7 @@ void CodeInterpreter::init()
    gOpCodeArray[OP_PUSH_UINT] = &CodeInterpreter::op_push_uint;
    gOpCodeArray[OP_PUSH_FLT] = &CodeInterpreter::op_push_flt;
    gOpCodeArray[OP_PUSH_VAR] = &CodeInterpreter::op_push_var;
+   gOpCodeArray[OP_PUSH_VEC] = &CodeInterpreter::op_push_vec;
    gOpCodeArray[OP_PUSH_THIS] = &CodeInterpreter::op_push_this;
    gOpCodeArray[OP_PUSH_FRAME] = &CodeInterpreter::op_push_frame;
    gOpCodeArray[OP_ASSERT] = &CodeInterpreter::op_assert;
@@ -1650,6 +1659,19 @@ OPCodeReturn CodeInterpreter::op_loadvar_var(U32 &ip)
    return OPCodeReturn::success;
 }
 
+OPCodeReturn CodeInterpreter::op_loadvar_vec(U32 &ip)
+{
+   // if the vector doesn't exist, 0 it out...
+   F32 *vec = gEvalState.getVecVariable();
+   if (vec)
+      dMemcpy(vectorStack[_VEC + 1], vec, sizeof(F32) * 4);
+   else
+      dMemset(vectorStack[_VEC + 1], 0, sizeof(F32) * 4);
+   _VEC++;
+
+   return OPCodeReturn::success;
+}
+
 OPCodeReturn CodeInterpreter::op_savevar_uint(U32 &ip)
 {
    gEvalState.setIntVariable(intStack[_UINT]);
@@ -1672,6 +1694,12 @@ OPCodeReturn CodeInterpreter::op_savevar_var(U32 &ip)
 {
    // this basically handles %var1 = %var2
    gEvalState.setCopyVariable();
+   return OPCodeReturn::success;
+}
+
+OPCodeReturn CodeInterpreter::op_savevar_vec(U32 &ip)
+{
+   gEvalState.setVecVariable(vectorStack[_VEC]);
    return OPCodeReturn::success;
 }
 
@@ -1937,6 +1965,19 @@ OPCodeReturn CodeInterpreter::op_uint_to_none(U32 &ip)
    return OPCodeReturn::success;
 }
 
+OPCodeReturn CodeInterpreter::op_vec_to_str(U32 &ip)
+{
+   STR.setVecValue(vectorStack[_VEC]);
+   _VEC--;
+   return OPCodeReturn::success;
+}
+
+OPCodeReturn CodeInterpreter::op_vec_to_none(U32 &ip)
+{
+   _VEC--;
+   return OPCodeReturn::success;
+}
+
 OPCodeReturn CodeInterpreter::op_copyvar_to_none(U32 &ip)
 {
    gEvalState.copyVariable = NULL;
@@ -2016,6 +2057,42 @@ OPCodeReturn CodeInterpreter::op_loadimmed_ident(U32 &ip)
 {
    STR.setStringValue(CodeToSTE(mCodeBlock->code, ip));
    ip += 2;
+   return OPCodeReturn::success;
+}
+
+OPCodeReturn CodeInterpreter::op_loadimmed_vec(U32 &ip)
+{
+   S32 numComponents = static_cast<S32>(mCodeBlock->code[ip++]);
+
+   // they load backwards, its a stack!
+   F32 vec[4];
+   if (numComponents == 2)
+   {
+      vec[0] = floatStack[_FLT - 1];
+      vec[1] = floatStack[_FLT];
+      vec[2] = 0.0f;
+      vec[3] = 0.0f;
+      _FLT -= 2;
+   }
+   else if (numComponents == 3)
+   {
+      vec[0] = floatStack[_FLT - 2];
+      vec[1] = floatStack[_FLT - 1];
+      vec[2] = floatStack[_FLT];
+      vec[3] = 0.0f;
+      _FLT -= 3;
+   }
+   else
+   {
+      // 4 components
+      vec[0] = floatStack[_FLT - 3];
+      vec[1] = floatStack[_FLT - 2];
+      vec[2] = floatStack[_FLT - 1];
+      vec[3] = floatStack[_FLT];
+      _FLT -= 4;
+   }
+
+   dMemcpy(vectorStack[_VEC], vec, sizeof(F32) * 4);
    return OPCodeReturn::success;
 }
 
@@ -2796,6 +2873,13 @@ OPCodeReturn CodeInterpreter::op_push_var(U32 &ip)
       CSTK.pushValue(gEvalState.currentVariable->value);
    else
       CSTK.pushString("");
+   return OPCodeReturn::success;
+}
+
+OPCodeReturn CodeInterpreter::op_push_vec(U32 &ip)
+{
+   // temp
+   CSTK.pushString("");
    return OPCodeReturn::success;
 }
 

@@ -40,7 +40,8 @@ enum TypeReq
    TypeReqUInt,
    TypeReqFloat,
    TypeReqString,
-   TypeReqVar
+   TypeReqVar,
+   TypeReqVector,
 };
 
 /// Representation of a node for the scripting language parser.
@@ -301,6 +302,20 @@ struct VarNode : ExprNode
    U32 compile(CodeStream &codeStream, U32 ip, TypeReq type);
    TypeReq getPreferredType();
    DBG_STMT_TYPE(VarNode);
+};
+
+struct VectorNode : ExprNode
+{
+   ExprNode *index0;
+   ExprNode *index1;
+   ExprNode *index2;
+   ExprNode *index3;
+
+   static VectorNode *alloc(S32 lineNumber, ExprNode *index0, ExprNode *index1, ExprNode *index2, ExprNode *index3);
+
+   U32 compile(CodeStream &codeStream, U32 ip, TypeReq type);
+   TypeReq getPreferredType();
+   DBG_STMT_TYPE(VectorNode);
 };
 
 struct IntNode : ExprNode

@@ -668,7 +668,8 @@ ConsoleValueRef CodeBlock::compileExec(StringTableEntry fileName, const char *in
    codeStream.emit(OP_RETURN);
    codeStream.emitCodeStream(&codeSize, &code, &lineBreakPairs);
 
-   //dumpInstructions(0, false);
+   if (Con::getBoolVariable("$dump"))
+   dumpInstructions(0, false);
 
    consoleAllocReset();
 
@@ -1104,6 +1105,12 @@ void CodeBlock::dumpInstructions(U32 startIp, bool upToReturn)
             break;
          }
 
+         case OP_LOADVAR_VEC:
+         {
+            Con::printf("%i: OP_LOADVAR+VEC", ip - 1);
+            break;
+         }
+
          case OP_SAVEVAR_UINT:
          {
             Con::printf("%i: OP_SAVEVAR_UINT", ip - 1);
@@ -1125,6 +1132,12 @@ void CodeBlock::dumpInstructions(U32 startIp, bool upToReturn)
          case OP_SAVEVAR_VAR:
          {
             Con::printf("%i: OP_SAVEVAR_VAR", ip - 1);
+            break;
+         }
+
+         case OP_SAVEVAR_VEC:
+         {
+            Con::printf("%i: OP_SAVEVAR_VEC", ip - 1);
             break;
          }
 
@@ -1275,6 +1288,18 @@ void CodeBlock::dumpInstructions(U32 startIp, bool upToReturn)
             break;
          }
 
+         case OP_VEC_TO_STR:
+         {
+            Con::printf("%i: OP_VEC_TO_STR", ip - 1);
+            break;
+         }
+
+         case OP_VEC_TO_NONE:
+         {
+            Con::printf("%i: OP_VEC_TO_NONE", ip - 1);
+            break;
+         }
+
          case OP_COPYVAR_TO_NONE:
          {
             Con::printf("%i: OP_COPYVAR_TO_NONE", ip - 1);
@@ -1326,6 +1351,14 @@ void CodeBlock::dumpInstructions(U32 startIp, bool upToReturn)
             StringTableEntry str = CodeToSTE(code, ip);
             Con::printf("%i: OP_LOADIMMED_IDENT str=%s", ip - 1, str);
             ip += 2;
+            break;
+         }
+
+         case OP_LOADIMMED_VEC:
+         {
+            S32 numComponents = static_cast<S32>(code[ip]);
+            Con::printf("%i: OP_LOADIMMED_VEC numComponents=%d", ip - 1, numComponents);
+            ++ip;
             break;
          }
 
@@ -1437,6 +1470,12 @@ void CodeBlock::dumpInstructions(U32 startIp, bool upToReturn)
          case OP_PUSH_VAR:
          {
             Con::printf("%i: OP_PUSH_VAR", ip - 1);
+            break;
+         }
+
+         case OP_PUSH_VEC:
+         {
+            Con::printf("%i: OP_PUSH_VEC", ip - 1);
             break;
          }
 

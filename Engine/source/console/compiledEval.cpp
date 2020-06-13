@@ -219,6 +219,11 @@ const char *ExprEvalState::getStringVariable()
    return currentVariable ? currentVariable->getStringValue() : "";
 }
 
+F32 *ExprEvalState::getVecVariable()
+{
+   return currentVariable ? currentVariable->getVecValue() : NULL;
+}
+
 //------------------------------------------------------------
 
 void ExprEvalState::setIntVariable(S32 val)
@@ -262,6 +267,12 @@ void ExprEvalState::setCopyVariable()
             break;
       }
    }
+}
+
+void ExprEvalState::setVecVariable(F32* vector)
+{
+   AssertFatal(currentVariable != NULL, "Invalid evaluator state - trying to set null variable!");
+   currentVariable->setVecValue(vector);
 }
 
 //------------------------------------------------------------

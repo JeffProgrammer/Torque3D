@@ -337,6 +337,11 @@ public:
          return value.getStringValue();
       }
 
+      inline F32 *getVecValue()
+      {
+         return value.getVecValue();
+      }
+
       void setIntValue(U32 val)
       {
          if (mIsConstant)
@@ -392,6 +397,22 @@ public:
          }
 
          value.setStringValue(newValue);
+
+
+         // Fire off the notification if we have one.
+         if (notify)
+            notify->trigger();
+      }
+
+      void setVecValue(F32* vector)
+      {
+         if (mIsConstant)
+         {
+            Con::errorf("Cannot assign value to constant '%s'.", name);
+            return;
+         }
+
+         value.setVecValue(vector);
 
 
          // Fire off the notification if we have one.
@@ -508,11 +529,13 @@ public:
    S32 getIntVariable();
    F64 getFloatVariable();
    const char *getStringVariable();
+   F32* getVecVariable();
    void setIntVariable(S32 val);
    void setFloatVariable(F64 val);
    void setStringVariable(const char *str);
    void setStringStackPtrVariable(StringStackPtr str);
    void setCopyVariable();
+   void setVecVariable(F32 *vector);
 
    void pushFrame(StringTableEntry frameName, Namespace *ns);
    void popFrame();

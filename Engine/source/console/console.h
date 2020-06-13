@@ -123,6 +123,7 @@ public:
 
    enum
    {
+      TypeInternalVector = -6,
       TypeInternalInt = -5,
       TypeInternalFloat = -4,
       TypeInternalStringStackPtr = -3,
@@ -163,6 +164,12 @@ public:
          /// The enum lookup table for enumerated types.
          const EnumTable *enumTable;
       };
+
+      struct
+      {
+         // x y z w
+         F32 vec[4];
+      };
    };
 
    U32 getIntValue();
@@ -171,6 +178,7 @@ public:
    const char *getStringValue();
    StringStackPtr getStringStackPtr();
    bool getBoolValue();
+   F32* getVecValue();
 
    void setIntValue(U32 val);
    void setIntValue(S32 val);
@@ -179,6 +187,7 @@ public:
    void setStackStringValue(const char *value);
    void setStringStackPtrValue(StringStackPtr ptr);
    void setBoolValue(bool val);
+   void setVecValue(F32* vec);
 
    void init()
    {
@@ -227,6 +236,7 @@ public:
    inline S32 getSignedIntValue() { return value ? value->getSignedIntValue() : 0; }
    inline F32 getFloatValue() { return value ? value->getFloatValue() : 0.0f; }
    inline bool getBoolValue() { return value ? value->getBoolValue() : false; }
+   inline F32* getVecValue() { return value ? value->getVecValue() : NULL; }
 
    inline operator const char*() { return getStringValue(); }
    inline operator String() { return String(getStringValue()); }
@@ -239,6 +249,7 @@ public:
    inline bool isString() { return value ? value->type >= ConsoleValue::TypeInternalStringStackPtr : true; }
    inline bool isInt() { return value ? value->type == ConsoleValue::TypeInternalInt : false; }
    inline bool isFloat() { return value ? value->type == ConsoleValue::TypeInternalFloat : false; }
+   inline bool isVec() { return value ? value->type == ConsoleValue::TypeInternalVector : false; }
    inline S32 getType() { return value ? value->type : -1; }
 
    // Note: operators replace value
@@ -376,7 +387,8 @@ namespace Con
       /// 10/14/14 - jamesu - 47->48 Added opcodes to reduce reliance on strings in function calls
       /// 10/07/17 - JTH - 48->49 Added opcode for function pointers and revamp of interpreter 
       ///                         from switch to function calls.
-      DSOVersion = 49,
+      /// 06/12/20 - JTH - 49->50 Add Vector type
+      DSOVersion = 50,
 
       MaxLineLength = 512,  ///< Maximum length of a line of console input.
       MaxDataTypes = 256    ///< Maximum number of registered data types.

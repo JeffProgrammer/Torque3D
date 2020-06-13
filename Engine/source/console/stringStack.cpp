@@ -130,6 +130,21 @@ void StringStack::setStringValue(const char *s)
    dStrcpy(mBuffer + mStart, s, mBufferSize - mStart);
 }
 
+void StringStack::setVecValue(const F32 *vec)
+{
+   if (!vec)
+   {
+      mLen = 0;
+      mBuffer[mStart] = 0;
+      return;
+   }
+
+   // TODO: what about 2, 3, 4 component vectors? can we serialize better?
+   validateBufferSize(mStart + 64);
+   dSprintf(mBuffer + mStart, 64, "%f %f %f %f", vec[0], vec[1], vec[2], vec[3]);
+   mLen = dStrlen(mBuffer + mStart);
+}
+
 void StringStack::advance()
 {
    mStartOffsets[mStartStackSize++] = mStart;

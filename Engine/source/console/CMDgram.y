@@ -448,6 +448,12 @@ expr
       { $$ = SlotAccessNode::alloc( $1.lineNumber, $1.object, $1.array, $1.slotName ); }
    | intslot_acc
       { $$ = InternalSlotAccessNode::alloc( $1.lineNumber, $1.object, $1.slotExpr, $1.recurse); }
+   | '<' expr ',' expr '>'
+      { $$ = VectorNode::alloc( $1.lineNumber, $2, $4, NULL, NULL ); }
+   | '<' expr ',' expr ',' expr '>'
+      { $$ = VectorNode::alloc( $1.lineNumber, $2, $4, $6, NULL ); }
+   | '<' expr ',' expr ',' expr ',' expr '>'
+      { $$ = VectorNode::alloc( $1.lineNumber, $2, $4, $6, $8 ); }
    | IDENT
       { $$ = ConstantNode::alloc( $1.lineNumber, $1.value ); }
    | STRATOM
