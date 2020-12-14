@@ -47,10 +47,9 @@
 #include "core/bitVector.h"
 #endif
 
-
 class SceneObject;
 class SceneManager;
-
+class Mutex;
 
 /// An object that gathers the culling state for a scene.
 class SceneCullingState
@@ -132,11 +131,15 @@ class SceneCullingState
       /// frustum.
       bool mDisableZoneCulling;
 
+      Mutex *mCullingJobMutex;
+
    public:
 
       ///
       SceneCullingState( SceneManager* sceneManager,
                          const SceneCameraState& cameraState );
+
+      ~SceneCullingState();
 
       /// Return the scene which is being culled in this state.
       SceneManager* getSceneManager() const { return mSceneManager; }
@@ -177,10 +180,12 @@ class SceneCullingState
       /// @param cullOptions Combination of CullOptions.
       ///
       /// @return Number of objects remaining in the list.
-      U32 cullObjects( SceneObject** objects, U32 numObjects, U32 cullOptions = 0 ) const;
+      void cullObjects( SceneObject** objects, U32 numObjects, Vector<SceneObject*> *culledList, U32 cullOptions = 0 ) const;
+
+      bool cullObject(SceneObject* object, U32 cullOptions = 0) const;
 
       /// Return true if the given object is culled according to the current culling state.
-      bool isCulled( SceneObject* object ) const { return ( cullObjects( &object, 1 ) == 0 ); }
+      bool isCulled( SceneObject* object ) const { return ( cullObject( object ) == 0 ); }
 
       /// Return true if the given AABB is culled in any of the given zones.
       bool isCulled( const Box3F& aabb, const U32* zones, U32 numZones ) const;
@@ -317,6 +322,11 @@ class SceneCullingState
             return mExtraPlanesCull.testPotentialIntersection( box ) == GeometryOutside;
 
          return false;
+      }
+
+      Mutex* getCullingJobMutex() const
+      {
+         return mCullingJobMutex;
       }
 
    private:

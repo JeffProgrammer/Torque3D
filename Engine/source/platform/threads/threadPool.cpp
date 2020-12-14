@@ -453,6 +453,27 @@ void ThreadPool::waitForAllItems( S32 timeOut )
    }
 }
 
+void ThreadPool::waitForAllItemsYield(S32 timeOut)
+{
+   U32 endTime = 0;
+   if (timeOut != -1)
+      endTime = Platform::getRealMilliseconds() + timeOut;
+
+   // Spinlock until there are no items that have not been processed.
+
+   while (dAtomicRead(mNumPendingItems))
+   {
+      // signal yield to cpu
+      Platform::sleep(0);
+
+      // Stop if we have exceeded our processing time budget.
+
+      if (timeOut != -1
+         && Platform::getRealMilliseconds() >= endTime)
+         break;
+   }
+}
+
 //--------------------------------------------------------------------------
 
 void ThreadPool::queueWorkItemOnMainThread( WorkItem* item )

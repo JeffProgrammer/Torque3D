@@ -181,6 +181,8 @@ class SceneManager
       ///
       Vector< SceneObject* > mBatchQueryList;
 
+      Vector< SceneObject* > mCulledList;
+
       /// Render scene using the given state.
       ///
       /// @param state SceneManager render state.

@@ -41,8 +41,10 @@ inline SceneZoneCullingState::CullingTestResult SceneZoneCullingState::_testVolu
    // If we haven't sorted the volumes on this zone state yet,
    // do so now.
 
+   mutex->lock();
    if( !mHaveSortedVolumes )
       _sortVolumes();
+   mutex->unlock();
 
    // Now go through the volumes in this zone and test them
    // against the bounds.
@@ -93,6 +95,29 @@ SceneZoneCullingState::CullingTestResult SceneZoneCullingState::testVolumes( con
 {
    PROFILE_SCOPE( SceneZoneCullingState_testVolumes_Sphere );
    return _testVolumes( sphere, invertedOnly );
+}
+
+void SceneZoneCullingState::addCullingVolume(const SceneCullingVolume& volume, CullingVolumeLink* link)
+{
+   // FIX ME..damn construct in place...
+   if (mutex == nullptr)
+      mutex = new Mutex;
+   mutex->lock();
+
+   link->mVolume = volume;
+   link->mNext = mCullingVolumes;
+   mCullingVolumes = link;
+
+   if (volume.isOccluder())
+      mHaveOccluders = true;
+   else
+      mHaveIncluders = true;
+
+   // Mark sorting state as dirty.
+
+   mHaveSortedVolumes = false;
+
+   mutex->unlock();
 }
 
 //-----------------------------------------------------------------------------
@@ -233,3 +258,5 @@ void SceneZoneCullingState::_insertSorted( CullingVolumeLink*& head, CullingVolu
 
    tail = link;
 }
+
+

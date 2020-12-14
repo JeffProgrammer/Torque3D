@@ -32,6 +32,8 @@
 #include "util/tempAlloc.h"
 #include "gfx/sim/debugDraw.h"
 
+#include "platform/threads/mutex.h"
+#include "platform/threads/threadPool.h"
 
 extern bool gEditingMission;
 
@@ -90,6 +92,13 @@ SceneCullingState::SceneCullingState( SceneManager* sceneManager, const SceneCam
    );
 
    clearExtraPlanesCull();
+
+   mCullingJobMutex = new Mutex();
+}
+
+SceneCullingState::~SceneCullingState()
+{
+   delete mCullingJobMutex;
 }
 
 //-----------------------------------------------------------------------------
@@ -115,7 +124,7 @@ void SceneCullingState::addOccluder( SceneObject* object )
    // NOTE: We do allow near plane intersections here.  Silhouette extraction
    //    should take that into account.
 
-   if( cullObjects( &object, 1, DontCullRenderDisabled ) != 1 )
+   if( !cullObject( object, DontCullRenderDisabled ) )
       return;
 
    // If the occluder has already been added, do nothing.  Check this
@@ -161,6 +170,7 @@ bool SceneCullingState::addCullingVolumeToZone( U32 zoneId, const SceneCullingVo
    AssertFatal( zoneId < mZoneStates.size(), "SceneCullingState::addCullingVolumeToZone - Zone ID out of range" );
    SceneZoneCullingState& zoneState = mZoneStates[ zoneId ];
 
+
    // [rene, 07-Apr-10] I previously used to attempt to merge things here and detect whether
    //    the visibility state of the zone has changed at all.  Since we allow polyhedra to be
    //    degenerate here and since polyhedra cannot be merged easily like frustums, I have opted
@@ -172,19 +182,7 @@ bool SceneCullingState::addCullingVolumeToZone( U32 zoneId, const SceneCullingVo
    typedef SceneZoneCullingState::CullingVolumeLink LinkType;
 
    LinkType* link = reinterpret_cast< LinkType* >( allocateData( sizeof( LinkType ) ) );
-
-   link->mVolume = volume;
-   link->mNext = zoneState.mCullingVolumes;
-   zoneState.mCullingVolumes = link;
-
-   if( volume.isOccluder() )
-      zoneState.mHaveOccluders = true;
-   else
-      zoneState.mHaveIncluders = true;
-
-   // Mark sorting state as dirty.
-
-   zoneState.mHaveSortedVolumes = false;
+   zoneState.addCullingVolume(volume, link);
 
    // Set the visibility flag for the zone.
    
@@ -708,92 +706,167 @@ bool SceneCullingState::isOccluded( const SphereF& sphere, const U32* zones, U32
 
 //-----------------------------------------------------------------------------
 
-U32 SceneCullingState::cullObjects( SceneObject** objects, U32 numObjects, U32 cullOptions ) const
+struct SceneCullingJob : public ThreadPool::WorkItem
+{
+   SceneObject** objects;
+   S32 startOffset;
+   S32 numObjects;
+   U32 cullOptions;
+   Vector<SceneObject*>* culledList;
+   const SceneCullingState* state;
+   S32 total;
+
+   SceneCullingJob(SceneObject** objList, S32 start, S32 num, U32 cullOpt, Vector<SceneObject*> *list, const SceneCullingState *thisptr, S32 totalObjs) :
+      objects(objList),
+      startOffset(start),
+      numObjects(num),
+      cullOptions(cullOpt),
+      culledList(list),
+      state(thisptr),
+      total(totalObjs)
+   {
+   }
+
+protected:
+   virtual void execute()
+   {
+      Mutex* mutex = state->getCullingJobMutex();
+
+      for (S32 i = startOffset; i < (startOffset + numObjects); ++i)
+      {
+         AssertFatal(i < total, "Uh oh...");
+
+         SceneObject* obj = objects[i];
+         if (!state->cullObject(obj, cullOptions))
+         {
+            mutex->lock();
+            culledList->push_back(obj);
+            mutex->unlock();
+         }
+      }
+   }
+};
+
+//-----------------------------------------------------------------------------
+
+void SceneCullingState::cullObjects( SceneObject** objects, U32 numObjects, Vector<SceneObject*>* culledList, U32 cullOptions ) const
 {
    PROFILE_SCOPE( SceneCullingState_cullObjects );
 
-   U32 numRemainingObjects = 0;
+#ifdef TORQUE_MULTITHREAD
+   // Split up among threadpool based on number of workers
+   ThreadPool* pool = &ThreadPool::GLOBAL();
+   U32 threadCount = mMax(1, pool->getNumThreads());
+   U32 numberBatches = mMax(1, threadCount);
 
-   // We test near and far planes separately in order to not do the tests
-   // repeatedly, so fetch the planes now.
-   const PlaneF& nearPlane = getCullingFrustum().getPlanes()[ Frustum::PlaneNear ];
-   const PlaneF& farPlane = getCullingFrustum().getPlanes()[ Frustum::PlaneFar ];
+   U32 batchSize = numObjects / numberBatches;
 
-   for( U32 i = 0; i < numObjects; ++ i )
+   S32 startOffset = 0;
+   for( U32 i = 0; i < numberBatches; ++ i )
    {
-      SceneObject* object = objects[ i ];
-      bool isCulled = true;
-
-      // If we should respect editor overrides, test that now.
-
-      if( !( cullOptions & CullEditorOverrides ) &&
-          gEditingMission &&
-          ( ( object->isCullingDisabledInEditor() && object->isRenderEnabled() ) || object->isSelected() ) )
+      S32 count = batchSize;
+      if (i == numberBatches - 1)
       {
-         isCulled = false;
+         // append rest of objects to last thread
+         count += numObjects % numberBatches;
       }
 
-      // If the object is render-disabled, it gets culled.  The only
-      // way around this is the editor override above.
+      ThreadSafeRef<SceneCullingJob> job(new SceneCullingJob(objects, startOffset, count, cullOptions, culledList, this, numObjects));
+      pool->queueWorkItem(job);
 
-      else if( !( cullOptions & DontCullRenderDisabled ) &&
-               !object->isRenderEnabled() )
+      startOffset += count;
+   }
+   AssertFatal(numObjects == startOffset, "We missed culling! Oh shit! Jeff fucked up the batching");
+
+   // Wait for pool to finish
+   pool->waitForAllItemsYield();
+#else
+   for (S32 i = 0; i < numObjects; ++i)
+   {
+      SceneObject* obj = objects[i];
+      if (!cullObject(obj, cullOptions))
       {
-         isCulled = true;
+         culledList.push_back(obj);
       }
+   }
+#endif
+}
 
-      // Global bounds objects are never culled.  Note that this means
-      // that if these objects are to respect zoning, they need to manually
-      // trigger the respective culling checks for whatever they want to
-      // batch.
+bool SceneCullingState::cullObject(SceneObject* object, U32 cullOptions) const
+{
+   bool isCulled = true;
 
-      else if( object->isGlobalBounds() )
-         isCulled = false;
+   // If we should respect editor overrides, test that now.
 
-      // If terrain occlusion checks are enabled, run them now.
-
-      else if( !mDisableTerrainOcclusion &&
-               object->getWorldBox().minExtents.x > -1e5 &&
-               isOccludedByTerrain( object ) )
-      {
-         // Occluded by terrain.
-         isCulled = true;
-      }
-
-      // If the object shouldn't be subjected to more fine-grained culling
-      // or if zone culling is disabled, just test against the root frustum.
-
-      else if( !( object->getTypeMask() & CULLING_INCLUDE_TYPEMASK ) ||
-               ( object->getTypeMask() & CULLING_EXCLUDE_TYPEMASK ) ||
-               disableZoneCulling() )
-      {
-         isCulled = getCullingFrustum().isCulled( object->getWorldBox() );
-      }
-
-      // Go through the zones that the object is assigned to and
-      // test the object against the frustums of each of the zones.
-
-      else
-      {
-         CullingTestResult result = _test(
-            object->getWorldBox(),
-            SceneObject::ObjectZonesIterator( object ),
-            nearPlane,
-            farPlane
-         );
-
-         isCulled = ( result == SceneZoneCullingState::CullingTestNegative ||
-                      result == SceneZoneCullingState::CullingTestPositiveByOcclusion );
-      }
-
-      if( !isCulled )
-         isCulled = isOccludedWithExtraPlanesCull( object->getWorldBox() );
-
-      if( !isCulled )
-         objects[ numRemainingObjects ++ ] = object;
+   if (!(cullOptions & CullEditorOverrides) &&
+      gEditingMission &&
+      ((object->isCullingDisabledInEditor() && object->isRenderEnabled()) || object->isSelected()))
+   {
+      isCulled = false;
    }
 
-   return numRemainingObjects;
+   // If the object is render-disabled, it gets culled.  The only
+   // way around this is the editor override above.
+
+   else if (!(cullOptions & DontCullRenderDisabled) &&
+      !object->isRenderEnabled())
+   {
+      isCulled = true;
+   }
+
+   // Global bounds objects are never culled.  Note that this means
+   // that if these objects are to respect zoning, they need to manually
+   // trigger the respective culling checks for whatever they want to
+   // batch.
+
+   else if (object->isGlobalBounds())
+      isCulled = false;
+
+   // If terrain occlusion checks are enabled, run them now.
+
+   else if (!mDisableTerrainOcclusion &&
+      object->getWorldBox().minExtents.x > -1e5 &&
+      isOccludedByTerrain(object))
+   {
+      // Occluded by terrain.
+      isCulled = true;
+   }
+
+   // If the object shouldn't be subjected to more fine-grained culling
+   // or if zone culling is disabled, just test against the root frustum.
+
+   else if (!(object->getTypeMask() & CULLING_INCLUDE_TYPEMASK) ||
+      (object->getTypeMask() & CULLING_EXCLUDE_TYPEMASK) ||
+      disableZoneCulling())
+   {
+      isCulled = getCullingFrustum().isCulled(object->getWorldBox());
+   }
+
+   // Go through the zones that the object is assigned to and
+   // test the object against the frustums of each of the zones.
+
+   else
+   {
+      // We test near and far planes separately in order to not do the tests
+      // repeatedly, so fetch the planes now.
+      const PlaneF& nearPlane = getCullingFrustum().getPlanes()[Frustum::PlaneNear];
+      const PlaneF& farPlane = getCullingFrustum().getPlanes()[Frustum::PlaneFar];
+
+      CullingTestResult result = _test(
+         object->getWorldBox(),
+         SceneObject::ObjectZonesIterator(object),
+         nearPlane,
+         farPlane
+      );
+
+      isCulled = (result == SceneZoneCullingState::CullingTestNegative ||
+         result == SceneZoneCullingState::CullingTestPositiveByOcclusion);
+   }
+
+   if (!isCulled)
+      isCulled = isOccludedWithExtraPlanesCull(object->getWorldBox());
+
+   return isCulled;
 }
 
 //-----------------------------------------------------------------------------
@@ -938,3 +1011,4 @@ void SceneCullingState::debugRenderCullingVolumes() const
       }
    }
 }
+

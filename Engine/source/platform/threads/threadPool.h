@@ -330,6 +330,7 @@ class ThreadPool
       /// @param timeOut Soft limit on the number of milliseconds to wait for
       ///   all items to complete.  -1 = infinite.
       void waitForAllItems( S32 timeOut = -1 );
+      void waitForAllItemsYield( S32 timeOut = -1 );
 
       /// Add a work item to the main thread's work queue.
       ///
@@ -368,6 +369,12 @@ class ThreadPool
       F32 getQueueTimeBasedPriorityBoost() const
       {
          return mWorkItemQueue.getTimeBasedPriorityBoost();
+      }
+
+      /// Return number of worker threads in pool.
+      U32 getNumThreads() const
+      {
+         return mNumThreads;
       }
 
       /// Set the update interval of the work item queue to the given value.

@@ -27,6 +27,7 @@
 #include "scene/culling/sceneCullingVolume.h"
 #endif
 
+#include "platform/threads/mutex.h"
 
 /// Culling state for a zone.
 ///
@@ -38,8 +39,6 @@
 class SceneZoneCullingState 
 {
    public:
-
-      friend class SceneCullingState; // mCullingVolumes
 
       /// Result of a culling test in a zone.
       enum CullingTestResult
@@ -118,6 +117,8 @@ class SceneZoneCullingState
       /// Whether there are occlusion volumes on this state.
       bool mHaveOccluders;
 
+      mutable Mutex* mutex;
+
       /// Culling volume test abstracted over bounding volume type.
       template< typename T > CullingTestResult _testVolumes( T bounds, bool occludersOnly ) const;
 
@@ -134,7 +135,15 @@ class SceneZoneCullingState
 
       /// Zone states are constructed by SceneCullingState.  This constructor should not
       /// be used otherwise.  It is public due to the use through Vector in SceneCullingState.
-      SceneZoneCullingState():mCanShortcuit(false), mCullingVolumes(NULL), mHaveSortedVolumes(false), mHaveIncluders(false), mHaveOccluders(false){}
+      SceneZoneCullingState():mCanShortcuit(false), mCullingVolumes(NULL), mHaveSortedVolumes(false), mHaveIncluders(false), mHaveOccluders(false)
+      {
+         mutex = new Mutex;
+      }
+
+      ~SceneZoneCullingState()
+      {
+         delete mutex;
+      }
 
       /// Return true if the zone is visible.  This is the case if any
       /// includers have been added to the zone's rendering state.
@@ -166,6 +175,8 @@ class SceneZoneCullingState
 
       /// Return true if the zone has occlusion volumes assigned to it.
       bool hasOccluders() const { return mHaveOccluders; }
+
+      void addCullingVolume(const SceneCullingVolume& volume, CullingVolumeLink *link);
 };
 
 #endif // !_SCENEZONECULLINGSTATE_H_

@@ -121,6 +121,7 @@ SceneManager::SceneManager( bool isClient )
      mDefaultRenderPass( NULL )
 {
    VECTOR_SET_ASSOCIATION( mBatchQueryList );
+   VECTOR_SET_ASSOCIATION( mCulledList );
 
    // For the client, create a zone manager.
 
@@ -428,13 +429,16 @@ void SceneManager::_renderScene( SceneRenderState* state, U32 objectMask, SceneZ
    mBatchQueryList.clear();
    getContainer()->findObjectList( queryBox, objectMask, &mBatchQueryList );
 
-   // Cull the list.
+   mCulledList.clear();
 
-   U32 numRenderObjects = state->getCullingState().cullObjects(
+   state->getCullingState().cullObjects(
       mBatchQueryList.address(),
       mBatchQueryList.size(),
+      &mCulledList,
       !state->isDiffusePass() ? SceneCullingState::CullEditorOverrides : 0 // Keep forced editor stuff out of non-diffuse passes.
    );
+
+   U32 numRenderObjects = mCulledList.size();
 
    //HACK: If the control object is a Player and it is not in the render list, force
    // it into it.  This really should be solved by collision bounds being separate from
@@ -449,10 +453,9 @@ void SceneManager::_renderScene( SceneRenderState* state, U32 objectMask, SceneZ
       Player* player = dynamic_cast< Player* >( connection->getControlObject() );
       if( player )
       {
-         mBatchQueryList.setSize( numRenderObjects );
-         if( !mBatchQueryList.contains( player ) )
+         if( !mCulledList.contains( player ) )
          {
-            mBatchQueryList.push_back( player );
+            mCulledList.push_back( player );
             numRenderObjects ++;
          }
       }
@@ -464,13 +467,13 @@ void SceneManager::_renderScene( SceneRenderState* state, U32 objectMask, SceneZ
    mRenderedObjectsList.clear();
    for (U32 i = 0; i < numRenderObjects; ++i)
    {
-      mRenderedObjectsList.push_back(mBatchQueryList[i]);
+      mRenderedObjectsList.push_back(mCulledList[i]);
    }
 
    // Render the remaining objects.
 
    PROFILE_START( Scene_renderObjects );
-   state->renderObjects( mBatchQueryList.address(), numRenderObjects );
+   state->renderObjects( mCulledList.address(), numRenderObjects );
    PROFILE_END();
 
    // Render bounding boxes, if enabled.
