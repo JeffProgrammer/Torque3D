@@ -86,6 +86,12 @@ MODULE_BEGIN( Scene )
       Con::addVariable( "$Scene::occluderMinHeightPercentage", TypeF32, &SceneCullingState::smOccluderMinHeightPercentage,
          "TODO\n\n"
          "@ingroup Rendering" );
+
+      Con::addVariable("$Scene::disableMultithreading", TypeBool, &SceneCullingState::smDisableMultithreadingCulling,
+         "If true, scene culling threading is disabled, and all culling happens on the main thread.");
+
+      Con::addVariable("$Scene::maxNumberWorkerThreads", TypeS32, &SceneCullingState::smMaxNumberWorkerThreads,
+         "If Scene Culling is multithreaded, this is the maximum possible number of worker threads that can be used. Note that if there are less CPU cores, the upper limit regardless is number of course minus 1");
    }
    
    MODULE_SHUTDOWN

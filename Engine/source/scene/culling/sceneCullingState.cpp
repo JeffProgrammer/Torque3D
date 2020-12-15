@@ -40,11 +40,11 @@ extern bool gEditingMission;
 
 bool SceneCullingState::smDisableTerrainOcclusion = true;
 bool SceneCullingState::smDisableZoneCulling = false;
-bool SceneCullingState::smDisableMultithreadingCulling = false;
+bool SceneCullingState::smDisableMultithreadingCulling = true;
+S32 SceneCullingState::smMaxNumberWorkerThreads = 4;
 U32 SceneCullingState::smMaxOccludersPerZone = 4;
 F32 SceneCullingState::smOccluderMinWidthPercentage = 0.1f;
 F32 SceneCullingState::smOccluderMinHeightPercentage = 0.1f;
-
 
 //-----------------------------------------------------------------------------
 
@@ -73,6 +73,10 @@ protected:
          }
       }
    }
+
+   // We don't delete from the ref counting as this is allocated via data chunker
+   // and auto deleted...
+   static void operator delete(void*){}
 };
 
 //-----------------------------------------------------------------------------
@@ -87,6 +91,7 @@ SceneCullingState::SceneCullingState( SceneManager* sceneManager, const SceneCam
 
    VECTOR_SET_ASSOCIATION( mZoneStates );
    VECTOR_SET_ASSOCIATION( mAddedOccluderObjects );
+   VECTOR_SET_ASSOCIATION( mThreadedLists );
 
    // Allocate zone states.
 
@@ -124,22 +129,14 @@ SceneCullingState::SceneCullingState( SceneManager* sceneManager, const SceneCam
 
    // Split up among threadpool based on number of workers
    ThreadPool *pool = &ThreadPool::GLOBAL();
-   mNumThreads = mMax(1, pool->getNumThreads());
-   
-   for (S32 i = 0; i < mNumThreads; i++)
-   {
-      mThreadJobs.push_back(new SceneCullingJob());
-      mThreadedLists.push_back(new Vector<SceneObject*>(16));
-   }
-}
+   S32 maxPossibleThreads = mMin(smMaxNumberWorkerThreads, mMax(pool->getNumThreads(), 1) - 1);
+   mNumThreads = mMax(1, maxPossibleThreads);
 
-SceneCullingState::~SceneCullingState()
-{
-   //for (S32 i = 0; i < mNumThreads; i++)
-   //{
-   //   delete mThreadJobs[i];
-   //   delete mThreadedLists[i];
-   //}
+   for ( S32 i = 0; i < mNumThreads; i++ )
+   {
+      mThreadJobs.push_back(constructInPlace(allocateData< SceneCullingJob >(1)));
+      mThreadedLists.push_back(constructInPlace(allocateData< Vector<SceneObject *> >(1)));
+   }
 }
 
 //-----------------------------------------------------------------------------
@@ -770,7 +767,7 @@ void SceneCullingState::cullObjects( SceneObject** objects, U32 numObjects, Vect
             count += numObjects % numberBatches;
          }
 
-         SceneCullingJob *job = mThreadJobs[i];
+         SceneCullingJob* job = mThreadJobs[i];
          job->objects = objects;
          job->startOffset = startOffset;
          job->numObjects = count;

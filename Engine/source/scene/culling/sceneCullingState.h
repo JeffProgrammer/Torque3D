@@ -68,6 +68,10 @@ class SceneCullingState
       /// Used to disable multithreaded scene culling
       static bool smDisableMultithreadingCulling;
 
+      /// Maximum number of worker threads for culling (at least 1 will be made)
+      /// If there are less cores than specified, the number of cores will be used minus 1
+      static S32 smMaxNumberWorkerThreads;
+
       /// @name Occluder Restrictions
       /// Size restrictions on occlusion culling volumes.  Any occlusion volume
       /// that does not meet these minimum requirements is not accepted into the
@@ -149,8 +153,6 @@ class SceneCullingState
       ///
       SceneCullingState( SceneManager* sceneManager,
                          const SceneCameraState& cameraState );
-
-      ~SceneCullingState();
 
       /// Return the scene which is being culled in this state.
       SceneManager* getSceneManager() const { return mSceneManager; }
