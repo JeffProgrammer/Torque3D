@@ -40,11 +40,40 @@ extern bool gEditingMission;
 
 bool SceneCullingState::smDisableTerrainOcclusion = true;
 bool SceneCullingState::smDisableZoneCulling = false;
+bool SceneCullingState::smDisableMultithreadingCulling = false;
 U32 SceneCullingState::smMaxOccludersPerZone = 4;
 F32 SceneCullingState::smOccluderMinWidthPercentage = 0.1f;
 F32 SceneCullingState::smOccluderMinHeightPercentage = 0.1f;
 
 
+//-----------------------------------------------------------------------------
+
+struct SceneCullingJob : public ThreadPool::WorkItem
+{
+   SceneObject** objects;
+   S32 startOffset;
+   S32 numObjects;
+   U32 cullOptions;
+   Vector<SceneObject*>* culledList;
+   const SceneCullingState* state;
+   S32 total;
+
+protected:
+   virtual void execute()
+   {
+      culledList->clear();
+      
+      S32 endOffset = startOffset + numObjects;
+      for (S32 i = startOffset; i < endOffset; ++i)
+      {
+         SceneObject* obj = objects[i];
+         if (!state->cullObject(obj, cullOptions))
+         {
+            culledList->push_back(obj);
+         }
+      }
+   }
+};
 
 //-----------------------------------------------------------------------------
 
@@ -93,12 +122,24 @@ SceneCullingState::SceneCullingState( SceneManager* sceneManager, const SceneCam
 
    clearExtraPlanesCull();
 
-   mCullingJobMutex = new Mutex();
+   // Split up among threadpool based on number of workers
+   ThreadPool *pool = &ThreadPool::GLOBAL();
+   mNumThreads = mMax(1, pool->getNumThreads());
+   
+   for (S32 i = 0; i < mNumThreads; i++)
+   {
+      mThreadJobs.push_back(new SceneCullingJob());
+      mThreadedLists.push_back(new Vector<SceneObject*>(16));
+   }
 }
 
 SceneCullingState::~SceneCullingState()
 {
-   delete mCullingJobMutex;
+   //for (S32 i = 0; i < mNumThreads; i++)
+   //{
+   //   delete mThreadJobs[i];
+   //   delete mThreadedLists[i];
+   //}
 }
 
 //-----------------------------------------------------------------------------
@@ -706,90 +747,76 @@ bool SceneCullingState::isOccluded( const SphereF& sphere, const U32* zones, U32
 
 //-----------------------------------------------------------------------------
 
-struct SceneCullingJob : public ThreadPool::WorkItem
-{
-   SceneObject** objects;
-   S32 startOffset;
-   S32 numObjects;
-   U32 cullOptions;
-   Vector<SceneObject*>* culledList;
-   const SceneCullingState* state;
-   S32 total;
-
-   SceneCullingJob(SceneObject** objList, S32 start, S32 num, U32 cullOpt, Vector<SceneObject*> *list, const SceneCullingState *thisptr, S32 totalObjs) :
-      objects(objList),
-      startOffset(start),
-      numObjects(num),
-      cullOptions(cullOpt),
-      culledList(list),
-      state(thisptr),
-      total(totalObjs)
-   {
-   }
-
-protected:
-   virtual void execute()
-   {
-      Mutex* mutex = state->getCullingJobMutex();
-
-      for (S32 i = startOffset; i < (startOffset + numObjects); ++i)
-      {
-         AssertFatal(i < total, "Uh oh...");
-
-         SceneObject* obj = objects[i];
-         if (!state->cullObject(obj, cullOptions))
-         {
-            mutex->lock();
-            culledList->push_back(obj);
-            mutex->unlock();
-         }
-      }
-   }
-};
-
-//-----------------------------------------------------------------------------
-
 void SceneCullingState::cullObjects( SceneObject** objects, U32 numObjects, Vector<SceneObject*>* culledList, U32 cullOptions ) const
 {
    PROFILE_SCOPE( SceneCullingState_cullObjects );
 
-#ifdef TORQUE_MULTITHREAD
-   // Split up among threadpool based on number of workers
-   ThreadPool* pool = &ThreadPool::GLOBAL();
-   U32 threadCount = mMax(1, pool->getNumThreads());
-   U32 numberBatches = mMax(1, threadCount);
-
-   U32 batchSize = numObjects / numberBatches;
-
-   S32 startOffset = 0;
-   for( U32 i = 0; i < numberBatches; ++ i )
+   if (!smDisableMultithreadingCulling)
    {
-      S32 count = batchSize;
-      if (i == numberBatches - 1)
+      PROFILE_SCOPE( SceneCullingState_cullObjects_MT );
+      
+      PROFILE_START(SceneCullingState_cullObjects_Setup);
+      ThreadPool *pool = &ThreadPool::GLOBAL();
+      U32 numberBatches = mMax(1, mNumThreads);
+      U32 batchSize = numObjects / numberBatches;
+
+      S32 startOffset = 0;
+      for( U32 i = 0; i < numberBatches; ++ i )
       {
-         // append rest of objects to last thread
-         count += numObjects % numberBatches;
+         S32 count = batchSize;
+         if (i == numberBatches - 1)
+         {
+            // append rest of objects to last thread
+            count += numObjects % numberBatches;
+         }
+
+         SceneCullingJob *job = mThreadJobs[i];
+         job->objects = objects;
+         job->startOffset = startOffset;
+         job->numObjects = count;
+         job->cullOptions = cullOptions;
+         job->culledList = mThreadedLists[i];
+         job->state = this;
+         job->total = numObjects;
+         
+         ThreadSafeRef<SceneCullingJob> workItem(job);
+         pool->queueWorkItem(workItem);
+
+         startOffset += count;
       }
+      AssertFatal(numObjects == startOffset, "We missed some objects during multithreaded culling!");
+      PROFILE_END_NAMED(SceneCullingState_cullObjects_Setup);
 
-      ThreadSafeRef<SceneCullingJob> job(new SceneCullingJob(objects, startOffset, count, cullOptions, culledList, this, numObjects));
-      pool->queueWorkItem(job);
-
-      startOffset += count;
+      // Wait for pool to finish...ideally this is the most expensive part
+      PROFILE_START(SceneCullingState_cullObjects_ThreadPool);
+      pool->waitForAllItemsYield();
+      PROFILE_END_NAMED(SceneCullingState_cullObjects_ThreadPool);
+      
+      // Now, grab all the lists and merge them together
+      PROFILE_START(SceneCullingState_cullObjects_AppendList);
+      for (U32 i = 0; i < numberBatches; i++)
+      {
+         Vector<SceneObject*>* list = mThreadedLists[i];
+         for (SceneObject **obj = list->begin(); obj != list->end(); ++obj)
+         {
+            culledList->push_back(*obj);
+         }
+      }
+      PROFILE_END_NAMED(SceneCullingState_cullObjects_AppendList);
    }
-   AssertFatal(numObjects == startOffset, "We missed culling! Oh shit! Jeff fucked up the batching");
-
-   // Wait for pool to finish
-   pool->waitForAllItemsYield();
-#else
-   for (S32 i = 0; i < numObjects; ++i)
+   else
    {
-      SceneObject* obj = objects[i];
-      if (!cullObject(obj, cullOptions))
+      PROFILE_SCOPE( SceneCullingState_cullObjects_ST );
+      
+      for (S32 i = 0; i < numObjects; ++i)
       {
-         culledList.push_back(obj);
+         SceneObject* obj = objects[i];
+         if (!cullObject(obj, cullOptions))
+         {
+            culledList->push_back(obj);
+         }
       }
    }
-#endif
 }
 
 bool SceneCullingState::cullObject(SceneObject* object, U32 cullOptions) const

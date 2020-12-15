@@ -49,11 +49,13 @@
 
 class SceneObject;
 class SceneManager;
-class Mutex;
+class Threadpool;
+struct SceneCullingJob;
 
 /// An object that gathers the culling state for a scene.
 class SceneCullingState
 {
+   friend struct SceneCullingJob;
    public:
 
       /// Used to disable the somewhat expensive terrain occlusion testing
@@ -62,6 +64,9 @@ class SceneCullingState
 
       /// Whether to force zone culling to off by default.
       static bool smDisableZoneCulling;
+   
+      /// Used to disable multithreaded scene culling
+      static bool smDisableMultithreadingCulling;
 
       /// @name Occluder Restrictions
       /// Size restrictions on occlusion culling volumes.  Any occlusion volume
@@ -130,8 +135,14 @@ class SceneCullingState
       /// If true, all objects will only be tested against the root
       /// frustum.
       bool mDisableZoneCulling;
-
-      Mutex *mCullingJobMutex;
+   
+      /// The number of worker threads we should use for culling
+      S32 mNumThreads;
+   
+      /// Number of jobs is equal to number of worker threads used for scene culling
+      Vector<SceneCullingJob*> mThreadJobs;
+   
+      Vector<Vector<SceneObject*> *> mThreadedLists;
 
    public:
 
@@ -322,11 +333,6 @@ class SceneCullingState
             return mExtraPlanesCull.testPotentialIntersection( box ) == GeometryOutside;
 
          return false;
-      }
-
-      Mutex* getCullingJobMutex() const
-      {
-         return mCullingJobMutex;
       }
 
    private:
