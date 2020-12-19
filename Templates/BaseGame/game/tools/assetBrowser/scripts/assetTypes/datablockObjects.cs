@@ -58,10 +58,10 @@ function spawnDatablockObject(%datablock)
    %name = %datablock.getName();
    %class = %datablock.getClassName();
    %cmd = %class @ "::create(" @ %name @ ");";
-      
-   %shapePath = ( %datablock.shapeFile !$= "" ) ? %datablock.shapeFile : %datablock.shapeName;
-   %createCmd = "EWCreatorWindow.createObject( \\\"" @ %cmd @ "\\\" );";
-   return eval("showImportDialog( \"" @ %shapePath @ "\", \"" @ %createCmd @ "\" );");
+   
+   %shapePath = ( %datablock.shapeAsset !$= "" ) ? %datablock.shapeFile : %datablock.shapeName;
+   %createCmd = "EWCreatorWindow.createObject( \"" @ %cmd @ "\" );";
+   return eval(%createCmd);//eval("showImportDialog( \"" @ %shapePath @ "\", \"" @ %createCmd @ "\" );");
 }
 
 function AssetBrowser::renameDatablock(%this, %folderPath, %newFolderName)

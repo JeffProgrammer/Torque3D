@@ -566,7 +566,6 @@ function EditorGui::onWake( %this )
    // before activating an editor plugin, so that if the plugin
    // installs an ActionMap, it will be highest on the stack.
    
-   MoveMap.push();
    EditorMap.push();
    
    // Active the current editor plugin.
@@ -614,6 +613,9 @@ function EditorGui::onNewLevelLoaded( %this, %levelName )
    %this.setupDefaultCameraSettings();
    //ECameraSettingsPage.init();
    EditorCameraSpeedOptions.setupDefaultState();
+   
+   //Set our starting Active Scene being edited
+   EWorldEditor.SetActiveScene(getRootScene());
    
    new ScriptObject( EditorMissionCleanup )
    {
@@ -1647,7 +1649,10 @@ function EditorTree::onRightMouseUp( %this, %itemId, %mouse, %obj )
       }
       else if( %obj.isMemberOfClass( "Scene" ))
       {
-         %popup.item[ 0 ] = "Set as Active Scene" TAB "" TAB "EditorTree.showItemRenameCtrl( EditorTree.findItemByObjectId(" @ %popup.object @ ") );";
+         %popup.object = %obj;
+         %haveObjectEntries = true;
+         
+         %popup.item[ 0 ] = "Set as Active Scene" TAB "" TAB "EWorldEditor.SetActiveScene(" @ %popup.object @ ");";
          %popup.item[ 1 ] = "Delete" TAB "" TAB "EWorldEditor.deleteMissionObject(" @ %popup.object @ ");";
          %popup.item[ 2 ] = "Inspect" TAB "" TAB "inspectObject(" @ %popup.object @ ");";
          %popup.item[ 3 ] = "-";
@@ -2279,6 +2284,22 @@ function EWorldEditor::selectAllObjectsInSet( %this, %set, %deselect )
       else
          %this.selectObject( %obj );
    }
+}
+
+function EWorldEditor::SetActiveScene(%this, %sceneObj)
+{
+   if(isObject($ActiveEditingScene))
+   {
+      $ActiveEditingScene.isEditing = false;
+      %itemId = EditorTree.findItemByObjectId($ActiveScene);
+      EditorTree.markItem(%itemId);
+   }
+      
+   %itemId = EditorTree.findItemByObjectId(%sceneObj);
+   EditorTree.markItem(%itemId);
+   
+   $ActiveEditingScene = %sceneObj;
+   $ActiveEditingScene.isEditing = true;
 }
 
 function toggleSnappingOptions( %var )

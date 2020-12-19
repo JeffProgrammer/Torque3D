@@ -158,6 +158,8 @@ ShapeBaseData::ShapeBaseData()
    shadowProjectionDistance( 10.0f ),
    shadowSphereAdjust( 1.0f ),
    shapeName( StringTable->EmptyString() ),
+   shapeAsset(StringTable->EmptyString()),
+   shapeAssetId(StringTable->EmptyString()),
    cloakTexName( StringTable->EmptyString() ),
    cubeDescId( 0 ),
    reflectorDesc( NULL ),
@@ -212,6 +214,8 @@ ShapeBaseData::ShapeBaseData(const ShapeBaseData& other, bool temp_clone) : Game
    shadowProjectionDistance = other.shadowProjectionDistance;
    shadowSphereAdjust = other.shadowSphereAdjust;
    shapeName = other.shapeName;
+   shapeAsset = other.shapeAsset;
+   shapeAssetId = other.shapeAssetId;
    cloakTexName = other.cloakTexName;
    cubeDescName = other.cubeDescName;
    cubeDescId = other.cubeDescId;
@@ -356,12 +360,24 @@ bool ShapeBaseData::preload(bool server, String &errorStr)
       }
    }
 
-   //
-   if (shapeName && shapeName[0]) {
+   //Legacy catch
+   if (shapeName != StringTable->EmptyString())
+   {
+      shapeAssetId = ShapeAsset::getAssetIdByFilename(shapeName);
+   }
+   U32 assetState = ShapeAsset::getAssetById(shapeAssetId, &shapeAsset);
+   if (ShapeAsset::Failed != assetState)
+   {
+      //only clear the legacy direct file reference if everything checks out fully
+      if (assetState == ShapeAsset::Ok)
+      {
+         shapeName = StringTable->EmptyString();
+      }
+      else Con::warnf("Warning: ShapeBaseData::preload-%s", ShapeAsset::getAssetErrstrn(assetState).c_str());
       S32 i;
 
       // Resolve shapename
-      mShape = ResourceManager::get().load(shapeName);
+      mShape = shapeAsset->getShapeResource();
       if (bool(mShape) == false)
       {
          errorStr = String::ToString("ShapeBaseData: Couldn't load shape \"%s\"",shapeName);
@@ -574,6 +590,9 @@ void ShapeBaseData::initPersistFields()
 
    addGroup( "Render" );
 
+      addField("shapeAsset", TypeShapeAssetId, Offset(shapeAssetId, ShapeBaseData),
+         "The source shape asset.");
+
       addField( "shapeFile", TypeShapeFilename, Offset(shapeName, ShapeBaseData),
          "The DTS or DAE model to use for this object." );
 
@@ -779,7 +798,15 @@ void ShapeBaseData::packData(BitStream* stream)
    stream->write(shadowSphereAdjust);
 
 
-   stream->writeString(shapeName);
+   if (stream->writeFlag(shapeAsset.notNull()))
+   {
+      stream->writeString(shapeAsset.getAssetId());
+   }
+   else
+   {
+      stream->writeString(shapeName);
+   }
+
    stream->writeString(cloakTexName);
    if(stream->writeFlag(mass != gShapeBaseDataProto.mass))
       stream->write(mass);
@@ -856,7 +883,18 @@ void ShapeBaseData::unpackData(BitStream* stream)
    stream->read(&shadowProjectionDistance);
    stream->read(&shadowSphereAdjust);
 
-   shapeName = stream->readSTString();
+
+   if (stream->readFlag())
+   {
+      shapeAssetId = stream->readSTString();
+      ShapeAsset::getAssetById(shapeAssetId, &shapeAsset);
+      shapeName = shapeAsset->getShapeFilename();
+   }
+   else
+   {
+      shapeName = stream->readSTString();
+   }
+
    cloakTexName = stream->readSTString();
    if(stream->readFlag())
       stream->read(&mass);
