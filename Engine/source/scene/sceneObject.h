@@ -360,23 +360,6 @@ class SceneObject : public NetObject, private SceneContainer::Link, public Proce
       /// Container database that the object is assigned to.
       SceneContainer* mContainer;
 
-      /// SceneContainer sequence key.
-      U32 mContainerSeqKey;
-
-      ///
-      SceneObjectRef* mBinRefHead;
-
-      U32 mBinMinX;
-      U32 mBinMaxX;
-      U32 mBinMinY;
-      U32 mBinMaxY;
-
-      /// Returns the container sequence key.
-      U32 getContainerSeqKey() const { return mContainerSeqKey; }
-
-      /// Sets the container sequence key.
-      void setContainerSeqKey( const U32 key ) { mContainerSeqKey = key;  }
-
       /// @}
 
       /// Called when this is added to a SceneManager.

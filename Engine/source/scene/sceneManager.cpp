@@ -637,7 +637,7 @@ void SceneManager::notifyObjectDirty( SceneObject* object )
    // Update container state.
 
    if( object->mContainer )
-      object->mContainer->checkBins( object );
+      object->mContainer->updateObject( object );
 
    // Mark zoning state as dirty.
 
