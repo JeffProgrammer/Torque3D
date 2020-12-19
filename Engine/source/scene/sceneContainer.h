@@ -179,12 +179,6 @@ class SceneContainer
       /// Current sequence key.
       U32 mCurrSeqKey;
 
-      SceneObjectRef* mFreeRefPool;
-      Vector< SceneObjectRef* > mRefPoolBlocks;
-
-      SceneObjectRef* mBinArray;
-      SceneObjectRef mOverflowBin;
-
       /// A vector that contains just the water and physical zone
       /// object types which is used to optimize searches.
       Vector< SceneObject* > mWaterAndZones;
@@ -192,10 +186,16 @@ class SceneContainer
       /// Vector that contains just the terrain objects in the container.
       Vector< SceneObject* > mTerrains;
 
-      static const U32 csmNumBins;
-      static const F32 csmBinSize;
-      static const F32 csmTotalBinSize;
-      static const U32 csmRefPoolBlockSize;
+      //struct AABB
+      //{
+      //   F32 x;
+      //   F32 y;
+      //   F32 z;
+      //   F32 w;
+      //};
+
+      Vector<SceneObject*> mObjList;
+      Vector<Box3F> mAABBList;
 
    public:
 
@@ -273,17 +273,8 @@ class SceneContainer
       /// @param object A SceneObject.
       bool removeObject( SceneObject* object );
 
-      void addRefPoolBlock();
-      SceneObjectRef* allocateObjectRef();
-      void freeObjectRef(SceneObjectRef*);
-      void insertIntoBins( SceneObject* object );
-      void removeFromBins( SceneObject* object );
-
-      /// Make sure that we're not just sticking the object right back
-      /// where it came from.  The overloaded insertInto is so we don't calculate
-      /// the ranges twice.
-      void checkBins( SceneObject* object );
-      void insertIntoBins(SceneObject*, U32, U32, U32, U32);
+      /// Updates a dirty object into the bin
+      void updateObject( SceneObject* object );
 
       void initRadiusSearch(const Point3F& searchPoint,
          const F32      searchRadius,
@@ -306,9 +297,8 @@ class SceneContainer
       bool _castRay( U32 type, const Point3F &start, const Point3F &end, U32 mask, RayInfo* info, CastRayCallback callback );
 
       void _findSpecialObjects( const Vector< SceneObject* >& vector, U32 mask, FindCallback, void *key = NULL );
-      void _findSpecialObjects( const Vector< SceneObject* >& vector, const Box3F &box, U32 mask, FindCallback callback, void *key = NULL );   
+      void _findSpecialObjects( const Vector< SceneObject* >& vector, const Box3F &box, U32 mask, FindCallback callback, void *key = NULL );
 
-      static void getBinRange( const F32 min, const F32 max, U32& minBin, U32& maxBin );
 public:
       Vector<SimObjectPtr<SceneObject>*>& getRadiusSearchList() { return mSearchList; }
 };
@@ -318,30 +308,5 @@ public:
 extern SceneContainer gServerContainer;
 extern SceneContainer gClientContainer;
 
-//-----------------------------------------------------------------------------
-
-inline void SceneContainer::freeObjectRef(SceneObjectRef* trash)
-{
-   trash->object = NULL;
-   trash->nextInBin = NULL;
-   trash->prevInBin = NULL;
-   trash->nextInObj = mFreeRefPool;
-   mFreeRefPool     = trash;
-}
-
-//-----------------------------------------------------------------------------
-
-inline SceneObjectRef* SceneContainer::allocateObjectRef()
-{
-   if( mFreeRefPool == NULL )
-      addRefPoolBlock();
-   AssertFatal( mFreeRefPool!=NULL, "Error, should always have a free reference here!" );
-
-   SceneObjectRef* ret = mFreeRefPool;
-   mFreeRefPool = mFreeRefPool->nextInObj;
-
-   ret->nextInObj = NULL;
-   return ret;
-}
 
 #endif // !_SCENECONTAINER_H_

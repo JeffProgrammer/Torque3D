@@ -41,10 +41,6 @@
 SceneContainer gServerContainer;
 SceneContainer gClientContainer;
 
-const U32 SceneContainer::csmNumBins = 16;
-const F32 SceneContainer::csmBinSize = 64;
-const F32 SceneContainer::csmTotalBinSize = SceneContainer::csmBinSize * SceneContainer::csmNumBins;
-const U32 SceneContainer::csmRefPoolBlockSize = 4096;
 
 // Statics used by buildPolyList methods
 static AbstractPolyList* sPolyList;
@@ -96,30 +92,12 @@ SceneContainer::SceneContainer()
    mEnd.mNext = mEnd.mPrev = &mStart;
    mStart.mNext = mStart.mPrev = &mEnd;
 
-   mBinArray = new SceneObjectRef[csmNumBins * csmNumBins];
-   for (U32 i = 0; i < csmNumBins; i++) 
-   {
-      U32 base = i * csmNumBins;
-      for (U32 j = 0; j < csmNumBins; j++) 
-      {
-         mBinArray[base + j].object    = NULL;
-         mBinArray[base + j].nextInBin = NULL;
-         mBinArray[base + j].prevInBin = NULL;
-         mBinArray[base + j].nextInObj = NULL;
-      }
-   }
-   mOverflowBin.object    = NULL;
-   mOverflowBin.nextInBin = NULL;
-   mOverflowBin.prevInBin = NULL;
-   mOverflowBin.nextInObj = NULL;
-
-   VECTOR_SET_ASSOCIATION( mRefPoolBlocks );
    VECTOR_SET_ASSOCIATION( mSearchList );
    VECTOR_SET_ASSOCIATION( mWaterAndZones );
    VECTOR_SET_ASSOCIATION( mTerrains );
 
-   mFreeRefPool = NULL;
-   addRefPoolBlock();
+   VECTOR_SET_ASSOCIATION( mObjList );
+   VECTOR_SET_ASSOCIATION( mAABBList );
 
    cleanupSearchVectors();
 }
@@ -128,29 +106,6 @@ SceneContainer::SceneContainer()
 
 SceneContainer::~SceneContainer()
 {
-   delete[] mBinArray;
-
-   for (U32 i = 0; i < mRefPoolBlocks.size(); i++)
-   {
-      SceneObjectRef* pool = mRefPoolBlocks[i];
-      for (U32 j = 0; j < csmRefPoolBlockSize; j++)
-      {
-         // Depressingly, this can give weird results if its pointing at bad memory...
-         if(pool[j].object != NULL)
-            Con::warnf("Error, a %s (%x) isn't properly out of the bins!", pool[j].object->getClassName(), pool[j].object);
-
-         // If you're getting this it means that an object created didn't
-         // remove itself from its container before we destroyed the
-         // container. Typically you get this behavior from particle
-         // emitters, as they try to hang around until all their particles
-         // die. In general it's benign, though if you get it for things
-         // that aren't particle emitters it can be a bad sign!
-      }
-
-      delete [] pool;
-   }
-   mFreeRefPool = NULL;
-
    cleanupSearchVectors();
 }
 
@@ -162,7 +117,8 @@ bool SceneContainer::addObject(SceneObject* obj)
    obj->mContainer = this;
    obj->linkAfter(&mStart);
 
-   insertIntoBins(obj);
+   mObjList.push_back(obj);
+   mAABBList.push_back(obj->getWorldBox());
 
    // Also insert water and physical zone types into the special vector.
    if ( obj->getTypeMask() & ( WaterObjectType | PhysicalZoneObjectType ) )
@@ -178,7 +134,16 @@ bool SceneContainer::addObject(SceneObject* obj)
 bool SceneContainer::removeObject(SceneObject* obj)
 {
    AssertFatal(obj->mContainer == this, "Trying to remove from wrong container.");
-   removeFromBins(obj);
+
+   for (S32 i = 0; i < mObjList.size(); ++i)
+   {
+      if (mObjList[i] == obj)
+      {
+         mAABBList.erase_fast(static_cast<U32>(i));
+         mObjList.erase_fast(static_cast<U32>(i));
+         break;
+      }
+   }
 
    // Remove water and physical zone types from the special vector.
    if ( obj->getTypeMask() & ( WaterObjectType | PhysicalZoneObjectType ) )
@@ -201,212 +166,24 @@ bool SceneContainer::removeObject(SceneObject* obj)
    return true;
 }
 
-//-----------------------------------------------------------------------------
-
-void SceneContainer::addRefPoolBlock()
-{
-   mRefPoolBlocks.push_back(new SceneObjectRef[csmRefPoolBlockSize]);
-   for (U32 i = 0; i < csmRefPoolBlockSize-1; i++)
-   {
-      mRefPoolBlocks.last()[i].object    = NULL;
-      mRefPoolBlocks.last()[i].prevInBin = NULL;
-      mRefPoolBlocks.last()[i].nextInBin = NULL;
-      mRefPoolBlocks.last()[i].nextInObj = &(mRefPoolBlocks.last()[i+1]);
-   }
-   mRefPoolBlocks.last()[csmRefPoolBlockSize-1].object    = NULL;
-   mRefPoolBlocks.last()[csmRefPoolBlockSize-1].prevInBin = NULL;
-   mRefPoolBlocks.last()[csmRefPoolBlockSize-1].nextInBin = NULL;
-   mRefPoolBlocks.last()[csmRefPoolBlockSize-1].nextInObj = mFreeRefPool;
-
-   mFreeRefPool = &(mRefPoolBlocks.last()[0]);
-}
 
 //-----------------------------------------------------------------------------
 
-void SceneContainer::insertIntoBins(SceneObject* obj)
+void SceneContainer::updateObject(SceneObject* obj)
 {
    AssertFatal(obj != NULL, "No object?");
-   AssertFatal(obj->mBinRefHead == NULL, "Error, already have a bin chain!");
 
-   // The first thing we do is find which bins are covered in x and y...
-   const Box3F* pWBox = &obj->getWorldBox();
+   PROFILE_SCOPE(SceneContainer_updateObject);
 
-   U32 minX, maxX, minY, maxY;
-   getBinRange(pWBox->minExtents.x, pWBox->maxExtents.x, minX, maxX);
-   getBinRange(pWBox->minExtents.y, pWBox->maxExtents.y, minY, maxY);
-
-   // Store the current regions for later queries
-   obj->mBinMinX = minX;
-   obj->mBinMaxX = maxX;
-   obj->mBinMinY = minY;
-   obj->mBinMaxY = maxY;
-
-   // For huge objects, dump them into the overflow bin.  Otherwise, everything
-   //  goes into the grid...
-   if (!obj->isGlobalBounds() && ((maxX - minX + 1) < csmNumBins || (maxY - minY + 1) < csmNumBins))
+   // TODO(Jeff): Make this faster than O(n)?
+   for (S32 i = 0; i < mObjList.size(); ++i)
    {
-      SceneObjectRef** pCurrInsert = &obj->mBinRefHead;
-
-      for (U32 i = minY; i <= maxY; i++)
+      if (mObjList[i] == obj)
       {
-         U32 insertY = i % csmNumBins;
-         U32 base    = insertY * csmNumBins;
-         for (U32 j = minX; j <= maxX; j++)
-         {
-            U32 insertX = j % csmNumBins;
-
-            SceneObjectRef* ref = allocateObjectRef();
-
-            ref->object    = obj;
-            ref->nextInBin = mBinArray[base + insertX].nextInBin;
-            ref->prevInBin = &mBinArray[base + insertX];
-            ref->nextInObj = NULL;
-
-            if (mBinArray[base + insertX].nextInBin)
-               mBinArray[base + insertX].nextInBin->prevInBin = ref;
-            mBinArray[base + insertX].nextInBin = ref;
-
-            *pCurrInsert = ref;
-            pCurrInsert  = &ref->nextInObj;
-         }
+         mAABBList[i] = obj->getWorldBox();
+         break;
       }
    }
-   else
-   {
-      SceneObjectRef* ref = allocateObjectRef();
-
-      ref->object    = obj;
-      ref->nextInBin = mOverflowBin.nextInBin;
-      ref->prevInBin = &mOverflowBin;
-      ref->nextInObj = NULL;
-
-      if (mOverflowBin.nextInBin)
-         mOverflowBin.nextInBin->prevInBin = ref;
-      mOverflowBin.nextInBin = ref;
-
-      obj->mBinRefHead = ref;
-   }
-}
-
-//-----------------------------------------------------------------------------
-
-void SceneContainer::insertIntoBins(SceneObject* obj,
-                               U32 minX, U32 maxX,
-                               U32 minY, U32 maxY)
-{
-   PROFILE_START(InsertBins);
-   AssertFatal(obj != NULL, "No object?");
-
-   AssertFatal(obj->mBinRefHead == NULL, "Error, already have a bin chain!");
-   // Store the current regions for later queries
-   obj->mBinMinX = minX;
-   obj->mBinMaxX = maxX;
-   obj->mBinMinY = minY;
-   obj->mBinMaxY = maxY;
-
-   // For huge objects, dump them into the overflow bin.  Otherwise, everything
-   //  goes into the grid...
-   //
-   if ((maxX - minX + 1) < csmNumBins || ((maxY - minY + 1) < csmNumBins && !obj->isGlobalBounds()))
-   {
-      SceneObjectRef** pCurrInsert = &obj->mBinRefHead;
-
-      for (U32 i = minY; i <= maxY; i++)
-      {
-         U32 insertY = i % csmNumBins;
-         U32 base    = insertY * csmNumBins;
-         for (U32 j = minX; j <= maxX; j++)
-         {
-            U32 insertX = j % csmNumBins;
-
-            SceneObjectRef* ref = allocateObjectRef();
-
-            ref->object    = obj;
-            ref->nextInBin = mBinArray[base + insertX].nextInBin;
-            ref->prevInBin = &mBinArray[base + insertX];
-            ref->nextInObj = NULL;
-
-            if (mBinArray[base + insertX].nextInBin)
-               mBinArray[base + insertX].nextInBin->prevInBin = ref;
-            mBinArray[base + insertX].nextInBin = ref;
-
-            *pCurrInsert = ref;
-            pCurrInsert  = &ref->nextInObj;
-         }
-      }
-   }
-   else
-   {
-      SceneObjectRef* ref = allocateObjectRef();
-
-      ref->object    = obj;
-      ref->nextInBin = mOverflowBin.nextInBin;
-      ref->prevInBin = &mOverflowBin;
-      ref->nextInObj = NULL;
-
-      if (mOverflowBin.nextInBin)
-         mOverflowBin.nextInBin->prevInBin = ref;
-      mOverflowBin.nextInBin = ref;
-      obj->mBinRefHead = ref;
-   }
-   PROFILE_END();
-}
-
-//-----------------------------------------------------------------------------
-
-void SceneContainer::removeFromBins(SceneObject* obj)
-{
-   PROFILE_START(RemoveFromBins);
-   AssertFatal(obj != NULL, "No object?");
-
-   SceneObjectRef* chain = obj->mBinRefHead;
-   obj->mBinRefHead = NULL;
-
-   while (chain)
-   {
-      SceneObjectRef* trash = chain;
-      chain = chain->nextInObj;
-
-      AssertFatal(trash->prevInBin != NULL, "Error, must have a previous entry in the bin!");
-      if (trash->nextInBin)
-         trash->nextInBin->prevInBin = trash->prevInBin;
-      trash->prevInBin->nextInBin = trash->nextInBin;
-
-      freeObjectRef(trash);
-   }
-   PROFILE_END();
-}
-
-//-----------------------------------------------------------------------------
-
-void SceneContainer::checkBins(SceneObject* obj)
-{
-   AssertFatal(obj != NULL, "No object?");
-
-   PROFILE_START(CheckBins);
-   if (obj->mBinRefHead == NULL)
-   {
-      insertIntoBins(obj);
-      PROFILE_END();
-      return;
-   }
-
-   // Otherwise, the object is already in the bins.  Let's see if it has strayed out of
-   //  the bins that it's currently in...
-   const Box3F* pWBox = &obj->getWorldBox();
-
-   U32 minX, maxX, minY, maxY;
-   getBinRange(pWBox->minExtents.x, pWBox->maxExtents.x, minX, maxX);
-   getBinRange(pWBox->minExtents.y, pWBox->maxExtents.y, minY, maxY);
-
-   if (obj->mBinMinX != minX || obj->mBinMaxX != maxX ||
-       obj->mBinMinY != minY || obj->mBinMaxY != maxY)
-   {
-      // We have to rebin the object
-      removeFromBins(obj);
-      insertIntoBins(obj, minX, maxX, minY, maxY);
-   }
-   PROFILE_END();
 }
 
 //-----------------------------------------------------------------------------
@@ -433,55 +210,18 @@ void SceneContainer::findObjects(const Box3F& box, U32 mask, FindCallback callba
    AssertFatal( !mSearchInProgress, "SceneContainer::findObjects - Container queries are not re-entrant" );
    mSearchInProgress = true;
 
-   U32 minX, maxX, minY, maxY;
-   getBinRange(box.minExtents.x, box.maxExtents.x, minX, maxX);
-   getBinRange(box.minExtents.y, box.maxExtents.y, minY, maxY);
-   mCurrSeqKey++;
-   for (U32 i = minY; i <= maxY; i++)
+   for (S32 i = 0; i < mAABBList.size(); ++i)
    {
-      U32 insertY = i % csmNumBins;
-      U32 base    = insertY * csmNumBins;
-      for (U32 j = minX; j <= maxX; j++)
+      const Box3F& objBox = mAABBList[i];
+      SceneObject* obj = mObjList[i];
+
+      if ((obj->getTypeMask() & mask) != 0 && obj->isCollisionEnabled())
       {
-         U32 insertX = j % csmNumBins;
-
-         SceneObjectRef* chain = mBinArray[base + insertX].nextInBin;
-         while (chain)
+         if (objBox.isOverlapped(box) || obj->isGlobalBounds())
          {
-            if (chain->object->getContainerSeqKey() != mCurrSeqKey)
-            {
-               chain->object->setContainerSeqKey(mCurrSeqKey);
-
-               if ((chain->object->getTypeMask() & mask) != 0 &&
-                   chain->object->isCollisionEnabled())
-               {
-                  if (chain->object->getWorldBox().isOverlapped(box) || chain->object->isGlobalBounds())
-                  {
-                     (*callback)(chain->object,key);
-                  }
-               }
-            }
-            chain = chain->nextInBin;
+            (*callback)(obj, key);
          }
       }
-   }
-   SceneObjectRef* chain = mOverflowBin.nextInBin;
-   while (chain)
-   {
-      if (chain->object->getContainerSeqKey() != mCurrSeqKey)
-      {
-         chain->object->setContainerSeqKey(mCurrSeqKey);
-
-         if ((chain->object->getTypeMask() & mask) != 0 &&
-             chain->object->isCollisionEnabled())
-         {
-            if (chain->object->getWorldBox().isOverlapped(box) || chain->object->isGlobalBounds())
-            {
-               (*callback)(chain->object,key);
-            }
-         }
-      }
-      chain = chain->nextInBin;
    }
 
    mSearchInProgress = false;
@@ -508,69 +248,21 @@ void SceneContainer::findObjects( const Frustum &frustum, U32 mask, FindCallback
       return;
    }
 
-   AssertFatal( !mSearchInProgress, "SceneContainer::findObjects - Container queries are not re-entrant" );
+   AssertFatal(!mSearchInProgress, "SceneContainer::findObjects - Container queries are not re-entrant");
    mSearchInProgress = true;
 
-   U32 minX, maxX, minY, maxY;
-   getBinRange(searchBox.minExtents.x, searchBox.maxExtents.x, minX, maxX);
-   getBinRange(searchBox.minExtents.y, searchBox.maxExtents.y, minY, maxY);
-   mCurrSeqKey++;
-
-   for (U32 i = minY; i <= maxY; i++)
+   for (S32 i = 0; i < mAABBList.size(); ++i)
    {
-      U32 insertY = i % csmNumBins;
-      U32 base    = insertY * csmNumBins;
-      for (U32 j = minX; j <= maxX; j++)
+      const Box3F& objBox = mAABBList[i];
+      SceneObject* obj = mObjList[i];
+
+      if ((obj->getTypeMask() & mask) != 0 && obj->isCollisionEnabled())
       {
-         U32 insertX = j % csmNumBins;
-
-         SceneObjectRef* chain = mBinArray[base + insertX].nextInBin;
-         while (chain)
+         if (objBox.isOverlapped(searchBox) || obj->isGlobalBounds())
          {
-            SceneObject *object = chain->object;
-
-            if (object->getContainerSeqKey() != mCurrSeqKey)
-            {
-               object->setContainerSeqKey(mCurrSeqKey);
-
-               if ((object->getTypeMask() & mask) != 0 &&
-                  object->isCollisionEnabled())
-               {
-                  const Box3F &worldBox = object->getWorldBox();
-                  if ( object->isGlobalBounds() || worldBox.isOverlapped(searchBox) )
-                  {
-                     if ( !frustum.isCulled( worldBox ) )
-                        (*callback)(chain->object,key);
-                  }
-               }
-            }
-            chain = chain->nextInBin;
+            (*callback)(obj, key);
          }
       }
-   }
-
-   SceneObjectRef* chain = mOverflowBin.nextInBin;
-   while (chain)
-   {
-      SceneObject *object = chain->object;
-
-      if (object->getContainerSeqKey() != mCurrSeqKey)
-      {
-         object->setContainerSeqKey(mCurrSeqKey);
-
-         if ((object->getTypeMask() & mask) != 0 &&
-            object->isCollisionEnabled())
-         {
-            const Box3F &worldBox = object->getWorldBox();
-
-            if ( object->isGlobalBounds() || worldBox.isOverlapped(searchBox) )
-            {
-               if ( !frustum.isCulled( worldBox ) )
-                  (*callback)(object,key);
-            }
-         }
-      }
-      chain = chain->nextInBin;
    }
 
    mSearchInProgress = false;
@@ -607,56 +299,18 @@ void SceneContainer::polyhedronFindObjects(const Polyhedron& polyhedron, U32 mas
 
    AssertFatal( !mSearchInProgress, "SceneContainer::polyhedronFindObjects - Container queries are not re-entrant" );
    mSearchInProgress = true;
-
-   U32 minX, maxX, minY, maxY;
-   getBinRange(box.minExtents.x, box.maxExtents.x, minX, maxX);
-   getBinRange(box.minExtents.y, box.maxExtents.y, minY, maxY);
-   mCurrSeqKey++;
-   for (i = minY; i <= maxY; i++)
+   for (S32 i = 0; i < mAABBList.size(); ++i)
    {
-      U32 insertY = i % csmNumBins;
-      U32 base    = insertY * csmNumBins;
-      for (U32 j = minX; j <= maxX; j++)
+      const Box3F& objBox = mAABBList[i];
+      SceneObject* obj = mObjList[i];
+
+      if ((obj->getTypeMask() & mask) != 0 && obj->isCollisionEnabled())
       {
-         U32 insertX = j % csmNumBins;
-
-         SceneObjectRef* chain = mBinArray[base + insertX].nextInBin;
-         while (chain)
+         if (objBox.isOverlapped(box) || obj->isGlobalBounds())
          {
-            if (chain->object->getContainerSeqKey() != mCurrSeqKey)
-            {
-               chain->object->setContainerSeqKey(mCurrSeqKey);
-
-               if ((chain->object->getTypeMask() & mask) != 0 &&
-                   chain->object->isCollisionEnabled())
-               {
-                  if (chain->object->getWorldBox().isOverlapped(box) || chain->object->isGlobalBounds())
-                  {
-                     (*callback)(chain->object,key);
-                  }
-               }
-            }
-            chain = chain->nextInBin;
+            (*callback)(obj, key);
          }
       }
-   }
-   SceneObjectRef* chain = mOverflowBin.nextInBin;
-   while (chain)
-   {
-      if (chain->object->getContainerSeqKey() != mCurrSeqKey)
-      {
-         chain->object->setContainerSeqKey(mCurrSeqKey);
-
-         if ((chain->object->getTypeMask() & mask) != 0 &&
-             chain->object->isCollisionEnabled())
-         {
-            if (chain->object->getWorldBox().isOverlapped(box) || chain->object->isGlobalBounds())
-            {
-               (*callback)(chain->object,key);
-            }
-         }
-      }
-      chain = chain->nextInBin;
    }
 
    mSearchInProgress = false;
@@ -673,64 +327,20 @@ void SceneContainer::findObjectList( const Box3F& searchBox, U32 mask, Vector<Sc
 
    // TODO: Optimize for water and zones?
 
-   U32 minX, maxX, minY, maxY;
-   getBinRange(searchBox.minExtents.x, searchBox.maxExtents.x, minX, maxX);
-   getBinRange(searchBox.minExtents.y, searchBox.maxExtents.y, minY, maxY);
    mCurrSeqKey++;
 
-   for (U32 i = minY; i <= maxY; i++)
+   for (S32 i = 0; i < mAABBList.size(); ++i)
    {
-      U32 insertY = i % csmNumBins;
-      U32 base    = insertY * csmNumBins;
-      for (U32 j = minX; j <= maxX; j++)
+      const Box3F& objBox = mAABBList[i];
+      SceneObject* obj = mObjList[i];
+
+      if ((obj->getTypeMask() & mask) != 0 && obj->isCollisionEnabled())
       {
-         U32 insertX = j % csmNumBins;
-
-         SceneObjectRef* chain = mBinArray[base + insertX].nextInBin;
-         while (chain)
+         if (objBox.isOverlapped(searchBox) || obj->isGlobalBounds())
          {
-            SceneObject *object = chain->object;
-
-            if (object->getContainerSeqKey() != mCurrSeqKey)
-            {
-               object->setContainerSeqKey(mCurrSeqKey);
-
-               if ((object->getTypeMask() & mask) != 0 &&
-                  object->isCollisionEnabled())
-               {
-                  const Box3F &worldBox = object->getWorldBox();
-                  if ( object->isGlobalBounds() || worldBox.isOverlapped( searchBox ) )
-                  {
-                     outFound->push_back( object );
-                  }
-               }
-            }
-            chain = chain->nextInBin;
+            outFound->push_back(obj);
          }
       }
-   }
-
-   SceneObjectRef* chain = mOverflowBin.nextInBin;
-   while (chain)
-   {
-      SceneObject *object = chain->object;
-
-      if (object->getContainerSeqKey() != mCurrSeqKey)
-      {
-         object->setContainerSeqKey(mCurrSeqKey);
-
-         if ((object->getTypeMask() & mask) != 0 &&
-            object->isCollisionEnabled())
-         {
-            const Box3F &worldBox = object->getWorldBox();
-
-            if ( object->isGlobalBounds() || worldBox.isOverlapped( searchBox ) )
-            {
-               outFound->push_back( object );
-            }
-         }
-      }
-      chain = chain->nextInBin;
    }
 
    mSearchInProgress = false;
@@ -760,22 +370,23 @@ void SceneContainer::findObjectList( const Frustum &frustum, U32 mask, Vector<Sc
 
 void SceneContainer::findObjectList( U32 mask, Vector<SceneObject*> *outFound )
 {
-   for ( Link* itr = mStart.mNext; itr != &mEnd; itr = itr->mNext)
+   for (Vector<SceneObject*>::iterator itr = mObjList.begin(); itr != mObjList.end(); ++itr)
    {
-      SceneObject* ptr = static_cast<SceneObject*>( itr );
-      if ( ( ptr->getTypeMask() & mask ) != 0 )
-         outFound->push_back( ptr );
+      SceneObject* obj = *itr;
+      if ((obj->getTypeMask() & mask) != 0)
+         outFound->push_back(obj);
    }
 }
 
 //-----------------------------------------------------------------------------
 
-void SceneContainer::findObjects( U32 mask, FindCallback callback, void *key )
+void SceneContainer::findObjects( U32 mask, FindCallback callback, void* key )
 {
-   for (Link* itr = mStart.mNext; itr != &mEnd; itr = itr->mNext) {
-      SceneObject* ptr = static_cast<SceneObject*>(itr);
-      if ((ptr->getTypeMask() & mask) != 0 && !ptr->mCollisionCount)
-         (*callback)(ptr,key);
+   for (Vector<SceneObject*>::iterator itr = mObjList.begin(); itr != mObjList.end(); ++itr)
+   {
+      SceneObject* obj = *itr;
+      if ((obj->getTypeMask() & mask) != 0 && !obj->mCollisionCount)
+         (*callback)(obj, key);
    }
 }
 
@@ -859,250 +470,38 @@ bool SceneContainer::_castRay( U32 type, const Point3F& start, const Point3F& en
    F32 currentT = 2.0;
    mCurrSeqKey++;
 
-   SceneObjectRef* overflowChain = mOverflowBin.nextInBin;
-   while (overflowChain)
+   for (Vector<SceneObject*>::iterator itr = mObjList.begin(); itr != mObjList.end(); ++itr)
    {
-      SceneObject* ptr = overflowChain->object;
-      if (ptr->getContainerSeqKey() != mCurrSeqKey)
+      SceneObject* ptr = *itr;
+
+      // In the overflow bin, the world box is always going to intersect the line,
+      //  so we can omit that test...
+      if ((ptr->getTypeMask() & mask) != 0 &&
+            ptr->isCollisionEnabled() == true)
       {
-         ptr->setContainerSeqKey(mCurrSeqKey);
+         Point3F xformedStart, xformedEnd;
+         ptr->mWorldToObj.mulP(start, &xformedStart);
+         ptr->mWorldToObj.mulP(end,   &xformedEnd);
+         xformedStart.convolveInverse(ptr->mObjScale);
+         xformedEnd.convolveInverse(ptr->mObjScale);
 
-         // In the overflow bin, the world box is always going to intersect the line,
-         //  so we can omit that test...
-         if ((ptr->getTypeMask() & mask) != 0 &&
-             ptr->isCollisionEnabled() == true)
+         RayInfo ri;
+         ri.generateTexCoord  = info->generateTexCoord;
+         bool result = false;
+         if (type == CollisionGeometry)
+            result = ptr->castRay(xformedStart, xformedEnd, &ri);
+         else if (type == RenderedGeometry)
+            result = ptr->castRayRendered(xformedStart, xformedEnd, &ri);
+         if (result)
          {
-            Point3F xformedStart, xformedEnd;
-            ptr->mWorldToObj.mulP(start, &xformedStart);
-            ptr->mWorldToObj.mulP(end,   &xformedEnd);
-            xformedStart.convolveInverse(ptr->mObjScale);
-            xformedEnd.convolveInverse(ptr->mObjScale);
-
-            RayInfo ri;
-            ri.generateTexCoord  = info->generateTexCoord;
-            bool result = false;
-            if (type == CollisionGeometry)
-               result = ptr->castRay(xformedStart, xformedEnd, &ri);
-            else if (type == RenderedGeometry)
-               result = ptr->castRayRendered(xformedStart, xformedEnd, &ri);
-            if (result)
+            if( ri.t < currentT && ( !callback || callback( &ri ) ) )
             {
-               if( ri.t < currentT && ( !callback || callback( &ri ) ) )
-               {
-                  *info = ri;
-                  info->point.interpolate(start, end, info->t);
-                  currentT = ri.t;
-                  info->distance = (start - info->point).len();
-               }
+               *info = ri;
+               info->point.interpolate(start, end, info->t);
+               currentT = ri.t;
+               info->distance = (start - info->point).len();
             }
          }
-      }
-	  overflowChain = overflowChain->nextInBin;
-   }
-
-   // These are just for rasterizing the line against the grid.  We want the x coord
-   //  of the start to be <= the x coord of the end
-   Point3F normalStart, normalEnd;
-   if (start.x <= end.x)
-   {
-      normalStart = start;
-      normalEnd   = end;
-   }
-   else
-   {
-      normalStart = end;
-      normalEnd   = start;
-   }
-
-   // Ok, let's scan the grids.  The simplest way to do this will be to scan across in
-   //  x, finding the y range for each affected bin...
-   U32 minX, maxX;
-   U32 minY, maxY;
-//if (normalStart.x == normalEnd.x)
-//   Con::printf("X start = %g, end = %g", normalStart.x, normalEnd.x);
-
-   getBinRange(normalStart.x, normalEnd.x, minX, maxX);
-   getBinRange(getMin(normalStart.y, normalEnd.y),
-               getMax(normalStart.y, normalEnd.y), minY, maxY);
-
-//if (normalStart.x == normalEnd.x && minX != maxX)
-//   Con::printf("X min = %d, max = %d", minX, maxX);
-//if (normalStart.y == normalEnd.y && minY != maxY)
-//   Con::printf("Y min = %d, max = %d", minY, maxY);
-
-   // We'll optimize the case that the line is contained in one bin row or column, which
-   //  will be quite a few lines.  No sense doing more work than we have to...
-   //
-   if ((mFabs(normalStart.x - normalEnd.x) < csmTotalBinSize && minX == maxX) ||
-       (mFabs(normalStart.y - normalEnd.y) < csmTotalBinSize && minY == maxY))
-   {
-      U32 count;
-      U32 incX, incY;
-      if (minX == maxX)
-      {
-         count = maxY - minY + 1;
-         incX  = 0;
-         incY  = 1;
-      }
-      else
-      {
-         count = maxX - minX + 1;
-         incX  = 1;
-         incY  = 0;
-      }
-
-      U32 x = minX;
-      U32 y = minY;
-      for (U32 i = 0; i < count; i++)
-      {
-         U32 checkX = x % csmNumBins;
-         U32 checkY = y % csmNumBins;
-
-         SceneObjectRef* chain = mBinArray[(checkY * csmNumBins) + checkX].nextInBin;
-         while (chain)
-         {
-            SceneObject* ptr = chain->object;
-            if (ptr->getContainerSeqKey() != mCurrSeqKey)
-            {
-               ptr->setContainerSeqKey(mCurrSeqKey);
-
-               if ((ptr->getTypeMask() & mask) != 0      &&
-                   ptr->isCollisionEnabled() == true)
-               {
-                  if (ptr->getWorldBox().collideLine(start, end) || chain->object->isGlobalBounds())
-                  {
-                     Point3F xformedStart, xformedEnd;
-                     ptr->mWorldToObj.mulP(start, &xformedStart);
-                     ptr->mWorldToObj.mulP(end,   &xformedEnd);
-                     xformedStart.convolveInverse(ptr->mObjScale);
-                     xformedEnd.convolveInverse(ptr->mObjScale);
-
-                     RayInfo ri;
-                     ri.generateTexCoord  = info->generateTexCoord;
-                     bool result = false;
-                     if (type == CollisionGeometry)
-                        result = ptr->castRay(xformedStart, xformedEnd, &ri);
-                     else if (type == RenderedGeometry)
-                        result = ptr->castRayRendered(xformedStart, xformedEnd, &ri);
-                     if (result)
-                     {
-                        if( ri.t < currentT && ( !callback || callback( &ri ) ) )
-                        {
-                           *info = ri;
-                           info->point.interpolate(start, end, info->t);
-                           currentT = ri.t;
-                           info->distance = (start - info->point).len();
-                        }
-                     }
-                  }
-               }
-            }
-            chain = chain->nextInBin;
-         }
-
-         x += incX;
-         y += incY;
-      }
-   }
-   else
-   {
-      // Oh well, let's earn our keep.  We know that after the above conditional, we're
-      //  going to cross at least one boundary, so that simplifies our job...
-
-      F32 currStartX = normalStart.x;
-
-      AssertFatal(currStartX != normalEnd.x, "This is going to cause problems in SceneContainer::castRay");
-      if(mIsNaN_F(currStartX))
-      {
-         PROFILE_END();
-         return false;
-      }
-      while (currStartX != normalEnd.x)
-      {
-         F32 currEndX   = getMin(currStartX + csmTotalBinSize, normalEnd.x);
-
-         F32 currStartT = (currStartX - normalStart.x) / (normalEnd.x - normalStart.x);
-         F32 currEndT   = (currEndX   - normalStart.x) / (normalEnd.x - normalStart.x);
-
-         F32 y1 = normalStart.y + (normalEnd.y - normalStart.y) * currStartT;
-         F32 y2 = normalStart.y + (normalEnd.y - normalStart.y) * currEndT;
-
-         U32 subMinX, subMaxX;
-         getBinRange(currStartX, currEndX, subMinX, subMaxX);
-
-         F32 subStartX = currStartX;
-         F32 subEndX   = currStartX;
-
-         if (currStartX < 0.0f)
-            subEndX -= mFmod(subEndX, csmBinSize);
-         else
-            subEndX += (csmBinSize - mFmod(subEndX, csmBinSize));
-
-         for (U32 currXBin = subMinX; currXBin <= subMaxX; currXBin++)
-         {
-            U32 checkX = currXBin % csmNumBins;
-
-            F32 subStartT = (subStartX - currStartX) / (currEndX - currStartX);
-            F32 subEndT   = getMin(F32((subEndX   - currStartX) / (currEndX - currStartX)), 1.f);
-
-            F32 subY1 = y1 + (y2 - y1) * subStartT;
-            F32 subY2 = y1 + (y2 - y1) * subEndT;
-
-            U32 newMinY, newMaxY;
-            getBinRange(getMin(subY1, subY2), getMax(subY1, subY2), newMinY, newMaxY);
-
-            for (U32 i = newMinY; i <= newMaxY; i++)
-            {
-               U32 checkY = i % csmNumBins;
-
-               SceneObjectRef* chain = mBinArray[(checkY * csmNumBins) + checkX].nextInBin;
-               while (chain)
-               {
-                  SceneObject* ptr = chain->object;
-                  if (ptr->getContainerSeqKey() != mCurrSeqKey)
-                  {
-                     ptr->setContainerSeqKey(mCurrSeqKey);
-
-                     if ((ptr->getTypeMask() & mask) != 0      &&
-                         ptr->isCollisionEnabled() == true)
-                     {
-                        if (ptr->getWorldBox().collideLine(start, end))
-                        {
-                           Point3F xformedStart, xformedEnd;
-                           ptr->mWorldToObj.mulP(start, &xformedStart);
-                           ptr->mWorldToObj.mulP(end,   &xformedEnd);
-                           xformedStart.convolveInverse(ptr->mObjScale);
-                           xformedEnd.convolveInverse(ptr->mObjScale);
-
-                           RayInfo ri;
-                           ri.generateTexCoord  = info->generateTexCoord;
-                           bool result = false;
-                           if (type == CollisionGeometry)
-                              result = ptr->castRay(xformedStart, xformedEnd, &ri);
-                           else if (type == RenderedGeometry)
-                              result = ptr->castRayRendered(xformedStart, xformedEnd, &ri);
-                           if (result)
-                           {
-                              if( ri.t < currentT && ( !callback || callback( &ri ) ) )
-                              {
-                                 *info = ri;
-                                 info->point.interpolate(start, end, info->t);
-                                 currentT = ri.t;
-                                 info->distance = (start - info->point).len();
-                              }
-                           }
-                        }
-                     }
-                  }
-                  chain = chain->nextInBin;
-               }
-            }
-
-            subStartX = subEndX;
-            subEndX   = getMin(subEndX + csmBinSize, currEndX);
-         }
-
-         currStartX = currEndX;
       }
    }
 
@@ -1138,9 +537,9 @@ bool SceneContainer::collideBox(const Point3F &start, const Point3F &end, U32 ma
    AssertFatal( info->userData == NULL, "SceneContainer::collideBox - RayInfo->userData cannot be used here!" );
 
    F32 currentT = 2;
-   for (Link* itr = mStart.mNext; itr != &mEnd; itr = itr->mNext)
+   for (Vector<SceneObject*>::iterator itr = mObjList.begin(); itr != mObjList.end(); ++itr)
    {
-      SceneObject* ptr = static_cast<SceneObject*>(itr);
+      SceneObject* ptr = *itr;
       if (ptr->getTypeMask() & mask && !ptr->mCollisionCount)
       {
          Point3F xformedStart, xformedEnd;
@@ -1374,75 +773,6 @@ F32 SceneContainer::containerSearchCurrRadiusDist()
       dist = 0;
 
    return dist;
-}
-
-//-----------------------------------------------------------------------------
-
-void SceneContainer::getBinRange( const F32 min, const F32 max, U32& minBin, U32& maxBin )
-{
-   AssertFatal(max >= min, avar("Error, bad range in getBinRange. min: %f, max: %f", min, max));
-
-   if ((max - min) >= (SceneContainer::csmTotalBinSize - SceneContainer::csmBinSize))
-   {
-      F32 minCoord = mFmod(min, SceneContainer::csmTotalBinSize);
-      if (minCoord < 0.0f) 
-      {
-         minCoord += SceneContainer::csmTotalBinSize;
-
-         // This is truly lame, but it can happen.  There must be a better way to
-         //  deal with this.
-         if (minCoord == SceneContainer::csmTotalBinSize)
-            minCoord = SceneContainer::csmTotalBinSize - 0.01f;
-      }
-
-      AssertFatal(minCoord >= 0.0 && minCoord < SceneContainer::csmTotalBinSize, "Bad minCoord");
-
-      minBin = U32(minCoord / SceneContainer::csmBinSize);
-      AssertFatal(minBin < SceneContainer::csmNumBins, avar("Error, bad clipping! (%g, %d)", minCoord, minBin));
-
-      maxBin = minBin + (SceneContainer::csmNumBins - 1);
-      return;
-   }
-   else 
-   {
-
-      F32 minCoord = mFmod(min, SceneContainer::csmTotalBinSize);
-      
-      if (minCoord < 0.0f) 
-      {
-         minCoord += SceneContainer::csmTotalBinSize;
-
-         // This is truly lame, but it can happen.  There must be a better way to
-         //  deal with this.
-         if (minCoord == SceneContainer::csmTotalBinSize)
-            minCoord = SceneContainer::csmTotalBinSize - 0.01f;
-      }
-      AssertFatal(minCoord >= 0.0 && minCoord < SceneContainer::csmTotalBinSize, "Bad minCoord");
-
-      F32 maxCoord = mFmod(max, SceneContainer::csmTotalBinSize);
-      if (maxCoord < 0.0f) {
-         maxCoord += SceneContainer::csmTotalBinSize;
-
-         // This is truly lame, but it can happen.  There must be a better way to
-         //  deal with this.
-         if (maxCoord == SceneContainer::csmTotalBinSize)
-            maxCoord = SceneContainer::csmTotalBinSize - 0.01f;
-      }
-      AssertFatal(maxCoord >= 0.0 && maxCoord < SceneContainer::csmTotalBinSize, "Bad maxCoord");
-
-      minBin = U32(minCoord / SceneContainer::csmBinSize);
-      maxBin = U32(maxCoord / SceneContainer::csmBinSize);
-      AssertFatal(minBin < SceneContainer::csmNumBins, avar("Error, bad clipping(min)! (%g, %d)", maxCoord, minBin));
-      AssertFatal(minBin < SceneContainer::csmNumBins, avar("Error, bad clipping(max)! (%g, %d)", maxCoord, maxBin));
-
-      // MSVC6 seems to be generating some bad floating point code around
-      // here when full optimizations are on.  The min != max test should
-      // not be needed, but it clears up the VC issue.
-      if (min != max && minCoord > maxCoord)
-         maxBin += SceneContainer::csmNumBins;
-
-      AssertFatal(maxBin >= minBin, "Error, min should always be less than max!");
-   }
 }
 
 //=============================================================================
