@@ -342,7 +342,7 @@ U32 ReturnStmtNode::compileStmt2(CodeStream& codeStream, U32 ip)
       TypeReq walkType = expr->getPreferredType();
       if (walkType == TypeReqNone)
          walkType = TypeReqString;
-      ip = expr->compile(codeStream, ip, walkType);
+      ip = expr->compile2(codeStream, ip, walkType);
 
       codeStream.emit(OP_RETURN);
    }
@@ -701,6 +701,62 @@ void IntBinaryExprNode::getSubTypeOperand()
    }
 }
 
+void IntBinaryExprNode::getSubTypeOperand2()
+{
+   subType2 = TypeReqUInt;
+   switch (op)
+   {
+   case '^':
+      operand2 = BC_XOR;
+      break;
+   case '%':
+      operand2 = BC_MOD;
+      break;
+   case '&':
+      operand2 = BC_BITAND;
+      break;
+   case '|':
+      operand2 = BC_BITOR;
+      break;
+   case '<':
+      operand2 = BC_CMPLT;
+      subType2 = TypeReqFloat;
+      break;
+   case '>':
+      operand2 = BC_CMPGR;
+      subType2 = TypeReqFloat;
+      break;
+   case opGE:
+      operand2 = BC_CMPGE;
+      subType2 = TypeReqFloat;
+      break;
+   case opLE:
+      operand2 = BC_CMPLE;
+      subType2 = TypeReqFloat;
+      break;
+   case opEQ:
+      operand2 = BC_CMPEQ;
+      subType2 = TypeReqFloat;
+      break;
+   case opNE:
+      operand2 = BC_CMPNE;
+      subType2 = TypeReqFloat;
+      break;
+   case opOR:
+      operand2 = BC_OR;
+      break;
+   case opAND:
+      operand2 = BC_AND;
+      break;
+   case opSHR:
+      operand2 = BC_SHR;
+      break;
+   case opSHL:
+      operand2 = BC_SHL;
+      break;
+   }
+}
+
 U32 IntBinaryExprNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
 {
    getSubTypeOperand();
@@ -726,6 +782,19 @@ U32 IntBinaryExprNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
 
 U32 IntBinaryExprNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
 {
+   getSubTypeOperand2();
+
+   if (operand2 == BC_OR || operand2 == BC_AND)
+   {
+      AssertISV(false, "Unsuported || or &&");
+   }
+   else
+   {
+      ip = right->compile2(codeStream, ip, subType2);
+      ip = left->compile2(codeStream, ip, subType2);
+      codeStream.emit(operand2);
+   }
+
    return codeStream.tell();
 }
 
@@ -1015,6 +1084,29 @@ U32 IntNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
 
 U32 IntNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
 {
+   if (type == TypeReqString)
+      index = getCurrentStringTable2()->addFloatString(value);
+   else if (type == TypeReqFloat)
+      index = getCurrentFloatTable2()->add(value);
+
+   switch (type)
+   {
+   case TypeReqUInt:
+      codeStream.emit(BC_LOAD_UINT);
+      codeStream.emit(value);
+      break;
+   case TypeReqString:
+      codeStream.emit(BC_LOAD_STRING);
+      codeStream.emit(index);
+      break;
+   case TypeReqFloat:
+      codeStream.emit(BC_LOAD_FLOAT);
+      codeStream.emit(index);
+      break;
+   case TypeReqNone:
+      break;
+   }
+   return codeStream.tell();
    return codeStream.tell();
 }
 
@@ -1036,7 +1128,7 @@ U32 FloatNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
    {
       case TypeReqUInt:
          codeStream.emit(OP_LOADIMMED_UINT);
-         codeStream.emit(U32(value));
+         codeStream.emit(S32(value));
          break;
       case TypeReqString:
          codeStream.emit(OP_LOADIMMED_STR);
@@ -1055,9 +1147,9 @@ U32 FloatNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
 U32 FloatNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
 {
    if (type == TypeReqString)
-      index = getCurrentStringTable()->addFloatString(value);
+      index = getCurrentStringTable2()->addFloatString(value);
    else if (type == TypeReqFloat)
-      index = getCurrentFloatTable()->add(value);
+      index = getCurrentFloatTable2()->add(value);
 
    switch (type)
    {

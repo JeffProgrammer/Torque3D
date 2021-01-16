@@ -238,9 +238,13 @@ struct IntBinaryExprNode : BinaryExprNode
    TypeReq subType;
    U32 operand;
 
+   TypeReq subType2;
+   U32 operand2;
+
    static IntBinaryExprNode *alloc(S32 lineNumber, S32 op, ExprNode *left, ExprNode *right);
 
    void getSubTypeOperand();
+   void getSubTypeOperand2();
 
    U32 compile(CodeStream &codeStream, U32 ip, TypeReq type);
    virtual U32 compile2(CodeStream& codeStream, U32 ip, TypeReq type);

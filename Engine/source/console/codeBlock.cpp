@@ -1566,24 +1566,57 @@ void CodeBlock::dumpInstructions2(U32 startIp, bool upToReturn)
       case BC_MOD:
          Con::printf("%i :: BC_MOD", ip - 1);
          break;
+      case BC_XOR:
+         Con::printf("%i :: BC_XOR", ip - 1);
+         break;
+      case BC_BITAND:
+         Con::printf("%i :: BC_BITAND", ip - 1);
+         break;
+      case BC_BITOR:
+         Con::printf("%i :: BC_BITOR", ip - 1);
+         break;
+      case BC_SHR:
+         Con::printf("%i :: BC_SHR", ip - 1);
+         break;
+      case BC_SHL:
+         Con::printf("%i :: BC_SHL", ip - 1);
+         break;
+      case BC_CMPLT:
+         Con::printf("%i :: BC_CMPLT", ip - 1);
+         break;
+      case BC_CMPGR:
+         Con::printf("%i :: BC_CMPGR", ip - 1);
+         break;
+      case BC_CMPGE:
+         Con::printf("%i :: BC_CMPGE", ip - 1);
+         break;
+      case BC_CMPLE:
+         Con::printf("%i :: BC_CMPLE", ip - 1);
+         break;
+      case BC_CMPEQ:
+         Con::printf("%i :: BC_CMPEQ", ip - 1);
+         break;
+      case BC_CMPNE:
+         Con::printf("%i :: BC_CMPNE", ip - 1);
+         break;
       case BC_LOAD_UINT:
       {
          U32 value = code[ip];
-         Con::printf("%i :: BC_LOAD_UINT value=%u", ip - 1, value);
+         Con::printf("%i :: BC_LOAD_UINT value=%i", ip - 1, value);
          ++ip;
          break;
       }
       case BC_LOAD_FLOAT:
       {
          U32 index = code[ip];
-         Con::printf("%i :: BC_LOAD_FLOAT index=%u", ip - 1, index);
+         Con::printf("%i :: BC_LOAD_FLOAT index=%i", ip - 1, index);
          ++ip;
          break;
       }
       case BC_LOAD_STRING:
       {
          U32 index = code[ip];
-         Con::printf("%i :: BC_LOAD_STRING index=%u", ip - 1, index);
+         Con::printf("%i :: BC_LOAD_STRING index=%i", ip - 1, index);
          ++ip;
          break;
       }
@@ -1591,13 +1624,16 @@ void CodeBlock::dumpInstructions2(U32 startIp, bool upToReturn)
       {
          U32 index = code[ip];
          U32 type = code[ip + 1];
-         const char* typeString =
-            type == ByteCodeFlags::TYPE_STRING ? "String" :
-            type == ByteCodeFlags::TYPE_FLOAT ? "Float" :
-            type == ByteCodeFlags::TYPE_UINT ? "Integer" :
-            type == ByteCodeFlags::TYPE_OBJECT ? "Object Handle" :
-            "Null";
-         Con::printf("%i :: BC_SAVE_VAR register=%u type=%s", ip - 1, index, typeString);
+         const char* typeString;
+         switch (type)
+         {
+            case ByteCodeFlags::TYPE_STRING: typeString = "String"; break;
+            case ByteCodeFlags::TYPE_FLOAT:  typeString = "Float"; break;
+            case ByteCodeFlags::TYPE_UINT:   typeString = "Integer"; break;
+            case ByteCodeFlags::TYPE_OBJECT: typeString = "Object Handle"; break;
+            default:                         typeString = "Null";
+         }
+         Con::printf("%i :: BC_SAVE_VAR index=%i type=%s", ip - 1, index, typeString);
          ip += 2;
          break;
       }

@@ -54,6 +54,22 @@ namespace Compiler
       BC_DIV,
       BC_MOD,
 
+      BC_XOR,
+      BC_BITAND,
+      BC_BITOR,
+      BC_SHR,
+      BC_SHL,
+
+      BC_CMPLT,
+      BC_CMPGR,
+      BC_CMPGE,
+      BC_CMPLE,
+      BC_CMPEQ,
+      BC_CMPNE,
+
+      BC_OR,
+      BC_AND,
+
       BC_LOAD_UINT,
       BC_LOAD_FLOAT,
       BC_LOAD_STRING,
