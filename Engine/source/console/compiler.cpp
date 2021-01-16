@@ -61,6 +61,11 @@ namespace Compiler
    DataChunker          gConsoleAllocator;
    CompilerIdentTable   gIdentTable;
 
+   CompilerStringTable* gCurrentStringTable2, gGlobalStringTable2;
+   CompilerFloatTable* gCurrentFloatTable2, gGlobalFloatTable2;
+
+   CompilerVarTable* gCurrentVarTable2, gGlobalVarTable2;
+
    //------------------------------------------------------------
 
    void evalSTEtoCode(StringTableEntry ste, U32 ip, U32 *ptr)
@@ -92,6 +97,16 @@ namespace Compiler
    CompilerStringTable &getGlobalStringTable() { return gGlobalStringTable; }
    CompilerStringTable &getFunctionStringTable() { return gFunctionStringTable; }
 
+   CompilerStringTable* getCurrentStringTable2() { return gCurrentStringTable2; }
+   CompilerFloatTable* getCurrentFloatTable2() { return gCurrentFloatTable2; }
+   CompilerVarTable* getCurrentVarTable2() { return gCurrentVarTable2; }
+   CompilerVarTable& getGlobalVarTable2() { return gGlobalVarTable2; }
+   CompilerStringTable& getGlobalStringTable2() { return gGlobalStringTable2; }
+   CompilerFloatTable& getGlobalFloatTable2() { return gGlobalFloatTable2; }
+   void setCurrentStringTable2(CompilerStringTable* cst) { gCurrentStringTable2 = cst; }
+   void setCurrentFloatTable2(CompilerFloatTable* cst) { gCurrentFloatTable2 = cst; }
+   void setCurrentVarTable2(CompilerVarTable* cst) { gCurrentVarTable2 = cst; }
+
    void setCurrentStringTable(CompilerStringTable* cst) { gCurrentStringTable = cst; }
 
    CompilerFloatTable *getCurrentFloatTable() { return gCurrentFloatTable; }
@@ -112,6 +127,14 @@ namespace Compiler
    {
       setCurrentStringTable(&gGlobalStringTable);
       setCurrentFloatTable(&gGlobalFloatTable);
+
+      setCurrentFloatTable2(&gGlobalFloatTable2);
+      setCurrentStringTable2(&gGlobalStringTable2);
+      setCurrentVarTable2(&gGlobalVarTable2);
+      getGlobalStringTable2().reset();
+      getGlobalFloatTable2().reset();
+      getGlobalVarTable2().reset();
+
       getGlobalFloatTable().reset();
       getGlobalStringTable().reset();
       getFunctionFloatTable().reset();
@@ -241,6 +264,44 @@ void CompilerFloatTable::write(Stream &st)
    st.write(count);
    for (Entry *walk = list; walk; walk = walk->next)
       st.write(walk->val);
+}
+
+//------------------------------------------------------------
+
+U32 CompilerVarTable::add(const char *value)
+{
+   U32 i = 0;
+   for (const std::string &str : list)
+   {
+      if (dStrnicmp(str.c_str(), value, str.length()) == 0)
+      {
+         return i;
+      }
+   }
+
+   list.push_back(value);
+   return i;
+}
+
+void CompilerVarTable::reset()
+{
+   list.clear();
+}
+
+Vector<String> CompilerVarTable::build()
+{
+   Vector<String> ret;
+   for (const std::string& str : list)
+      ret.push_back(str.c_str());
+
+   return ret;
+}
+
+void CompilerVarTable::write(Stream& st)
+{
+   st.write(list.size());
+   for (const std::string& str : list)
+      st.write(str.c_str());
 }
 
 //------------------------------------------------------------

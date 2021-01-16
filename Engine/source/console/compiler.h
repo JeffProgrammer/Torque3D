@@ -46,6 +46,30 @@ class DataChunker;
 
 namespace Compiler
 {
+   enum TorqueBytecodes
+   {
+      BC_ADD,
+      BC_SUB,
+      BC_MUL,
+      BC_DIV,
+      BC_MOD,
+
+      BC_LOAD_UINT,
+      BC_LOAD_FLOAT,
+      BC_LOAD_STRING,
+
+      //BC_LOAD_VAR,
+      BC_SAVE_VAR,
+
+      //BC_LOAD_GLOBAL_VAR,
+      //BC_SAVE_GLOBAL_VAR,
+
+      BC_RETURN_VOID,
+      BC_RETURN,
+
+      BC_INVALID // error!
+   };
+
    /// The opcodes for the TorqueScript VM.
    enum CompiledInstructions
    {
@@ -183,11 +207,21 @@ namespace Compiler
       MAX_OP_CODELEN ///< The amount of op codes.
    };
 
+   enum ByteCodeFlags
+   {
+      TYPE_NULL   = 0,
+      TYPE_STRING = 1,
+      TYPE_FLOAT  = 2,
+      TYPE_UINT   = 4,
+      TYPE_OBJECT = 8,
+   };
+
    //------------------------------------------------------------
 
    F64 consoleStringToNumber(const char *str, StringTableEntry file = 0, U32 line = 0);
 
    U32 compileBlock(StmtNode *block, CodeStream &codeStream, U32 ip);
+   U32 compileBlock2(StmtNode* block, CodeStream& codeStream, U32 ip);
 
    //------------------------------------------------------------
 
@@ -252,6 +286,18 @@ namespace Compiler
 
    //------------------------------------------------------------
 
+   struct CompilerVarTable
+   {
+      std::vector<std::string> list;
+
+      U32 add(const char *val);
+      void reset();
+      Vector<String> build();
+      void write(Stream& st);
+   };
+
+   //------------------------------------------------------------
+
    inline StringTableEntry CodeToSTE(U32 *code, U32 ip)
    {
 #ifdef TORQUE_CPU_X64
@@ -269,6 +315,13 @@ namespace Compiler
    CompilerStringTable *getCurrentStringTable();
    CompilerStringTable &getGlobalStringTable();
    CompilerStringTable &getFunctionStringTable();
+
+   CompilerStringTable* getCurrentStringTable2();
+   CompilerFloatTable* getCurrentFloatTable2();
+   CompilerVarTable* getCurrentVarTable2();
+   void setCurrentStringTable2(CompilerStringTable* cst);
+   void setCurrentFloatTable2(CompilerFloatTable* cst);
+   void setCurrentVarTable2(CompilerVarTable* cst);
 
    void setCurrentStringTable(CompilerStringTable* cst);
 

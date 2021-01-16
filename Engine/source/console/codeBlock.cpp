@@ -668,7 +668,29 @@ ConsoleValueRef CodeBlock::compileExec(StringTableEntry fileName, const char *in
    codeStream.emit(OP_RETURN);
    codeStream.emitCodeStream(&codeSize, &code, &lineBreakPairs);
 
-   //dumpInstructions(0, false);
+   if (Con::getBoolVariable("$dump"))
+      dumpInstructions(0, false);
+
+   if (Con::getBoolVariable("$gen"))
+   {
+      U32 size;
+      U32 oldSize = codeSize;
+      U32* newCode;
+      U32* oldCode = code;
+
+      CodeStream newStream;
+      compileBlock2(gStatementList, newStream, 0);
+      newStream.emit(BC_RETURN);
+      newStream.emitCodeStream(&size, &newCode, &lineBreakPairs);
+
+      Con::printf("Compiling New ByteCode:");
+
+      code = newCode;
+      codeSize = size;
+      dumpInstructions2(0, false);
+      code = oldCode;
+      codeSize = oldSize;
+   }
 
    consoleAllocReset();
 
@@ -1508,6 +1530,86 @@ void CodeBlock::dumpInstructions(U32 startIp, bool upToReturn)
          default:
             Con::printf("%i: !!INVALID!!", ip - 1);
             break;
+      }
+   }
+
+   smInFunction = false;
+}
+
+void CodeBlock::dumpInstructions2(U32 startIp, bool upToReturn)
+{
+   U32 ip = startIp;
+   smInFunction = false;
+   U32 endFuncIp = 0;
+
+   while (ip < codeSize)
+   {
+      if (ip > endFuncIp)
+      {
+         smInFunction = false;
+      }
+
+      switch (code[ip++])
+      {
+      case BC_ADD:
+         Con::printf("%i :: BC_ADD", ip - 1);
+         break;
+      case BC_SUB:
+         Con::printf("%i :: BC_SUB", ip - 1);
+         break;
+      case BC_MUL:
+         Con::printf("%i :: BC_MUL", ip - 1);
+         break;
+      case BC_DIV:
+         Con::printf("%i :: BC_DIV", ip - 1);
+         break;
+      case BC_MOD:
+         Con::printf("%i :: BC_MOD", ip - 1);
+         break;
+      case BC_LOAD_UINT:
+      {
+         U32 value = code[ip];
+         Con::printf("%i :: BC_LOAD_UINT value=%u", ip - 1, value);
+         ++ip;
+         break;
+      }
+      case BC_LOAD_FLOAT:
+      {
+         U32 index = code[ip];
+         Con::printf("%i :: BC_LOAD_FLOAT index=%u", ip - 1, index);
+         ++ip;
+         break;
+      }
+      case BC_LOAD_STRING:
+      {
+         U32 index = code[ip];
+         Con::printf("%i :: BC_LOAD_STRING index=%u", ip - 1, index);
+         ++ip;
+         break;
+      }
+      case BC_SAVE_VAR:
+      {
+         U32 index = code[ip];
+         U32 type = code[ip + 1];
+         const char* typeString =
+            type == ByteCodeFlags::TYPE_STRING ? "String" :
+            type == ByteCodeFlags::TYPE_FLOAT ? "Float" :
+            type == ByteCodeFlags::TYPE_UINT ? "Integer" :
+            type == ByteCodeFlags::TYPE_OBJECT ? "Object Handle" :
+            "Null";
+         Con::printf("%i :: BC_SAVE_VAR register=%u type=%s", ip - 1, index, typeString);
+         ip += 2;
+         break;
+      }
+      case BC_RETURN_VOID:
+         Con::printf("%i :: BC_RETURN_VOID", ip - 1);
+         break;
+      case BC_RETURN:
+         Con::printf("%i :: BC_RETURN", ip - 1);
+         break;
+      default:
+         Con::printf("%i :: BC_INVALID", ip - 1);
+         break;
       }
    }
 

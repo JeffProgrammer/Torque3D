@@ -51,6 +51,13 @@ namespace Compiler
       return codeStream.tell();
    }
 
+   U32 compileBlock2(StmtNode* block, CodeStream& codeStream, U32 ip)
+   {
+      for (StmtNode* walk = block; walk; walk = walk->getNext())
+         ip = walk->compileStmt2(codeStream, ip);
+      return codeStream.tell();
+   }
+
    inline bool isSimpleVarLookup(ExprNode *arrayExpr, StringTableEntry &varName)
    {
       if (arrayExpr == nullptr)
@@ -255,6 +262,11 @@ U32 BreakStmtNode::compileStmt(CodeStream &codeStream, U32 ip)
    return codeStream.tell();
 }
 
+U32 BreakStmtNode::compileStmt2(CodeStream& codeStream, U32 ip)
+{
+   return codeStream.tell();
+}
+
 //------------------------------------------------------------
 
 U32 ContinueStmtNode::compileStmt(CodeStream &codeStream, U32 ip)
@@ -272,12 +284,24 @@ U32 ContinueStmtNode::compileStmt(CodeStream &codeStream, U32 ip)
    return codeStream.tell();
 }
 
+U32 ContinueStmtNode::compileStmt2(CodeStream& codeStream, U32 ip)
+{
+   return codeStream.tell();
+}
+
+
 //------------------------------------------------------------
 
 U32 ExprNode::compileStmt(CodeStream &codeStream, U32 ip)
 {
    addBreakLine(codeStream);
    return compile(codeStream, ip, TypeReqNone);
+}
+
+U32 ExprNode::compileStmt2(CodeStream& codeStream, U32 ip)
+{
+   addBreakLine(codeStream);
+   return compile2(codeStream, ip, TypeReqNone);
 }
 
 //------------------------------------------------------------
@@ -305,6 +329,22 @@ U32 ReturnStmtNode::compileStmt(CodeStream &codeStream, U32 ip)
             codeStream.emit(OP_RETURN);
             break;
       }
+   }
+   return codeStream.tell();
+}
+
+U32 ReturnStmtNode::compileStmt2(CodeStream& codeStream, U32 ip)
+{
+   if (!expr)
+      codeStream.emit(OP_RETURN_VOID);
+   else
+   {
+      TypeReq walkType = expr->getPreferredType();
+      if (walkType == TypeReqNone)
+         walkType = TypeReqString;
+      ip = expr->compile(codeStream, ip, walkType);
+
+      codeStream.emit(OP_RETURN);
    }
    return codeStream.tell();
 }
@@ -368,6 +408,11 @@ U32 IfStmtNode::compileStmt(CodeStream &codeStream, U32 ip)
    }
 
    // Resolve fixes
+   return codeStream.tell();
+}
+
+U32 IfStmtNode::compileStmt2(CodeStream& codeStream, U32 ip)
+{
    return codeStream.tell();
 }
 
@@ -444,6 +489,11 @@ U32 LoopStmtNode::compileStmt(CodeStream &codeStream, U32 ip)
    return codeStream.tell();
 }
 
+U32 LoopStmtNode::compileStmt2(CodeStream& codeStream, U32 ip)
+{
+   return codeStream.tell();
+}
+
 //------------------------------------------------------------
 
 U32 IterStmtNode::compileStmt(CodeStream &codeStream, U32 ip)
@@ -489,6 +539,11 @@ U32 IterStmtNode::compileStmt(CodeStream &codeStream, U32 ip)
    return codeStream.tell();
 }
 
+U32 IterStmtNode::compileStmt2(CodeStream& codeStream, U32 ip)
+{
+   return codeStream.tell();
+}
+
 //------------------------------------------------------------
 
 U32 ConditionalExprNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
@@ -518,6 +573,11 @@ U32 ConditionalExprNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
    ip = falseExpr->compile(codeStream, ip, type);
    codeStream.patch(jumpEndIp, codeStream.tell());
 
+   return codeStream.tell();
+}
+
+U32 ConditionalExprNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
+{
    return codeStream.tell();
 }
 
@@ -551,6 +611,30 @@ U32 FloatBinaryExprNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
    codeStream.emit(operand);
    if (type != TypeReqFloat)
       codeStream.emit(conversionOp(TypeReqFloat, type));
+   return codeStream.tell();
+}
+
+U32 FloatBinaryExprNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
+{
+   ip = right->compile2(codeStream, ip, TypeReqFloat);
+   ip = left->compile2(codeStream, ip, TypeReqFloat);
+   U32 operand = OP_INVALID;
+   switch (op)
+   {
+   case '+':
+      operand = BC_ADD;
+      break;
+   case '-':
+      operand = BC_SUB;
+      break;
+   case '/':
+      operand = BC_DIV;
+      break;
+   case '*':
+      operand = BC_MUL;
+      break;
+   }
+   codeStream.emit(operand);
    return codeStream.tell();
 }
 
@@ -640,6 +724,11 @@ U32 IntBinaryExprNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
    return codeStream.tell();
 }
 
+U32 IntBinaryExprNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
+{
+   return codeStream.tell();
+}
+
 TypeReq IntBinaryExprNode::getPreferredType()
 {
    return TypeReqUInt;
@@ -663,6 +752,11 @@ U32 StreqExprNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
       codeStream.emit(OP_NOT);
    if (type != TypeReqUInt)
       codeStream.emit(conversionOp(TypeReqUInt, type));
+   return codeStream.tell();
+}
+
+U32 StreqExprNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
+{
    return codeStream.tell();
 }
 
@@ -692,6 +786,11 @@ U32 StrcatExprNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
    return codeStream.tell();
 }
 
+U32 StrcatExprNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
+{
+   return codeStream.tell();
+}
+
 TypeReq StrcatExprNode::getPreferredType()
 {
    return TypeReqString;
@@ -715,6 +814,11 @@ U32 CommaCatExprNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
       codeStream.emit(OP_STR_TO_UINT);
    else if (type == TypeReqFloat)
       codeStream.emit(OP_STR_TO_FLT);
+   return codeStream.tell();
+}
+
+U32 CommaCatExprNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
+{
    return codeStream.tell();
 }
 
@@ -742,6 +846,11 @@ U32 IntUnaryExprNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
    return codeStream.tell();
 }
 
+U32 IntUnaryExprNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
+{
+   return codeStream.tell();
+}
+
 TypeReq IntUnaryExprNode::getPreferredType()
 {
    return TypeReqUInt;
@@ -755,6 +864,11 @@ U32 FloatUnaryExprNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
    codeStream.emit(OP_NEG);
    if (type != TypeReqFloat)
       codeStream.emit(conversionOp(TypeReqFloat, type));
+   return codeStream.tell();
+}
+
+U32 FloatUnaryExprNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
+{
    return codeStream.tell();
 }
 
@@ -860,6 +974,11 @@ U32 VarNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
    return codeStream.tell();
 }
 
+U32 VarNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
+{
+   return codeStream.tell();
+}
+
 TypeReq VarNode::getPreferredType()
 {
    return TypeReqNone; // no preferred type
@@ -894,6 +1013,11 @@ U32 IntNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
    return codeStream.tell();
 }
 
+U32 IntNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
+{
+   return codeStream.tell();
+}
+
 TypeReq IntNode::getPreferredType()
 {
    return TypeReqUInt;
@@ -924,6 +1048,33 @@ U32 FloatNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
          break;
       case TypeReqNone:
          break;
+   }
+   return codeStream.tell();
+}
+
+U32 FloatNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
+{
+   if (type == TypeReqString)
+      index = getCurrentStringTable()->addFloatString(value);
+   else if (type == TypeReqFloat)
+      index = getCurrentFloatTable()->add(value);
+
+   switch (type)
+   {
+   case TypeReqUInt:
+      codeStream.emit(BC_LOAD_UINT);
+      codeStream.emit(U32(value));
+      break;
+   case TypeReqString:
+      codeStream.emit(BC_LOAD_STRING);
+      codeStream.emit(index);
+      break;
+   case TypeReqFloat:
+      codeStream.emit(BC_LOAD_FLOAT);
+      codeStream.emit(index);
+      break;
+   case TypeReqNone:
+      break;
    }
    return codeStream.tell();
 }
@@ -984,6 +1135,11 @@ U32 StrConstNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
    return codeStream.tell();
 }
 
+U32 StrConstNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
+{
+   return codeStream.tell();
+}
+
 TypeReq StrConstNode::getPreferredType()
 {
    return TypeReqString;
@@ -1022,6 +1178,11 @@ U32 ConstantNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
          break;
    }
    return ip;
+}
+
+U32 ConstantNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
+{
+   return codeStream.tell();
 }
 
 TypeReq ConstantNode::getPreferredType()
@@ -1159,6 +1320,43 @@ U32 AssignExprNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
    if (type != subType)
       codeStream.emit(conversionOp(subType, type));
    return ip;
+}
+
+U32 AssignExprNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
+{
+   U32 var = getCurrentVarTable2()->add(varName);
+
+   subType = expr->getPreferredType();
+   if (subType == TypeReqNone)
+      subType = type;
+   if (subType == TypeReqNone)
+      subType = TypeReqString;
+
+   ip = expr->compile2(codeStream, ip, subType);
+
+   //bool isGlobal = varName[0] == '$';
+
+   ByteCodeFlags flag;
+   switch (subType)
+   {
+   case TypeReqString:
+      flag = ByteCodeFlags::TYPE_STRING;
+      break;
+   case TypeReqUInt:
+      flag = ByteCodeFlags::TYPE_UINT;
+      break;
+   case TypeReqFloat:
+      flag = ByteCodeFlags::TYPE_FLOAT;
+      break;
+   default:
+      flag = ByteCodeFlags::TYPE_NULL;
+      break;
+   }
+   codeStream.emit(BC_SAVE_VAR); // isGlobal ? BC_SAVE_GLOBAL_VAR : BC_SAVE_VAR);
+   codeStream.emit((U32)flag);
+   codeStream.emit(var);
+
+   return codeStream.tell();
 }
 
 TypeReq AssignExprNode::getPreferredType()
@@ -1346,6 +1544,11 @@ U32 AssignOpExprNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
    return codeStream.tell();
 }
 
+U32 AssignOpExprNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
+{
+   return codeStream.tell();
+}
+
 TypeReq AssignOpExprNode::getPreferredType()
 {
    getAssignOpTypeOp(op, subType, operand);
@@ -1359,9 +1562,19 @@ U32 TTagSetStmtNode::compileStmt(CodeStream&, U32 ip)
    return ip;
 }
 
+U32 TTagSetStmtNode::compileStmt2(CodeStream& codeStream, U32 ip)
+{
+   return ip;
+}
+
 //------------------------------------------------------------
 
 U32 TTagDerefNode::compile(CodeStream&, U32 ip, TypeReq)
+{
+   return ip;
+}
+
+U32 TTagDerefNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
 {
    return ip;
 }
@@ -1374,6 +1587,11 @@ TypeReq TTagDerefNode::getPreferredType()
 //------------------------------------------------------------
 
 U32 TTagExprNode::compile(CodeStream&, U32 ip, TypeReq)
+{
+   return ip;
+}
+
+U32 TTagExprNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
 {
    return ip;
 }
@@ -1468,6 +1686,11 @@ U32 FuncCallExprNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
    return codeStream.tell();
 }
 
+U32 FuncCallExprNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
+{
+   return codeStream.tell();
+}
+
 TypeReq FuncCallExprNode::getPreferredType()
 {
    return TypeReqString;
@@ -1512,6 +1735,11 @@ U32 FuncPointerCallExprNode::compile(CodeStream &codeStream, U32 ip, TypeReq typ
    return codeStream.tell();
 }
 
+U32 FuncPointerCallExprNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
+{
+   return codeStream.tell();
+}
+
 TypeReq FuncPointerCallExprNode::getPreferredType()
 {
    return TypeReqString;
@@ -1531,6 +1759,11 @@ U32 AssertCallExprNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
 
 #endif
 
+   return codeStream.tell();
+}
+
+U32 AssertCallExprNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
+{
    return codeStream.tell();
 }
 
@@ -1598,6 +1831,11 @@ U32 SlotAccessNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
    return codeStream.tell();
 }
 
+U32 SlotAccessNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
+{
+   return codeStream.tell();
+}
+
 TypeReq SlotAccessNode::getPreferredType()
 {
    return TypeReqNone;
@@ -1619,6 +1857,11 @@ U32 InternalSlotAccessNode::compile(CodeStream &codeStream, U32 ip, TypeReq type
 
    if (type != TypeReqUInt)
       codeStream.emit(conversionOp(TypeReqUInt, type));
+   return codeStream.tell();
+}
+
+U32 InternalSlotAccessNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
+{
    return codeStream.tell();
 }
 
@@ -1707,6 +1950,11 @@ U32 SlotAssignNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
    return codeStream.tell();
 }
 
+U32 SlotAssignNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
+{
+   return codeStream.tell();
+}
+
 TypeReq SlotAssignNode::getPreferredType()
 {
    return TypeReqString;
@@ -1771,6 +2019,11 @@ U32 SlotAssignOpNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
    codeStream.emit((subType == TypeReqFloat) ? OP_SAVEFIELD_FLT : OP_SAVEFIELD_UINT);
    if (subType != type)
       codeStream.emit(conversionOp(subType, type));
+   return codeStream.tell();
+}
+
+U32 SlotAssignOpNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
+{
    return codeStream.tell();
 }
 
@@ -1874,6 +2127,11 @@ U32 ObjectDeclNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
    return codeStream.tell();
 }
 
+U32 ObjectDeclNode::compile2(CodeStream& codeStream, U32 ip, TypeReq type)
+{
+   return codeStream.tell();
+}
+
 TypeReq ObjectDeclNode::getPreferredType()
 {
    return TypeReqUInt;
@@ -1939,4 +2197,9 @@ U32 FunctionDeclStmtNode::compileStmt(CodeStream &codeStream, U32 ip)
    setCurrentFloatTable(&getGlobalFloatTable());
 
    return ip;
+}
+
+U32 FunctionDeclStmtNode::compileStmt2(CodeStream& codeStream, U32 ip)
+{
+   return codeStream.tell();
 }

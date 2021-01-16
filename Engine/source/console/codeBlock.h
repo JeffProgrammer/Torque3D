@@ -91,6 +91,7 @@ public:
    void clearAllBreaks();
    void setAllBreaks();
    void dumpInstructions(U32 startIp = 0, bool upToReturn = false);
+   void dumpInstructions2(U32 startIp = 0, bool upToReturn = false);
 
    /// Returns the first breakable line or 0 if none was found.
    /// @param lineNumber The one based line number.
