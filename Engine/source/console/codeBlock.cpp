@@ -668,7 +668,8 @@ ConsoleValueRef CodeBlock::compileExec(StringTableEntry fileName, const char *in
    codeStream.emit(OP_RETURN);
    codeStream.emitCodeStream(&codeSize, &code, &lineBreakPairs);
 
-   //dumpInstructions(0, false);
+   if (Con::getBoolVariable("dump"))
+      dumpInstructions(0, false);
 
    consoleAllocReset();
 

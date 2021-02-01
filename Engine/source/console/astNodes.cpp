@@ -1168,10 +1168,16 @@ TypeReq AssignExprNode::getPreferredType()
 
 //------------------------------------------------------------
 
+const S32 magicStringAppend = 0xA33E0D; // magic
+
 static void getAssignOpTypeOp(S32 op, TypeReq &type, U32 &operand)
 {
    switch (op)
    {
+      case opSTRAPPEND:
+         type = TypeReqString;
+         operand = magicStringAppend;
+         break;
       case '+':
       case opPLUSPLUS:
          type = TypeReqFloat;
@@ -1337,9 +1343,22 @@ U32 AssignOpExprNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
             codeStream.emit(OP_SETCURVAR_ARRAY_CREATE);
          }
       }
-      codeStream.emit((subType == TypeReqFloat) ? OP_LOADVAR_FLT : OP_LOADVAR_UINT);
-      codeStream.emit(operand);
-      codeStream.emit((subType == TypeReqFloat) ? OP_SAVEVAR_FLT : OP_SAVEVAR_UINT);
+
+      if (operand == magicStringAppend)
+      {
+         codeStream.emit(OP_LOADVAR_STR);
+         codeStream.emit(OP_ADVANCE_STR);
+         codeStream.emit(OP_REWIND_STR);
+         codeStream.emit(OP_SETCURVAR_CREATE);
+         codeStream.emitSTE(varName);
+         codeStream.emit(OP_SAVEVAR_STR);
+      }
+      else
+      {
+         codeStream.emit((subType == TypeReqFloat) ? OP_LOADVAR_FLT : OP_LOADVAR_UINT);
+         codeStream.emit(operand);
+         codeStream.emit((subType == TypeReqFloat) ? OP_SAVEVAR_FLT : OP_SAVEVAR_UINT);
+      }
    }
    if (subType != type)
       codeStream.emit(conversionOp(subType, type));

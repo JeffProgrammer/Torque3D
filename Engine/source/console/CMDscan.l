@@ -136,6 +136,7 @@ HEXDIGIT [a-fA-F0-9]
 ">>="       { CMDlval.i = MakeToken< int >( opSRASN, lineIndex ); return opSRASN; }
 "->"        { CMDlval.i = MakeToken< int >( opINTNAME, lineIndex ); return opINTNAME; }
 "-->"       { CMDlval.i = MakeToken< int >( opINTNAMER, lineIndex ); return opINTNAMER; }
+"@="        { CMDlval.i = MakeToken< int >( opSTRAPPEND, lineIndex ); return opSTRAPPEND; }
 "NL"        { CMDlval.i = MakeToken< int >( '\n', lineIndex ); return '@'; }
 "TAB"       { CMDlval.i = MakeToken< int >( '\t', lineIndex ); return '@'; }
 "SPC"       { CMDlval.i = MakeToken< int >( ' ', lineIndex ); return '@'; }
