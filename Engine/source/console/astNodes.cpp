@@ -446,6 +446,13 @@ U32 LoopStmtNode::compileStmt(CodeStream &codeStream, U32 ip)
 
 //------------------------------------------------------------
 
+U32 TypeNode::compileStmt(CodeStream& codeStream, U32 ip)
+{
+   return codeStream.tell();
+}
+
+//------------------------------------------------------------
+
 U32 IterStmtNode::compileStmt(CodeStream &codeStream, U32 ip)
 {
    // Instruction sequence:
@@ -863,6 +870,44 @@ U32 VarNode::compile(CodeStream &codeStream, U32 ip, TypeReq type)
 TypeReq VarNode::getPreferredType()
 {
    return TypeReqNone; // no preferred type
+}
+
+//------------------------------------------------------------
+
+U32 ParamNode::compile(CodeStream& codeStream, U32 ip, TypeReq type)
+{
+   if (type == TypeReqNone)
+      return codeStream.tell();
+
+   precompileIdent(varName);
+
+   codeStream.emit(OP_SETCURVAR);
+   codeStream.emitSTE(varName);
+
+   switch (type)
+   {
+   case TypeReqUInt:
+      codeStream.emit(OP_LOADVAR_UINT);
+      break;
+   case TypeReqFloat:
+      codeStream.emit(OP_LOADVAR_FLT);
+      break;
+   case TypeReqString:
+      codeStream.emit(OP_LOADVAR_STR);
+      break;
+   case TypeReqVar:
+      codeStream.emit(OP_LOADVAR_VAR);
+      break;
+   default:
+      break;
+   }
+
+   return codeStream.tell();
+}
+
+TypeReq ParamNode::getPreferredType()
+{
+   return TypeReqNone;
 }
 
 //------------------------------------------------------------
@@ -1897,7 +1942,7 @@ U32 FunctionDeclStmtNode::compileStmt(CodeStream &codeStream, U32 ip)
    setCurrentFloatTable(&getFunctionFloatTable());
 
    argc = 0;
-   for (VarNode *walk = args; walk; walk = (VarNode *)((StmtNode*)walk)->getNext())
+   for (ParamNode *walk = args; walk; walk = (ParamNode *)((StmtNode*)walk)->getNext())
    {
       precompileIdent(walk->varName);
       argc++;
@@ -1919,7 +1964,7 @@ U32 FunctionDeclStmtNode::compileStmt(CodeStream &codeStream, U32 ip)
    codeStream.emit(U32(bool(stmts != NULL) ? 1 : 0) + U32(dbgLineNumber << 1));
    const U32 endIp = codeStream.emit(0);
    codeStream.emit(argc);
-   for (VarNode *walk = args; walk; walk = (VarNode *)((StmtNode*)walk)->getNext())
+   for (ParamNode *walk = args; walk; walk = (ParamNode *)((StmtNode*)walk)->getNext())
    {
       codeStream.emitSTE(walk->varName);
    }

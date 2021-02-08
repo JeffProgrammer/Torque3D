@@ -169,6 +169,17 @@ struct LoopStmtNode : StmtNode
    DBG_STMT_TYPE(LoopStmtNode);
 };
 
+struct TypeNode : StmtNode
+{
+   U32 type;
+   bool isPrimitive;
+
+   static TypeNode* alloc(S32 lineNumber, U32 type, bool isPrimitive);
+
+   U32 compileStmt(CodeStream& codeStream, U32 ip);
+   DBG_STMT_TYPE(TypeNode);
+};
+
 /// A "foreach" statement.
 struct IterStmtNode : StmtNode
 {
@@ -303,6 +314,18 @@ struct VarNode : ExprNode
    DBG_STMT_TYPE(VarNode);
 };
 
+struct ParamNode : ExprNode
+{
+   StringTableEntry varName;
+   TypeNode* paramType;
+
+   static ParamNode* alloc(S32 lineNumber, StringTableEntry varName, TypeNode *type);
+
+   U32 compile(CodeStream& codeStream, U32 ip, TypeReq type);
+   TypeReq getPreferredType();
+   DBG_STMT_TYPE(ParamNode);
+};
+
 struct IntNode : ExprNode
 {
    S32 value;
@@ -361,8 +384,9 @@ struct AssignExprNode : ExprNode
    ExprNode *expr;
    ExprNode *arrayIndex;
    TypeReq subType;
+   TypeNode* varType;
 
-   static AssignExprNode *alloc(S32 lineNumber, StringTableEntry varName, ExprNode *arrayIndex, ExprNode *expr);
+   static AssignExprNode *alloc(S32 lineNumber, StringTableEntry varName, ExprNode *arrayIndex, ExprNode *expr, TypeNode *type);
 
    U32 compile(CodeStream &codeStream, U32 ip, TypeReq type);
    TypeReq getPreferredType();
@@ -572,14 +596,14 @@ struct ObjectBlockDecl
 struct FunctionDeclStmtNode : StmtNode
 {
    StringTableEntry fnName;
-   VarNode *args;
+   ParamNode *args;
    StmtNode *stmts;
    StringTableEntry nameSpace;
    StringTableEntry package;
    U32 endOffset;
    U32 argc;
 
-   static FunctionDeclStmtNode *alloc(S32 lineNumber, StringTableEntry fnName, StringTableEntry nameSpace, VarNode *args, StmtNode *stmts);
+   static FunctionDeclStmtNode *alloc(S32 lineNumber, StringTableEntry fnName, StringTableEntry nameSpace, ParamNode *args, StmtNode *stmts);
 
    U32 compileStmt(CodeStream &codeStream, U32 ip);
    void setPackage(StringTableEntry packageName);

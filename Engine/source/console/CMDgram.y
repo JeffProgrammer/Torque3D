@@ -51,6 +51,7 @@ struct Token
 %token <i> rwFOR rwFOREACH rwFOREACHSTR rwIN rwDATABLOCK rwSWITCH rwCASE rwSWITCHSTR
 %token <i> rwCASEOR rwPACKAGE rwNAMESPACE rwCLASS
 %token <i> rwASSERT
+%token <i> rwINT rwFLOAT rwSTRING rwBOOL
 %token ILLEGAL_TOKEN
 %{
         /* Constants and Identifier Definitions */
@@ -95,6 +96,9 @@ struct Token
    ObjectDeclNode*         od;
    AssignDecl              asn;
    IfStmtNode*             ifnode;
+   ParamNode*              param;
+   TypeNode*               typeNode;
+   AssignExprNode*         aen;
 }
 
 %type <s>      parent_block
@@ -133,9 +137,12 @@ struct Token
 %type <slot>   slot_acc
 %type <intslot>   intslot_acc
 %type <stmt>   expression_stmt
-%type <var>    var_list
-%type <var>    var_list_decl
+%type <param>  var_list_decl
+%type <param>  var_typed_decl
+%type <param>  var_list_typed
 %type <asn>    assign_op_struct
+%type <typeNode> var_type
+%type <aen>    var_assign_expr
 
 %left '['
 %right opMODASN opANDASN opXORASN opPLASN opMIASN opMLASN opDVASN opMDASN opNDASN opNTASN opORASN opSLASN opSRASN '='
@@ -232,15 +239,22 @@ fn_decl_stmt
 var_list_decl
    :
      { $$ = NULL; }
-   | var_list
+   | var_list_typed
      { $$ = $1; }
    ;
 
-var_list
-   : VAR
-      { $$ = VarNode::alloc( $1.lineNumber, $1.value, NULL ); }
-   | var_list ',' VAR
-      { $$ = $1; ((StmtNode*)($1))->append((StmtNode*)VarNode::alloc( $3.lineNumber, $3.value, NULL ) ); }
+var_list_typed
+   : var_typed_decl
+      { $$ = $1; }
+   | var_list_typed ',' var_typed_decl
+      { $$ = $1; ((StmtNode*)($1))->append($3); }
+   ;
+
+var_typed_decl
+   : VAR ':' var_type
+      { $$ = ParamNode::alloc( $1.lineNumber, $1.value, $3 ); }
+   | VAR
+      { $$ = ParamNode::alloc( $1.lineNumber, $1.value, TypeNode::alloc($1.lineNumber, rwSTRING, true)); }
    ;
 
 datablock_decl
@@ -374,6 +388,8 @@ foreach_stmt
 
 expression_stmt
    : stmt_expr
+      { $$ = $1; }
+   | var_assign_expr
       { $$ = $1; }
    ;
 
@@ -529,9 +545,11 @@ stmt_expr
    | object_decl
       { $$ = $1; }
    | VAR '=' expr
-      { $$ = AssignExprNode::alloc( $1.lineNumber, $1.value, NULL, $3); }
-   | VAR '[' aidx_expr ']' '=' expr
-      { $$ = AssignExprNode::alloc( $1.lineNumber, $1.value, $3, $6); }
+      { $$ = AssignExprNode::alloc( $1.lineNumber, $1.value, NULL, $3, TypeNode::alloc($1.lineNumber, rwSTRING, true)); }
+   | '(' var_assign_expr ')'
+      { $$ = $2; }
+   |  VAR '[' aidx_expr ']' '=' expr
+      { $$ = AssignExprNode::alloc( $1.lineNumber, $1.value, $3, $6, TypeNode::alloc($1.lineNumber, rwSTRING, true)); }
    | VAR assign_op_struct
       { $$ = AssignOpExprNode::alloc( $1.lineNumber, $1.value, NULL, $2.expr, $2.token); }
    | VAR '[' aidx_expr ']' assign_op_struct
@@ -542,6 +560,11 @@ stmt_expr
       { $$ = SlotAssignNode::alloc( $1.lineNumber, $1.object, $1.array, $1.slotName, $3); }
    | slot_acc '=' '{' expr_list '}'
       { $$ = SlotAssignNode::alloc( $1.lineNumber, $1.object, $1.array, $1.slotName, $4); }
+   ;
+
+var_assign_expr
+   : VAR ':' var_type '=' expr
+      { $$ = AssignExprNode::alloc( $1.lineNumber, $1.value, NULL, $5, $3); }
    ;
 
 funcall_expr
@@ -608,6 +631,19 @@ aidx_expr
       { $$ = $1; }
    | aidx_expr ',' expr
       { $$ = CommaCatExprNode::alloc( $1->dbgLineNumber, $1, $3); }
+   ;
+
+var_type
+   : rwINT
+      { $$ = TypeNode::alloc( $1.lineNumber, $1.value, true); }
+   | rwFLOAT
+      { $$ = TypeNode::alloc( $1.lineNumber, $1.value, true); }
+   | rwBOOL
+      { $$ = TypeNode::alloc( $1.lineNumber, $1.value, true); }
+   | rwSTRING
+      { $$ = TypeNode::alloc( $1.lineNumber, $1.value, true); }
+   | TYPEIDENT
+      { $$ = TypeNode::alloc( $1.lineNumber, $1.value, false); }
    ;
 %%
 
