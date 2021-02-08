@@ -231,9 +231,13 @@ stmt
 
 fn_decl_stmt
    : rwDEFINE IDENT '(' var_list_decl ')' '{' statement_list '}'
-      { $$ = FunctionDeclStmtNode::alloc( $1.lineNumber, $2.value, NULL, $4, $7 ); }
-    | rwDEFINE IDENT opCOLONCOLON IDENT '(' var_list_decl ')' '{' statement_list '}'
-     { $$ = FunctionDeclStmtNode::alloc( $1.lineNumber, $4.value, $2.value, $6, $9 ); }
+      { $$ = FunctionDeclStmtNode::alloc( $1.lineNumber, $2.value, NULL, $4, $7, TypeNode::alloc($1.lineNumber, rwSTRING, true) ); }
+   |rwDEFINE IDENT '(' var_list_decl ')' ':' var_type '{' statement_list '}'
+      { $$ = FunctionDeclStmtNode::alloc( $1.lineNumber, $2.value, NULL, $4, $9, $7 ); }
+   | rwDEFINE IDENT opCOLONCOLON IDENT '(' var_list_decl ')' '{' statement_list '}'
+     { $$ = FunctionDeclStmtNode::alloc( $1.lineNumber, $4.value, $2.value, $6, $9, TypeNode::alloc($1.lineNumber, rwSTRING, true) ); }
+   | rwDEFINE IDENT opCOLONCOLON IDENT '(' var_list_decl ')' ':' var_type '{' statement_list '}'
+     { $$ = FunctionDeclStmtNode::alloc( $1.lineNumber, $4.value, $2.value, $6, $11, $9 ); }
    ;
 
 var_list_decl
@@ -478,7 +482,22 @@ expr
          UTF8 buffer[bufLen];
          dSprintf(buffer, bufLen, "__anonymous_function%d", gAnonFunctionID++);
          StringTableEntry fName = StringTable->insert(buffer);
-         StmtNode *fndef = FunctionDeclStmtNode::alloc($1.lineNumber, fName, NULL, $3, $6);
+         StmtNode *fndef = FunctionDeclStmtNode::alloc($1.lineNumber, fName, NULL, $3, $6, TypeNode::alloc($1.lineNumber, rwSTRING, true));
+
+         if(!gAnonFunctionList)
+            gAnonFunctionList = fndef;
+         else
+            gAnonFunctionList->append(fndef);
+
+         $$ = StrConstNode::alloc( $1.lineNumber, (UTF8*)fName, false );
+      }
+   | rwDEFINE '(' var_list_decl ')' ':' var_type '{' statement_list '}'
+      {
+         const U32 bufLen = 64;
+         UTF8 buffer[bufLen];
+         dSprintf(buffer, bufLen, "__anonymous_function%d", gAnonFunctionID++);
+         StringTableEntry fName = StringTable->insert(buffer);
+         StmtNode *fndef = FunctionDeclStmtNode::alloc($1.lineNumber, fName, NULL, $3, $8, $6);
 
          if(!gAnonFunctionList)
             gAnonFunctionList = fndef;

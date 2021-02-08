@@ -447,7 +447,7 @@ ObjectDeclNode *ObjectDeclNode::alloc(S32 lineNumber, ExprNode *classNameExpr, E
    return ret;
 }
 
-FunctionDeclStmtNode *FunctionDeclStmtNode::alloc(S32 lineNumber, StringTableEntry fnName, StringTableEntry nameSpace, ParamNode *args, StmtNode *stmts)
+FunctionDeclStmtNode *FunctionDeclStmtNode::alloc(S32 lineNumber, StringTableEntry fnName, StringTableEntry nameSpace, ParamNode *args, StmtNode *stmts, TypeNode *typeNode)
 {
    FunctionDeclStmtNode *ret = (FunctionDeclStmtNode *)consoleAlloc(sizeof(FunctionDeclStmtNode));
    constructInPlace(ret);
@@ -457,5 +457,6 @@ FunctionDeclStmtNode *FunctionDeclStmtNode::alloc(S32 lineNumber, StringTableEnt
    ret->stmts = stmts;
    ret->nameSpace = nameSpace;
    ret->package = NULL;
+   ret->returnType = typeNode;
    return ret;
 }

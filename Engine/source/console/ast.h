@@ -602,8 +602,9 @@ struct FunctionDeclStmtNode : StmtNode
    StringTableEntry package;
    U32 endOffset;
    U32 argc;
+   TypeNode *returnType;
 
-   static FunctionDeclStmtNode *alloc(S32 lineNumber, StringTableEntry fnName, StringTableEntry nameSpace, ParamNode *args, StmtNode *stmts);
+   static FunctionDeclStmtNode *alloc(S32 lineNumber, StringTableEntry fnName, StringTableEntry nameSpace, ParamNode *args, StmtNode *stmts, TypeNode *typeNode);
 
    U32 compileStmt(CodeStream &codeStream, U32 ip);
    void setPackage(StringTableEntry packageName);
