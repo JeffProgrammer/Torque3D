@@ -60,6 +60,7 @@ namespace Compiler
    CompilerFloatTable  *gCurrentFloatTable, gGlobalFloatTable, gFunctionFloatTable;
    DataChunker          gConsoleAllocator;
    CompilerIdentTable   gIdentTable;
+   CompilerTypeTable   *gCurrentTypeTable, gGlobalTypeTable, gFunctionTypeTable;
 
    //------------------------------------------------------------
 
@@ -102,6 +103,12 @@ namespace Compiler
 
    CompilerIdentTable &getIdentTable() { return gIdentTable; }
 
+   CompilerTypeTable* getCurrentTypeTable() { return gCurrentTypeTable; }
+   CompilerTypeTable& getGlobalTypeTable() { return gGlobalTypeTable; }
+   CompilerTypeTable& getFunctionTypeTable() { return gFunctionTypeTable; }
+
+   void setCurrentTypeTable(CompilerTypeTable* tbl) { gCurrentTypeTable = tbl; }
+
    void precompileIdent(StringTableEntry ident)
    {
       if (ident)
@@ -112,6 +119,7 @@ namespace Compiler
    {
       setCurrentStringTable(&gGlobalStringTable);
       setCurrentFloatTable(&gGlobalFloatTable);
+      setCurrentTypeTable(&gGlobalTypeTable);
       getGlobalFloatTable().reset();
       getGlobalStringTable().reset();
       getFunctionFloatTable().reset();
@@ -130,6 +138,25 @@ using namespace Compiler;
 
 //-------------------------------------------------------------------------
 
+StringTableEntry CompilerTypeTable::lookupType(const std::string& varName)
+{
+   auto pos = tbl.find(varName);
+   if (pos != tbl.end())
+      return pos->second;
+   return nullptr;
+}
+
+void CompilerTypeTable::add(const std::string& varName, StringTableEntry type)
+{
+   tbl.insert(std::make_pair(varName, type));
+}
+
+void CompilerTypeTable::clear()
+{
+   tbl.clear();
+}
+
+//-------------------------------------------------------------------------
 
 U32 CompilerStringTable::add(const char *str, bool caseSens, bool tag)
 {

@@ -185,6 +185,18 @@ namespace Compiler
 
    //------------------------------------------------------------
 
+   class CompilerTypeTable
+   {
+      std::unordered_map<std::string, StringTableEntry> tbl;
+
+   public:
+      StringTableEntry lookupType(const std::string &varName);
+      void add(const std::string &varName, StringTableEntry type);
+      void clear();
+   };
+
+   //------------------------------------------------------------
+
    F64 consoleStringToNumber(const char *str, StringTableEntry file = 0, U32 line = 0);
 
    U32 compileBlock(StmtNode *block, CodeStream &codeStream, U32 ip);
@@ -281,6 +293,13 @@ namespace Compiler
    CompilerIdentTable &getIdentTable();
 
    void precompileIdent(StringTableEntry ident);
+
+
+   CompilerTypeTable* getCurrentTypeTable();
+   CompilerTypeTable& getGlobalTypeTable();
+   CompilerTypeTable& getFunctionTypeTable();
+
+   void setCurrentTypeTable(CompilerTypeTable* tbl);
 
    /// Helper function to reset the float, string, and ident tables to a base
    /// starting state.
