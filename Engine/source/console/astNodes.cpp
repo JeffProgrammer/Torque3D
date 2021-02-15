@@ -449,28 +449,6 @@ U32 LoopStmtNode::compileStmt(CodeStream &codeStream, U32 ip)
 
 //------------------------------------------------------------
 
-U32 TypeNode::compileStmt(CodeStream& codeStream, U32 ip)
-{
-   return codeStream.tell();
-}
-
-StringTableEntry TypeNode::toTypeString() const
-{
-   if (isPrimitive)
-   {
-      switch (type)
-      {
-         case rwINT:    return StringTable->insert("int");
-         case rwFLOAT:  return StringTable->insert("float");
-         case rwBOOL:   return StringTable->insert("bool");
-         case rwSTRING: return StringTable->insert("string");
-      }
-   }
-   return NULL;
-}
-
-//------------------------------------------------------------
-
 U32 IterStmtNode::compileStmt(CodeStream &codeStream, U32 ip)
 {
    // Instruction sequence:
@@ -2008,6 +1986,9 @@ U32 FunctionDeclStmtNode::compileStmt(CodeStream &codeStream, U32 ip)
    for (ParamNode *walk = args; walk; walk = (ParamNode *)((StmtNode*)walk)->getNext())
    {
       codeStream.emitSTE(walk->varName);
+      codeStream.emitSTE(walk->typeName);
+
+      getCurrentTypeTable()->add(walk->varName, walk->typeName);
    }
    CodeBlock::smInFunction = true;
    ip = compileBlock(stmts, codeStream, ip);

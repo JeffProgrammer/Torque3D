@@ -4,6 +4,7 @@ typedef union {
    Token< const char* >    s;
    Token< char* >          str;
    Token< double >         f;
+   StringTableEntry        ste;
    StmtNode*               stmt;
    ExprNode*               expr;
    SlotAssignNode*         slist;
@@ -15,7 +16,6 @@ typedef union {
    AssignDecl              asn;
    IfStmtNode*             ifnode;
    ParamNode*              param;
-   TypeNode*               typeNode;
    AssignExprNode*         aen;
 } YYSTYPE;
 #define	rwDEFINE	258
@@ -52,48 +52,49 @@ typedef union {
 #define	rwFLOAT	289
 #define	rwSTRING	290
 #define	rwBOOL	291
-#define	ILLEGAL_TOKEN	292
-#define	CHRCONST	293
-#define	INTCONST	294
-#define	TTAG	295
-#define	VAR	296
-#define	IDENT	297
-#define	TYPEIDENT	298
-#define	DOCBLOCK	299
-#define	STRATOM	300
-#define	TAGATOM	301
-#define	FLTCONST	302
-#define	opINTNAME	303
-#define	opINTNAMER	304
-#define	opMINUSMINUS	305
-#define	opPLUSPLUS	306
-#define	STMT_SEP	307
-#define	opSHL	308
-#define	opSHR	309
-#define	opPLASN	310
-#define	opMIASN	311
-#define	opMLASN	312
-#define	opDVASN	313
-#define	opMODASN	314
-#define	opANDASN	315
-#define	opXORASN	316
-#define	opORASN	317
-#define	opSLASN	318
-#define	opSRASN	319
-#define	opCAT	320
-#define	opEQ	321
-#define	opNE	322
-#define	opGE	323
-#define	opLE	324
-#define	opAND	325
-#define	opOR	326
-#define	opSTREQ	327
-#define	opCOLONCOLON	328
-#define	opMDASN	329
-#define	opNDASN	330
-#define	opNTASN	331
-#define	opSTRNE	332
-#define	UNARY	333
+#define	rwVOID	292
+#define	ILLEGAL_TOKEN	293
+#define	CHRCONST	294
+#define	INTCONST	295
+#define	TTAG	296
+#define	VAR	297
+#define	IDENT	298
+#define	TYPEIDENT	299
+#define	DOCBLOCK	300
+#define	STRATOM	301
+#define	TAGATOM	302
+#define	FLTCONST	303
+#define	opINTNAME	304
+#define	opINTNAMER	305
+#define	opMINUSMINUS	306
+#define	opPLUSPLUS	307
+#define	STMT_SEP	308
+#define	opSHL	309
+#define	opSHR	310
+#define	opPLASN	311
+#define	opMIASN	312
+#define	opMLASN	313
+#define	opDVASN	314
+#define	opMODASN	315
+#define	opANDASN	316
+#define	opXORASN	317
+#define	opORASN	318
+#define	opSLASN	319
+#define	opSRASN	320
+#define	opCAT	321
+#define	opEQ	322
+#define	opNE	323
+#define	opGE	324
+#define	opLE	325
+#define	opAND	326
+#define	opOR	327
+#define	opSTREQ	328
+#define	opCOLONCOLON	329
+#define	opMDASN	330
+#define	opNDASN	331
+#define	opNTASN	332
+#define	opSTRNE	333
+#define	UNARY	334
 
 
 extern YYSTYPE CMDlval;

@@ -216,6 +216,7 @@ HEXDIGIT [a-fA-F0-9]
 "float"     { CMDlval.i = MakeToken< int >( rwFLOAT, lineIndex ); return rwFLOAT; }
 "bool"      { CMDlval.i = MakeToken< int >( rwBOOL, lineIndex ); return rwBOOL; }
 "string"    { CMDlval.i = MakeToken< int >( rwSTRING, lineIndex ); return rwSTRING; }
+"void"      { CMDlval.i = MakeToken< int >( rwVOID, lineIndex ); return rwVOID; }
 {VAR}       { return(Sc_ScanVar()); }
 {ID}        { return Sc_ScanIdent(); }
 0[xX]{HEXDIGIT}+ return(Sc_ScanHex());

@@ -51,7 +51,7 @@ struct Token
 %token <i> rwFOR rwFOREACH rwFOREACHSTR rwIN rwDATABLOCK rwSWITCH rwCASE rwSWITCHSTR
 %token <i> rwCASEOR rwPACKAGE rwNAMESPACE rwCLASS
 %token <i> rwASSERT
-%token <i> rwINT rwFLOAT rwSTRING rwBOOL
+%token <i> rwINT rwFLOAT rwSTRING rwBOOL rwVOID
 %token ILLEGAL_TOKEN
 %{
         /* Constants and Identifier Definitions */
@@ -86,6 +86,7 @@ struct Token
    Token< const char* >    s;
    Token< char* >          str;
    Token< double >         f;
+   StringTableEntry        ste;
    StmtNode*               stmt;
    ExprNode*               expr;
    SlotAssignNode*         slist;
@@ -97,7 +98,6 @@ struct Token
    AssignDecl              asn;
    IfStmtNode*             ifnode;
    ParamNode*              param;
-   TypeNode*               typeNode;
    AssignExprNode*         aen;
 }
 
@@ -141,7 +141,8 @@ struct Token
 %type <param>  var_typed_decl
 %type <param>  var_list_typed
 %type <asn>    assign_op_struct
-%type <typeNode> var_type
+%type <ste> var_type
+%type <ste> function_type
 %type <aen>    var_assign_expr
 
 %left '['
@@ -231,12 +232,12 @@ stmt
 
 fn_decl_stmt
    : rwDEFINE IDENT '(' var_list_decl ')' '{' statement_list '}'
-      { $$ = FunctionDeclStmtNode::alloc( $1.lineNumber, $2.value, NULL, $4, $7, TypeNode::alloc($1.lineNumber, rwSTRING, true) ); }
-   |rwDEFINE IDENT '(' var_list_decl ')' ':' var_type '{' statement_list '}'
+      { $$ = FunctionDeclStmtNode::alloc( $1.lineNumber, $2.value, NULL, $4, $7, StringTable->insert("string") ); }
+   |rwDEFINE IDENT '(' var_list_decl ')' ':' function_type '{' statement_list '}'
       { $$ = FunctionDeclStmtNode::alloc( $1.lineNumber, $2.value, NULL, $4, $9, $7 ); }
    | rwDEFINE IDENT opCOLONCOLON IDENT '(' var_list_decl ')' '{' statement_list '}'
-     { $$ = FunctionDeclStmtNode::alloc( $1.lineNumber, $4.value, $2.value, $6, $9, TypeNode::alloc($1.lineNumber, rwSTRING, true) ); }
-   | rwDEFINE IDENT opCOLONCOLON IDENT '(' var_list_decl ')' ':' var_type '{' statement_list '}'
+     { $$ = FunctionDeclStmtNode::alloc( $1.lineNumber, $4.value, $2.value, $6, $9, StringTable->insert("string") ); }
+   | rwDEFINE IDENT opCOLONCOLON IDENT '(' var_list_decl ')' ':' function_type '{' statement_list '}'
      { $$ = FunctionDeclStmtNode::alloc( $1.lineNumber, $4.value, $2.value, $6, $11, $9 ); }
    ;
 
@@ -258,7 +259,7 @@ var_typed_decl
    : VAR ':' var_type
       { $$ = ParamNode::alloc( $1.lineNumber, $1.value, $3 ); }
    | VAR
-      { $$ = ParamNode::alloc( $1.lineNumber, $1.value, TypeNode::alloc($1.lineNumber, rwSTRING, true)); }
+      { $$ = ParamNode::alloc( $1.lineNumber, $1.value, StringTable->insert("string") ); }
    ;
 
 datablock_decl
@@ -482,7 +483,7 @@ expr
          UTF8 buffer[bufLen];
          dSprintf(buffer, bufLen, "__anonymous_function%d", gAnonFunctionID++);
          StringTableEntry fName = StringTable->insert(buffer);
-         StmtNode *fndef = FunctionDeclStmtNode::alloc($1.lineNumber, fName, NULL, $3, $6, TypeNode::alloc($1.lineNumber, rwSTRING, true));
+         StmtNode *fndef = FunctionDeclStmtNode::alloc($1.lineNumber, fName, NULL, $3, $6, StringTable->insert("string"));
 
          if(!gAnonFunctionList)
             gAnonFunctionList = fndef;
@@ -491,7 +492,7 @@ expr
 
          $$ = StrConstNode::alloc( $1.lineNumber, (UTF8*)fName, false );
       }
-   | rwDEFINE '(' var_list_decl ')' ':' var_type '{' statement_list '}'
+   | rwDEFINE '(' var_list_decl ')' ':' function_type '{' statement_list '}'
       {
          const U32 bufLen = 64;
          UTF8 buffer[bufLen];
@@ -564,11 +565,14 @@ stmt_expr
    | object_decl
       { $$ = $1; }
    | VAR '=' expr
-      { $$ = AssignExprNode::alloc( $1.lineNumber, $1.value, NULL, $3, TypeNode::alloc($1.lineNumber, rwSTRING, true)); }
+      { $$ = AssignExprNode::alloc( $1.lineNumber, $1.value, NULL, $3, NULL); }
    | '(' var_assign_expr ')'
-      { $$ = $2; }
+      {
+         // this might cause some issues... 
+         $$ = $2; 
+      }
    |  VAR '[' aidx_expr ']' '=' expr
-      { $$ = AssignExprNode::alloc( $1.lineNumber, $1.value, $3, $6, TypeNode::alloc($1.lineNumber, rwSTRING, true)); }
+      { $$ = AssignExprNode::alloc( $1.lineNumber, $1.value, $3, $6, NULL); }
    | VAR assign_op_struct
       { $$ = AssignOpExprNode::alloc( $1.lineNumber, $1.value, NULL, $2.expr, $2.token); }
    | VAR '[' aidx_expr ']' assign_op_struct
@@ -654,15 +658,25 @@ aidx_expr
 
 var_type
    : rwINT
-      { $$ = TypeNode::alloc( $1.lineNumber, $1.value, true); }
+      { $$ = StringTable->insert("int"); }
    | rwFLOAT
-      { $$ = TypeNode::alloc( $1.lineNumber, $1.value, true); }
+      { $$ = StringTable->insert("float"); }
    | rwBOOL
-      { $$ = TypeNode::alloc( $1.lineNumber, $1.value, true); }
+      { $$ = StringTable->insert("bool"); }
    | rwSTRING
-      { $$ = TypeNode::alloc( $1.lineNumber, $1.value, true); }
+      { $$ = StringTable->insert("string"); }
    | TYPEIDENT
-      { $$ = TypeNode::alloc( $1.lineNumber, $1.value, false); }
+      { 
+         // These are Console Types. Note that user defined types here are not supported.
+         StringTableEntry _type = ConsoleBaseType::getType($1.value)->getTypeName();
+         $$ = StringTable->insert(_type); 
+      }
    ;
+
+function_type
+   : var_type
+      { $$ = $1; }
+   | rwVOID
+      { $$ = StringTable->insert("void"); }
 %%
 
