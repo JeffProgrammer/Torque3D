@@ -107,6 +107,8 @@ struct IterStackRecord
 
 ConsoleValueStack<4096> gCallStack;
 
+ConsoleValueSingleStack gReturnStack;
+
 StringStack STR;
 
 U32 _ITER = 0;    ///< Stack pointer for iterStack.
@@ -1744,20 +1746,15 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
                }
             }
             gCallStack.popFrame();
-            STR.setStringValue("");
-            STR.setStringValue("");
+            gReturnStack.pushEmptyString();
             break;
          }
          if (nsEntry->mType == Namespace::Entry::ConsoleFunctionType)
          {
             if (nsEntry->mFunctionOffset)
-            {
-               // TODO: not make this strings only for returns.
-               ConsoleValue returnFromFn = nsEntry->mCode->exec(nsEntry->mFunctionOffset, fnName, nsEntry->mNamespace, callArgc, callArgv, false, nsEntry->mPackage);
-               STR.setStringValue(returnFromFn.getString());
-            }
+               gReturnStack.push(nsEntry->mCode->exec(nsEntry->mFunctionOffset, fnName, nsEntry->mNamespace, callArgc, callArgv, false, nsEntry->mPackage));
             else // no body
-               STR.setStringValue("");
+               gReturnStack.pushEmptyString();
 
             gCallStack.popFrame();
          }
@@ -1769,7 +1766,7 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
                Con::warnf(ConsoleLogEntry::Script, "%s: %s::%s - wrong number of arguments.", getFileLine(ip - 4), nsName, fnName);
                Con::warnf(ConsoleLogEntry::Script, "%s: usage: %s", getFileLine(ip - 4), nsEntry->mUsage);
                gCallStack.popFrame();
-               STR.setStringValue("");
+               gReturnStack.pushEmptyString();
             }
             else
             {
@@ -1779,10 +1776,7 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
                {
                   const char* ret = nsEntry->cb.mStringCallbackFunc(gEvalState.thisObject, callArgc, callArgv);
                   gCallStack.popFrame();
-                  if (ret != STR.getStringValue())
-                     STR.setStringValue(ret);
-                  else
-                     STR.setLen(dStrlen(ret));
+                  gReturnStack.pushString(ret);
                   break;
                }
                case Namespace::Entry::IntCallbackType:
@@ -1804,7 +1798,7 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
                   else if (code[ip] == OP_STR_TO_NONE)
                      ip++;
                   else
-                     STR.setIntValue(result);
+                     gReturnStack.pushInt(result);
                   break;
                }
                case Namespace::Entry::FloatCallbackType:
@@ -1826,7 +1820,7 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
                   else if (code[ip] == OP_STR_TO_NONE)
                      ip++;
                   else
-                     STR.setFloatValue(result);
+                     gReturnStack.pushFloat(result);
                   break;
                }
                case Namespace::Entry::VoidCallbackType:
@@ -1835,7 +1829,7 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
                   if (code[ip] != OP_STR_TO_NONE)
                      Con::warnf(ConsoleLogEntry::General, "%s: Call to %s in %s uses result of void function call.", getFileLine(ip - 4), fnName, functionName);
                   gCallStack.popFrame();
-                  STR.setStringValue("");
+                  gReturnStack.pushEmptyString();
                   break;
                }
                case Namespace::Entry::BoolCallbackType:
@@ -1857,7 +1851,7 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
                   else if (code[ip] == OP_STR_TO_NONE)
                      ip++;
                   else
-                     STR.setIntValue(result);
+                     gReturnStack.pushInt(result);
                   break;
                }
                }

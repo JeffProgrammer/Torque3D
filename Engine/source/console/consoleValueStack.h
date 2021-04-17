@@ -118,4 +118,49 @@ public:
    }
 };
 
+class ConsoleValueSingleStack
+{
+private:
+   Vector<ConsoleValue> stk;
+
+public:
+   TORQUE_FORCEINLINE void push(ConsoleValue &&val)
+   {
+      stk.push_back(val);
+   }
+
+   TORQUE_FORCEINLINE void pushEmptyString()
+   {
+      stk.push_back(ConsoleValue());
+   }
+
+   TORQUE_FORCEINLINE void pushInt(S64 val)
+   {
+      ConsoleValue v;
+      v.setInt(val);
+      stk.push_back(std::move(v));
+   }
+
+   TORQUE_FORCEINLINE void pushFloat(F64 val)
+   {
+      ConsoleValue v;
+      v.setFloat(val);
+      stk.push_back(std::move(v));
+   }
+
+   TORQUE_FORCEINLINE void pushString(const char *val)
+   {
+      ConsoleValue v;
+      v.setString(val);
+      stk.push_back(std::move(v));
+   }
+
+   TORQUE_FORCEINLINE ConsoleValue pop()
+   {
+      ConsoleValue val = std::move(stk.last());
+      stk.pop_back();
+      return std::move(val);
+   }
+};
+
 #endif
