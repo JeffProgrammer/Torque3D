@@ -107,7 +107,7 @@ struct IterStackRecord
 
 ConsoleValueStack<4096> gCallStack;
 
-ConsoleValueSingleStack gReturnStack;
+ConsoleValueSingleStack<4096> gReturnStack;
 
 StringStack STR;
 

@@ -107,7 +107,7 @@ typedef unsigned _int64 U64;
 #define TORQUE_FORCEINLINE __forceinline
 
 #if __cplusplus >= 201703L
-#define TORQUE_CASE_FALLTHROUGH [[fallthrough]];
+#define TORQUE_CASE_FALLTHROUGH [[fallthrough]]
 #define TORQUE_UNLIKELY [[unlikely]]
 #else
 #define TORQUE_CASE_FALLTHROUGH __fallthrough

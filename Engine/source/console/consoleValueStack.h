@@ -118,48 +118,49 @@ public:
    }
 };
 
+template<S32 Size>
 class ConsoleValueSingleStack
 {
 private:
-   Vector<ConsoleValue> stk;
+   ConsoleValue stk[Size];
+   S32 ptr;
 
 public:
    TORQUE_FORCEINLINE void push(ConsoleValue &&val)
    {
-      stk.push_back(val);
+      stk[ptr++] = std::move(val);
    }
 
    TORQUE_FORCEINLINE void pushEmptyString()
    {
-      stk.push_back(ConsoleValue());
+      push(ConsoleValue());
    }
 
    TORQUE_FORCEINLINE void pushInt(S64 val)
    {
       ConsoleValue v;
       v.setInt(val);
-      stk.push_back(std::move(v));
+      push(std::move(v));
    }
 
    TORQUE_FORCEINLINE void pushFloat(F64 val)
    {
       ConsoleValue v;
       v.setFloat(val);
-      stk.push_back(std::move(v));
+      push(std::move(v));
    }
 
    TORQUE_FORCEINLINE void pushString(const char *val)
    {
       ConsoleValue v;
       v.setString(val);
-      stk.push_back(std::move(v));
+      push(std::move(v));
    }
 
    TORQUE_FORCEINLINE ConsoleValue pop()
    {
-      ConsoleValue val = std::move(stk.last());
-      stk.pop_back();
-      return std::move(val);
+      AssertFatal(ptr >= 0, "ConsoleValueSinglestack popped too many times");
+      return std::move(stk[ptr--]);
    }
 };
 
