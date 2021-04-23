@@ -861,6 +861,16 @@ void CodeBlock::dumpInstructions(U32 startIp, bool upToReturn)
          break;
       }
 
+      case OP_RETURN_CONSOLE_VALUE:
+      {
+         Con::printf("%i: OP_RETURN_CONSOLE_VALUE", ip - 1);
+
+         if (upToReturn)
+            return;
+
+         break;
+      }
+
       case OP_CMPEQ:
       {
          Con::printf("%i: OP_CMPEQ", ip - 1);
@@ -1108,6 +1118,13 @@ void CodeBlock::dumpInstructions(U32 startIp, bool upToReturn)
          break;
       }
 
+      case OP_SAVE_LOCAL_VAR_RETURN_VALUE:
+      {
+         Con::printf("%i: OP_SAVE_LOCAL_VAR_RETURN_VALUE reg=%i", ip - 1, code[ip]);
+         ++ip;
+         break;
+      }
+
       case OP_SETCUROBJECT:
       {
          Con::printf("%i: OP_SETCUROBJECT", ip - 1);
@@ -1230,6 +1247,29 @@ void CodeBlock::dumpInstructions(U32 startIp, bool upToReturn)
       case OP_NUM_TO_NONE:
       {
          Con::printf("%i: OP_NUM_TO_NONE", ip - 1);
+         break;
+      }
+
+      case OP_RETURN_VALUE_TO_FLT:
+      {
+         Con::printf("%i: OP_RETURN_VALUE_TO_FLT", ip - 1);
+         break;
+      }
+
+      case OP_RETURN_VALUE_TO_STR:
+      {
+         Con::printf("%i: OP_RETURN_VALUE_TO_STR", ip - 1);
+         break;
+      }
+
+      case OP_RETURN_VALUE_TO_UINT:
+      {
+         Con::printf("%i: OP_RETURN_VALUE_TO_UINT", ip - 1);
+      }
+
+      case OP_RETURN_VALUE_TO_NONE:
+      {
+         Con::printf("%: OP_RETURN_VALUE_TO_VAR", ip - 1);
          break;
       }
 
@@ -1361,6 +1401,12 @@ void CodeBlock::dumpInstructions(U32 startIp, bool upToReturn)
       case OP_PUSH_FLT:
       {
          Con::printf("%i: OP_PUSH_FLT", ip - 1);
+         break;
+      }
+
+      case OP_PUSH_RETURN_VALUE:
+      {
+         Con::printf("%i: OP_PUSH_RETURN_VALUE", ip - 1);
          break;
       }
 

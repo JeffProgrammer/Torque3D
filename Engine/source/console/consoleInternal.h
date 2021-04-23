@@ -617,6 +617,11 @@ public:
       currentRegisterArray->values[reg].setString(val, len);
    }
 
+   TORQUE_FORCEINLINE void setLocalConsoleValueVariable(S32 reg, ConsoleValue val)
+   {
+      currentRegisterArray->values[reg] = std::move(val);
+   }
+
    TORQUE_FORCEINLINE void setLocalStringTableEntryVariable(S32 reg, StringTableEntry val)
    {
       currentRegisterArray->values[reg].setStringTableEntry(val);

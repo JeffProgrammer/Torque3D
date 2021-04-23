@@ -107,6 +107,12 @@ public:
       frame.values[frame.internalCounter++].setString(value, len);
    }
 
+   TORQUE_FORCEINLINE void pushConsoleValue(ConsoleValue&& val)
+   {
+      Frame& frame = stack.last();
+      frame.values[frame.internalCounter++] = val;
+   }
+
    TORQUE_FORCEINLINE void argvc(StringTableEntry fn, S32& argc, ConsoleValue** argv)
    {
       Frame& frame = stack.last();

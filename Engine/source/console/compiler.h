@@ -68,6 +68,7 @@ namespace Compiler
       OP_RETURN_VOID,
       OP_RETURN_FLT,
       OP_RETURN_UINT,
+      OP_RETURN_CONSOLE_VALUE,
 
       OP_CMPEQ,
       OP_CMPGR,
@@ -115,6 +116,7 @@ namespace Compiler
       OP_SAVE_LOCAL_VAR_UINT,
       OP_SAVE_LOCAL_VAR_FLT,
       OP_SAVE_LOCAL_VAR_STR,
+      OP_SAVE_LOCAL_VAR_RETURN_VALUE,
 
       OP_SETCUROBJECT,
       OP_SETCUROBJECT_NEW,
@@ -140,6 +142,10 @@ namespace Compiler
       OP_UINT_TO_FLT,
       OP_UINT_TO_STR,
       OP_NUM_TO_NONE,
+      OP_RETURN_VALUE_TO_FLT,
+      OP_RETURN_VALUE_TO_STR,
+      OP_RETURN_VALUE_TO_UINT,
+      OP_RETURN_VALUE_TO_NONE,
 
       OP_LOADIMMED_UINT,
       OP_LOADIMMED_FLT,
@@ -158,10 +164,11 @@ namespace Compiler
       OP_TERMINATE_REWIND_STR,  // 80
       OP_COMPARE_STR,
 
-      OP_PUSH,          // String
-      OP_PUSH_UINT,     // Integer
-      OP_PUSH_FLT,      // Float
-      OP_PUSH_FRAME,    // Frame
+      OP_PUSH,               // String
+      OP_PUSH_UINT,          // Integer
+      OP_PUSH_FLT,           // Float
+      OP_PUSH_RETURN_VALUE,  // Console Value
+      OP_PUSH_FRAME,         // Frame
 
       OP_ASSERT,
       OP_BREAK,

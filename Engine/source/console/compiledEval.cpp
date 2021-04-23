@@ -1139,6 +1139,22 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
 
          goto execFinished;
 
+      case OP_RETURN_CONSOLE_VALUE:
+
+         if (iterDepth > 0)
+         {
+            // Clear iterator state.
+            while (iterDepth > 0)
+            {
+               iterStack[--_ITER].mIsStringIter = false;
+               --iterDepth;
+            }
+         }
+
+         returnValue = std::move(gReturnStack.pop());
+
+         goto execFinished;
+
       case OP_CMPEQ:
          numStack[_STK - 1].i = bool(numStack[_STK].f == numStack[_STK - 1].f);
          _STK--;
@@ -1377,6 +1393,11 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
          gEvalState.setLocalStringVariable(reg, STR.getStringValue(), (S32)STR.mLen);
          break;
 
+      case OP_SAVE_LOCAL_VAR_RETURN_VALUE:
+         reg = code[ip++];
+         gEvalState.setLocalConsoleValueVariable(reg, std::move(gReturnStack.pop()));
+         break;
+
       case OP_SETCUROBJECT:
          // Save the previous object for parsing vector fields.
          prevObject = curObject;
@@ -1560,6 +1581,24 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
 
       case OP_NUM_TO_NONE:
          _STK--;
+         break;
+
+      case OP_RETURN_VALUE_TO_FLT:
+         numStack[_STK + 1].f = gReturnStack.pop().getFloat();
+         _STK++;
+         break;
+
+      case OP_RETURN_VALUE_TO_STR:
+         STR.setStringValue(gReturnStack.pop().getString());
+         break;
+
+      case OP_RETURN_VALUE_TO_UINT:
+         numStack[_STK + 1].i = gReturnStack.pop().getInt();
+         _STK++;
+         break;
+
+      case OP_RETURN_VALUE_TO_NONE:
+         gReturnStack.pop();
          break;
 
       case OP_LOADIMMED_UINT:
@@ -1899,6 +1938,10 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
 
       case OP_PUSH_FLT:
          gCallStack.pushFloat(numStack[_STK--].f);
+         break;
+
+      case OP_PUSH_RETURN_VALUE:
+         gCallStack.pushConsoleValue(gReturnStack.pop());
          break;
 
       case OP_PUSH_FRAME:

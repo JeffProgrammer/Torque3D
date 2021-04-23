@@ -190,6 +190,22 @@ static U32 conversionOp(TypeReq src, TypeReq dst)
          break;
       }
    }
+   //else if (src == TypeReqReturnValue)
+   //{
+   //   switch (dst)
+   //   {
+   //   case TypeReqFloat:
+   //      return OP_RETURN_VALUE_TO_FLT;
+   //   case TypeReqString:
+   //      return OP_RETURN_VALUE_TO_STR;
+   //   case TypeReqUInt:
+   //      return OP_RETURN_VALUE_TO_UINT;
+   //   case TypeReqNone:
+   //      return OP_RETURN_VALUE_TO_NONE;
+   //   default:
+   //      break;
+   //   }
+   //}
    return OP_INVALID;
 }
 
@@ -255,6 +271,9 @@ U32 ReturnStmtNode::compileStmt(CodeStream& codeStream, U32 ip)
          break;
       case TypeReqFloat:
          codeStream.emit(OP_RETURN_FLT);
+         break;
+      case TypeReqReturnValue:
+         codeStream.emit(OP_RETURN_CONSOLE_VALUE);
          break;
       default:
          codeStream.emit(OP_RETURN);
@@ -1033,18 +1052,37 @@ U32 AssignExprNode::compile(CodeStream& codeStream, U32 ip, TypeReq type)
       }
       switch (subType)
       {
-      case TypeReqString: codeStream.emit(OP_SAVEVAR_STR);  break;
-      case TypeReqUInt:   codeStream.emit(OP_SAVEVAR_UINT); break;
-      case TypeReqFloat:  codeStream.emit(OP_SAVEVAR_FLT);  break;
+      case TypeReqReturnValue:
+         // Old variables can't save ConsoleValue
+         codeStream.emit(OP_RETURN_VALUE_TO_STR);
+         codeStream.emit(OP_SAVEVAR_STR);
+         break;
+      case TypeReqString:
+         codeStream.emit(OP_SAVEVAR_STR);
+         break;
+      case TypeReqUInt:
+         codeStream.emit(OP_SAVEVAR_UINT);
+         break;
+      case TypeReqFloat:
+         codeStream.emit(OP_SAVEVAR_FLT);
+         break;
       }
    }
    else
    {
       switch (subType)
       {
-      case TypeReqUInt:  codeStream.emit(OP_SAVE_LOCAL_VAR_UINT); break;
-      case TypeReqFloat: codeStream.emit(OP_SAVE_LOCAL_VAR_FLT); break;
-      default:           codeStream.emit(OP_SAVE_LOCAL_VAR_STR);
+      case TypeReqReturnValue:
+         codeStream.emit(OP_SAVE_LOCAL_VAR_RETURN_VALUE);
+         break;
+      case TypeReqUInt:
+         codeStream.emit(OP_SAVE_LOCAL_VAR_UINT);
+         break;
+      case TypeReqFloat:
+         codeStream.emit(OP_SAVE_LOCAL_VAR_FLT);
+         break;
+      default:
+         codeStream.emit(OP_SAVE_LOCAL_VAR_STR);
       }
       codeStream.emit(getFuncVars()->assign(varName, subType == TypeReqNone ? TypeReqString : subType));
    }
@@ -1285,7 +1323,7 @@ U32 FuncCallExprNode::compile(CodeStream& codeStream, U32 ip, TypeReq type)
 
 TypeReq FuncCallExprNode::getPreferredType()
 {
-   return TypeReqString;
+   return TypeReqReturnValue;
 }
 
 
@@ -1579,6 +1617,9 @@ U32 ObjectDeclNode::compileSubObject(CodeStream& codeStream, U32 ip, bool root)
          break;
       case TypeReqUInt:
          codeStream.emit(OP_PUSH_UINT);
+         break;
+      case TypeReqReturnValue:
+         codeStream.emit(OP_PUSH_RETURN_VALUE);
          break;
       default:
          codeStream.emit(OP_PUSH);

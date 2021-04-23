@@ -39,7 +39,8 @@ enum TypeReq
    TypeReqNone,
    TypeReqUInt,
    TypeReqFloat,
-   TypeReqString
+   TypeReqString,
+   TypeReqReturnValue
 };
 
 enum ExprNodeName
