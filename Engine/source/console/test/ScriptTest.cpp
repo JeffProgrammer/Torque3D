@@ -261,6 +261,35 @@ TEST(Script, Basic_Loop_Statements)
    )");
 
    ASSERT_STREQ(forIfValue.getString(), "0, 1, 2, 3, 4");
+
+   ConsoleValue forObjectValue = RunScript(R"(
+         function SimObject::get1(%this)
+         {
+            return 1;
+         }
+
+         function t()
+         {
+            %grp = new SimGroup();
+            %grp.add(new SimObject());
+            %grp.add(new SimObject());
+            %grp.add(new SimObject());
+
+            %val = 0;
+
+            %count = %grp.getCount();
+            for (%i = 0; %i < %count; %i++)
+            {
+               %obj = %grp.getObject(%i);
+               %val += %obj.get1();
+            }
+            return %val;
+         }
+
+         return t();
+   )");
+
+   ASSERT_EQ(forObjectValue.getInt(), 3);
 }
 
 TEST(Script, ForEachLoop)

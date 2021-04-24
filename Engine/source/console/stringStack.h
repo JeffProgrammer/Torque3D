@@ -133,11 +133,6 @@ struct StringStack
       return mBuffer + mStart;
    }
 
-   inline const char *getPreviousStringValue()
-   {
-      return mBuffer + mStartOffsets[mStartStackSize-1];
-   }
-
    /// Advance the start stack, placing a zero length string on the top.
    ///
    /// @note You should use StringStack::push, not this, if you want to

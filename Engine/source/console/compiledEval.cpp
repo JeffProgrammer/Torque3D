@@ -107,8 +107,6 @@ struct IterStackRecord
 
 ConsoleValueStack<4096> gCallStack;
 
-StringStack STR;
-
 U32 _ITER = 0;    ///< Stack pointer for iterStack.
 
 IterStackRecord iterStack[MaxStackSize];
@@ -117,7 +115,95 @@ union StackValue
 {
    F64 f;
    S64 i;
+   const char* s;
 };
+
+struct ConsoleStringStack
+{
+   enum
+   {
+      AllocSize = 8192
+   };
+
+   struct Frame
+   {
+      S32 startOffset;
+      S32 len;
+   };
+
+   char* buffer;
+   Frame frames[MaxStackSize];
+   S32 stk;
+   S32 size;
+   S32 offset;
+
+   ConsoleStringStack() noexcept
+   {
+      buffer = static_cast<char*>(dMalloc(AllocSize));
+      dMemset(buffer, 0, AllocSize);
+      offset = 0;
+      size = AllocSize;
+      push();
+   }
+
+   ~ConsoleStringStack()
+   {
+      pop();
+      AssertFatal(stk == 0, "ConsoleStringStack not popped enough!");
+      dFree(buffer);
+   }
+
+   void pushString(const char *str)
+   {
+      S32 len = dStrlen(str);
+      validateBufferSize(len + 1);
+
+      dStrcpy(buffer + offset, str, size - offset);
+
+      frames[stk].startOffset = offset;
+      frames[stk].len = len;
+
+      offset += len;
+      ++stk;
+   }
+
+   char* peekString() const
+   {
+      return buffer + offset;
+   }
+
+   void push()
+   {
+      frames[stk].startOffset = offset;
+      frames[stk].len = 1;
+
+      validateBufferSize(1);
+
+      buffer[offset] = 0x0;
+      ++offset;
+      ++stk;
+   }
+
+   void pop()
+   {
+      offset = frames[--stk].startOffset;
+   }
+
+private:
+   void validateBufferSize(S32 add)
+   {
+      if (add + offset < size)
+         return;
+
+      // Round up to next AllocSize chunk
+      S32 numberOfAllocSizes = add / AllocSize + 1;
+      size += numberOfAllocSizes * AllocSize;
+
+      buffer = static_cast<char*>(dRealloc(buffer, size));
+   }
+};
+
+ConsoleStringStack STR;
 
 StackValue numStack[MaxStackSize];
 U32 _STK = 0;
@@ -437,7 +523,7 @@ U32 gExecCount = 0;
 ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNamespace, U32 argc, ConsoleValue* argv, bool noCalls, StringTableEntry packageName, S32 setFrame)
 {
 #ifdef TORQUE_DEBUG
-   U32 stackStart = STR.mStartStackSize;
+   U32 stackStart = STR.stk;
    gExecCount++;
 #endif
 
@@ -452,7 +538,7 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
    F64* curFloatTable;
    char* curStringTable;
    S32 curStringTableLen = 0; //clint to ensure we dont overwrite it
-   STR.clearFunctionOffset();
+
    StringTableEntry thisFunctionName = NULL;
    bool popFrame = false;
    if (argv)
@@ -602,6 +688,8 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
    // OP_LOADFIELD_*) to store temporary values for the fields.
    static S32 VAL_BUFFER_SIZE = 1024;
    FrameTemp<char> valBuffer(VAL_BUFFER_SIZE);
+
+   static char castBuffer[32];
 
    for (;;)
    {
@@ -1098,7 +1186,7 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
             STR.setStringValue(retVal); // Not nice but works.
          }
 
-         returnValue.setString(STR.getStringValue(), STR.mLen);
+         returnValue.setString(numStack[_STK--].s);
 
          goto execFinished;
       }
@@ -1286,7 +1374,7 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
          break;
 
       case OP_SETCURVAR_ARRAY:
-         var = STR.getSTValue();
+         var = StringTable->insert(numStack[_STK].s);
 
          // See OP_SETCURVAR
          prevField = NULL;
@@ -1301,7 +1389,7 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
          break;
 
       case OP_SETCURVAR_ARRAY_CREATE:
-         var = STR.getSTValue();
+         var = StringTable->insert(numStack[_STK].s);
 
          // See OP_SETCURVAR
          prevField = NULL;
@@ -1327,7 +1415,8 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
 
       case OP_LOADVAR_STR:
          val = gEvalState.getStringVariable();
-         STR.setStringValue(val);
+         numStack[_STK].s = const_cast<char*>(val);
+         _STK++;
          break;
 
       case OP_SAVEVAR_UINT:
@@ -1339,7 +1428,7 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
          break;
 
       case OP_SAVEVAR_STR:
-         gEvalState.setStringVariable(STR.getStringValue());
+         gEvalState.setStringVariable(numStack[_STK].s);
          break;
 
       case OP_LOAD_LOCAL_VAR_UINT:
@@ -1357,7 +1446,8 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
       case OP_LOAD_LOCAL_VAR_STR:
          reg = code[ip++];
          val = gEvalState.getLocalStringVariable(reg);
-         STR.setStringValue(val);
+         numStack[_STK].s = val;
+         _STK++;
          break;
 
       case OP_SAVE_LOCAL_VAR_UINT:
@@ -1372,13 +1462,13 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
 
       case OP_SAVE_LOCAL_VAR_STR:
          reg = code[ip++];
-         gEvalState.setLocalStringVariable(reg, STR.getStringValue(), (S32)STR.mLen);
+         gEvalState.setLocalStringVariable(reg, numStack[_STK].s);
          break;
 
       case OP_SETCUROBJECT:
          // Save the previous object for parsing vector fields.
          prevObject = curObject;
-         val = STR.getStringValue();
+         val = numStack[_STK].s;
 
          // Sim::findObject will sometimes find valid objects from
          // multi-component strings. This makes sure that doesn't
@@ -1401,7 +1491,7 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
             SimGroup* group = dynamic_cast<SimGroup*>(curObject);
             if (group)
             {
-               StringTableEntry intName = StringTable->insert(STR.getStringValue());
+               StringTableEntry intName = StringTable->insert(numStack[_STK].s);
                bool recurse = code[ip - 1];
                SimObject* obj = group->findObjectByInternalName(intName, recurse);
                numStack[_STK + 1].i = obj ? obj->getId() : 0;
@@ -1429,7 +1519,7 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
          break;
 
       case OP_SETCURFIELD_ARRAY:
-         dStrcpy(curFieldArray, STR.getStringValue(), 256);
+         dStrcpy(curFieldArray, numStack[_STK].s, 256);
          break;
 
       case OP_SETCURFIELD_TYPE:
@@ -1472,7 +1562,7 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
          if (curObject)
          {
             val = curObject->getDataField(curField, curFieldArray);
-            STR.setStringValue(val);
+            numStack[_STK].s = val;
          }
          else
          {
@@ -1481,15 +1571,16 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
             char buff[FieldBufferSizeString];
             memset(buff, 0, sizeof(buff));
             getFieldComponent(prevObject, prevField, prevFieldArray, curField, buff);
-            STR.setStringValue(buff);
+            numStack[_STK].s = buff;
+            _STK++;
          }
 
          break;
 
       case OP_SAVEFIELD_UINT:
-         STR.setIntValue(numStack[_STK].i);
+         dSprintf(castBuffer, 32, "%ll", numStack[_STK].i);
          if (curObject)
-            curObject->setDataField(curField, curFieldArray, STR.getStringValue());
+            curObject->setDataField(curField, curFieldArray, castBuffer);
          else
          {
             // The field is not being set on an object. Maybe it's
@@ -1500,9 +1591,9 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
          break;
 
       case OP_SAVEFIELD_FLT:
-         STR.setFloatValue(numStack[_STK].f);
+         dSprintf(castBuffer, 32, "%.9g", numStack[_STK].f);
          if (curObject)
-            curObject->setDataField(curField, curFieldArray, STR.getStringValue());
+            curObject->setDataField(curField, curFieldArray, castBuffer);
          else
          {
             // The field is not being set on an object. Maybe it's
@@ -1514,7 +1605,7 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
 
       case OP_SAVEFIELD_STR:
          if (curObject)
-            curObject->setDataField(curField, curFieldArray, STR.getStringValue());
+            curObject->setDataField(curField, curFieldArray, numStack[_STK].s);
          else
          {
             // The field is not being set on an object. Maybe it's
@@ -1525,17 +1616,15 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
          break;
 
       case OP_STR_TO_UINT:
-         numStack[_STK + 1].i = STR.getIntValue();
-         _STK++;
+         numStack[_STK + 1].i = dAtol(numStack[_STK].s);
          break;
 
       case OP_STR_TO_FLT:
-         numStack[_STK + 1].f = STR.getFloatValue();
-         _STK++;
+         numStack[_STK].f = dAtod(numStack[_STK].s);
          break;
 
       case OP_STR_TO_NONE:
-         // This exists simply to deal with certain typecast situations.
+         _STK--;
          break;
 
       case OP_FLT_TO_UINT:
@@ -1543,6 +1632,7 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
          break;
 
       case OP_FLT_TO_STR:
+         numStack[_STK].f = 
          STR.setFloatValue(numStack[_STK].f);
          _STK--;
          break;
@@ -1892,11 +1982,12 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
          break;
 
       case OP_COMPARE_STR:
-         numStack[++_STK].i = STR.compare();
+         numStack[_STK - 1].i = !dStricmp(numStack[_STK].s, numStack[_STK - 1].s);
+         _STK--;
          break;
 
       case OP_PUSH:
-         gCallStack.pushString(STR.getStringValue(), STR.mLen);
+         gCallStack.pushString(numStack[_STK--].s);
          break;
 
       case OP_PUSH_UINT:
@@ -2162,8 +2253,8 @@ execFinished:
    decRefCount();
 
 #ifdef TORQUE_DEBUG
-   AssertFatal(!(STR.mStartStackSize > stackStart), "String stack not popped enough in script exec");
-   AssertFatal(!(STR.mStartStackSize < stackStart), "String stack popped too much in script exec");
+   AssertFatal(!(STR.stk > stackStart), "String stack not popped enough in script exec");
+   AssertFatal(!(STR.stk < stackStart), "String stack popped too much in script exec");
 #endif
 
    return std::move(returnValue);

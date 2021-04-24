@@ -101,10 +101,10 @@ public:
       frame.values[frame.internalCounter++].setFloat(value);
    }
 
-   TORQUE_FORCEINLINE void pushString(const char* value, S32 len)
+   TORQUE_FORCEINLINE void pushString(const char* value)
    {
       Frame& frame = stack.last();
-      frame.values[frame.internalCounter++].setString(value, len);
+      frame.values[frame.internalCounter++].setString(value);
    }
 
    TORQUE_FORCEINLINE void argvc(StringTableEntry fn, S32& argc, ConsoleValue** argv)

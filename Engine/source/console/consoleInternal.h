@@ -612,9 +612,9 @@ public:
       currentRegisterArray->values[reg].setFloat(val);
    }
 
-   TORQUE_FORCEINLINE void setLocalStringVariable(S32 reg, const char* val, S32 len)
+   TORQUE_FORCEINLINE void setLocalStringVariable(S32 reg, const char* val)
    {
-      currentRegisterArray->values[reg].setString(val, len);
+      currentRegisterArray->values[reg].setString(val);
    }
 
    TORQUE_FORCEINLINE void setLocalStringTableEntryVariable(S32 reg, StringTableEntry val)
