@@ -1269,7 +1269,7 @@ void CodeBlock::dumpInstructions(U32 startIp, bool upToReturn)
 
       case OP_RETURN_VALUE_TO_NONE:
       {
-         Con::printf("%: OP_RETURN_VALUE_TO_VAR", ip - 1);
+         Con::printf("%i: OP_RETURN_VALUE_TO_NONE", ip - 1);
          break;
       }
 

@@ -190,22 +190,22 @@ static U32 conversionOp(TypeReq src, TypeReq dst)
          break;
       }
    }
-   //else if (src == TypeReqReturnValue)
-   //{
-   //   switch (dst)
-   //   {
-   //   case TypeReqFloat:
-   //      return OP_RETURN_VALUE_TO_FLT;
-   //   case TypeReqString:
-   //      return OP_RETURN_VALUE_TO_STR;
-   //   case TypeReqUInt:
-   //      return OP_RETURN_VALUE_TO_UINT;
-   //   case TypeReqNone:
-   //      return OP_RETURN_VALUE_TO_NONE;
-   //   default:
-   //      break;
-   //   }
-   //}
+   else if (src == TypeReqReturnValue)
+   {
+      switch (dst)
+      {
+      case TypeReqFloat:
+         return OP_RETURN_VALUE_TO_FLT;
+      case TypeReqString:
+         return OP_RETURN_VALUE_TO_STR;
+      case TypeReqUInt:
+         return OP_RETURN_VALUE_TO_UINT;
+      case TypeReqNone:
+         return OP_RETURN_VALUE_TO_NONE;
+      default:
+         break;
+      }
+   }
    return OP_INVALID;
 }
 
@@ -1089,6 +1089,9 @@ U32 AssignExprNode::compile(CodeStream& codeStream, U32 ip, TypeReq type)
 
    if (type != subType)
    {
+      if (oldVariables && subType == TypeReqReturnValue)
+         subType = TypeReqString;
+
       U32 conOp = conversionOp(subType, type);
       codeStream.emit(conOp);
    }
@@ -1316,8 +1319,9 @@ U32 FuncCallExprNode::compile(CodeStream& codeStream, U32 ip, TypeReq type)
    codeStream.emitSTE(nameSpace);
    codeStream.emit(callType);
 
-   if (type != TypeReqString)
-      codeStream.emit(conversionOp(TypeReqString, type));
+   if (type == TypeReqNone)
+      codeStream.emit(OP_RETURN_VALUE_TO_NONE);
+
    return codeStream.tell();
 }
 

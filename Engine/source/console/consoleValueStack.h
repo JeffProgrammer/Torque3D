@@ -107,10 +107,10 @@ public:
       frame.values[frame.internalCounter++].setString(value, len);
    }
 
-   TORQUE_FORCEINLINE void pushConsoleValue(ConsoleValue&& val)
+   TORQUE_FORCEINLINE void pushConsoleValue(ConsoleValue val)
    {
       Frame& frame = stack.last();
-      frame.values[frame.internalCounter++] = val;
+      frame.values[frame.internalCounter++] = std::move(val);
    }
 
    TORQUE_FORCEINLINE void argvc(StringTableEntry fn, S32& argc, ConsoleValue** argv)
@@ -166,7 +166,7 @@ public:
    TORQUE_FORCEINLINE ConsoleValue pop()
    {
       AssertFatal(ptr >= 0, "ConsoleValueSinglestack popped too many times");
-      return std::move(stk[ptr--]);
+      return std::move(stk[--ptr]);
    }
 };
 

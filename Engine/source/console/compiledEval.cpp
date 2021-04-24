@@ -1610,6 +1610,7 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
          numStack[_STK + 1].f = curFloatTable[code[ip++]];
          _STK++;
          break;
+
       case OP_TAG_TO_STR:
          code[ip - 1] = OP_LOADIMMED_STR;
          // it's possible the string has already been converted
@@ -1619,6 +1620,7 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
             dSprintf(curStringTable + code[ip] + 1, 7, "%d", id);
             *(curStringTable + code[ip]) = StringTagPrefixByte;
          }
+         TORQUE_CASE_FALLTHROUGH;
       case OP_LOADIMMED_STR:
          STR.setStringValue(curStringTable + code[ip++]);
          break;
