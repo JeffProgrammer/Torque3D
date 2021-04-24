@@ -106,6 +106,7 @@ struct IterStackRecord
 };
 
 ConsoleValueStack<4096> gCallStack;
+ConsoleValueStack<4096> gReturnStack;
 
 StringStack STR;
 
@@ -1358,6 +1359,11 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
          reg = code[ip++];
          val = gEvalState.getLocalStringVariable(reg);
          STR.setStringValue(val);
+         break;
+
+      case OP_SAVE_LOCAL_VAR_FUNC_RETURN:
+         reg = code[ip++];
+         gEvalState.setLo
          break;
 
       case OP_SAVE_LOCAL_VAR_UINT:

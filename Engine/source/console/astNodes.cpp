@@ -1042,6 +1042,7 @@ U32 AssignExprNode::compile(CodeStream& codeStream, U32 ip, TypeReq type)
    {
       switch (subType)
       {
+      case TypeReqFuncReturn: codeStream.emit(OP_SAVE_LOCAL_VAR_FUNC_RETURN); break;
       case TypeReqUInt:  codeStream.emit(OP_SAVE_LOCAL_VAR_UINT); break;
       case TypeReqFloat: codeStream.emit(OP_SAVE_LOCAL_VAR_FLT); break;
       default:           codeStream.emit(OP_SAVE_LOCAL_VAR_STR);

@@ -25,7 +25,7 @@
 #define _CONSOLE_CONSOLE_VALUE_STACK_H_
 
 template<S32 StackSize>
-class ConsoleValueStack
+class ConsoleValueFrameStack
 {
    constexpr static S32 allocatorSize = sizeof(ConsoleValue) * StackSize;
 
@@ -57,7 +57,7 @@ class ConsoleValueStack
    }
 
 public:
-   ConsoleValueStack()
+   ConsoleValueFrameStack()
    {
       memory = (char*)dMalloc(allocatorSize);
       for (S32 i = 0; i < allocatorSize; i += sizeof(ConsoleValue))
@@ -67,7 +67,7 @@ public:
       sp = 0;
    }
 
-   ~ConsoleValueStack()
+   ~ConsoleValueFrameStack()
    {
       dFree(memory);
    }
@@ -115,6 +115,31 @@ public:
       // First param is always function name
       frame.values[0].setStringTableEntry(fn);
       *argv = frame.values;
+   }
+};
+
+template<S32 Size>
+class ConsoleValueStack
+{
+   ConsoleValue stack[Size];
+   S32 ptr;
+
+public:
+   ConsoleValueStack()
+   {
+      ptr = 0;
+   }
+
+   TORQUE_FORCEINLINE void push(ConsoleValue&& val)
+   {
+      AssertFatal(ptr >= Size, "ConsoleValueStack :: push more than stack size.");
+      stack[ptr++] = std::move(val);
+   }
+
+   TORQUE_FORCEINLINE ConsoleValue pop()
+   {
+      AssertFatal(ptr < 0, "ConsolevalueStack :: pop too many times");
+      return std::move(stack[--ptr]);
    }
 };
 
