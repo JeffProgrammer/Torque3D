@@ -120,11 +120,10 @@ extern char *typeValueEmpty;
 
 enum ConsoleValueType
 {
-   cvInteger = -4,
-   cvFloat = -3,
    cvString = -2,
    cvSTEntry = -1,
-   cvConsoleValueType = 0
+   cvNumber = 0, // MUST BE 0 for SSE optimizations
+   cvConsoleValueType = 1
 };
 
 struct ConsoleValueConsoleType
@@ -138,8 +137,7 @@ class ConsoleValue
 {
    union
    {
-      F64   f;
-      S64   i;
+      F64   n;
       char* s;
       void* data;
       ConsoleValueConsoleType* ct;
@@ -172,17 +170,19 @@ class ConsoleValue
       }
    }
 
+   TORQUE_NOINLINE void cleanupDateNoInline()
+   {
+      cleanupData();
+   }
+
    TORQUE_FORCEINLINE void _move(ConsoleValue&& ref) noexcept
    {
       type = ref.type;
 
       switch (ref.type)
       {
-      case cvInteger:
-         i = ref.i;
-         break;
-      case cvFloat:
-         f = ref.f;
+      case cvNumber:
+         n = ref.n;
          break;
       case cvSTEntry:
          TORQUE_CASE_FALLTHROUGH;
@@ -231,10 +231,8 @@ public:
 
    TORQUE_FORCEINLINE F64 getFloat() const
    {
-      if (type == ConsoleValueType::cvFloat)
-         return f;
-      if (type == ConsoleValueType::cvInteger)
-         return i;
+      if (type == ConsoleValueType::cvNumber)
+         return n;
       if (isStringType())
          return dAtof(s);
       return dAtof(getConsoleData());
@@ -242,10 +240,8 @@ public:
 
    TORQUE_FORCEINLINE S64 getInt() const
    {
-      if (type == ConsoleValueType::cvInteger)
-         return i;
-      if (type == ConsoleValueType::cvFloat)
-         return f;
+      if (type == ConsoleValueType::cvNumber)
+         return (S64)n;
       if (isStringType())
          return dAtoi(s);
       return dAtoi(getConsoleData());
@@ -255,7 +251,7 @@ public:
    {
       if (isStringType())
          return s;
-      if (isNumberType())
+      if (type == cvNumber)
          return convertToBuffer();
       return getConsoleData();
    }
@@ -267,10 +263,8 @@ public:
 
    TORQUE_FORCEINLINE bool getBool() const
    {
-      if (type == ConsoleValueType::cvInteger)
-         return (bool)i;
-      if (type == ConsoleValueType::cvFloat)
-         return (bool)f;
+      if (type == ConsoleValueType::cvNumber)
+         return (bool)n;
       if (isStringType())
          return dAtob(s);
       return dAtob(getConsoleData());
@@ -278,16 +272,26 @@ public:
 
    TORQUE_FORCEINLINE void setFloat(const F64 val)
    {
-      cleanupData();
-      type = ConsoleValueType::cvFloat;
-      f = val;
+      if (type == ConsoleValueType::cvNumber)
+         n = val;
+      else
+      {
+         cleanupDateNoInline();
+         type = ConsoleValueType::cvNumber;
+         n = (F64)val;
+      }
    }
 
    TORQUE_FORCEINLINE void setInt(const S64 val)
    {
-      cleanupData();
-      type = ConsoleValueType::cvInteger;
-      i = val;
+      if (type == ConsoleValueType::cvNumber)
+         n = (F64)val;
+      else
+      {
+         cleanupDateNoInline();
+         type = ConsoleValueType::cvNumber;
+         n = (F64)val;
+      }
    }
 
    TORQUE_FORCEINLINE void setString(const char* val)
@@ -321,9 +325,14 @@ public:
 
    TORQUE_FORCEINLINE void setBool(const bool val)
    {
-      cleanupData();
-      type = ConsoleValueType::cvInteger;
-      i = (int)val;
+      if (type == ConsoleValueType::cvNumber)
+         n = (F64)val;
+      else
+      {
+         cleanupDateNoInline();
+         type = ConsoleValueType::cvNumber;
+         n = (F64)val;
+      }
    }
 
    TORQUE_FORCEINLINE void setStringTableEntry(StringTableEntry val)
@@ -355,11 +364,6 @@ public:
       return type == ConsoleValueType::cvString || type == ConsoleValueType::cvSTEntry;
    }
 
-   TORQUE_FORCEINLINE bool isNumberType() const
-   {
-      return type == ConsoleValueType::cvFloat || type == ConsoleValueType::cvInteger;
-   }
-
    TORQUE_FORCEINLINE bool isConsoleType() const
    {
       return type >= ConsoleValueType::cvConsoleValueType;
@@ -367,24 +371,22 @@ public:
 
    TORQUE_FORCEINLINE void setFastFloat(F64 flt)
    {
-      type = ConsoleValueType::cvFloat;
-      f = flt;
+      n = flt;
    }
 
    TORQUE_FORCEINLINE F64 getFastFloat() const
    {
-      return f;
+      return n;
    }
 
    TORQUE_FORCEINLINE void setFastInt(S64 flt)
    {
-      type = ConsoleValueType::cvInteger;
-      i = flt;
+      n = (F64)flt;
    }
 
    TORQUE_FORCEINLINE S64 getFastInt() const
    {
-      return i;
+      return (S64)n;
    }
 
    static void init();

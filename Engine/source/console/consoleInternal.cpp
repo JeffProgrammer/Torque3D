@@ -245,8 +245,7 @@ void Dictionary::exportVariables(const char *varString, Vector<String> *names, V
       {
          switch ((*s)->type)
          {
-            case ConsoleValueType::cvInteger:
-            case ConsoleValueType::cvFloat:
+            case ConsoleValueType::cvNumber:
                values->push_back(String((*s)->getStringValue()));
                break;
             default:
@@ -712,7 +711,7 @@ void ExprEvalState::pushFrame(StringTableEntry frameName, Namespace *ns, S32 reg
 
    ConsoleValue* consoleValArray = new ConsoleValue[registerCount];
    localStack.push_back(ConsoleValueFrame(consoleValArray, false));
-   currentRegisterArray = &localStack.last();
+   currentRegisterArray = consoleValArray;
 
    AssertFatal(mStackDepth == localStack.size(), avar("Stack sizes do not match. mStackDepth = %d, localStack = %d", mStackDepth, localStack.size()));
 
@@ -741,7 +740,7 @@ void ExprEvalState::popFrame()
    if (!frame.isReference)
       delete[] frame.values;
 
-   currentRegisterArray = localStack.size() ? &localStack.last() : NULL;
+   currentRegisterArray = localStack.size() ? localStack.last().values : NULL;
 
    AssertFatal(mStackDepth == localStack.size(), avar("Stack sizes do not match. mStackDepth = %d, localStack = %d", mStackDepth, localStack.size()));
 
@@ -778,7 +777,7 @@ void ExprEvalState::pushFrameRef(S32 stackIndex)
 
    ConsoleValue* values = localStack[stackIndex].values;
    localStack.push_back(ConsoleValueFrame(values, true));
-   currentRegisterArray = &localStack.last();
+   currentRegisterArray = values;
 
    AssertFatal(mStackDepth == localStack.size(), avar("Stack sizes do not match. mStackDepth = %d, localStack = %d", mStackDepth, localStack.size()));
 

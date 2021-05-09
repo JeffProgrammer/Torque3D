@@ -572,7 +572,7 @@ public:
    S32 getTopOfStack() { return (S32)mStackDepth; }
 
    Vector< ConsoleValueFrame > localStack;
-   ConsoleValueFrame* currentRegisterArray; // contains array at to top of localStack
+   ConsoleValue* currentRegisterArray; // contains array at to top of localStack
 
    ///
    Dictionary globalVars;
@@ -589,42 +589,42 @@ public:
 
    TORQUE_FORCEINLINE S32 getLocalIntVariable(S32 reg)
    {
-      return currentRegisterArray->values[reg].getInt();
+      return currentRegisterArray[reg].getInt();
    }
 
    TORQUE_FORCEINLINE F64 getLocalFloatVariable(S32 reg)
    {
-      return currentRegisterArray->values[reg].getFloat();
+      return currentRegisterArray[reg].getFloat();
    }
 
    TORQUE_FORCEINLINE const char* getLocalStringVariable(S32 reg)
    {
-      return currentRegisterArray->values[reg].getString();
+      return currentRegisterArray[reg].getString();
    }
 
    TORQUE_FORCEINLINE void setLocalIntVariable(S32 reg, S64 val)
    {
-      currentRegisterArray->values[reg].setInt(val);
+      currentRegisterArray[reg].setInt(val);
    }
 
    TORQUE_FORCEINLINE void setLocalFloatVariable(S32 reg, F64 val)
    {
-      currentRegisterArray->values[reg].setFloat(val);
+      currentRegisterArray[reg].setFloat(val);
    }
 
    TORQUE_FORCEINLINE void setLocalStringVariable(S32 reg, const char* val, S32 len)
    {
-      currentRegisterArray->values[reg].setString(val, len);
+      currentRegisterArray[reg].setString(val, len);
    }
 
    TORQUE_FORCEINLINE void setLocalStringTableEntryVariable(S32 reg, StringTableEntry val)
    {
-      currentRegisterArray->values[reg].setStringTableEntry(val);
+      currentRegisterArray[reg].setStringTableEntry(val);
    }
 
    TORQUE_FORCEINLINE void moveConsoleValue(S32 reg, ConsoleValue val)
    {
-      currentRegisterArray->values[reg] = std::move(val);
+      currentRegisterArray[reg] = std::move(val);
    }
 
    void pushFrame(StringTableEntry frameName, Namespace *ns, S32 regCount);

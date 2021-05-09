@@ -465,8 +465,8 @@ TORQUE_FORCEINLINE void doFloatMathOperation()
    ConsoleValue& a = stack[_STK];
    ConsoleValue& b = stack[_STK - 1];
 
-   S32 fastIf = (a.getType() == ConsoleValueType::cvFloat) & (b.getType() == ConsoleValueType::cvFloat);
-   if (fastIf)
+   static_assert(ConsoleValueType::cvNumber == 0, "ConsoleVAlueType::cvNumber must equal 0");
+   if ((a.getType() | b.getType()) == 0x0)
    {
       // Arithmetic
       if constexpr (Op == FloatOperation::Add)
@@ -553,7 +553,8 @@ TORQUE_FORCEINLINE void doIntOperation()
    ConsoleValue& a = stack[_STK];
    ConsoleValue& b = stack[_STK - 1];
 
-   if (a.isNumberType() && b.isNumberType())
+   static_assert(ConsoleValueType::cvNumber == 0, "ConsoleVAlueType::cvNumber must equal 0");
+   if ((a.getType() | b.getType()) == 0x0)
    {
       // Bitwise Op
       if constexpr (Op == IntegerOperation::BitAnd)
@@ -1823,7 +1824,7 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
 
             // Optimization: If we're an integer, we can lookup the value by SimObjectId
             const ConsoleValue& simObjectLookupValue = callArgv[1];
-            if (simObjectLookupValue.getType() == ConsoleValueType::cvInteger)
+            if (simObjectLookupValue.getType() == ConsoleValueType::cvNumber)
                gEvalState.thisObject = Sim::findObject(static_cast<SimObjectId>(simObjectLookupValue.getFastInt()));
             else
             {

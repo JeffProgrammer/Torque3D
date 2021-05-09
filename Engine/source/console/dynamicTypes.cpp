@@ -27,7 +27,9 @@
 
 
 ConsoleBaseType* ConsoleBaseType::smListHead = NULL;
-S32 ConsoleBaseType::smConsoleTypeCount = 0;
+
+// JTH - Starts at console value type index
+S32 ConsoleBaseType::smConsoleTypeCount = ConsoleValueType::cvConsoleValueType;
 
 // And, we also privately store the types lookup table.
 static VectorPtr< ConsoleBaseType* > gConsoleTypeTable( __FILE__, __LINE__ );

@@ -55,11 +55,7 @@ void ConsoleValue::init()
 
 char* ConsoleValue::convertToBuffer() const
 {
-   if (type == ConsoleValueType::cvFloat)
-      dSprintf(sConversionBuffer, ConversionBufferSize, "%.9g", f);
-   else
-      dSprintf(sConversionBuffer, ConversionBufferSize, "%lld", i);
-
+   dSprintf(sConversionBuffer, ConversionBufferSize, "%.9g", n);
    return sConversionBuffer;
 }
 
