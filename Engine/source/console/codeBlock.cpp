@@ -643,8 +643,7 @@ ConsoleValue CodeBlock::compileExec(StringTableEntry fileName, const char *inStr
    codeStream.emit(OP_RETURN_VOID);
    codeStream.emitCodeStream(&codeSize, &code, &lineBreakPairs);
 
-   //if (Con::getBoolVariable("dump"))
-   //dumpInstructions(0, false);
+   dumpInstructions(0, false);
 
    consoleAllocReset();
 
@@ -1110,6 +1109,51 @@ void CodeBlock::dumpInstructions(U32 startIp, bool upToReturn)
          break;
       }
 
+      case OP_SAVE_LOCAL_VAR_ARRAY:
+      {
+         Con::printf("%i: OP_SAVE_LOCAL_VAR_ARRAY stk=0 reg=%i", ip - 1, code[ip]);
+         ++ip;
+         break;
+      }
+
+      case OP_SET_ARRAY_KEY:
+      {
+         Con::printf("%i: OP_SET_ARRAY_KEY stk=-1", ip - 1);
+         break;
+      }
+
+      case OP_LOAD_LOCAL_ARRAY:
+      {
+         Con::printf("%i: OP_LOAD_LOCAL_ARRAY stk=+1 reg=%i", ip - 1, code[ip]);
+         ++ip;
+         break;
+      }
+
+      case OP_SAVE_LOCAL_ARRAY:
+      {
+         Con::printf("%i: OP_SAVE_LOCAL_ARRAY stk=-1 reg=%i", ip - 1, code[ip]);
+         ++ip;
+         break;
+      }
+
+      case OP_LOAD_GLOBAL_ARRAY:
+      {
+         StringTableEntry var = CodeToSTE(code, ip);
+
+         Con::printf("%i: OP_LOAD_GLOBAL_ARRAY stk=0 var=%s", ip - 1, var);
+         ip += 2;
+         break;
+      }
+
+      case OP_SAVE_GLOBAL_ARRAY:
+      {
+         StringTableEntry var = CodeToSTE(code, ip);
+
+         Con::printf("%i: OP_SAVE_GLOBAL_ARRAY stk=0 var=%s", ip - 1, var);
+         ip += 2;
+         break;
+      }
+
       case OP_SETCUROBJECT:
       {
          Con::printf("%i: OP_SETCUROBJECT stk=-1", ip - 1);
@@ -1239,6 +1283,12 @@ void CodeBlock::dumpInstructions(U32 startIp, bool upToReturn)
          StringTableEntry str = CodeToSTE(code, ip);
          Con::printf("%i: OP_LOADIMMED_IDENT stk=+1 str=%s", ip - 1, str);
          ip += 2;
+         break;
+      }
+
+      case OP_LOADIMMED_ARRAY:
+      {
+         Con::printf("%i: OP_LOADIMMED_ARRAY stk=+1", ip - 1);
          break;
       }
 

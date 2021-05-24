@@ -410,18 +410,39 @@ TEST(Script, ForEachLoop)
 TEST(Script, TorqueScript_Array_Testing)
 {
    ConsoleValue value = RunScript(R"(
-         function t(%idx) { %a[idx] = 2; return %a[idx]; }
+         function t(%idx) { %a[%idx] = 2; return %a[%idx]; }
          return t(5);
    )");
 
    ASSERT_EQ(value.getInt(), 2);
 
+   ConsoleValue literalArray = RunScript(R"(
+         function t()
+         {
+            %array = ["a", 3, "c"];
+            return %array[1];
+         }
+
+         return t();
+   )");
+
+   ASSERT_EQ(literalArray.getInt(), 3);
+
    ConsoleValue value2 = RunScript(R"(
-         function t(%idx) { %a[idx, 0] = 2; return %a[idx, 0]; }
-         return t(5);
+         $arrayTest[0] = 1;
+         $arrayTest[1] = 2;
+
+         return $arrayTest[1];
    )");
 
    ASSERT_EQ(value2.getInt(), 2);
+
+   //ConsoleValue value2 = RunScript(R"(
+   //      function t(%idx) { %a[%idx, 0] = 2; return %a[%idx, 0]; }
+   //      return t(5);
+   //)");
+
+   //ASSERT_EQ(value2.getInt(), 2);
 }
 
 TEST(Script, Basic_SimObject)

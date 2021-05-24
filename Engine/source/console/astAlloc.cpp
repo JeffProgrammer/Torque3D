@@ -209,6 +209,17 @@ VarNode* VarNode::alloc(S32 lineNumber, StringTableEntry varName, ExprNode* arra
    return ret;
 }
 
+ParamNode* ParamNode::alloc(S32 lineNumber, StringTableEntry varName, bool isArray)
+{
+   ParamNode* ret = (ParamNode*)consoleAlloc(sizeof(ParamNode));
+   constructInPlace(ret);
+   ret->dbgLineNumber = lineNumber;
+   ret->optimizedNode = NULL;
+   ret->varName = varName;
+   ret->isArray = isArray;
+   return ret;
+}
+
 IntNode* IntNode::alloc(S32 lineNumber, S32 value)
 {
    IntNode* ret = (IntNode*)consoleAlloc(sizeof(IntNode));
@@ -240,6 +251,16 @@ FloatNode* FloatNode::alloc(S32 lineNumber, F64 value)
    ret->dbgLineNumber = lineNumber;
    ret->optimizedNode = NULL;
    ret->value = value;
+   return ret;
+}
+
+ArrayLiteralNode* ArrayLiteralNode::alloc(S32 lineNumber, ExprNode* list)
+{
+   ArrayLiteralNode* ret = (ArrayLiteralNode*)consoleAlloc(sizeof(ArrayLiteralNode));
+   constructInPlace(ret);
+
+   ret->dbgLineNumber = lineNumber;
+   ret->list = list;
    return ret;
 }
 
@@ -442,7 +463,7 @@ ObjectDeclNode* ObjectDeclNode::alloc(S32 lineNumber, ExprNode* classNameExpr, E
    return ret;
 }
 
-FunctionDeclStmtNode* FunctionDeclStmtNode::alloc(S32 lineNumber, StringTableEntry fnName, StringTableEntry nameSpace, VarNode* args, StmtNode* stmts)
+FunctionDeclStmtNode* FunctionDeclStmtNode::alloc(S32 lineNumber, StringTableEntry fnName, StringTableEntry nameSpace, ParamNode* args, StmtNode* stmts)
 {
    FunctionDeclStmtNode* ret = (FunctionDeclStmtNode*)consoleAlloc(sizeof(FunctionDeclStmtNode));
    constructInPlace(ret);

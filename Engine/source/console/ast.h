@@ -39,7 +39,8 @@ enum TypeReq
    TypeReqNone,
    TypeReqUInt,
    TypeReqFloat,
-   TypeReqString
+   TypeReqString,
+   TypeReqArray
 };
 
 enum ExprNodeName
@@ -318,6 +319,38 @@ struct VarNode : ExprNode
    DBG_STMT_TYPE(VarNode);
 };
 
+struct ParamNode : ExprNode
+{
+   enum
+   {
+      ArrayType = 0x1
+   };
+
+   union DataPacker
+   {
+      struct
+      {
+#ifdef TORQUE_LITTLE_ENDIAN
+         U16 reg : 16;
+         U16 flags : 16;
+#else
+         U16 flags : 16;
+         U16 reg : 16;
+#endif
+      };
+      U32 word;
+   };
+
+   StringTableEntry varName;
+   bool isArray;
+
+   static ParamNode* alloc(S32 lineNumber, StringTableEntry varName, bool isArray);
+
+   U32 compile(CodeStream& codeStream, U32 ip, TypeReq type);
+   TypeReq getPreferredType();
+   DBG_STMT_TYPE(ParamNode);
+};
+
 struct IntNode : ExprNode
 {
    S32 value;
@@ -341,6 +374,16 @@ struct FloatNode : ExprNode
    U32 compile(CodeStream& codeStream, U32 ip, TypeReq type);
    TypeReq getPreferredType();
    virtual ExprNodeName getExprNodeNameEnum() const { return NameFloatNode; }
+   DBG_STMT_TYPE(FloatNode);
+};
+
+struct ArrayLiteralNode : ExprNode
+{
+   ExprNode* list;
+
+   static ArrayLiteralNode* alloc(S32 lineNumber, ExprNode* list);
+   U32 compile(CodeStream& codeStream, U32 ip, TypeReq type);
+   TypeReq getPreferredType();
    DBG_STMT_TYPE(FloatNode);
 };
 
@@ -578,14 +621,14 @@ struct ObjectBlockDecl
 struct FunctionDeclStmtNode : StmtNode
 {
    StringTableEntry fnName;
-   VarNode* args;
+   ParamNode* args;
    StmtNode* stmts;
    StringTableEntry nameSpace;
    StringTableEntry package;
    U32 endOffset;
    U32 argc;
 
-   static FunctionDeclStmtNode* alloc(S32 lineNumber, StringTableEntry fnName, StringTableEntry nameSpace, VarNode* args, StmtNode* stmts);
+   static FunctionDeclStmtNode* alloc(S32 lineNumber, StringTableEntry fnName, StringTableEntry nameSpace, ParamNode* args, StmtNode* stmts);
 
    U32 compileStmt(CodeStream& codeStream, U32 ip);
    void setPackage(StringTableEntry packageName);

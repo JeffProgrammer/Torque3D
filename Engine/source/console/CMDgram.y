@@ -95,6 +95,8 @@ struct Token
    ObjectDeclNode*         od;
    AssignDecl              asn;
    IfStmtNode*             ifnode;
+   ParamNode*              param;
+   ArrayLiteralNode*       aln;
 }
 
 %type <s>      parent_block
@@ -133,9 +135,11 @@ struct Token
 %type <slot>   slot_acc
 %type <intslot>   intslot_acc
 %type <stmt>   expression_stmt
-%type <var>    var_list
-%type <var>    var_list_decl
+%type <param>  var_list
+%type <param>  var_list_decl
+%type <param>  var_param
 %type <asn>    assign_op_struct
+%type <aln>    array_literal
 
 %left '['
 %right opMODASN opANDASN opXORASN opPLASN opMIASN opMLASN opDVASN opMDASN opNDASN opNTASN opORASN opSLASN opSRASN '='
@@ -237,10 +241,17 @@ var_list_decl
    ;
 
 var_list
+   : var_param
+      { $$ = $1; }
+   | var_list ',' var_param
+      { $$ = $1; ((StmtNode*)($1))->append((StmtNode*)$3); }
+   ;
+
+var_param
    : VAR
-      { $$ = VarNode::alloc( $1.lineNumber, $1.value, NULL ); }
-   | var_list ',' VAR
-      { $$ = $1; ((StmtNode*)($1))->append((StmtNode*)VarNode::alloc( $3.lineNumber, $3.value, NULL ) ); }
+      { $$ = ParamNode::alloc( $1.lineNumber, $1.value, false ); }
+   | VAR '[' ']'
+      { $$ = ParamNode::alloc( $1.lineNumber, $1.value, true ); }
    ;
 
 datablock_decl
@@ -456,6 +467,8 @@ expr
       { $$ = (ExprNode*)VarNode::alloc( $1.lineNumber, $1.value, NULL); }
    | VAR '[' aidx_expr ']'
       { $$ = (ExprNode*)VarNode::alloc( $1.lineNumber, $1.value, $3 ); }
+   | array_literal
+      { $$ = $1; }
    ;
 /*
    | rwDEFINE '(' var_list_decl ')' '{' statement_list '}'
@@ -474,6 +487,11 @@ expr
          $$ = StrConstNode::alloc( $1.lineNumber, (UTF8*)fName, false );
       }
 */
+
+array_literal
+   : '[' expr_list_decl ']'
+      { $$ = ArrayLiteralNode::alloc( $2->dbgLineNumber, $2 ); }
+   ;
 
 slot_acc
    : expr '.' IDENT

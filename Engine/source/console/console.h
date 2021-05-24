@@ -33,6 +33,7 @@
 #include "core/util/refBase.h"
 #endif
 #include <stdarg.h>
+#include <unordered_map>
 
 #include "core/util/str.h"
 #include "core/util/journal/journaledSignal.h"
@@ -120,8 +121,10 @@ extern char *typeValueEmpty;
 
 enum ConsoleValueType
 {
+   cvArray = -5,
    cvInteger = -4,
    cvFloat = -3,
+   cvStringRef = -6,
    cvString = -2,
    cvSTEntry = -1,
    cvConsoleValueType = 0
@@ -136,12 +139,101 @@ struct ConsoleValueConsoleType
 // TODO: replace malloc/free with custom allocator...
 class ConsoleValue
 {
+   class ConsoleArray : StrongRefBase
+   {
+      // TODO: Add specialization in if we're only numeric indices counting up from 0 for faster access
+      // over a hashmap
+      std::unordered_map<std::string, ConsoleValue> tbl;
+
+      static S64 sRefObjectCount;
+
+      TORQUE_FORCEINLINE ConsoleValue copyConsoleValueByRef(const ConsoleValue& found) const
+      {
+         ConsoleValue ret;
+
+         ret.type = found.getType();
+         switch (found.getType())
+         {
+         case cvFloat:
+            ret.f = found.f;
+            break;
+         case cvInteger:
+            ret.i = found.i;
+            break;
+         case cvSTEntry:
+            ret.s = found.s;
+            break;
+         case cvStringRef:
+            TORQUE_CASE_FALLTHROUGH;
+         case cvString:
+            ret.s = found.s;
+            ret.type = ConsoleValueType::cvStringRef;
+            break;
+         case cvArray:
+            // copy by ref
+            ret.a = found.a;
+            ret.a->incRefCount();
+            break;
+         default:
+            ret.ct = new ConsoleValueConsoleType{ found.ct->dataPtr, found.ct->enumTable };
+         }
+
+         return ret;
+      }
+
+   public:
+      ConsoleArray()
+      {
+         ++sRefObjectCount;
+         incRefCount();
+      }
+
+      ~ConsoleArray()
+      {
+         --sRefObjectCount;
+      }
+
+      TORQUE_NOINLINE ConsoleValue get(const std::string& key) const
+      {
+         ConsoleValue ret;
+
+         auto it = tbl.find(key);
+         if (it != tbl.end())
+         {
+            const ConsoleValue& found = it->second;
+            ret = std::move(copyConsoleValueByRef(found));
+         }
+         else
+         {
+            ret.setEmptyString();
+         }
+
+         return std::move(ret);
+      }
+
+      TORQUE_FORCEINLINE void insert(const std::string& key, ConsoleValue&& val)
+      {
+         tbl[key] = std::move(val);
+      }
+
+      void free()
+      {
+         decRefCount();
+      }
+
+      void incRef()
+      {
+         incRefCount();
+      }
+   };
+
    union
    {
       F64   f;
       S64   i;
       char* s;
       void* data;
+      ConsoleArray* a;
       ConsoleValueConsoleType* ct;
    };
 
@@ -158,17 +250,32 @@ class ConsoleValue
 
    TORQUE_FORCEINLINE bool hasAllocatedData() const
    {
-      return (type == ConsoleValueType::cvString || isConsoleType()) && data != NULL;
+      return (type == ConsoleValueType::cvString || isArrayType() || isConsoleType()) && data != NULL;
    }
 
    const char* getConsoleData() const;
+
+   TORQUE_NOINLINE void deleteData()
+   {
+      switch (type)
+      {
+      case ConsoleValueType::cvArray:
+         a->free();
+         break;
+      case ConsoleValueType::cvString:
+         delete[] s;
+         break;
+      default:
+         delete ct;
+      }
+      data = NULL;
+   }
 
    TORQUE_FORCEINLINE void cleanupData()
    {
       if (hasAllocatedData())
       {
-         dFree(data);
-         data = NULL;
+         deleteData();
       }
    }
 
@@ -183,11 +290,6 @@ class ConsoleValue
          break;
       case cvFloat:
          f = ref.f;
-         break;
-      case cvSTEntry:
-         TORQUE_CASE_FALLTHROUGH;
-      case cvString:
-         s = ref.s;
          break;
       default:
          data = ref.data;
@@ -248,6 +350,8 @@ public:
          return f;
       if (isStringType())
          return dAtoi(s);
+      if (isArrayType())
+         return 0;
       return dAtoi(getConsoleData());
    }
 
@@ -255,7 +359,7 @@ public:
    {
       if (isStringType())
          return s;
-      if (isNumberType())
+      if (isNumberType() || isArrayType())
          return convertToBuffer();
       return getConsoleData();
    }
@@ -273,7 +377,19 @@ public:
          return (bool)f;
       if (isStringType())
          return dAtob(s);
+      if (isArrayType())
+         return false;
       return dAtob(getConsoleData());
+   }
+
+   TORQUE_FORCEINLINE ConsoleValue getConsoleArray(const char *key)
+   {
+      if (type == ConsoleValueType::cvArray)
+         return std::move(a->get(key));
+
+      ConsoleValue ret;
+      ret.setEmptyString();
+      return std::move(ret);
    }
 
    TORQUE_FORCEINLINE void setFloat(const F64 val)
@@ -307,12 +423,12 @@ public:
 
       type = ConsoleValueType::cvString;
 
-      s = (char*)dMalloc(static_cast<dsize_t>(len) + 1);
+      s = new char[static_cast<dsize_t>(len) + 1];
       s[len] = '\0';
       dStrcpy(s, val, static_cast<dsize_t>(len) + 1);
    }
 
-   TORQUE_FORCEINLINE void setStringRef(const char* ref, S32 len)
+   TORQUE_FORCEINLINE void transferStringOwnership(const char* ref, S32 len)
    {
       cleanupData();
       type = ConsoleValueType::cvString;
@@ -345,14 +461,53 @@ public:
       ct = new ConsoleValueConsoleType{ dataPtr, const_cast<EnumTable*>(enumTable) };
    }
 
+   TORQUE_FORCEINLINE void setEmptyArray()
+   {
+      if (!isArrayType())
+      {
+         cleanupData();
+         a = new ConsoleArray;
+         type = ConsoleValueType::cvArray;
+      }
+   }
+
+   TORQUE_NOINLINE void setArray(const char* key, ConsoleValue&& val)
+   {
+      if (!isArrayType())
+      {
+         cleanupData();
+         a = new ConsoleArray;
+         type = ConsoleValueType::cvArray;
+      }
+      a->insert(key, std::move(val));
+   }
+
+   TORQUE_NOINLINE void assignArrayRef(const ConsoleValue& val)
+   {
+      cleanupData();
+      a = val.a;
+      a->incRef();
+      type = ConsoleValueType::cvArray;
+   }
+
+   TORQUE_NOINLINE void setArrayFast(const char* key, ConsoleValue&& val)
+   {
+      a->insert(key, std::move(val));
+   }
+  
    TORQUE_FORCEINLINE S32 getType() const
    {
       return type;
    }
 
+   TORQUE_FORCEINLINE bool isArrayType() const
+   {
+      return type == ConsoleValueType::cvArray;
+   }
+
    TORQUE_FORCEINLINE bool isStringType() const
    {
-      return type == ConsoleValueType::cvString || type == ConsoleValueType::cvSTEntry;
+      return type == ConsoleValueType::cvString || type == ConsoleValueType::cvSTEntry || type == ConsoleValueType::cvStringRef;
    }
 
    TORQUE_FORCEINLINE bool isNumberType() const
@@ -389,6 +544,7 @@ public:
 
    static void init();
 };
+
 
 // Transparently converts ConsoleValue[] to const char**
 class ConsoleValueToStringArrayWrapper

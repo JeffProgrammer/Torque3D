@@ -47,6 +47,7 @@ extern StringStack STR;
 extern ConsoleValueStack<4096> gCallStack;
 
 char ConsoleValue::sConversionBuffer[ConversionBufferSize];
+S64 ConsoleValue::ConsoleArray::sRefObjectCount = 0;
 
 void ConsoleValue::init()
 {
@@ -57,8 +58,10 @@ char* ConsoleValue::convertToBuffer() const
 {
    if (type == ConsoleValueType::cvFloat)
       dSprintf(sConversionBuffer, ConversionBufferSize, "%.9g", f);
-   else
+   else if (type == ConsoleValueType::cvInteger)
       dSprintf(sConversionBuffer, ConversionBufferSize, "%lld", i);
+   else if (type == ConsoleValueType::cvArray)
+      dSprintf(sConversionBuffer, ConversionBufferSize, "ARRAY(%p)", a);
 
    return sConversionBuffer;
 }

@@ -676,40 +676,33 @@ TypeReq FloatUnaryExprNode::getPreferredType()
 
 U32 VarNode::compile(CodeStream& codeStream, U32 ip, TypeReq type)
 {
-   // if this has an arrayIndex...
-   // OP_LOADIMMED_IDENT
-   // varName
-   // OP_ADVANCE_STR
-   // evaluate arrayIndex TypeReqString
-   // OP_REWIND_STR
-   // OP_SETCURVAR_ARRAY
-   // OP_LOADVAR (type)
-
-   // else
-   // OP_SETCURVAR
-   // varName
-   // OP_LOADVAR (type)
-
    if (type == TypeReqNone)
       return codeStream.tell();
 
    precompileIdent(varName);
+   bool isGlobal = varName[0] == '$';
 
-   bool oldVariables = arrayIndex || varName[0] == '$';
-
-   if (oldVariables)
+   if (arrayIndex)
    {
-      codeStream.emit(arrayIndex ? OP_LOADIMMED_IDENT : OP_SETCURVAR);
+      ip = arrayIndex->compile(codeStream, ip, TypeReqString);
+      codeStream.emit(OP_SET_ARRAY_KEY);
+
+      if (isGlobal)
+      {
+         codeStream.emit(OP_LOAD_GLOBAL_ARRAY);
+         codeStream.emitSTE(varName);
+      }
+      else
+      {
+         codeStream.emit(OP_LOAD_LOCAL_ARRAY);
+         codeStream.emit(getFuncVars()->lookup(varName));
+      }
+   }
+   else  if (isGlobal)
+   {
+      codeStream.emit(OP_SETCURVAR);
       codeStream.emitSTE(varName);
 
-      if (arrayIndex)
-      {
-         //codeStream.emit(OP_ADVANCE_STR);
-         ip = arrayIndex->compile(codeStream, ip, TypeReqString);
-         codeStream.emit(OP_REWIND_STR);
-         codeStream.emit(OP_SETCURVAR_ARRAY);
-         codeStream.emit(OP_POP_STK);
-      }
       switch (type)
       {
       case TypeReqUInt:
@@ -744,7 +737,7 @@ U32 VarNode::compile(CodeStream& codeStream, U32 ip, TypeReq type)
 
 TypeReq VarNode::getPreferredType()
 {
-   bool oldVariables = arrayIndex || varName[0] == '$';
+   bool oldVariables = varName[0] == '$';
    return oldVariables ? TypeReqNone : getFuncVars()->lookupType(varName);
 }
 
@@ -914,6 +907,35 @@ TypeReq ConstantNode::getPreferredType()
 
 //------------------------------------------------------------
 
+U32 ArrayLiteralNode::compile(CodeStream& codeStream, U32 ip, TypeReq type)
+{
+   S32 argc = 0;
+   for (ExprNode* expr = list; expr; expr = (ExprNode*)expr->next)
+      argc++;
+
+   codeStream.emit(OP_PUSH_FRAME);
+   codeStream.emit(argc);
+
+   for (ExprNode* expr = list; expr; expr = (ExprNode*)expr->next)
+   {
+      TypeReq walkType = expr->getPreferredType();
+      if (walkType == TypeReqNone) walkType = TypeReqString;
+
+      ip = expr->compile(codeStream, ip, walkType);
+      codeStream.emit(OP_PUSH);
+   }
+
+   codeStream.emit(OP_LOADIMMED_ARRAY);
+   return codeStream.tell();
+}
+
+TypeReq ArrayLiteralNode::getPreferredType()
+{
+   return TypeReqArray;
+}
+
+//------------------------------------------------------------
+
 U32 AssignExprNode::compile(CodeStream& codeStream, U32 ip, TypeReq type)
 {
    subType = expr->getPreferredType();
@@ -922,72 +944,72 @@ U32 AssignExprNode::compile(CodeStream& codeStream, U32 ip, TypeReq type)
    if (subType == TypeReqNone)
       subType = TypeReqString;
 
-   // if it's an array expr, the formula is:
-   // eval expr
-   // (push and pop if it's TypeReqString) OP_ADVANCE_STR
-   // OP_LOADIMMED_IDENT
-   // varName
-   // OP_ADVANCE_STR
-   // eval array
-   // OP_REWIND_STR
-   // OP_SETCURVAR_ARRAY_CREATE
-   // OP_TERMINATE_REWIND_STR
-   // OP_SAVEVAR
-
-   //else
-   // eval expr
-   // OP_SETCURVAR_CREATE
-   // varname
-   // OP_SAVEVAR
-
    precompileIdent(varName);
-
    ip = expr->compile(codeStream, ip, subType);
 
-   bool oldVariables = arrayIndex || varName[0] == '$';
+   bool isGlobal = varName[0] == '$';
 
-   if (oldVariables)
+   if (arrayIndex)
    {
-      if (arrayIndex)
+      ip = arrayIndex->compile(codeStream, ip, TypeReqString);
+      codeStream.emit(OP_SET_ARRAY_KEY);
+
+      if (isGlobal)
       {
-         //if (subType == TypeReqString)
-         //   codeStream.emit(OP_ADVANCE_STR);
-
-         codeStream.emit(OP_LOADIMMED_IDENT);
+         codeStream.emit(OP_SAVE_GLOBAL_ARRAY);
          codeStream.emitSTE(varName);
-
-         //codeStream.emit(OP_ADVANCE_STR);
-         ip = arrayIndex->compile(codeStream, ip, TypeReqString);
-         codeStream.emit(OP_REWIND_STR);
-         codeStream.emit(OP_SETCURVAR_ARRAY_CREATE);
-         if (type == TypeReqNone)
-            codeStream.emit(OP_POP_STK);
       }
       else
       {
-         codeStream.emit(OP_SETCURVAR_CREATE);
-         codeStream.emitSTE(varName);
+         codeStream.emit(OP_SAVE_LOCAL_ARRAY);
+         codeStream.emit(getFuncVars()->assign(varName, TypeReqString)); // better typereq?
       }
+
+      if (type != TypeReqNone)
+      {
+         // Since Save Pop's the stack, we need to reload.
+         // This probably isn't likely in most script situations however...
+         if (isGlobal)
+         {
+            codeStream.emit(OP_LOAD_GLOBAL_ARRAY);
+            codeStream.emitSTE(varName);
+         }
+         else
+         {
+            codeStream.emit(OP_LOAD_LOCAL_ARRAY);
+            codeStream.emit(getFuncVars()->lookup(varName));
+         }
+      }
+   }
+   else if (isGlobal)
+   {
+      codeStream.emit(OP_SETCURVAR_CREATE);
+      codeStream.emitSTE(varName);
+
       switch (subType)
       {
-      case TypeReqString: codeStream.emit(OP_SAVEVAR_STR);  break;
-      case TypeReqUInt:   codeStream.emit(OP_SAVEVAR_UINT); break;
-      case TypeReqFloat:  codeStream.emit(OP_SAVEVAR_FLT);  break;
+      case TypeReqString: codeStream.emit(OP_SAVEVAR_STR);       break;
+      case TypeReqUInt:   codeStream.emit(OP_SAVEVAR_UINT);      break;
+      case TypeReqFloat:  codeStream.emit(OP_SAVEVAR_FLT);       break;
+      case TypeReqArray:  codeStream.emit(OP_INVALID);           break; // TODO
       }
+      if (type == TypeReqNone)
+         codeStream.emit(OP_POP_STK);
    }
    else
    {
       switch (subType)
       {
-      case TypeReqUInt:  codeStream.emit(OP_SAVE_LOCAL_VAR_UINT); break;
-      case TypeReqFloat: codeStream.emit(OP_SAVE_LOCAL_VAR_FLT); break;
+      case TypeReqUInt:  codeStream.emit(OP_SAVE_LOCAL_VAR_UINT);  break;
+      case TypeReqFloat: codeStream.emit(OP_SAVE_LOCAL_VAR_FLT);   break;
+      case TypeReqArray: codeStream.emit(OP_SAVE_LOCAL_VAR_ARRAY); break;
       default:           codeStream.emit(OP_SAVE_LOCAL_VAR_STR);
       }
       codeStream.emit(getFuncVars()->assign(varName, subType == TypeReqNone ? TypeReqString : subType));
+      if (type == TypeReqNone)
+         codeStream.emit(OP_POP_STK);
    }
 
-   if (type == TypeReqNone)
-      codeStream.emit(OP_POP_STK);
    return ip;
 }
 
@@ -1164,6 +1186,18 @@ U32 TTagExprNode::compile(CodeStream&, U32 ip, TypeReq)
 }
 
 TypeReq TTagExprNode::getPreferredType()
+{
+   return TypeReqNone;
+}
+
+//------------------------------------------------------------
+
+U32 ParamNode::compile(CodeStream&, U32 ip, TypeReq)
+{
+   return ip;
+}
+
+TypeReq ParamNode::getPreferredType()
 {
    return TypeReqNone;
 }
@@ -1559,10 +1593,10 @@ U32 FunctionDeclStmtNode::compileStmt(CodeStream& codeStream, U32 ip)
    gFuncVars = &vars;
 
    argc = 0;
-   for (VarNode* walk = args; walk; walk = (VarNode*)((StmtNode*)walk)->getNext())
+   for (ParamNode* walk = args; walk; walk = (ParamNode*)((StmtNode*)walk)->getNext())
    {
       precompileIdent(walk->varName);
-      getFuncVars()->assign(walk->varName, TypeReqNone);
+      getFuncVars()->assign(walk->varName, walk->isArray ? TypeReqArray : TypeReqNone);
       argc++;
    }
 
@@ -1583,10 +1617,21 @@ U32 FunctionDeclStmtNode::compileStmt(CodeStream& codeStream, U32 ip)
    const U32 endIp = codeStream.emit(0);
    codeStream.emit(argc);
    const U32 localNumVarsIP = codeStream.emit(0);
-   for (VarNode* walk = args; walk; walk = (VarNode*)((StmtNode*)walk)->getNext())
+   for (ParamNode* walk = args; walk; walk = (ParamNode*)((StmtNode*)walk)->getNext())
    {
       StringTableEntry name = walk->varName;
-      codeStream.emit(getFuncVars()->lookup(name));
+
+      U32 reg = (U32)getFuncVars()->lookup(name);
+      U32 flags = 0x0;
+
+      if (walk->isArray)
+         flags |= ParamNode::ArrayType;
+
+      ParamNode::DataPacker packer;
+      packer.reg = reg;
+      packer.flags = flags;
+
+      codeStream.emit(packer.word);
    }
    CodeBlock::smInFunction = true;
    ip = compileBlock(stmts, codeStream, ip);

@@ -518,17 +518,17 @@ TORQUE_NOINLINE void doSlowMathOp()
 
    // Logical
    if constexpr (Op == FloatOperation::LT)
-      stack[_STK - 1].setFastInt(a.getFloat() < b.getFloat());
+      stack[_STK - 1].setInt(a.getFloat() < b.getFloat());
    if constexpr (Op == FloatOperation::LE)
-      stack[_STK - 1].setFastInt(a.getFloat() <= b.getFloat());
+      stack[_STK - 1].setInt(a.getFloat() <= b.getFloat());
    if constexpr (Op == FloatOperation::GR)
-      stack[_STK - 1].setFastInt(a.getFloat() > b.getFloat());
+      stack[_STK - 1].setInt(a.getFloat() > b.getFloat());
    if constexpr (Op == FloatOperation::GE)
-      stack[_STK - 1].setFastInt(a.getFloat() >= b.getFloat());
+      stack[_STK - 1].setInt(a.getFloat() >= b.getFloat());
    if constexpr (Op == FloatOperation::EQ)
-      stack[_STK - 1].setFastInt(a.getFloat() == b.getFloat());
+      stack[_STK - 1].setInt(a.getFloat() == b.getFloat());
    if constexpr (Op == FloatOperation::NE)
-      stack[_STK - 1].setFastInt(a.getFloat() != b.getFloat());
+      stack[_STK - 1].setInt(a.getFloat() != b.getFloat());
 
    _STK--;
 }
@@ -672,9 +672,15 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
       popFrame = true;
       for (i = 0; i < wantedArgc; i++)
       {
-         S32 reg = code[ip + (2 + 6 + 1 + 1) + i];
+         ParamNode::DataPacker dataPacker;
+         dataPacker.word = code[ip + (2 + 6 + 1 + 1) + i];
+
          ConsoleValue& value = argv[i + 1];
-         gEvalState.moveConsoleValue(reg, std::move(value));
+
+         if ((dataPacker.flags & ParamNode::ArrayType) && value.getType() != ConsoleValueType::cvArray)
+            Con::warnf("Parameter passed to %s was defined as an array, but value passed is not.", functionName);
+
+         gEvalState.moveConsoleValue(dataPacker.reg, std::move(value));
       }
       ip = ip + fnArgc + (2 + 6 + 1 + 1);
       curFloatTable = functionFloats;
@@ -731,6 +737,7 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
    } objectCreationStack[objectCreationStackSize];
 
    SimObject* currentNewObject = 0;
+   ConsoleValue arrayKey;
    StringTableEntry prevField = NULL;
    StringTableEntry curField = NULL;
    SimObject* prevObject = NULL;
@@ -1544,6 +1551,39 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
          gEvalState.setLocalStringVariable(reg, val, (S32)dStrlen(val));
          break;
 
+      case OP_SAVE_LOCAL_VAR_ARRAY:
+         reg = code[ip++];
+         gEvalState.setLocalArrayRefVariable(reg, stack[_STK]);
+         break;
+
+      case OP_SET_ARRAY_KEY:
+         arrayKey = std::move(stack[_STK--]);
+         break;
+
+      case OP_LOAD_LOCAL_ARRAY:
+         reg = code[ip++];
+         stack[_STK + 1] = std::move(gEvalState.getLocalArrayVariable(reg, arrayKey));
+         _STK++;
+         break;
+
+      case OP_LOAD_GLOBAL_ARRAY:
+         var = CodeToSTE(code, ip);
+         ip += 2;
+         AssertISV(false, "Implement OP_LOAD_GLOBAL_ARRAY");
+         break;
+
+      case OP_SAVE_LOCAL_ARRAY:
+         reg = code[ip++];
+         gEvalState.setLocalStringArrayVariable(reg, arrayKey, std::move(stack[_STK]));
+         _STK--;
+         break;
+
+      case OP_SAVE_GLOBAL_ARRAY:
+         var = CodeToSTE(code, ip);
+         ip += 2;
+         AssertISV(false, "Implement OP_SAVE_GLOBAL_ARRAY");
+         break;
+
       case OP_SETCUROBJECT:
          // Save the previous object for parsing vector fields.
          prevObject = curObject;
@@ -1757,6 +1797,24 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
          _STK++;
          ip += 2;
          break;
+
+      case OP_LOADIMMED_ARRAY:
+      {
+         stack[_STK + 1].setEmptyArray();
+
+         // Array literal parameters are pushed onto the callstack as arguments
+         // We start at index 1 to avoid the first argument (the function call which is NULL)
+         gCallStack.argvc(NULL, callArgc, &callArgv);
+         for (S32 i = 1; i < callArgc; ++i)
+         {
+            // TODO: Set Integers instead of strings for keys...
+            stack[_STK + 1].setArrayFast(String::ToString(i - 1).c_str(), std::move(callArgv[i]));
+         }
+         gCallStack.popFrame();
+
+         _STK++;
+         break;
+      }
 
       case OP_CALLFUNC:
       {
@@ -2010,7 +2068,7 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
          S32 len;
          const char* concat = tsconcat(stack[_STK].getString(), buff, len);
 
-         stack[_STK].setStringRef(concat, len);
+         stack[_STK].transferStringOwnership(concat, len);
          break;
       }
 
@@ -2021,7 +2079,7 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
          S32 len;
          const char* concat = tsconcat(stack[_STK - 1].getString(), stack[_STK].getString(), len);
 
-         stack[_STK - 1].setStringRef(concat, len);
+         stack[_STK - 1].transferStringOwnership(concat, len);
          _STK--;
          break;
       }

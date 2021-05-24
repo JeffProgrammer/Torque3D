@@ -14,6 +14,8 @@ typedef union {
    ObjectDeclNode*         od;
    AssignDecl              asn;
    IfStmtNode*             ifnode;
+   ParamNode*              param;
+   ArrayLiteralNode*       aln;
 } YYSTYPE;
 #define	rwDEFINE	258
 #define	rwENDDEF	259

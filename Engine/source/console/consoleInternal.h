@@ -602,6 +602,11 @@ public:
       return currentRegisterArray->values[reg].getString();
    }
 
+   TORQUE_FORCEINLINE ConsoleValue getLocalArrayVariable(S32 reg, const char* key)
+   {
+      return std::move(currentRegisterArray->values[reg].getConsoleArray(key));
+   }
+
    TORQUE_FORCEINLINE void setLocalIntVariable(S32 reg, S64 val)
    {
       currentRegisterArray->values[reg].setInt(val);
@@ -620,6 +625,16 @@ public:
    TORQUE_FORCEINLINE void setLocalStringTableEntryVariable(S32 reg, StringTableEntry val)
    {
       currentRegisterArray->values[reg].setStringTableEntry(val);
+   }
+
+   TORQUE_FORCEINLINE void setLocalStringArrayVariable(S32 reg, const char* key, ConsoleValue val)
+   {
+      currentRegisterArray->values[reg].setArray(key, std::move(val));
+   }
+
+   TORQUE_FORCEINLINE void setLocalArrayRefVariable(S32 reg, const ConsoleValue& val)
+   {
+      currentRegisterArray->values[reg].assignArrayRef(val);
    }
 
    TORQUE_FORCEINLINE void moveConsoleValue(S32 reg, ConsoleValue val)
