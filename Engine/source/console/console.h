@@ -124,7 +124,6 @@ enum ConsoleValueType
    cvArray = -5,
    cvInteger = -4,
    cvFloat = -3,
-   cvStringRef = -6,
    cvString = -2,
    cvSTEntry = -1,
    cvConsoleValueType = 0
@@ -147,40 +146,6 @@ class ConsoleValue
 
       static S64 sRefObjectCount;
 
-      TORQUE_FORCEINLINE ConsoleValue copyConsoleValueByRef(const ConsoleValue& found) const
-      {
-         ConsoleValue ret;
-
-         ret.type = found.getType();
-         switch (found.getType())
-         {
-         case cvFloat:
-            ret.f = found.f;
-            break;
-         case cvInteger:
-            ret.i = found.i;
-            break;
-         case cvSTEntry:
-            ret.s = found.s;
-            break;
-         case cvStringRef:
-            TORQUE_CASE_FALLTHROUGH;
-         case cvString:
-            ret.s = found.s;
-            ret.type = ConsoleValueType::cvStringRef;
-            break;
-         case cvArray:
-            // copy by ref
-            ret.a = found.a;
-            ret.a->incRefCount();
-            break;
-         default:
-            ret.ct = new ConsoleValueConsoleType{ found.ct->dataPtr, found.ct->enumTable };
-         }
-
-         return ret;
-      }
-
    public:
       ConsoleArray()
       {
@@ -201,7 +166,7 @@ class ConsoleValue
          if (it != tbl.end())
          {
             const ConsoleValue& found = it->second;
-            ret = std::move(copyConsoleValueByRef(found));
+            ret.copyConsoleValue(found);
          }
          else
          {
@@ -300,6 +265,13 @@ class ConsoleValue
       ref.setEmptyString();
    }
 
+   TORQUE_FORCEINLINE void _createString(const char* val, S32 len)
+   {
+      s = new char[static_cast<dsize_t>(len) + 1];
+      s[len] = '\0';
+      dStrcpy(s, val, static_cast<dsize_t>(len) + 1);
+   }
+
 public:
    ConsoleValue()
    {
@@ -382,7 +354,7 @@ public:
       return dAtob(getConsoleData());
    }
 
-   TORQUE_FORCEINLINE ConsoleValue getConsoleArray(const char *key)
+   TORQUE_FORCEINLINE ConsoleValue getConsoleArray(const char *key) const
    {
       if (type == ConsoleValueType::cvArray)
          return std::move(a->get(key));
@@ -411,7 +383,7 @@ public:
       setString(val, val != NULL ? dStrlen(val) : 0);
    }
 
-   TORQUE_FORCEINLINE void setString(const char* val, S32 len)
+   TORQUE_NOINLINE void setString(const char* val, S32 len)
    {
       if (len == 0)
       {
@@ -422,10 +394,7 @@ public:
       cleanupData();
 
       type = ConsoleValueType::cvString;
-
-      s = new char[static_cast<dsize_t>(len) + 1];
-      s[len] = '\0';
-      dStrcpy(s, val, static_cast<dsize_t>(len) + 1);
+      _createString(val, len);
    }
 
    TORQUE_FORCEINLINE void transferStringOwnership(const char* ref, S32 len)
@@ -433,6 +402,49 @@ public:
       cleanupData();
       type = ConsoleValueType::cvString;
       s = const_cast<char*>(ref);
+   }
+
+   TORQUE_FORCEINLINE void copyConsoleValue(const ConsoleValue& val)
+   {
+      cleanupData();
+      type = val.type;
+
+      switch (val.type)
+      {
+      case ConsoleValueType::cvFloat:
+         f = val.f;
+         break;
+      case ConsoleValueType::cvInteger:
+         i = val.i;
+         break;
+      case ConsoleValueType::cvSTEntry:
+         s = val.s;
+         break;
+      case ConsoleValueType::cvString:
+      {
+         // We implement copy logic here instead of calling setString as setString will call cleanupData
+
+         S32 len = dStrlen(val.s);
+         if (len == 0)
+         {
+            s = const_cast<char*>(StringTable->EmptyString());
+            type = ConsoleValueType::cvSTEntry;
+            break;
+         }
+
+         _createString(val.s, len);
+         break;
+      }
+      case ConsoleValueType::cvArray:
+      {
+         a = val.a;
+         a->incRef();
+         break;
+      }
+      default:
+         ct = new ConsoleValueConsoleType{ val.ct->dataPtr, val.ct->enumTable };
+         break;
+      }
    }
 
    TORQUE_FORCEINLINE void setBool(const bool val)
@@ -507,7 +519,7 @@ public:
 
    TORQUE_FORCEINLINE bool isStringType() const
    {
-      return type == ConsoleValueType::cvString || type == ConsoleValueType::cvSTEntry || type == ConsoleValueType::cvStringRef;
+      return type == ConsoleValueType::cvString || type == ConsoleValueType::cvSTEntry;
    }
 
    TORQUE_FORCEINLINE bool isNumberType() const

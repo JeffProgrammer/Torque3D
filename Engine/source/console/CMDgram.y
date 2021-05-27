@@ -111,7 +111,6 @@ struct Token
 %type <stmt>   stmt
 %type <expr>   expr_list
 %type <expr>   expr_list_decl
-%type <expr>   aidx_expr
 %type <expr>   funcall_expr
 %type <expr>   assert_expr
 %type <expr>   object_name
@@ -250,8 +249,6 @@ var_list
 var_param
    : VAR
       { $$ = ParamNode::alloc( $1.lineNumber, $1.value, false ); }
-   | VAR '[' ']'
-      { $$ = ParamNode::alloc( $1.lineNumber, $1.value, true ); }
    ;
 
 datablock_decl
@@ -465,7 +462,7 @@ expr
       { $$ = StrConstNode::alloc( $1.lineNumber, $1.value, false); }
    | VAR
       { $$ = (ExprNode*)VarNode::alloc( $1.lineNumber, $1.value, NULL); }
-   | VAR '[' aidx_expr ']'
+   | VAR '[' expr ']'
       { $$ = (ExprNode*)VarNode::alloc( $1.lineNumber, $1.value, $3 ); }
    | array_literal
       { $$ = $1; }
@@ -496,7 +493,7 @@ array_literal
 slot_acc
    : expr '.' IDENT
       { $$.lineNumber = $1->dbgLineNumber; $$.object = $1; $$.slotName = $3.value; $$.array = NULL; }
-   | expr '.' IDENT '[' aidx_expr ']'
+   | expr '.' IDENT '[' expr ']'
       { $$.lineNumber = $1->dbgLineNumber; $$.object = $1; $$.slotName = $3.value; $$.array = $5; }
    ;
 
@@ -550,11 +547,11 @@ stmt_expr
       { $$ = $1; }
    | VAR '=' expr
       { $$ = AssignExprNode::alloc( $1.lineNumber, $1.value, NULL, $3); }
-   | VAR '[' aidx_expr ']' '=' expr
+   | VAR '[' expr ']' '=' expr
       { $$ = AssignExprNode::alloc( $1.lineNumber, $1.value, $3, $6); }
    | VAR assign_op_struct
       { $$ = AssignOpExprNode::alloc( $1.lineNumber, $1.value, NULL, $2.expr, $2.token); }
-   | VAR '[' aidx_expr ']' assign_op_struct
+   | VAR '[' expr ']' assign_op_struct
       { $$ = AssignOpExprNode::alloc( $1.lineNumber, $1.value, $3, $5.expr, $5.token); }
    | slot_acc assign_op_struct
       { $$ = SlotAssignOpNode::alloc( $1.lineNumber, $1.object, $1.slotName, $1.array, $2.token, $2.expr); }
@@ -620,17 +617,10 @@ slot_assign
       { $$ = SlotAssignNode::alloc( $1.lineNumber, NULL, NULL, $2.value, $4, $1.value); }
    | rwDATABLOCK '=' expr ';'
       { $$ = SlotAssignNode::alloc( $1.lineNumber, NULL, NULL, StringTable->insert("datablock"), $3); }
-   | IDENT '[' aidx_expr ']' '=' expr ';'
+   | IDENT '[' expr ']' '=' expr ';'
       { $$ = SlotAssignNode::alloc( $1.lineNumber, NULL, $3, $1.value, $6); }
-   | TYPEIDENT IDENT '[' aidx_expr ']' '=' expr ';'
+   | TYPEIDENT IDENT '[' expr ']' '=' expr ';'
       { $$ = SlotAssignNode::alloc( $1.lineNumber, NULL, $4, $2.value, $7, $1.value); }
-   ;
-
-aidx_expr
-   : expr
-      { $$ = $1; }
-   | aidx_expr ',' expr
-      { $$ = CommaCatExprNode::alloc( $1->dbgLineNumber, $1, $3); }
    ;
 %%
 

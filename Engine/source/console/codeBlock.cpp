@@ -1019,18 +1019,6 @@ void CodeBlock::dumpInstructions(U32 startIp, bool upToReturn)
          break;
       }
 
-      case OP_SETCURVAR_ARRAY:
-      {
-         Con::printf("%i: OP_SETCURVAR_ARRAY stk=0", ip - 1);
-         break;
-      }
-
-      case OP_SETCURVAR_ARRAY_CREATE:
-      {
-         Con::printf("%i: OP_SETCURVAR_ARRAY_CREATE stk=0", ip - 1);
-         break;
-      }
-
       case OP_LOADVAR_UINT:
       {
          Con::printf("%i: OP_LOADVAR_UINT stk=+1", ip - 1);
@@ -1046,6 +1034,12 @@ void CodeBlock::dumpInstructions(U32 startIp, bool upToReturn)
       case OP_LOADVAR_STR:
       {
          Con::printf("%i: OP_LOADVAR_STR stk=+1", ip - 1);
+         break;
+      }
+
+      case OP_LOADVAR_VAR:
+      {
+         Con::printf("%i: OP_LOADVAR_VAR stk=+1", ip - 1);
          break;
       }
 
@@ -1067,6 +1061,12 @@ void CodeBlock::dumpInstructions(U32 startIp, bool upToReturn)
          break;
       }
 
+      case OP_SAVEVAR_VAR:
+      {
+         Con::printf("%i: OP_SAVEVAR_VAR stk=0", ip - 1);
+         break;
+      }
+
       case OP_LOAD_LOCAL_VAR_UINT:
       {
          Con::printf("%i: OP_LOAD_LOCAL_VAR_UINT stk=+1 reg=%i", ip - 1, code[ip]);
@@ -1084,6 +1084,13 @@ void CodeBlock::dumpInstructions(U32 startIp, bool upToReturn)
       case OP_LOAD_LOCAL_VAR_STR:
       {
          Con::printf("%i: OP_LOAD_LOCAL_VAR_STR stk=+1 reg=%i", ip - 1, code[ip]);
+         ++ip;
+         break;
+      }
+
+      case OP_LOAD_LOCAL_VAR_VAR:
+      {
+         Con::printf("%i: OP_LOAD_LOCAL_VAR_VAR stk=+1 reg=%i", ip - 1, code[ip]);
          ++ip;
          break;
       }
@@ -1109,9 +1116,9 @@ void CodeBlock::dumpInstructions(U32 startIp, bool upToReturn)
          break;
       }
 
-      case OP_SAVE_LOCAL_VAR_ARRAY:
+      case OP_SAVE_LOCAL_VAR_VAR:
       {
-         Con::printf("%i: OP_SAVE_LOCAL_VAR_ARRAY stk=0 reg=%i", ip - 1, code[ip]);
+         Con::printf("%i: OP_SAVE_LOCAL_VAR_VAR stk=0 reg=%i", ip - 1, code[ip]);
          ++ip;
          break;
       }
@@ -1122,35 +1129,30 @@ void CodeBlock::dumpInstructions(U32 startIp, bool upToReturn)
          break;
       }
 
-      case OP_LOAD_LOCAL_ARRAY:
+      case OP_LOAD_LOCAL_ARRAY_INDEX:
       {
-         Con::printf("%i: OP_LOAD_LOCAL_ARRAY stk=+1 reg=%i", ip - 1, code[ip]);
+         Con::printf("%i: OP_LOAD_LOCAL_ARRAY_INDEX stk=+1 reg=%i", ip - 1, code[ip]);
          ++ip;
          break;
       }
 
-      case OP_SAVE_LOCAL_ARRAY:
+
+      case OP_LOAD_GLOBAL_ARRAY_INDEX:
       {
-         Con::printf("%i: OP_SAVE_LOCAL_ARRAY stk=-1 reg=%i", ip - 1, code[ip]);
+         Con::printf("%i: OP_LOAD_GLOBAL_ARRAY_INDEX stk=+1", ip - 1);
+         break;
+      }
+
+      case OP_SAVE_LOCAL_ARRAY_INDEX:
+      {
+         Con::printf("%i: OP_SAVE_LOCAL_ARRAY_INDEX stk=-1 reg=%i", ip - 1, code[ip]);
          ++ip;
          break;
       }
 
-      case OP_LOAD_GLOBAL_ARRAY:
+      case OP_SAVE_GLOBAL_ARRAY_INDEX:
       {
-         StringTableEntry var = CodeToSTE(code, ip);
-
-         Con::printf("%i: OP_LOAD_GLOBAL_ARRAY stk=0 var=%s", ip - 1, var);
-         ip += 2;
-         break;
-      }
-
-      case OP_SAVE_GLOBAL_ARRAY:
-      {
-         StringTableEntry var = CodeToSTE(code, ip);
-
-         Con::printf("%i: OP_SAVE_GLOBAL_ARRAY stk=0 var=%s", ip - 1, var);
-         ip += 2;
+         Con::printf("%i: OP_SAVE_GLOBAL_ARRAY_INDEX stk=-1", ip - 1);
          break;
       }
 

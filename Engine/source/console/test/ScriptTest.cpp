@@ -437,12 +437,27 @@ TEST(Script, TorqueScript_Array_Testing)
 
    ASSERT_EQ(value2.getInt(), 2);
 
-   //ConsoleValue value2 = RunScript(R"(
-   //      function t(%idx) { %a[%idx, 0] = 2; return %a[%idx, 0]; }
-   //      return t(5);
-   //)");
+   ConsoleValue fnTest = RunScript(R"(
+      function arrayTest(%array, %array2) {
+         return %array[2] @ %array2[2];
+      }
 
-   //ASSERT_EQ(value2.getInt(), 2);
+      $array2 = [1, 2, 3];
+      return arrayTest(["a", "b", "c"], $array2);
+   )");
+
+   ASSERT_STREQ(fnTest.getString(), "c3");
+
+   ConsoleValue returnTest = RunScript(R"(
+      function arrayTest2() {
+         return ["a", "b", "c"];
+      }
+
+      $arr = arrayTest2();
+      return $arr[1];
+   )");
+
+   ASSERT_STREQ(returnTest.getString(), "b");
 }
 
 TEST(Script, Basic_SimObject)

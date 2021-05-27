@@ -422,6 +422,23 @@ const char *ExprEvalState::getStringVariable()
    return currentVariable ? currentVariable->getStringValue() : "";
 }
 
+ConsoleValue defaultConsoleValue;
+
+const ConsoleValue& ExprEvalState::getConsoleValue() const
+{
+   return currentVariable ? currentVariable->getConsoleValue() : defaultConsoleValue;
+}
+
+ConsoleValue ExprEvalState::getArrayVariable(const char* key)
+{
+   if (currentVariable)
+      return std::move(currentVariable->getArrayByKeyValue(key));
+
+   ConsoleValue ret;
+   ret.setEmptyString();
+   return std::move(ret);
+}
+
 //------------------------------------------------------------
 
 void ExprEvalState::setIntVariable(S32 val)
@@ -440,6 +457,18 @@ void ExprEvalState::setStringVariable(const char *val)
 {
    AssertFatal(currentVariable != NULL, "Invalid evaluator state - trying to set null variable!");
    currentVariable->setStringValue(val);
+}
+
+void ExprEvalState::copyConsoleValue(const ConsoleValue &val)
+{
+   AssertFatal(currentVariable != NULL, "Invalid evaluator state - trying to set null variable!");
+   currentVariable->copyConsoleValue(val);
+}
+
+void ExprEvalState::setArrayVariable(const char* key, ConsoleValue val)
+{
+   AssertFatal(currentVariable != NULL, "Invalid evaluator state - trying to set null variable!");
+   currentVariable->setArrayValue(key, std::move(val));
 }
 
 //-----------------------------------------------------------------------------
@@ -1283,7 +1312,7 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
             _STK++; // Not nice but works.
          }
 
-         returnValue.setString(stack[_STK].getString());
+         returnValue = std::move(stack[_STK]);
          _STK--;
 
          goto execFinished;
@@ -1459,36 +1488,6 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
          curNSDocBlock = NULL;
          break;
 
-      case OP_SETCURVAR_ARRAY:
-         var = StringTable->insert(stack[_STK].getString());
-
-         // See OP_SETCURVAR
-         prevField = NULL;
-         prevObject = NULL;
-         curObject = NULL;
-
-         gEvalState.setCurVarName(var);
-
-         // See OP_SETCURVAR for why we do this.
-         curFNDocBlock = NULL;
-         curNSDocBlock = NULL;
-         break;
-
-      case OP_SETCURVAR_ARRAY_CREATE:
-         var = StringTable->insert(stack[_STK].getString());
-
-         // See OP_SETCURVAR
-         prevField = NULL;
-         prevObject = NULL;
-         curObject = NULL;
-
-         gEvalState.setCurVarNameCreate(var);
-
-         // See OP_SETCURVAR for why we do this.
-         curFNDocBlock = NULL;
-         curNSDocBlock = NULL;
-         break;
-
       case OP_LOADVAR_UINT:
          stack[_STK + 1].setInt(gEvalState.getIntVariable());
          _STK++;
@@ -1504,6 +1503,11 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
          _STK++;
          break;
 
+      case OP_LOADVAR_VAR:
+         stack[_STK + 1].copyConsoleValue(gEvalState.getConsoleValue());
+         _STK++;
+         break;
+
       case OP_SAVEVAR_UINT:
          gEvalState.setIntVariable(stack[_STK].getInt());
          break;
@@ -1514,6 +1518,10 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
 
       case OP_SAVEVAR_STR:
          gEvalState.setStringVariable(stack[_STK].getString());
+         break;
+
+      case OP_SAVEVAR_VAR:
+         gEvalState.copyConsoleValue(stack[_STK]);
          break;
 
       case OP_LOAD_LOCAL_VAR_UINT:
@@ -1535,6 +1543,12 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
          _STK++;
          break;
 
+      case OP_LOAD_LOCAL_VAR_VAR:
+         reg = code[ip++];
+         stack[_STK + 1].copyConsoleValue(gEvalState.getLocalConsoleValue(reg));
+         _STK++;
+         break;
+
       case OP_SAVE_LOCAL_VAR_UINT:
          reg = code[ip++];
          gEvalState.setLocalIntVariable(reg, stack[_STK].getInt());
@@ -1551,37 +1565,35 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
          gEvalState.setLocalStringVariable(reg, val, (S32)dStrlen(val));
          break;
 
-      case OP_SAVE_LOCAL_VAR_ARRAY:
+      case OP_SAVE_LOCAL_VAR_VAR:
          reg = code[ip++];
-         gEvalState.setLocalArrayRefVariable(reg, stack[_STK]);
+         gEvalState.copyLocalConsoleValue(reg, stack[_STK]);
          break;
 
       case OP_SET_ARRAY_KEY:
          arrayKey = std::move(stack[_STK--]);
          break;
 
-      case OP_LOAD_LOCAL_ARRAY:
+      case OP_LOAD_LOCAL_ARRAY_INDEX:
          reg = code[ip++];
-         stack[_STK + 1] = std::move(gEvalState.getLocalArrayVariable(reg, arrayKey));
+         stack[_STK + 1] = std::move(gEvalState.getLocalArrayVariable(reg, arrayKey.getString()));
          _STK++;
          break;
 
-      case OP_LOAD_GLOBAL_ARRAY:
-         var = CodeToSTE(code, ip);
-         ip += 2;
-         AssertISV(false, "Implement OP_LOAD_GLOBAL_ARRAY");
+      case OP_LOAD_GLOBAL_ARRAY_INDEX:
+         stack[_STK + 1] = std::move(gEvalState.getArrayVariable(arrayKey.getString()));
+         _STK++;
          break;
 
-      case OP_SAVE_LOCAL_ARRAY:
+      case OP_SAVE_LOCAL_ARRAY_INDEX:
          reg = code[ip++];
-         gEvalState.setLocalStringArrayVariable(reg, arrayKey, std::move(stack[_STK]));
+         gEvalState.setLocalStringArrayVariable(reg, arrayKey.getString(), std::move(stack[_STK]));
          _STK--;
          break;
 
-      case OP_SAVE_GLOBAL_ARRAY:
-         var = CodeToSTE(code, ip);
-         ip += 2;
-         AssertISV(false, "Implement OP_SAVE_GLOBAL_ARRAY");
+      case OP_SAVE_GLOBAL_ARRAY_INDEX:
+         gEvalState.setArrayVariable(arrayKey.getString(), std::move(stack[_STK]));
+         _STK--;
          break;
 
       case OP_SETCUROBJECT:

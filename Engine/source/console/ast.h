@@ -40,7 +40,8 @@ enum TypeReq
    TypeReqUInt,
    TypeReqFloat,
    TypeReqString,
-   TypeReqArray
+   TypeReqArray,
+   TypeReqVar
 };
 
 enum ExprNodeName
@@ -269,16 +270,6 @@ struct StrcatExprNode : BinaryExprNode
    U32 compile(CodeStream& codeStream, U32 ip, TypeReq type);
    TypeReq getPreferredType();
    DBG_STMT_TYPE(StrcatExprNode);
-};
-
-struct CommaCatExprNode : BinaryExprNode
-{
-   static CommaCatExprNode* alloc(S32 lineNumber, ExprNode* left, ExprNode* right);
-
-
-   U32 compile(CodeStream& codeStream, U32 ip, TypeReq type);
-   TypeReq getPreferredType();
-   DBG_STMT_TYPE(CommaCatExprNode);
 };
 
 struct IntUnaryExprNode : ExprNode

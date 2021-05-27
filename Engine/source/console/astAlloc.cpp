@@ -164,18 +164,6 @@ StrcatExprNode* StrcatExprNode::alloc(S32 lineNumber, ExprNode* left, ExprNode* 
    return ret;
 }
 
-CommaCatExprNode* CommaCatExprNode::alloc(S32 lineNumber, ExprNode* left, ExprNode* right)
-{
-   CommaCatExprNode* ret = (CommaCatExprNode*)consoleAlloc(sizeof(CommaCatExprNode));
-   constructInPlace(ret);
-   ret->dbgLineNumber = lineNumber;
-   ret->optimizedNode = NULL;
-   ret->left = left;
-   ret->right = right;
-
-   return ret;
-}
-
 IntUnaryExprNode* IntUnaryExprNode::alloc(S32 lineNumber, S32 op, ExprNode* expr)
 {
    IntUnaryExprNode* ret = (IntUnaryExprNode*)consoleAlloc(sizeof(IntUnaryExprNode));
