@@ -475,12 +475,9 @@ public:
 
    TORQUE_FORCEINLINE void setEmptyArray()
    {
-      if (!isArrayType())
-      {
-         cleanupData();
-         a = new ConsoleArray;
-         type = ConsoleValueType::cvArray;
-      }
+      cleanupData();
+      a = new ConsoleArray;
+      type = ConsoleValueType::cvArray;
    }
 
    TORQUE_NOINLINE void setArray(const char* key, ConsoleValue&& val)
