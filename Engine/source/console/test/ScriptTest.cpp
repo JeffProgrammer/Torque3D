@@ -458,6 +458,17 @@ TEST(Script, TorqueScript_Array_Testing)
    )");
 
    ASSERT_STREQ(returnTest.getString(), "b");
+
+   ConsoleValue multiDimTest = RunScript(R"(
+      function arrayTest2() {
+         return ["a", ["b1", "b2"], "c"];
+      }
+
+      $arr = arrayTest2();
+      return $arr[1][0];
+   )");
+
+   ASSERT_STREQ(multiDimTest.getString(), "b1");
 }
 
 TEST(Script, Basic_SimObject)

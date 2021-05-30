@@ -674,6 +674,49 @@ U32 VarNode::compile(CodeStream& codeStream, U32 ip, TypeReq type)
          codeStream.emit(OP_LOAD_LOCAL_ARRAY_INDEX);
          codeStream.emit(getFuncVars()->lookup(varName));
       }
+
+      bool isMultiDim = arrayIndex->next != NULL;
+      if (isMultiDim)
+      {
+         // EW EW EW EW EW
+         // THIS IS SO GROSS AND HACKY...I THINK I NEED A BETTER WAY OF HANDLING THIS
+
+         // For every multidimentional slot, we assign into a temporary register
+         // and then load it up into that
+         StringTableEntry tempVar = StringTable->insert("____multi_min_array_temp_register");
+         S32 multiDimRegister = isGlobal ? 0 : getFuncVars()->assign(tempVar, TypeReqVar, false);
+
+         for (ExprNode* walk = (ExprNode*)arrayIndex->next; walk; walk = (ExprNode*)walk->next)
+         {
+            if (isGlobal)
+            {
+               codeStream.emit(OP_SETCURVAR_CREATE);
+               codeStream.emitSTE(tempVar);
+               codeStream.emit(OP_SAVEVAR_VAR);
+            }
+            else
+            {
+               codeStream.emit(OP_SAVE_LOCAL_VAR_VAR);
+               codeStream.emit(multiDimRegister);
+            }
+            codeStream.emit(OP_POP_STK);
+
+            ip = walk->compile(codeStream, ip, TypeReqString);
+            codeStream.emit(OP_SET_ARRAY_KEY);
+
+            if (isGlobal)
+            {
+               codeStream.emit(OP_SETCURVAR);
+               codeStream.emitSTE(tempVar);
+               codeStream.emit(OP_LOAD_GLOBAL_ARRAY_INDEX);
+            }
+            else
+            {
+               codeStream.emit(OP_LOAD_LOCAL_ARRAY_INDEX);
+               codeStream.emit(multiDimRegister);
+            }
+         }
+      }
    }
    else  if (isGlobal)
    {
