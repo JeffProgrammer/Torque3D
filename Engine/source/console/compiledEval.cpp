@@ -1691,6 +1691,37 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
          }
          break;
 
+      case OP_LOAD_SPECIAL_FIELD:
+      {
+         S32 slotIndex = code[ip++];
+         TypeReq type = static_cast<TypeReq>(code[ip++]);
+
+         char buff[FieldBufferSizeString];
+         StringUnit::getUnit(stack[_STK].getString(), slotIndex, " \t\n", buff, FieldBufferSizeString);
+
+         switch (type)
+         {
+         case TypeReqFloat:
+            stack[_STK].setFloat(dAtof(buff));
+            break;
+         case TypeReqUInt:
+            stack[_STK].setInt(dAtoi(buff));
+            break;
+         default:
+            stack[_STK].setString(buff);
+         }
+
+         break;
+      }
+
+      case OP_SAVE_SPECIAL_FIELD:
+      {
+         S32 slotIndex = code[ip++];
+         TypeReq type = static_cast<TypeReq>(code[ip++]);
+
+         break;
+      }
+
       case OP_POP_STK:
          _STK--;
          break;

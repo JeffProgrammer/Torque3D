@@ -135,6 +135,9 @@ namespace Compiler
       OP_SAVEFIELD_FLT,
       OP_SAVEFIELD_STR,
 
+      OP_LOAD_SPECIAL_FIELD,
+      OP_SAVE_SPECIAL_FIELD,
+
       OP_POP_STK,
 
       OP_LOADIMMED_UINT,

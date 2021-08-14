@@ -587,4 +587,45 @@ TEST(Script, Basic_Package)
    ASSERT_EQ(deactivatedValue.getInt(), 3);
 }
 
+TEST(Script, GetWords_ShortCuts)
+{
+   Con::setBoolVariable("$dump", true);
+
+   ConsoleValue value = RunScript(R"(
+         function a()
+         {
+            %vector = "1 2 3";
+            return %vector.y;
+         }
+         return a();
+   )");
+
+   ASSERT_EQ(value.getInt(), 2);
+
+   ConsoleValue valueArray = RunScript(R"(
+         function a()
+         {
+            %vector[0] = "1 2 3";
+            return %vector[0].y;
+         }
+         return a();
+   )");
+
+   ASSERT_EQ(valueArray.getInt(), 2);
+
+   ConsoleValue value2 = RunScript(R"(
+         function a()
+         {
+            %vector = "1 2 3";
+            %vector.z = 4;
+            return %vector;
+         }
+         return a();
+   )");
+
+   ASSERT_EQ(value2.getString(), "1 2 4");
+
+   Con::setBoolVariable("$dump", false);
+}
+
 #endif

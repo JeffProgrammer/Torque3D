@@ -1247,6 +1247,40 @@ TypeReq AssertCallExprNode::getPreferredType()
 
 //------------------------------------------------------------
 
+const std::vector<std::tuple<char, S32>> reservedSlotMap = {
+   std::make_pair('x', 0),
+   std::make_pair('y', 1),
+   std::make_pair('z', 2),
+
+   std::make_pair('r', 0),
+   std::make_pair('g', 1),
+   std::make_pair('b', 2),
+   std::make_pair('a', 3),
+
+   std::make_pair('u', 0),
+   std::make_pair('v', 1),
+   std::make_pair('w', 2)
+};
+
+static inline bool slotInReservedSet(const char* slot, S32 &outWordIndex)
+{
+   if (dStrlen(slot) != 1)
+      return false;
+
+   char checkChar = slot[0];
+
+   for (const std::tuple<char, S32>& pair : reservedSlotMap)
+   {
+      if (std::get<0>(pair) == checkChar)
+      {
+         outWordIndex = std::get<1>(pair);
+         return true;
+      }
+   }
+
+   return false;
+}
+
 U32 SlotAccessNode::compile(CodeStream& codeStream, U32 ip, TypeReq type)
 {
    if (type == TypeReqNone)
@@ -1254,15 +1288,39 @@ U32 SlotAccessNode::compile(CodeStream& codeStream, U32 ip, TypeReq type)
 
    precompileIdent(slotName);
 
+   // if we are a special slot index, it's a getWord function call. It's not
+   // an object accessor.
+   S32 outWordIndex;
+   if (slotInReservedSet(slotName, outWordIndex))
+   {
+      if (arrayExpr)
+      {
+         ip = arrayExpr->compile(codeStream, ip, TypeReqString);
+      }
+      ip = objectExpr->compile(codeStream, ip, TypeReqString);
+      codeStream.emit(OP_LOAD_SPECIAL_FIELD);
+      codeStream.emit(outWordIndex);
+      codeStream.emit(type);
+
+      if (type == TypeReqNone)
+         codeStream.emit(OP_POP_STK);
+
+      if (arrayExpr)
+      {
+         codeStream.emit(OP_POP_STK);
+      }
+
+      return codeStream.tell();
+   }
+
    if (arrayExpr)
    {
       ip = arrayExpr->compile(codeStream, ip, TypeReqString);
    }
    ip = objectExpr->compile(codeStream, ip, TypeReqString);
+
    codeStream.emit(OP_SETCUROBJECT);
-
    codeStream.emit(OP_SETCURFIELD);
-
    codeStream.emitSTE(slotName);
 
    if (arrayExpr)
@@ -1348,6 +1406,31 @@ U32 SlotAssignNode::compile(CodeStream& codeStream, U32 ip, TypeReq type)
    // convert to return type if necessary.
 
    precompileIdent(slotName);
+
+   // if we are a special slot index, it's a getWord function call. It's not
+   // an object accessor.
+   S32 outWordIndex;
+   if (slotInReservedSet(slotName, outWordIndex))
+   {
+      if (arrayExpr)
+      {
+         ip = arrayExpr->compile(codeStream, ip, TypeReqString);
+      }
+      ip = objectExpr->compile(codeStream, ip, TypeReqString);
+      codeStream.emit(OP_SAVE_SPECIAL_FIELD);
+      codeStream.emit(outWordIndex);
+      codeStream.emit(type);
+
+      if (type == TypeReqNone)
+         codeStream.emit(OP_POP_STK);
+
+      if (arrayExpr)
+      {
+         codeStream.emit(OP_POP_STK);
+      }
+
+      return codeStream.tell();
+   }
 
    ip = valueExpr->compile(codeStream, ip, TypeReqString);
    if (arrayExpr)

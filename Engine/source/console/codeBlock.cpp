@@ -646,7 +646,7 @@ ConsoleValue CodeBlock::compileExec(StringTableEntry fileName, const char *inStr
    codeStream.emitCodeStream(&codeSize, &code, &lineBreakPairs);
 
    //if (Con::getBoolVariable("dump"))
-   //dumpInstructions(0, false);
+   dumpInstructions(0, false);
 
    consoleAllocReset();
 
@@ -1186,6 +1186,23 @@ void CodeBlock::dumpInstructions(U32 startIp, bool upToReturn)
       case OP_SAVEFIELD_STR:
       {
          Con::printf("%i: OP_SAVEFIELD_STR stk=0", ip - 1);
+         break;
+      }
+
+      case OP_LOAD_SPECIAL_FIELD:
+      {
+         U32 slotIndex = code[ip];
+         U32 type = code[ip + 1];
+         Con::printf("%i: OP_LOAD_SPECIAL_FIELD stk=0 index=%i type=%i", ip - 1, slotIndex, type);
+         ip += 2;
+         break;
+      }
+
+      case OP_SAVE_SPECIAL_FIELD:
+      {
+         U32 slotIndex = code[ip];
+         U32 type = code[ip + 1];
+         Con::printf("%i: OP_SAVE_SPECIAL_FIELD stk=0 index=%i %type=%i", ip - 1, slotIndex, type);
          break;
       }
 
