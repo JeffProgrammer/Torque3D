@@ -5,7 +5,7 @@
 
 class GFXShaderConductor : public GFXShaderTranslator
 {
-   virtual bool compile(const String& file, ShaderStage stage) override;
+   virtual bool compile(const String& file, ShaderStage stage, UTF8*& outShaderData) override;
 };
 
 #endif

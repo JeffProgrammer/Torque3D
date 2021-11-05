@@ -24,11 +24,11 @@ public:
       PIXEL_SHADER
    };
 
-   inline void setLanguage(Language language);
-   inline void setOptimizationLevel(Optimization optimization);
-   inline void setMacros(const Vector<GFXShaderMacro>& macros);
+   inline void setLanguage(Language language) { mLanguage = language; }
+   inline void setOptimizationLevel(Optimization optimization) { mOptimization = optimization; }
+   inline void setMacros(const Vector<GFXShaderMacro>& macros) { mShaderMacros = macros; }
 
-   virtual bool compile(const String& file, ShaderStage stage) = 0;
+   virtual bool compile(const String& file, ShaderStage stage, UTF8*& outShaderData) = 0;
 
 protected:
    Language mLanguage = Language::GLSL;
