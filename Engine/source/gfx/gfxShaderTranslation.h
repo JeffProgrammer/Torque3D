@@ -30,6 +30,8 @@ public:
 
    virtual bool compile(const String& file, ShaderStage stage, UTF8*& outShaderData) = 0;
 
+   static GFXShaderTranslator* create();
+
 protected:
    Language mLanguage = Language::GLSL;
    Optimization mOptimization = Optimization::NONE;

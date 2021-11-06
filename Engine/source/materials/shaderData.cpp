@@ -231,34 +231,13 @@ GFXShader* ShaderData::_createShader( const Vector<GFXShaderMacro> &macros )
    for(int i = 0; i < ShaderData::NumTextures; ++i)
       samplers[i] = mSamplerNames[i][0] == '$' ? mSamplerNames[i] : "$"+mSamplerNames[i];
 
-   // Initialize the right shader type.
-   switch( GFX->getAdapterType() )
-   {
-      case Direct3D11:
-      {
-         success = shader->init( mDXVertexShaderName, 
-                                 mDXPixelShaderName, 
-                                 pixver,
-                                 macros,
-                                 samplers);
-         break;
-      }
-
-      case OpenGL:
-      {
-         success = shader->init( mOGLVertexShaderName,
-                                 mOGLPixelShaderName,
-                                 pixver,
-                                 macros,
-                                 samplers);
-         break;
-      }
-         
-      default:
-         // Other device types are assumed to not support shaders.
-         success = false;
-         break;
-   }
+   success = shader->init(
+      mDXVertexShaderName,
+      mDXPixelShaderName,
+      pixver,
+      macros,
+      samplers
+   );
 
 #if defined(TORQUE_DEBUG)
    //Assert Sampler registers

@@ -23,6 +23,11 @@ MODULE_SHUTDOWN
 
 MODULE_END;
 
+GFXShaderTranslator* GFXShaderTranslator::create()
+{
+   return new GFXShaderConductor();
+}
+
 namespace GFXShaderConductorImpl
 {
    DLibraryRef sShaderConductor;
@@ -71,10 +76,8 @@ namespace GFXShaderConductorImpl
    }
 };
 
-bool GFXShaderConductor::compile(const String& file, ShaderStage stage, UTF8*& outShaderData)
+bool GFXShaderConductor::compile(const String& source, ShaderStage stage, UTF8*& outShaderData)
 {
-   String source;
-
    const Vector<MacroDefine>& macros = GFXShaderConductorImpl::mapMacros(mShaderMacros);
 
    SourceDescription sourceDesc;
@@ -104,7 +107,7 @@ bool GFXShaderConductor::compile(const String& file, ShaderStage stage, UTF8*& o
 
    if (resultDesc.hasError)
    {
-      Con::errorf("ShaderConductor Error: %s", resultDesc.errorWarningMsg);
+      Con::errorf("ShaderConductor Error: %s", (char*)resultDesc.errorWarningMsg);
       return false;
    }
 

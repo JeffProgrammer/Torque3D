@@ -24,6 +24,7 @@
 #include "gfx/gl/gfxGLShader.h"
 #include "gfx/gl/gfxGLVertexAttribLocation.h"
 #include "gfx/gl/gfxGLDevice.h"
+#include "gfx/gfxShaderTranslation.h"
 
 #include "core/frameAllocator.h"
 #include "core/stream/fileStream.h"
@@ -1015,7 +1016,8 @@ char* GFXGLShader::_handleIncludes( const Torque::Path& path, FileStream *s )
    return buffer;
 }
 
-bool GFXGLShader::_loadShaderFromStream(  GLuint shader, 
+bool GFXGLShader::_loadShaderFromStream(  GLuint shader,
+                                          GLenum stage,
                                           const Torque::Path &path, 
                                           FileStream *s, 
                                           const Vector<GFXShaderMacro> &macros )
@@ -1060,8 +1062,38 @@ bool GFXGLShader::_loadShaderFromStream(  GLuint shader,
    
    buffers.push_back(buffer);
    lengths.push_back(shaderLen);
+
+   // Concatinate shader source into 1 string, so we can translate it
+   U32 concatinatedLength = 0;
+   for (U32 length : lengths)
+      concatinatedLength += length;
+   char* shaderSourceConcatinated = (char*)dMalloc(concatinatedLength);
+   S32 offset = 0;
+   for (S32 i = 0; i < lengths.size(); ++i)
+   {
+      const U32 len = lengths[i];
+      const char* buffer = buffers[i];
+
+      dStrncpy(shaderSourceConcatinated + offset, buffer, len);
+      offset += len;
+   }
+
+   GFXShaderTranslator *translator = GFXShaderTranslator::create();
+   translator->setLanguage(GFXShaderTranslator::Language::GLSL);
+   //translator->setMacros(macros);
+   translator->setOptimizationLevel(GFXShaderTranslator::Optimization::NONE);
+
+   GFXShaderTranslator::ShaderStage translatorStage = stage == GL_VERTEX_SHADER
+      ? GFXShaderTranslator::ShaderStage::VERTEX_SHADER
+      : GFXShaderTranslator::ShaderStage::PIXEL_SHADER;
+
+   UTF8* outputSource;
+   if (!translator->compile(shaderSourceConcatinated, translatorStage, outputSource))
+   {
+      return false;
+   }
    
-   glShaderSource(shader, buffers.size(), (const GLchar**)const_cast<const char**>(buffers.address()), NULL);
+   glShaderSource(shader, 1, (const GLchar**)const_cast<const char**>(&outputSource), NULL);
 
 #if defined(TORQUE_DEBUG) && defined(TORQUE_DEBUG_GFX)
    FileStream stream;
@@ -1077,6 +1109,8 @@ bool GFXGLShader::_loadShaderFromStream(  GLuint shader,
    // Cleanup the shader source buffer.
    for ( U32 i=0; i < buffers.size(); i++ )
       dFree( buffers[i] );
+   dFree(shaderSourceConcatinated);
+   delete translator;
 
    glCompileShader(shader);
 
@@ -1088,7 +1122,9 @@ bool GFXGLShader::initShader( const Torque::Path &file,
                               const Vector<GFXShaderMacro> &macros )
 {
    PROFILE_SCOPE(GFXGLShader_CompileShader);
-   GLuint activeShader = glCreateShader(isVertex ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER);
+
+   GLenum stage = isVertex ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER;
+   GLuint activeShader = glCreateShader(stage);
    if(isVertex)
       mVertexShader = activeShader;
    else
@@ -1109,7 +1145,7 @@ bool GFXGLShader::initShader( const Torque::Path &file,
       return false;
    }
    
-   if ( !_loadShaderFromStream( activeShader, file, &stream, macros ) )
+   if ( !_loadShaderFromStream( activeShader, stage, file, &stream, macros ) )
       return false;
    
    GLint compile;

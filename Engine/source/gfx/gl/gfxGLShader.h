@@ -84,7 +84,8 @@ protected:
    
    static char* _handleIncludes( const Torque::Path &path, FileStream *s );
 
-   static bool _loadShaderFromStream(  GLuint shader, 
+   static bool _loadShaderFromStream(  GLuint shader,
+                                       GLenum stage,
                                        const Torque::Path& path, 
                                        FileStream* s, 
                                        const Vector<GFXShaderMacro>& macros );
