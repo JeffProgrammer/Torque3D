@@ -560,6 +560,9 @@ endforeach()
 # platform specific things
 ###############################################################################
 if(WIN32)
+    if(TORQUE_SDL)
+        set(BLACKLIST "winDlibrary.cpp")
+    endif()
     addPath("${srcDir}/platformWin32")
     if(TORQUE_SDL)
  		set(BLACKLIST "fileDialog.cpp" )
@@ -605,7 +608,12 @@ if(UNIX AND NOT APPLE)
             addFile( ${f} )
         endforeach()
     else()
+        if(TORQUE_SDL)
+            set(BLACKLIST "X86UNIXDlibrary.cpp")
+        endif()
         addPath("${srcDir}/platformX86UNIX")
+        set(BLACKLIST "")
+
         addPath("${srcDir}/platformX86UNIX/nativeDialogs")
     endif()
     # linux
