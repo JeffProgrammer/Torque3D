@@ -18,6 +18,7 @@
 #include "materials/materialManager.h"
 
 #include "console/persistenceManager.h"
+#include "core/util/timeClass.h"
 
 ConsoleDocClass(AssetImportConfig,
    "@brief Defines properties for an AssetImprotConfig object.\n"
@@ -104,7 +105,9 @@ AssetImportConfig::AssetImportConfig() :
    importSounds(true),
    VolumeAdjust(false),
    PitchAdjust(false),
-   SoundsCompressed(false)
+   SoundsCompressed(false),
+   AlwaysAddSoundSuffix(false),
+   AddedSoundSuffix("_sound")
 {
 }
 
@@ -316,6 +319,8 @@ void AssetImportConfig::loadImportConfig(Settings* configSettings, String config
    VolumeAdjust = dAtof(configSettings->value(String(configName + "/Sounds/VolumeAdjust").c_str()));
    PitchAdjust = dAtof(configSettings->value(String(configName + "/Sounds/PitchAdjust").c_str()));
    SoundsCompressed = dAtob(configSettings->value(String(configName + "/Sounds/Compressed").c_str()));
+   AlwaysAddSoundSuffix = dAtob(configSettings->value(String(configName + "/Sounds/AlwaysAddSoundSuffix").c_str()));
+   AddedSoundSuffix = configSettings->value(String(configName + "/Sounds/AddedSoundSuffix").c_str());
 }
 
 void AssetImportConfig::CopyTo(AssetImportConfig* target) const
@@ -406,6 +411,8 @@ void AssetImportConfig::CopyTo(AssetImportConfig* target) const
    target->VolumeAdjust = VolumeAdjust;
    target->PitchAdjust = PitchAdjust;
    target->SoundsCompressed = SoundsCompressed;
+   target->AlwaysAddSoundSuffix = AlwaysAddSoundSuffix;
+   target->AddedSoundSuffix = AddedSoundSuffix;
 }
 
 ConsoleDocClass(AssetImportObject,
@@ -500,7 +507,8 @@ AssetImporter::AssetImporter() :
    isReimport(false),
    assetHeirarchyChanged(false),
    importLogBuffer(""),
-   activeImportConfig(nullptr)
+   activeImportConfig(nullptr),
+   mDumpLogs(true)
 {
 }
 
@@ -528,6 +536,7 @@ void AssetImporter::initPersistFields()
    addField("targetModuleId", TypeRealString, Offset(targetModuleId, AssetImporter), "The Id of the module the assets are to be imported into");
    addField("finalImportedAssetPath", TypeRealString, Offset(finalImportedAssetPath, AssetImporter), "The Id of the module the assets are to be imported into");
    addField("targetPath", TypeRealString, Offset(targetPath, AssetImporter), "The path any imported assets are placed in as their destination");
+   addField("dumpLogs", TypeBool, Offset(mDumpLogs, AssetImporter), "Indicates if the importer always dumps its logs or not");
 }
 
 //
@@ -607,6 +616,7 @@ AssetImportObject* AssetImporter::addImportingAsset(String assetType, Torque::Pa
    assetName.replace('*', '_');
    assetName.replace('-', '_');
    assetName.replace('+', '_');
+   assetName.replace('&', '_');
 
    assetImportObj->assetType = assetType;
    assetImportObj->filePath = filePath;
@@ -621,6 +631,14 @@ AssetImportObject* AssetImporter::addImportingAsset(String assetType, Torque::Pa
    assetImportObj->dirty = false;
    assetImportObj->importStatus = AssetImportObject::NotProcessed;
    assetImportObj->generatedAsset = false;
+
+   //If the config is marked to always set the directory prefix, do that now
+   if (activeImportConfig->AddDirectoryPrefixToAssetName)
+   {
+      assetName = getFolderPrefixedName(assetImportObj);
+      assetImportObj->assetName = assetName;
+      assetImportObj->cleanAssetName = assetName;
+   }
 
    if (parentItem != nullptr)
    {
@@ -909,9 +927,41 @@ String AssetImporter::getActivityLogLine(U32 line)
 
 void AssetImporter::dumpActivityLog()
 {
-   for (U32 i = 0; i < activityLog.size(); i++)
+   if (!mDumpLogs)
+      return;
+
+   FileObject logFile;
+
+   //If there's nothing logged, don't bother
+   if (activityLog.size() == 0)
+      return;
+
+   Torque::Time::DateTime curTime;
+   Torque::Time::getCurrentDateTime(curTime);
+
+   String logName = String("tools/logs/AssetImportLog_") + String::ToString(curTime.year + 1900) + "-" +
+      String::ToString(curTime.month + 1) + "-" + String::ToString(curTime.day) + "_" +
+      String::ToString(curTime.hour) + "-" + String::ToString(curTime.minute) + "-" + String::ToString(curTime.second)
+      + "-" + String::ToString(curTime.microsecond) + ".log";
+
+   if (logFile.openForWrite(logName.c_str()))
    {
-      Con::printf(activityLog[i].c_str());
+      for (U32 i = 0; i < activityLog.size(); i++)
+      {
+         logFile.writeLine((const U8*)activityLog[i].c_str());
+      }
+
+      logFile.close();
+
+      Con::warnf("Asset Import log file dumped to: %s", logName.c_str());
+   }
+   else
+   {
+      Con::errorf("Error: Failed to open log file for writing! Dumping log results to console!");
+      for (U32 i = 0; i < activityLog.size(); i++)
+      {
+         Con::printf(activityLog[i].c_str());
+      }
    }
 }
 
@@ -1976,6 +2026,12 @@ void AssetImporter::processSoundAsset(AssetImportObject* assetItem)
    dSprintf(importLogBuffer, sizeof(importLogBuffer), "Preparing Sound for Import: %s", assetItem->assetName.c_str());
    activityLog.push_back(importLogBuffer);
 
+   if (activeImportConfig->AlwaysAddSoundSuffix)
+   {
+      assetItem->assetName += activeImportConfig->AddedSoundSuffix;
+      assetItem->cleanAssetName = assetItem->assetName;
+   }
+
    assetItem->importStatus = AssetImportObject::Processed;
 }
 
@@ -2165,7 +2221,49 @@ void AssetImporter::resolveAssetItemIssues(AssetImportObject* assetItem)
       {
          //Set trailing number
          String renamedAssetName = assetItem->assetName;
-         renamedAssetName = Sim::getUniqueName(renamedAssetName.c_str());
+         String renamedAssetId = assetItem->moduleName + ":" + renamedAssetName;
+
+         String addedSuffix;
+
+         if (assetItem->assetType == String("ShapeAsset"))
+            addedSuffix = activeImportConfig->AddedShapeSuffix;
+         else if (assetItem->assetType == String("MaterialAsset"))
+            addedSuffix = activeImportConfig->AddedMaterialSuffix;
+         else if (assetItem->assetType == String("ImageAsset"))
+            addedSuffix = activeImportConfig->AddedImageSuffix;
+         else if (assetItem->assetType == String("SoundAsset"))
+            addedSuffix = activeImportConfig->AddedSoundSuffix;
+
+         //do the suffix if it isn't already on it
+         if (!renamedAssetName.endsWith(addedSuffix.c_str()))
+         {
+            renamedAssetName += addedSuffix;
+            renamedAssetId = assetItem->moduleName + ":" + renamedAssetName;
+            assetItem->assetName = renamedAssetName;
+         }
+
+         //if still conflicted
+         //add the directory prefix
+         if (AssetDatabase.isDeclaredAsset(renamedAssetId.c_str()))
+         {
+            renamedAssetName = getFolderPrefixedName(assetItem);
+            renamedAssetId = assetItem->moduleName + ":" + renamedAssetName;
+            assetItem->assetName = renamedAssetName;
+         }
+
+         bool appendedNumber = false;
+         U32 uniqueNumber = 0;
+         while (AssetDatabase.isDeclaredAsset(renamedAssetId.c_str()))
+         {
+            uniqueNumber++;
+            renamedAssetId = assetItem->moduleName + ":" + renamedAssetName + String::ToString(uniqueNumber);
+            appendedNumber = true;
+         }
+
+         if (appendedNumber)
+         {
+            renamedAssetName += String::ToString(uniqueNumber);
+         }
 
          //Log it's renaming
          dSprintf(importLogBuffer, sizeof(importLogBuffer), "Asset %s was renamed due to %s as part of the Import Configuration", assetItem->assetName.c_str(), humanReadableReason.c_str());
@@ -2186,25 +2284,7 @@ void AssetImporter::resolveAssetItemIssues(AssetImportObject* assetItem)
       }
       else if (activeImportConfig->DuplicateAutoResolution == String("FolderPrefix"))
       {
-         String renamedAssetName = assetItem->assetName;
-
-         //Set trailing number
-         S32 dirIndex = assetItem->filePath.getDirectoryCount() - 1;
-         while (dirIndex > -1)
-         {
-            renamedAssetName = assetItem->assetName;
-            String owningFolder = assetItem->filePath.getDirectory(dirIndex);
-
-            renamedAssetName = owningFolder + "_" + renamedAssetName;
-
-            if (AssetDatabase.isDeclaredAsset(renamedAssetName))
-            {
-               dirIndex--;
-               continue;
-            }
-
-            break;
-         }
+         String renamedAssetName = getFolderPrefixedName(assetItem);
 
          //Log it's renaming
          dSprintf(importLogBuffer, sizeof(importLogBuffer), "Asset %s was renamed due to %s as part of the Import Configuration", assetItem->assetName.c_str(), humanReadableReason.c_str());
@@ -2338,6 +2418,7 @@ void AssetImporter::importAssets(AssetImportObject* assetItem)
    {
       dSprintf(importLogBuffer, sizeof(importLogBuffer), "AssetImporter::importAssets - Unable to find moduleId %s", targetModuleId.c_str());
       activityLog.push_back(importLogBuffer);
+      dumpActivityLog();
       return;
    }
 
@@ -2438,6 +2519,8 @@ void AssetImporter::importAssets(AssetImportObject* assetItem)
       //recurse if needed
       importAssets(item);
    }
+
+   dumpActivityLog();
 }
 
 //
