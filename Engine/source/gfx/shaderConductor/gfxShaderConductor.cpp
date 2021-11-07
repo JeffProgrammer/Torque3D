@@ -5,8 +5,8 @@
 
 namespace GFXShaderConductorImpl
 {
-   void init();
-   void shutdown();
+   static void init();
+   static void shutdown();
 }
 
 MODULE_BEGIN(GFX_SHADER_CONDUCTOR)
