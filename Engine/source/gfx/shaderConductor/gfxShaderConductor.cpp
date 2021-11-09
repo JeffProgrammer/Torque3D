@@ -32,20 +32,41 @@ namespace GFXShaderConductorImpl
 {
    DLibraryRef sShaderConductor;
 
-   void (*compileFn)(SourceDescription*, OptionsDescription*, TargetDescription*, ResultDescription*);
+   typedef void (*CompileProc)(SourceDescription*, OptionsDescription*, TargetDescription*, ResultDescription*);
+   typedef ShaderConductorBlob* (*CreateBlobProc)(const void*, int);
+   typedef void (*DestroyBlobProc)(ShaderConductorBlob*);
+   typedef const void* (*GetBlobDataProc)(ShaderConductorBlob*);
+   typedef int (*GetBlobSizeProc)(ShaderConductorBlob*);
+
+   CompileProc compileFn;
+   CreateBlobProc createBlobFn;
+   DestroyBlobProc destroyBlobFn;
+   GetBlobDataProc getBlobDataFn;
+   GetBlobSizeProc getBlobSizeFn;
 
    static void init()
    {
-      sShaderConductor = OsLoadLibrary("ShaderConductorWrapper");
-      AssertISV(sShaderConductor, "Unable to load ShaderConductorWrapper.dll");
+#if defined(TORQUE_OS_WINDOWS)
+      const char* lib = "ShaderConductorWrapper.dll";
+#elif defined(TORQUE_OS_MAC)
+      const char* lib = "libShaderConductorWrapper.dylib";
+#else
+      const char* lib = "libShaderConductorWrapper.so";
+#endif
+      
+      sShaderConductor = OsLoadLibrary(lib);
+      AssertISV(sShaderConductor, avar("Unable to load dynamic library %s", lib));
 
-      compileFn = (void(*)(SourceDescription*, OptionsDescription*, TargetDescription*, ResultDescription*))sShaderConductor->bind("Compile");
-      AssertISV(compileFn, "Unable to load symbols for ShaderConductorWrapper.dll");
+      compileFn = (CompileProc)sShaderConductor->bind("Compile");
+      createBlobFn = (CreateBlobProc)sShaderConductor->bind("CreateShaderConductorBlob");
+      destroyBlobFn = (DestroyBlobProc)sShaderConductor->bind("DestroyShaderConductorBlob");
+      getBlobDataFn = (GetBlobDataProc)sShaderConductor->bind("GetShaderConductorBlobData");
+      getBlobSizeFn = (GetBlobSizeProc)sShaderConductor->bind("GetShaderConductorBlobSize");
    }
 
    static void shutdown()
    {
-      // TODO: shut down library
+      delete sShaderConductor;
    }
 
    static ShaderConductor::ShaderStage translateStage(GFXShaderTranslator::ShaderStage stage)
@@ -107,10 +128,13 @@ bool GFXShaderConductor::compile(const String& source, ShaderStage stage, UTF8*&
 
    if (resultDesc.hasError)
    {
-      Con::errorf("ShaderConductor Error: %s", (char*)resultDesc.errorWarningMsg);
+      Con::errorf("ShaderConductor Error: %s", (char*)GFXShaderConductorImpl::getBlobDataFn(resultDesc.errorWarningMsg));
       return false;
    }
 
-   outShaderData = (UTF8*)resultDesc.target;
+   S32 shaderSize = GFXShaderConductorImpl::getBlobSizeFn(resultDesc.target);
+   const char* data = (const char*)GFXShaderConductorImpl::getBlobDataFn(resultDesc.target);
+   
+   //outShaderData = UTF8(data);
    return true;
 }
