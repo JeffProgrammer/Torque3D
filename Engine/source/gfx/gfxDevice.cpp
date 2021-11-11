@@ -35,6 +35,7 @@
 #include "gfx/screenshot.h"
 #include "gfx/gfxStringEnumTranslate.h"
 #include "gfx/gfxTextureManager.h"
+#include "gfx/gfxConstantBuffer.h"
 
 #include "core/frameAllocator.h"
 #include "core/stream/fileStream.h"

@@ -116,6 +116,7 @@ protected:
                                                       U32 numPrimitives, 
                                                       GFXBufferType bufferType,
                                                       void* data = NULL );
+   virtual GFXConstantBuffer *allocConstantBuffer(U32 size, GFXBufferType bufferType, void* data = NULL);
 
    virtual GFXVertexDecl* allocVertexDecl( const GFXVertexFormat *vertexFormat ) { return NULL; }
    virtual void setVertexDecl( const GFXVertexDecl *decl ) {  }

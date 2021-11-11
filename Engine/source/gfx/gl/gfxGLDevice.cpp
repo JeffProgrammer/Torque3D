@@ -417,6 +417,22 @@ GFXPrimitiveBuffer *GFXGLDevice::allocPrimitiveBuffer( U32 numIndices, U32 numPr
    return buf;
 }
 
+virtual GFXConstantBuffer* GFXGLDevice::allocConstantBuffer(U32 size, GFXBufferType bufferType, void* data)
+{
+   GFXConstantBuffer* buf = new GFXGLConstantBuffer(GFX, size, bufferType);
+   buf->registerResourceWithDevice(this);
+   
+   if (data)
+   {
+      void *dest;
+      buf->lock(&dest);
+      dMemcmp(dest, data, size);
+      buf->unlock();
+   }
+   
+   return buf;
+};
+
 void GFXGLDevice::setVertexStream( U32 stream, GFXVertexBuffer *buffer )
 {
    AssertFatal(stream <= 1, "GFXGLDevice::setVertexStream only support 2 stream (0: data, 1: instancing)");

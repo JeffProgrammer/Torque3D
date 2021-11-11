@@ -66,6 +66,7 @@ class GFXDrawUtil;
 class GFXFence;
 class GFXOcclusionQuery;
 class GFXPrimitiveBuffer;
+class GFXConstantBuffer;
 class GFXShader;
 class GFXStateBlock;
 class GFXShaderConstBuffer;
@@ -650,6 +651,7 @@ protected:
                                                       GFXBufferType bufferType,
                                                       void* data = NULL ) = 0;
 
+   virtual GFXConstantBuffer *allocConstantBuffer(U32 size, GFXBufferType bufferType, void* data = NULL) = 0;
    /// @}
 
 protected:

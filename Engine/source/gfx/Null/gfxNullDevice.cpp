@@ -27,6 +27,7 @@
 #include "gfx/gfxCubemap.h"
 #include "gfx/screenshot.h"
 #include "gfx/gfxPrimitiveBuffer.h"
+#include "gfx/gfxConstantBuffer.h"
 #include "gfx/gfxCardProfile.h"
 #include "gfx/gfxTextureManager.h"
 #include "gfx/bitmap/gBitmap.h"
@@ -258,6 +259,37 @@ void GFXNullPrimitiveBuffer::unlock()
    temp = NULL;
 }
 
+class GFXNullConstantBuffer : public GFXPrimitiveBuffer
+{
+private:
+   U8* temp;
+   U32 mSize;
+public:
+   GFXNullConstantBuffer( GFXDevice *device,
+                           U32 size,
+                           GFXBufferType bufferType ) :
+      GFXConstantBuffer(device, size, bufferType), temp( NULL ), mSize(size) {};
+
+   virtual void lock(void **indexPtr);
+   virtual void unlock();
+   virtual void prepare() { };
+
+   virtual void zombify() {}
+   virtual void resurrect() {}
+};
+
+void GFXNullConstantBuffer::lock(void **indexPtr)
+{
+   temp = new U8[mSize];
+   *indexPtr = temp;
+}
+
+void GFXNullConstantBuffer::unlock()
+{
+   delete[] temp;
+   temp = NULL;
+}
+
 //
 // GFXNullStateBlock
 //
@@ -318,6 +350,11 @@ GFXPrimitiveBuffer *GFXNullDevice::allocPrimitiveBuffer( U32 numIndices,
                                                          void* data ) 
 {
    return new GFXNullPrimitiveBuffer(GFX, numIndices, numPrimitives, bufferType);
+}
+
+GFXConstantBuffer* GFXNullDevice::allocConstantBuffer(U32 size, GFXBufferType bufferType, void* data)
+{
+   return new GFXNullConstantBuffer(GFX, size, bufferType);
 }
 
 GFXCubemap* GFXNullDevice::createCubemap()
