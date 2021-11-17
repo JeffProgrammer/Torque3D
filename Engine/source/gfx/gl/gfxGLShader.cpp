@@ -892,6 +892,12 @@ GFXShaderConstBufferRef GFXGLShader::allocConstBuffer()
    return buffer;
 }
 
+void GFXGLShader::assignConstantBufferAtIndex(GFXConstantBuffer *buffer, S32 index)
+{
+   S32 blockIndex = glGetUniformBlockIndex(mProgram, avar("CBUFFER%d", index));
+   glUniformBlockBinding(mProgram, blockIndex, index);
+}
+
 void GFXGLShader::useProgram()
 {
    glUseProgram(mProgram);

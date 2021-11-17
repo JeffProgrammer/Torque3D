@@ -53,6 +53,8 @@ public:
    virtual U32 getAlignmentValue(const GFXShaderConstType constType) const; 
 
    virtual GFXShaderConstBufferRef allocConstBuffer();
+   
+   virtual void assignConstantBufferAtIndex(GFXConstantBuffer *buffer, S32 index);
 
    /// @}
    

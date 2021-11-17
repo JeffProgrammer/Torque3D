@@ -798,7 +798,7 @@ public:
    /// @param stream    The stream index of the vertex source stream to place the buffer.
    /// @param frequency The stream frequency of the vertex buffer.
    void setVertexBuffer( GFXVertexBuffer *buffer, U32 stream = 0, U32 frequency = 0 );
-
+   
    /// Sets the current vertex format.
    ///
    /// This should only be used if the vertex format of the stream 0 vertex 
@@ -807,6 +807,10 @@ public:
    ///
    void setVertexFormat( const GFXVertexFormat *vertexFormat );
 
+   void setConstantBuffer(GFXConstantBuffer *buffer) { setConstantBuffer(buffer, -1, -1); }
+   virtual void setConstantBuffer(GFXConstantBuffer *buffer, S32 begin, S32 end) = 0;
+   
+   
    virtual void drawPrimitive( GFXPrimitiveType primType, U32 vertexStart, U32 primitiveCount ) = 0;
 
    /// The parameters to drawIndexedPrimitive are somewhat complicated. From a raw-data stand point

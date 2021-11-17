@@ -214,6 +214,7 @@ private:
    friend class GFXGLWindowTarget;
    friend class GFXGLPrimitiveBuffer;
    friend class GFXGLVertexBuffer;
+   friend class GFXGLConstantBuffer;
 
    static GFXAdapter::CreateDeviceInstanceDelegate mCreateDeviceInstance;
 
@@ -227,8 +228,12 @@ private:
    
    GFXShader* mCurrentShader;
    GFXShaderRef mGenericShader[GS_COUNT];
-   GFXShaderConstBufferRef mGenericShaderBuffer[GS_COUNT];
-   GFXShaderConstHandle *mModelViewProjSC[GS_COUNT];
+   GFXConstantBuffer* mGenericShaderCBuffer;
+   
+   struct alignas(16)
+   {
+      MatrixF modelView;
+   } mGenericCBufferData;
    
    /// Since GL does not have separate world and view matrices we need to track them
    MatrixF m_mCurrentWorld;

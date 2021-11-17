@@ -27,9 +27,9 @@
 #include "core/strings/stringFunctions.h"
 #include "gfx/gfxDevice.h"
 
-void GFXConstantBufferHandleBase::set(GFXDevice *theDevice, U32 size, GFXBufferType type)
+void GFXConstantBufferHandleBase::set(GFXDevice *theDevice, GFXConstantBufferSlot slot, U32 size, GFXBufferType type)
 {
-   StrongRefPtr<GFXConstantBuffer>::operator=(theDevice->allocConstantBuffer(size, type));
+   StrongRefPtr<GFXConstantBuffer>::operator=(theDevice->allocConstantBuffer(slot, size, type));
 }
 
 const String GFXConstantBuffer::::describeSelf() const

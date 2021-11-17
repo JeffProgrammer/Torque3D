@@ -164,7 +164,7 @@ void GFXGLDevice::enumerateAdapters( Vector<GFXAdapter*> &adapterList )
       dStrcpy(toAdd->mName, "OpenGL", GFXAdapter::MaxAdapterNameLen);
 
    toAdd->mType = OpenGL;
-   toAdd->mShaderModel = 0.f;
+   toAdd->mShaderModel = 4.0f;
    toAdd->mCreateDeviceInstanceDelegate = mCreateDeviceInstance;
 
    // Enumerate all available resolutions:

@@ -41,6 +41,13 @@
 
 #define GFX_TEXTURE_STAGE_COUNT 16
 
+enum GFXConstantBufferSlot
+{
+   GFXCBufferSlot0 = 0,
+   GFXCBufferSlot1,
+   GFXCBufferSlot2
+};
+
 enum GFXBufferType
 {
    GFXBufferTypeStatic,    ///< Static vertex buffers are created and rarely updated.

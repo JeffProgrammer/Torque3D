@@ -352,9 +352,9 @@ GFXPrimitiveBuffer *GFXNullDevice::allocPrimitiveBuffer( U32 numIndices,
    return new GFXNullPrimitiveBuffer(GFX, numIndices, numPrimitives, bufferType);
 }
 
-GFXConstantBuffer* GFXNullDevice::allocConstantBuffer(U32 size, GFXBufferType bufferType, void* data)
+GFXConstantBuffer* GFXNullDevice::allocConstantBuffer(GFXConstantBufferSlot slot, U32 size, GFXBufferType bufferType, void* data)
 {
-   return new GFXNullConstantBuffer(GFX, size, bufferType);
+   return new GFXNullConstantBuffer(GFX, slot, size, bufferType);
 }
 
 GFXCubemap* GFXNullDevice::createCubemap()

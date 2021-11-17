@@ -29,9 +29,10 @@
 #include "gfx/gl/gfxGLUtils.h"
 
 GFXGLConstantBuffer::GFXGLConstantBuffer( GFXDevice *device,
+                                       GFXConstantBufferSlot slot,
                                        U32 size,
                                        GFXBufferType bufferType )
-   :  GFXConstantBuffer( device, size, bufferType ),
+   :  GFXConstantBuffer( device, slot, size, bufferType ),
       mZombieCache(NULL)
 
 {

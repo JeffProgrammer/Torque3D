@@ -25,7 +25,10 @@ in vec4 vPosition;
 in vec4 vColor;
 in vec2 vTexCoord0;
 
-uniform mat4 modelview;
+layout(std140) uniform CBUFFER0 {
+   mat4 modelview;
+};
+
 out vec4 color;
 out vec2 texCoord;
 

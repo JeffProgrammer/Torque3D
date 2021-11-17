@@ -134,9 +134,7 @@ void GFXGLDevice::initGLState()
    
    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
    
-   // [JTH 5/6/2016] GLSL 1.50 is really SM 4.0
-   // Setting mPixelShaderVersion to 3.0 will allow Advanced Lighting to run.   
-   mPixelShaderVersion = 3.0;
+   mPixelShaderVersion = 4.0;
 
 	// Set capability extensions.
    mCapabilities.anisotropicFiltering = mCardProfiler->queryProfile("GL_EXT_texture_filter_anisotropic");
@@ -186,6 +184,8 @@ void GFXGLDevice::initGLState()
    Con::NotifyDelegate clbk(this, &GFXGLDevice::vsyncCallback);
    Con::addVariableNotify("$pref::Video::disableVerticalSync", clbk);
 
+   mGenericShaderCBuffer = allocConstantBuffer(sizeof(mGenericCBufferData), GFXBufferTypeDynamic);
+   
    //OpenGL 3 need a binded VAO for render
    GLuint vao;
    glGenVertexArrays(1, &vao);
@@ -219,7 +219,8 @@ GFXGLDevice::GFXGLDevice(U32 adapterIndex) :
    mMaxTRColors(1),
    mClip(0, 0, 0, 0),
    mWindowRT(NULL),
-   mUseGlMap(true)
+   mUseGlMap(true),
+   mGenericShaderCBuffer(NULL)
 {
    for(int i = 0; i < VERTEX_STREAM_COUNT; ++i)
    {
@@ -417,9 +418,9 @@ GFXPrimitiveBuffer *GFXGLDevice::allocPrimitiveBuffer( U32 numIndices, U32 numPr
    return buf;
 }
 
-virtual GFXConstantBuffer* GFXGLDevice::allocConstantBuffer(U32 size, GFXBufferType bufferType, void* data)
+virtual GFXConstantBuffer* GFXGLDevice::allocConstantBuffer(GFXConstantBufferSlot slot, U32 size, GFXBufferType bufferType, void* data)
 {
-   GFXConstantBuffer* buf = new GFXGLConstantBuffer(GFX, size, bufferType);
+   GFXConstantBuffer* buf = new GFXGLConstantBuffer(GFX, slot, size, bufferType);
    buf->registerResourceWithDevice(this);
    
    if (data)
@@ -950,11 +951,15 @@ void GFXGLDevice::setupGenericShaders( GenericShaderType type )
       Sim::getRootGroup()->addObject(shaderData);
    }
 
-   MatrixF tempMatrix =  mProjectionMatrix * mViewMatrix * mWorldMatrix[mWorldStackSize];  
-   mGenericShaderBuffer[type]->setSafe(mModelViewProjSC[type], tempMatrix);
+   mGenericCBufferData.modelView =  mProjectionMatrix * mViewMatrix * mWorldMatrix[mWorldStackSize];
 
+   void* ptr;
+   mGenericShaderCBuffer->lock(&ptr);
+   dMemcpy(ptr, &mGenericCBufferData, sizeof(mGenericCBufferData));
+   mGenericShaderCBuffer->unlock();
+   
    setShader( mGenericShader[type] );
-   setShaderConstBuffer( mGenericShaderBuffer[type] );
+   setShaderConstBuffer( NULL );
 }
 GFXShader* GFXGLDevice::createShader()
 {

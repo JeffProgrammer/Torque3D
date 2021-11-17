@@ -360,6 +360,8 @@ public:
 
    // Get instancing vertex format
    GFXVertexFormat *getInstancingFormat() { return mInstancingFormat; }
+   
+   virtual void assignConstantBufferAtIndex(GFXConstantBuffer *buffer, S32 index) = 0;
 
 protected:
 

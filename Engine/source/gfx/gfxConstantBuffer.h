@@ -40,6 +40,7 @@ class GFXConstantBuffer : public StrongRefBase, public GFXResource
 public:
 
    U32 mSize;
+   GFXConstantBufferSlot mSlot;
    
    /// GFX buffer type (static, dynamic or volatile).
    GFXBufferType mBufferType;
@@ -51,9 +52,11 @@ public:
    void* lockedVertexPtr;
 
    GFXConstantBuffer(  GFXDevice *device,
+                     GFXConstantBufferSlot slot,
                      U32 size,
                      GFXBufferType bufferType )
       :  mSize( size ),
+         mSlot(slot),
          mBufferType( bufferType ),
          mDevice( device ),
          isLocked(false),
@@ -80,12 +83,13 @@ class GFXConstantBufferHandleBase : public StrongRefPtr<GFXConstantBuffer>
 protected:
 
    void set(   GFXDevice *theDevice,
+               GFXConstantBufferSlot slot,
                U32 size,
                GFXBufferType type );
 
    void* lock()
    {
-      getPointer()->lock(vertexStart, vertexEnd, &getPointer()->lockedVertexPtr);
+      getPointer()->lock(&getPointer()->lockedVertexPtr);
       return getPointer()->lockedVertexPtr;
    }
 
@@ -111,19 +115,21 @@ public:
    GFXConstantBufferHandle() {}
 
    GFXConstantBufferHandle(  GFXDevice *theDevice,
+                           GFXConstantBufferSlot slot,
                            U32 size,
                            GFXBufferType type = GFXBufferTypeVolatile )
    {
-      set( theDevice, numVerts, type );
+      set( theDevice, slot, size, type );
    }
 
    ~GFXConstantBufferHandle() {}
 
    void set(   GFXDevice *theDevice,
+               GFXConstantBufferSlot slot,
                U32 size,
                GFXBufferType type = GFXBufferTypeVolatile )
    {
-      Parent::set( theDevice, numVerts, getGFXVertexFormat<T>(), sizeof(T), type );
+      Parent::set( theDevice, slot, size, getGFXVertexFormat<T>(), sizeof(T), type );
    }
 
    T *lock() ///< locks the vertex buffer range, and returns a pointer to the beginning of the vertex array
@@ -134,7 +140,7 @@ public:
 
    void unlock() { Parent::unlock(); }
 
-   GFXVertexBufferHandle<T>& operator=(GFXVertexBuffer *ptr)
+   GFXConstantBufferHandle<T>& operator=(GFXConstantBuffer *ptr)
    {
       StrongObjectRef::set(ptr);
       return *this;
@@ -160,10 +166,11 @@ public:
    }
 
    void set(   GFXDevice *theDevice,
+               GFXConstantBufferSlot slot,
                U32 size,
                GFXBufferType type )
    {
-      Parent::set( theDevice, size, type );
+      Parent::set( theDevice, slot, size, type );
    }
 
    U8* lock()
@@ -173,7 +180,7 @@ public:
 
    void unlock() { Parent::unlock(); }
 
-   GFXVertexBufferDataHandle& operator=( GFXVertexBuffer *ptr )
+   GFXConstantBufferDataHandle& operator=( GFXConstantBuffer *ptr )
    {
       StrongObjectRef::set(ptr);
       return *this;
