@@ -22,6 +22,12 @@
 
 #ifndef __APPLE__
 
+#include <fstream>
+#include <iostream>
+#include <string>
+#include <sstream>
+#include <vector>
+
 #include "platform/platform.h"
 #include "platform/platformCPUCount.h"
 #include "platformPOSIX/platformPOSIX.h"
@@ -30,176 +36,154 @@
 #include "core/strings/stringFunctions.h"
 #include <math.h>
 
-#include <hwloc.h>
-#include <hwloc/cpukinds.h>
-
 #include "platform/platformCPUCount.h"
 #include <unistd.h>
 
 Platform::SystemInfo_struct Platform::SystemInfo;
 
-#if defined(TORQUE_CPU_X64) || defined(TORQUE_CPU_X32)
-#include <cpuid.h>
-
-String getCPUManufacturerID()
+static inline void rtrim(std::string &s)
 {
-    U32 ignored;
-    U32 result[3];
-    memset(result, 0x00, sizeof(result) / sizeof(U32));
-
-    if (!__get_cpuid(0, &ignored, &result[0], &result[2], &result[1]))
-    {
-        return "<Error Retrieving Manufacturer ID>";
-    }
-
-    return (char*)result;
+    s.erase(std::find_if(s.rbegin(), s.rend(), std::not1(std::ptr_fun<int, int>(std::isspace))).base(), s.end());
 }
 
-String getCPUBrandString()
+static inline void ltrim(std::string &s)
 {
-    // Leaves 0x8000002 to 0x8000004 are used for brand string
-    U32 result[16];
-    memset(result, 0x00, sizeof(result) / sizeof(U32));
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
+}
 
-    const U32 leafBase = 0x80000002;
-    for (U32 iteration = 0; iteration < 3; ++iteration)
+void getCPUInformation()
+{
+    String vendorString;
+    String brandString;
+
+    std::ifstream cpuInfo("/proc/cpuinfo");
+
+    U32 logicalCoreCount = 0;
+    U32 physicalCoreCount = 1;
+
+    if (cpuInfo.is_open())
     {
-        // We load 4 U32's per iteration
-        const U32 indexBase = iteration * 4;
-        if (!__get_cpuid(leafBase + iteration, &result[indexBase], &result[indexBase + 1], &result[indexBase + 2], &result[indexBase + 3]))
+        // Load every line of the CPU Info
+        std::string line;
+
+        while (std::getline(cpuInfo, line))
         {
-            return "<Error Retrieving Brand String>";
-        }
-    }
+            std::string fieldName = line.substr(0, line.find(":"));
+            rtrim(fieldName);
 
-    return (char*)result;
-}
-
-U32 getCPUCapabilities()
-{
-    U32 eax = 0;
-    U32 ebx = 0;
-    U32 ecx = 0;
-    U32 edx = 0;
-    if (!__get_cpuid(0x1, &eax, &ebx, &ecx, &edx))
-    {
-        return 0;
-    }
-
-    // Once all hardware is loaded, set our capabilities
-    U32 result = 0;
-
-    // EDX register
-    if (edx & bit_MMX)
-    {
-        result |= CPU_PROP_MMX;
-    }
-    if (edx & bit_3DNOW)
-    {
-        result |= CPU_PROP_3DNOW;
-    }
-    if (edx & bit_SSE)
-    {
-        result |= CPU_PROP_SSE;
-    }
-    if (edx & bit_SSE2)
-    {
-        result |= CPU_PROP_SSE2;
-    }
-
-    // ECX register
-    if (ecx & bit_SSE3)
-    {
-        result |= CPU_PROP_SSE3;
-    }
-    if (ecx & bit_SSSE3)
-    {
-        result |= CPU_PROP_SSE3ex;
-    }
-    if (ecx & bit_SSE4_1)
-    {
-        result |= CPU_PROP_SSE4_1;
-    }
-    if (ecx & bit_SSE4_2)
-    {
-        result |= CPU_PROP_SSE4_2;
-    }
-    if (ecx & bit_AVX)
-    {
-        result |= CPU_PROP_AVX;
-    }
-
-    return result;
-}
-#endif
-
-bool getCPUTopology(U32& physicalCores, U32& logicalCores)
-{
-    hwloc_topology_t cpuTopology;
-    if (hwloc_topology_init(&cpuTopology) == 0 && hwloc_topology_load(cpuTopology) == 0)
-    {
-        physicalCores = hwloc_get_nbobjs_by_type(cpuTopology, HWLOC_OBJ_CORE);
-        logicalCores = hwloc_get_nbobjs_by_type(cpuTopology, HWLOC_OBJ_PU);
-
-        hwloc_topology_destroy(cpuTopology);
-
-        return true;
-    }
-
-    return false;
-}
-
-bool getCPUFrequencies(U32& baseFrequency, U32& maxFrequency)
-{
-    maxFrequency = 0;
-    baseFrequency = 0;
-
-    hwloc_topology_t cpuTopology;
-    if (hwloc_topology_init(&cpuTopology) == 0 && hwloc_topology_load(cpuTopology) == 0)
-    {
-        // NOTE: There should be at least 1 kind here - on end user machines this should be 1
-        // but in case we have a multi-socket system we'll take the first entry
-        S32 kindCount = hwloc_cpukinds_get_nr(cpuTopology, 0);
-        if (kindCount > 0)
-        {
-            // hwloc_bitmap_s bitmap;
-            U32 informationCount = 0;
-            hwloc_info_s* information;
-            if(hwloc_cpukinds_get_info(cpuTopology, 0, NULL, NULL, &informationCount, &information,0) == 0)
+            // Entries are newline separated
+            if (fieldName == "")
             {
-                // Within our information array we have an array of attributes so we locate FrequencyMaxMHz or FrequencyBaseMHz
-                for (U32 iteration = 0; iteration < informationCount; ++iteration)
-                {
-                    if (dStrcmp(information[iteration].name, "FrequencyMaxMHz") == 0)
-                    {
-                        maxFrequency = dAtoui(information[iteration].value);
-                    }
+                ++logicalCoreCount;
+                continue;
+            }
 
-                    if (dStrcmp(information[iteration].name, "FrequencyBaseMHz") == 0)
-                    {
-                        baseFrequency = dAtoui(information[iteration].value);
-                    }
+            std::string fieldValue = line.substr(line.find(":") + 1, line.length());
+            ltrim(fieldValue);
+            rtrim(fieldValue);
+
+            // Load fields
+            if (fieldName == "vendor_id")
+            {
+                vendorString = fieldValue.c_str();
+            }
+            else if (fieldName == "model name")
+            {
+                brandString = fieldValue.c_str();
+            }
+            else if (fieldName == "cpu cores")
+            {
+                physicalCoreCount = dAtoui(fieldValue.c_str());
+            }
+            else if (fieldName == "flags")
+            {
+                std::vector<std::string> flags;
+                std::istringstream flagStream(fieldValue);
+
+                std::string currentFlag;
+                while (std::getline(flagStream, currentFlag, ' '))
+                {
+                    flags.push_back(currentFlag);
+                }
+
+                // Set CPU flags
+                if (std::find(flags.begin(), flags.end(), "fpu") != flags.end())
+                {
+                    Platform::SystemInfo.processor.properties |= CPU_PROP_FPU;
+                }
+
+                if (std::find(flags.begin(), flags.end(), "ssse3") != flags.end())
+                {
+                    Platform::SystemInfo.processor.properties |= CPU_PROP_SSE3ex;
+                }
+
+                if (std::find(flags.begin(), flags.end(), "sse") != flags.end())
+                {
+                    Platform::SystemInfo.processor.properties |= CPU_PROP_SSE;
+                }
+
+                if (std::find(flags.begin(), flags.end(), "avx") != flags.end())
+                {
+                    Platform::SystemInfo.processor.properties |= CPU_PROP_AVX;
+                }
+
+                if (std::find(flags.begin(), flags.end(), "sse2") != flags.end())
+                {
+                    Platform::SystemInfo.processor.properties |= CPU_PROP_SSE2;
+                }
+
+                if (std::find(flags.begin(), flags.end(), "sse4_1") != flags.end())
+                {
+                    Platform::SystemInfo.processor.properties |= CPU_PROP_SSE4_1;
+                }
+
+                if (std::find(flags.begin(), flags.end(), "sse4_2") != flags.end())
+                {
+                    Platform::SystemInfo.processor.properties |= CPU_PROP_SSE4_2;
+                }
+
+                if (std::find(flags.begin(), flags.end(), "mmx") != flags.end())
+                {
+                    Platform::SystemInfo.processor.properties |= CPU_PROP_MMX;
+                }
+
+                if (std::find(flags.begin(), flags.end(), "3dnowprefetch") != flags.end())
+                {
+                    Platform::SystemInfo.processor.properties |= CPU_PROP_3DNOW;
+                }
+
+                if (std::find(flags.begin(), flags.end(), "neon") != flags.end())
+                {
+                    Platform::SystemInfo.processor.properties |= CPU_PROP_NEON;
                 }
             }
         }
 
-        return baseFrequency && maxFrequency == 0;
+        cpuInfo.close();
+    }
+    else
+    {
+        logicalCoreCount = 1;
     }
 
-    return false;
+    Platform::SystemInfo.processor.numLogicalProcessors = logicalCoreCount;
+    Platform::SystemInfo.processor.numPhysicalProcessors = physicalCoreCount;
+    Platform::SystemInfo.processor.isHyperThreaded = logicalCoreCount != physicalCoreCount;
+    Platform::SystemInfo.processor.isMultiCore = physicalCoreCount != 1;
+    if (Platform::SystemInfo.processor.isMultiCore)
+    {
+        Platform::SystemInfo.processor.properties |= CPU_PROP_MP;
+    }
+    SetProcessorInfo(Platform::SystemInfo.processor, vendorString.c_str(), brandString.c_str());
 }
 
 void Processor::init()
 {
-    String brandString;
-    String vendorString;
+    getCPUInformation();
 
 #if defined(TORQUE_CPU_X64) || defined(TORQUE_CPU_X32)
     // Set sane default information
-    Platform::SystemInfo.processor.properties = CPU_PROP_C | CPU_PROP_FPU | CPU_PROP_LE | getCPUCapabilities();
-
-    brandString = getCPUBrandString().trim();
-    vendorString = getCPUManufacturerID().trim();
+    Platform::SystemInfo.processor.properties |= CPU_PROP_C | CPU_PROP_FPU | CPU_PROP_LE ;
 
 #elif defined(TORQUE_CPU_ARM32) || defined(TORQUE_CPU_ARM64)
     Platform::SystemInfo.processor.type = CPU_ArmCompatible;
@@ -209,32 +193,10 @@ void Processor::init()
 #warning Unsupported CPU
 #endif
 
-    // Pass vendor and brand information along
-    SetProcessorInfo(Platform::SystemInfo.processor, vendorString.c_str(), brandString.c_str());
-
     // Set 64bit flag
 #if defined(TORQUE_CPU_X64) || defined(TORQUE_CPU_ARM64)
     Platform::SystemInfo.processor.properties |= CPU_PROP_64bit;
 #endif
-
-    // Retrieve CPU topology
-    getCPUTopology(Platform::SystemInfo.processor.numPhysicalProcessors, Platform::SystemInfo.processor.numLogicalProcessors);
-    Platform::SystemInfo.processor.isHyperThreaded = Platform::SystemInfo.processor.numLogicalProcessors != Platform::SystemInfo.processor.numPhysicalProcessors;
-    Platform::SystemInfo.processor.isMultiCore = Platform::SystemInfo.processor.numPhysicalProcessors != 1;
-
-    if (Platform::SystemInfo.processor.isMultiCore)
-    {
-        Platform::SystemInfo.processor.properties |= CPU_PROP_MP;
-    }
-
-    // Load frequency information - if base isn't present we use turbo
-    U32 maxFrequency = 0;
-    getCPUFrequencies(Platform::SystemInfo.processor.mhz, maxFrequency);
-
-    if (Platform::SystemInfo.processor.mhz == 0)
-    {
-        Platform::SystemInfo.processor.mhz = maxFrequency;
-    }
 
     // Once CPU information is resolved, produce an output like Windows does
     Con::printf("Processor Init:");
@@ -257,6 +219,8 @@ void Processor::init()
         Con::printf("      SSE4.2 detected" );
     if (Platform::SystemInfo.processor.properties & CPU_PROP_AVX)
         Con::printf("      AVX detected");
+    if (Platform::SystemInfo.processor.properties & CPU_PROP_NEON)
+        Con::printf("      NEON detected");
 
     if (Platform::SystemInfo.processor.properties & CPU_PROP_MP)
         Con::printf("   MultiCore CPU detected [%i cores, %i logical]", Platform::SystemInfo.processor.numPhysicalProcessors, Platform::SystemInfo.processor.numLogicalProcessors);
