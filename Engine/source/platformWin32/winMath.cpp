@@ -30,7 +30,6 @@
 extern void mInstallLibrary_C();
 extern void mInstallLibrary_ASM();
 extern void mInstall_AMD_Math();
-extern void mInstall_Library_SSE();
 
 //--------------------------------------
 DefineEngineStringlyVariadicFunction( mathInit, void, 1, 10, "( ... )"
@@ -122,13 +121,7 @@ void Math::init(U32 properties)
          mInstall_AMD_Math();
       }
    }
-
-   if (properties & CPU_PROP_SSE)
-   {
-      Con::printf("   Installing SSE extensions");
-      mInstall_Library_SSE();
-   }
-
+   
    Con::printf(" ");
 }
 
