@@ -23,6 +23,7 @@
 #ifndef __APPLE__
 
 #include "platform/platform.h"
+#include "platform/platformCPUCount.h"
 #include "platformPOSIX/platformPOSIX.h"
 #include "console/console.h"
 #include "core/stringTable.h"
@@ -190,22 +191,15 @@ bool getCPUFrequencies(U32& baseFrequency, U32& maxFrequency)
 
 void Processor::init()
 {
+    String brandString;
+    String vendorString;
+
 #if defined(TORQUE_CPU_X64) || defined(TORQUE_CPU_X32)
     // Set sane default information
-    Platform::SystemInfo.processor.type = CPU_X86Compatible;
-    Platform::SystemInfo.processor.name = StringTable->insert(getCPUBrandString().trim());
     Platform::SystemInfo.processor.properties = CPU_PROP_C | CPU_PROP_FPU | CPU_PROP_LE | getCPUCapabilities();
 
-    // Determine CPU manufacturer
-    const String manufacturer = getCPUManufacturerID();
-    if (manufacturer.compare("AuthenticAMD") == 0)
-    {
-        Platform::SystemInfo.processor.type = CPU_AMD;
-    }
-    else if (manufacturer.compare("GenuineIntel") == 0)
-    {
-        Platform::SystemInfo.processor.type = CPU_Intel;
-    }
+    brandString = getCPUBrandString().trim();
+    vendorString = getCPUManufacturerID().trim();
 
 #elif defined(TORQUE_CPU_ARM32) || defined(TORQUE_CPU_ARM64)
     Platform::SystemInfo.processor.type = CPU_ArmCompatible;
@@ -215,6 +209,10 @@ void Processor::init()
 #warning Unsupported CPU
 #endif
 
+    // Pass vendor and brand information along
+    SetProcessorInfo(Platform::SystemInfo.processor, vendorString.c_str(), brandString.c_str());
+
+    // Set 64bit flag
 #if defined(TORQUE_CPU_X64) || defined(TORQUE_CPU_ARM64)
     Platform::SystemInfo.processor.properties |= CPU_PROP_64bit;
 #endif
@@ -224,6 +222,11 @@ void Processor::init()
     Platform::SystemInfo.processor.isHyperThreaded = Platform::SystemInfo.processor.numLogicalProcessors != Platform::SystemInfo.processor.numPhysicalProcessors;
     Platform::SystemInfo.processor.isMultiCore = Platform::SystemInfo.processor.numPhysicalProcessors != 1;
 
+    if (Platform::SystemInfo.processor.isMultiCore)
+    {
+        Platform::SystemInfo.processor.properties |= CPU_PROP_MP;
+    }
+
     // Load frequency information - if base isn't present we use turbo
     U32 maxFrequency = 0;
     getCPUFrequencies(Platform::SystemInfo.processor.mhz, maxFrequency);
@@ -232,6 +235,33 @@ void Processor::init()
     {
         Platform::SystemInfo.processor.mhz = maxFrequency;
     }
+
+    // Once CPU information is resolved, produce an output like Windows does
+    Con::printf("Processor Init:");
+    Con::printf("   Processor: %s", Platform::SystemInfo.processor.name);
+    if (Platform::SystemInfo.processor.properties & CPU_PROP_MMX)
+        Con::printf("      MMX detected" );
+    if (Platform::SystemInfo.processor.properties & CPU_PROP_3DNOW)
+        Con::printf("      3DNow detected" );
+    if (Platform::SystemInfo.processor.properties & CPU_PROP_SSE)
+        Con::printf("      SSE detected" );
+    if (Platform::SystemInfo.processor.properties & CPU_PROP_SSE2)
+        Con::printf("      SSE2 detected" );
+    if (Platform::SystemInfo.processor.properties & CPU_PROP_SSE3)
+        Con::printf("      SSE3 detected" );
+    if (Platform::SystemInfo.processor.properties & CPU_PROP_SSE3ex)
+        Con::printf("      SSE3ex detected ");
+    if (Platform::SystemInfo.processor.properties & CPU_PROP_SSE4_1)
+        Con::printf("      SSE4.1 detected" );
+    if (Platform::SystemInfo.processor.properties & CPU_PROP_SSE4_2)
+        Con::printf("      SSE4.2 detected" );
+    if (Platform::SystemInfo.processor.properties & CPU_PROP_AVX)
+        Con::printf("      AVX detected");
+
+    if (Platform::SystemInfo.processor.properties & CPU_PROP_MP)
+        Con::printf("   MultiCore CPU detected [%i cores, %i logical]", Platform::SystemInfo.processor.numPhysicalProcessors, Platform::SystemInfo.processor.numLogicalProcessors);
+
+    Con::printf(" ");
 }
 
 namespace CPUInfo

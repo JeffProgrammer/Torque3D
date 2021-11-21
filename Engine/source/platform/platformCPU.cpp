@@ -28,7 +28,7 @@
 
 Signal<void(void)> Platform::SystemInfoReady;
 
-void SetProcessoInfo(Platform::SystemInfo_struct::Processor& pInfo, char* vendor, char* brand)
+void SetProcessorInfo(Platform::SystemInfo_struct::Processor& pInfo, const char* vendor, const char* brand)
 {
    if (dStricmp(vendor, "GenuineIntel") == 0)
    {
