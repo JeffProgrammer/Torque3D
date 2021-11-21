@@ -174,6 +174,18 @@ void getCPUInformation()
     {
         Platform::SystemInfo.processor.properties |= CPU_PROP_MP;
     }
+
+    // Load processor base frequency
+    std::ifstream baseFrequencyStream("/sys/devices/system/cpu/cpu0/cpufreq/base_frequency");
+    if (baseFrequencyStream.is_open())
+    {
+        U32 baseFrequencyKHz = 0;
+        baseFrequencyStream >> baseFrequencyKHz;
+
+        Platform::SystemInfo.processor.mhz = baseFrequencyKHz / 1000;
+        baseFrequencyStream.close();
+    }
+
     SetProcessorInfo(Platform::SystemInfo.processor, vendorString.c_str(), brandString.c_str());
 }
 
