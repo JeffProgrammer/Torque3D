@@ -29,14 +29,25 @@ if(UNIX)
     #set(CXX_FLAG32 "-m32") #uncomment for build x32 on OSx64
 
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_FLAG32} -lhwloc -Wundef -msse -pipe -Wfatal-errors -Wno-return-type-c-linkage -Wno-unused-local-typedef ${TORQUE_ADDITIONAL_LINKER_FLAGS}")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CXX_FLAG32} -lhwloc -Wundef -msse -pipe -Wfatal-errors -Wno-return-type-c-linkage -Wno-unused-local-typedef ${TORQUE_ADDITIONAL_LINKER_FLAGS}")
-    else()
-    # default compiler flags
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_FLAG32} -lhwloc  -Wundef -msse -pipe -Wfatal-errors -no-pie ${TORQUE_ADDITIONAL_LINKER_FLAGS} -Wl,-rpath,'$ORIGIN'")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CXX_FLAG32} -lhwloc -Wundef -msse -pipe -Wfatal-errors ${TORQUE_ADDITIONAL_LINKER_FLAGS} -Wl,-rpath,'$ORIGIN'")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_FLAG32} -lhwloc -Wundef -pipe -Wfatal-errors -Wno-return-type-c-linkage -Wno-unused-local-typedef ${TORQUE_ADDITIONAL_LINKER_FLAGS}")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CXX_FLAG32} -lhwloc -Wundef -pipe -Wfatal-errors -Wno-return-type-c-linkage -Wno-unused-local-typedef ${TORQUE_ADDITIONAL_LINKER_FLAGS}")
 
-   endif()
+        # Only use SSE on x86 devices
+        if (TORQUE_CPU_X32 OR TORQUE_CPU_X64)
+            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse")
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse")
+        endif()
+    else()
+        # default compiler flags
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_FLAG32} -lhwloc -Wundef -pipe -Wfatal-errors -no-pie ${TORQUE_ADDITIONAL_LINKER_FLAGS} -Wl,-rpath,'$ORIGIN'")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CXX_FLAG32} -lhwloc -Wundef -pipe -Wfatal-errors ${TORQUE_ADDITIONAL_LINKER_FLAGS} -Wl,-rpath,'$ORIGIN'")
+
+        # Only use SSE on x86 devices
+        if (TORQUE_CPU_X32 OR TORQUE_CPU_X64)
+            set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse")
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse")
+        endif()
+    endif()
 
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
@@ -162,6 +173,12 @@ endif()
 
 option(TORQUE_MULTITHREAD "Multi Threading" ON)
 mark_as_advanced(TORQUE_MULTITHREAD)
+
+option(TORQUE_POSIX_PATH_CASE_INSENSITIVE "POSIX Pathing Case Insensitivity" ON)
+mark_as_advanced(TORQUE_POSIX_PATH_CASE_INSENSITIVE)
+
+option(TORQUE_ZIP_PATH_CASE_INSENSITIVE "ZIP Pathing Case Insensitivity" ON)
+mark_as_advanced(TORQUE_ZIP_PATH_CASE_INSENSITIVE)
 
 option(TORQUE_DISABLE_MEMORY_MANAGER "Disable memory manager" ON)
 mark_as_advanced(TORQUE_DISABLE_MEMORY_MANAGER)
@@ -582,11 +599,15 @@ if(APPLE)
     addPath("${srcDir}/platformPOSIX")
 endif()
 
+if (UNIX AND NOT APPLE)
+    addPath("${srcDir}/platformX11")
+endif()
+
 if(UNIX AND NOT APPLE)
     # linux_dedicated
     if(TORQUE_DEDICATED)
 		addPath("${srcDir}/windowManager/dedicated")
-		# ${srcDir}/platformX86UNIX/*.client.* files are not needed
+		# ${srcDir}/UNIX/*.client.* files are not needed
 		# @todo: move to separate file
 		file( GLOB tmp_files
              ${srcDir}/platformX86UNIX/*.cpp
@@ -728,8 +749,7 @@ if (APPLE AND NOT IOS)
     set(ARCHITECTURE_STRING_APPLE "x86_64;arm64")
     set(DEPLOYMENT_TARGET_APPLE "10.13")
   else()
-    check_c_compiler_flag("-arch arm64" armSupportedApple)
-    if(armSupportedApple)
+    if (CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
       set(ARCHITECTURE_STRING_APPLE "arm64")
       set(DEPLOYMENT_TARGET_APPLE "11.0")
     else()

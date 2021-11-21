@@ -147,7 +147,7 @@ void ImageAsset::consoleInit()
    Con::addVariable("$Core::NoImageAssetFallback", TypeString, &smNoImageAssetFallback,
       "The assetId of the texture to display when the requested image asset is missing.\n"
       "@ingroup GFX\n");
-   
+
    smNoImageAssetFallback = StringTable->insert(Con::getVariable("$Core::NoImageAssetFallback"));
 }
 
@@ -274,22 +274,8 @@ void ImageAsset::loadImage()
 
       mLoadedState = Ok;
       mIsValidImage = true;
-      return;
-
-      //GFXTexHandle texture = getTexture(&GFXStaticTextureSRGBProfile);
-
-      //mTexture.set(mImagePath, &GFXStaticTextureSRGBProfile, avar("%s() - mImage (line %d)", __FUNCTION__, __LINE__));
-
-      /*if (texture.isValid())
-      {
-         mIsValidImage = true;
-
-         //mBitmap = texture.getBitmap();
-
-         return;
-      }*/
-
       mChangeSignal.trigger();
+      return;
    }
    mLoadedState = BadFileReference;
 
@@ -497,8 +483,6 @@ GuiControl* GuiInspectorTypeImageAssetPtr::constructEditControl()
       mInspector->getInspectObject()->getIdString(), mCaption);
    mBrowseButton->setField("Command", szBuffer);
 
-   const char* id = mInspector->getInspectObject()->getIdString();
-
    setDataField(StringTable->insert("targetObject"), NULL, mInspector->getInspectObject()->getIdString());
 
    // Create "Open in ShapeEditor" button
@@ -565,11 +549,24 @@ bool GuiInspectorTypeImageAssetPtr::renderTooltip(const Point2I& hoverPos, const
    if (!filename || !filename[0])
       return false;
 
-   GFXTexHandle texture(filename, &GFXStaticTextureSRGBProfile, avar("%s() - tooltip texture (line %d)", __FUNCTION__, __LINE__));
+   StringTableEntry previewFilename = filename;
+   if (Con::isFunction("getAssetPreviewImage"))
+   {
+      ConsoleValue consoleRet = Con::executef("getAssetPreviewImage", filename);
+      previewFilename = StringTable->insert(consoleRet.getString());
+
+      if (AssetDatabase.isDeclaredAsset(previewFilename))
+      {
+         ImageAsset* previewAsset = AssetDatabase.acquireAsset<ImageAsset>(previewFilename);
+         previewFilename = previewAsset->getImagePath();
+      }
+   }
+
+   GFXTexHandle texture(previewFilename, &GFXStaticTextureSRGBProfile, avar("%s() - tooltip texture (line %d)", __FUNCTION__, __LINE__));
    if (texture.isNull())
       return false;
 
-   // Render image at a reasonable screen size while 
+   // Render image at a reasonable screen size while
    // keeping its aspect ratio...
    Point2I screensize = getRoot()->getWindowSize();
    Point2I offset = hoverPos;

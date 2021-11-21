@@ -2,7 +2,7 @@ function T3Dpre4ProjectImporter::setupModule(%this)
 {
    %newModuleName = $ProjectImporter::moduleName;
       
-   echo("Creating a new Module named: " @ %newModuleName);
+   $ProjectImporter::log.add("Creating a new Module named: " @ %newModuleName);
    
    %moduleFilePath = "data/" @ %newModuleName;
    %moduleDefinitionFilePath = %moduleFilePath @ "/" @ %newModuleName @ ".module";
@@ -40,7 +40,7 @@ function T3Dpre4ProjectImporter::setupModule(%this)
          %line = strreplace( %line, "@@", %newModuleName );
          
          %file.writeline(%line);
-         echo(%line);
+         //$ProjectImporter::log.add(%line);
       }
       
       %file.close();
@@ -51,7 +51,7 @@ function T3Dpre4ProjectImporter::setupModule(%this)
       %file.close();
       %templateFile.close();
       
-      warnf("CreateNewModule - Something went wrong and we couldn't write the script file!");
+      $ProjectImporter::log.add("CreateNewModule - Something went wrong and we couldn't write the script file!");
    }
    
    //force a refresh of our modules list
@@ -126,7 +126,7 @@ function T3Dpre4ProjectImporter::copyFiles(%this)
       
       if(!pathCopy(%file, %targetFilePath, false))
       {
-         error("Legacy Project Importer, failed to copy file: " @ %file @ " to destination: " @ %targetFilePath);
+         $ProjectImporter::log.add("Legacy Project Importer, failed to copy file: " @ %file @ " to destination: " @ %targetFilePath);
       }
       
       %file = findNextFileMultiExpr( $ProjectImporter::sourceContentFolder @ "/*.*" );
@@ -206,7 +206,7 @@ function T3Dpre4ProjectImporter::beginMaterialFilesImport(%this)
    %objectClassStack = new ArrayObject();
    %fileOutputLines = new ArrayObject();
    
-   echo("Legacy Project Importer - Beginning processing of imported code files");
+   $ProjectImporter::log.add("Legacy Project Importer - Beginning processing of imported code files");
    
    //Walk through and process all code files to update references
    while( %file !$= "" )
@@ -225,7 +225,7 @@ function T3Dpre4ProjectImporter::beginMaterialFilesImport(%this)
       
       if ( $ProjectImporter::fileObject.openForRead( %file ) ) 
       {
-         echo("Legacy Project Importer - Beginning process of file: " @ %file);
+         $ProjectImporter::log.add("Legacy Project Importer - Beginning process of file: " @ %file);
          %lineNum = 0;
          while ( !$ProjectImporter::fileObject.isEOF() ) 
          {
@@ -376,7 +376,7 @@ function T3Dpre4ProjectImporter::beginMaterialFilesImport(%this)
       }
       else
       {
-         error("Legacy Project Importer - File not able to be opened: " @ %file);  
+         $ProjectImporter::log.add("Legacy Project Importer - File not able to be opened: " @ %file);  
       }
       
       if(%fileWasChanged)
@@ -399,7 +399,7 @@ function T3Dpre4ProjectImporter::beginMaterialFilesImport(%this)
       %file = findNextFileMultiExpr( $ProjectImporter::modulePath @ "/*/materials.*" );
    }
    
-   echo("Legacy Project Importer - Processing of imported code files done!");
+   $ProjectImporter::log.add("Legacy Project Importer - Processing of imported code files done!");
    
    %fileOutputLines.delete();
    %objectClassStack.delete();
@@ -418,7 +418,7 @@ function T3Dpre4ProjectImporter::beginCodeFilesImport(%this)
    %objectClassStack = new ArrayObject();
    %fileOutputLines = new ArrayObject();
    
-   echo("Legacy Project Importer - Beginning processing of imported code files");
+   $ProjectImporter::log.add("Legacy Project Importer - Beginning processing of imported code files");
    
    //Walk through and process all code files to update references
    while( %file !$= "" )
@@ -454,7 +454,7 @@ function T3Dpre4ProjectImporter::beginCodeFilesImport(%this)
       
       if ( $ProjectImporter::fileObject.openForRead( %file ) ) 
       {
-         echo("Legacy Project Importer - Beginning process of file: " @ %file);
+         $ProjectImporter::log.add("Legacy Project Importer - Beginning process of file: " @ %file);
          %lineNum = 0;
          while ( !$ProjectImporter::fileObject.isEOF() ) 
          {
@@ -702,7 +702,7 @@ function T3Dpre4ProjectImporter::beginCodeFilesImport(%this)
       }
       else
       {
-         error("Legacy Project Importer - File not able to be opened: " @ %file);  
+         $ProjectImporter::log.add("Legacy Project Importer - File not able to be opened: " @ %file);  
       }
       
       if(%fileWasChanged)
@@ -725,7 +725,7 @@ function T3Dpre4ProjectImporter::beginCodeFilesImport(%this)
       %file = findNextFileMultiExpr( $ProjectImporter::modulePath @ "/*.*" );
    }
    
-   echo("Legacy Project Importer - Processing of imported code files done!");
+   $ProjectImporter::log.add("Legacy Project Importer - Processing of imported code files done!");
    
    //exec common loader files, process the remainder into assets
    
@@ -747,7 +747,7 @@ function T3Dpre4ProjectImporter::processScriptExtensions(%this)
    else
       %file = findFirstFileMultiExpr( $ProjectImporter::modulePath @ "/*/*.tscript", true);
    
-   echo("Legacy Project Importer - Beginning processing of script files that utilize extensions other than: " @ $TorqueScriptFileExtension);
+   $ProjectImporter::log.add("Legacy Project Importer - Beginning processing of script files that utilize extensions other than: " @ $TorqueScriptFileExtension);
    
    //Walk through and process all code files to update references
    while( %file !$= "" )
@@ -767,13 +767,13 @@ function T3Dpre4ProjectImporter::processScriptExtensions(%this)
       %targetFilePath = %filePath @ "/" @ %fileBase @ "." @ $TorqueScriptFileExtension;
       if(!pathCopy(%file, %targetFilePath))
       {
-         error("T3Dpre4ProjectImporter::processScriptExtensions() - Failed to create renamed script file for file: " @ %file);
+         $ProjectImporter::log.add("T3Dpre4ProjectImporter::processScriptExtensions() - Failed to create renamed script file for file: " @ %file);
       }
       else
       {
          if(!fileDelete(%file))
          {
-            error("T3Dpre4ProjectImporter::processScriptExtensions() - Failed to remove old script file for rename: " @ %file);
+            $ProjectImporter::log.add("T3Dpre4ProjectImporter::processScriptExtensions() - Failed to remove old script file for rename: " @ %file);
          }         
       }
       
@@ -789,7 +789,7 @@ function T3Dpre4ProjectImporter::processScriptExtensions(%this)
    ProjectImportWindow-->nextButton.setActive(true);
    Canvas.repaint();
    
-   echo("Legacy Project Importer - Beginning processing of script files extensions complete");
+   $ProjectImporter::log.add("Legacy Project Importer - Beginning processing of script files extensions complete");
 }
 
 //To implement a custom class to have it's fields processed, just utilize this template function
@@ -839,12 +839,13 @@ T3Dpre4ProjectImporter::genProcessor("LevelInfo", "accuTexture accuTextureAsset"
 T3Dpre4ProjectImporter::genProcessor("TSStatic", "shape shapeAsset shapeName shapeAsset");
 T3Dpre4ProjectImporter::genProcessor("TSForestItemData", "shape shapeAsset shapeName shapeAsset shapeFile shapeAsset");
 T3Dpre4ProjectImporter::genProcessor("TerrainBlock", "terrainFile terrainAsset");
-T3Dpre4ProjectImporter::genProcessor("afxMagicMissileData", "projectileShapeName projectileShapeAsset");
+T3Dpre4ProjectImporter::genProcessor("afxMagicMissileData", "projectileShape projectileShapeAsset projectileShapeName projectileShapeAsset sound projectileSoundAsset");
 T3Dpre4ProjectImporter::genProcessor("afxBillboardData", "texture textureAsset");
 T3Dpre4ProjectImporter::genProcessor("afxModelData", "shapeName shapeAsset shapeFile shapeAsset");
 T3Dpre4ProjectImporter::genProcessor("afxZodiacData", "texture textureAsset");
 T3Dpre4ProjectImporter::genProcessor("afxZodiacPlaneData", "texture textureAsset");
 T3Dpre4ProjectImporter::genProcessor("sfxEmitter", "track soundAsset filename soundAsset");
+T3Dpre4ProjectImporter::genProcessor("LightningData", "thunderSounds ThunderSoundAsset strikeSound StrikeSoundAsset");
 //==============================================================================
 // Levels
 //==============================================================================
@@ -901,6 +902,7 @@ T3Dpre4ProjectImporter::genProcessor("GuiProgressBitmap", "bitmap bitmapAsset");
 T3Dpre4ProjectImporter::genProcessor("GuiMissionArea", "handleBitmap handleBitmapAsset");
 T3Dpre4ProjectImporter::genProcessor("WorldEditor", "selectHandle selectHandleAsset defaultHandle defaultHandleAsset lockedHandle lockedHandleAsset");
 T3Dpre4ProjectImporter::genProcessor("GuiControlProfile", "bitmap bitmapAsset");
+T3Dpre4ProjectImporter::genProcessor("GuiMLTextCtrl", "deniedSound deniedSoundAsset");
 
 function T3Dpre4ProjectImporter::processGuiBitmapButtonCtrlLine(%this, %line)
 {
@@ -920,56 +922,54 @@ T3Dpre4ProjectImporter::genProcessor("DecalData", "material materialAsset");
 T3Dpre4ProjectImporter::genProcessor("ExplosionData", "explosionShape explosionShapeAsset");
 T3Dpre4ProjectImporter::genProcessor("ParticleData", "texture textureAsset textureName textureAsset textureExt textureExtAsset textureExtName textureExtAsset");
 T3Dpre4ProjectImporter::genProcessor("PrecipitationData", "drop dropAsset dropTexture dropAsset splash splashAsset splashTexture splashAsset soundProfile soundAsset");
-T3Dpre4ProjectImporter::genProcessor("SplashData", "texture textureAsset");
+T3Dpre4ProjectImporter::genProcessor("SplashData", "texture textureAsset soundProfile SoundAsset");
 T3Dpre4ProjectImporter::genProcessor("LightFlareData", "flareTexture flareTextureAsset");
 T3Dpre4ProjectImporter::genProcessor("PhysicsDebrisData", "shape shapeAsset shapeFile shapeAsset");
 T3Dpre4ProjectImporter::genProcessor("PhysicsShapeData", "shape shapeAsset shapeName shapeAsset");
-T3Dpre4ProjectImporter::genProcessor("PlayerData", "shapeFP shapeFPAsset shapeNameFP shapeFPAsset");
-T3Dpre4ProjectImporter::genProcessor("ProjectileData", "projectileShape projectileShapeAsset projectileShapeName projectileShapeAsset");
+T3Dpre4ProjectImporter::genProcessor("ProjectileData", "projectileShape projectileShapeAsset projectileShapeName projectileShapeAsset sound projectileSoundAsset");
 T3Dpre4ProjectImporter::genProcessor("ShapeBaseData", "shapeFile shapeAsset shape shapeAsset debrisShape debrisShapeAsset debrisShapeName debrisShapeAsset");
-T3Dpre4ProjectImporter::genProcessor("ShapeBaseImageData", "shape shapeAsset[0] shapeFP shapeAsset[1] shapeFile shapeAsset[0] shapeFileFP shapeAsset[1]");
+T3Dpre4ProjectImporter::genProcessor("ShapeBaseImageData", "shape shapeAsset[0] shapeFP shapeAsset[1] shapeFile shapeAsset[0] shapeFileFP shapeAsset[1] stateSound stateSoundAsset");
+T3Dpre4ProjectImporter::genProcessor("ProximityMineData","armingSound ArmSoundAsset TriggerSound TriggerSoundAsset");
 T3Dpre4ProjectImporter::genProcessor("WheeledVehicleTire", "shape shapeAsset shapeFile shapeAsset");
+T3Dpre4ProjectImporter::genProcessor("WheeledVehicleData", "engineSound engineSoundAsset squealSound squealSoundAsset");
+T3Dpre4ProjectImporter::genProcessor("FlyingVehicleData", "engineSound engineSoundAsset jetSound jetSoundAsset");
+T3Dpre4ProjectImporter::genProcessor("HoverVehicleData", "engineSound engineSoundAsset jetSound jetSoundAsset floatSound floatSoundAsset");
+
+//==============================================================================
+// Datablocks - Long Lists
+//==============================================================================
+// - RigidShapeData
+$rigidEntriesList = "softImpactSound softImpactSoundAsset hardImpactSound hardImpactSoundAsset";
+$rigidEntriesList = $rigidEntriesList SPC "exitingWater exitingWaterAsset impactWaterEasy impactWaterEasyAsset";
+$rigidEntriesList = $rigidEntriesList SPC "impactWaterMedium impactWaterMediumAsset impactWaterHard impactWaterHardAsset";
+$rigidEntriesList = $rigidEntriesList SPC "waterWakeSound waterWakeSoundAsset";
+T3Dpre4ProjectImporter::genProcessor("RigidShapeData",$rigidEntriesList);
+// - PlayerData
+$PlayerEntriesList = "shapeFP shapeFPAsset shapeNameFP shapeFPAsset";
+$PlayerEntriesList = $PlayerEntriesList SPC "FootSoftSound FootSoftAsset FootHardSound FootHardAsset FootMetalSound FootMetal";
+$PlayerEntriesList = $PlayerEntriesList SPC "FootSnowSound FootSnowAsset FootShallowSound FootShallowSplashAsset";
+$PlayerEntriesList = $PlayerEntriesList SPC "FootWadingSound FootWadingAsset FootUnderwaterSound FootUnderWaterAsset";
+$PlayerEntriesList = $PlayerEntriesList SPC "FootBubblesSound FootBubblesAsset movingBubblesSound MoveBubblesAsset";
+$PlayerEntriesList = $PlayerEntriesList SPC "waterBreathSound WaterBreathAsset";
+$PlayerEntriesList = $PlayerEntriesList SPC "impactSoftSound ImpactSoftAsset impactHardSound impactHardAsset";
+$PlayerEntriesList = $PlayerEntriesList SPC "impactMetalSound ImpactMetalAsset impactSnowSound impactSnowAsset";
+$PlayerEntriesList = $PlayerEntriesList SPC "impactWaterEasy impactWaterEasyAsset impactWaterMedium impactWaterMediumAsset impactWaterHard impactWaterHardAsset";
+$PlayerEntriesList = $PlayerEntriesList SPC "exitingWater ExitWaterAsset";
+T3Dpre4ProjectImporter::genProcessor("PlayerData", $PlayerEntriesList);
+// - Material
+$MaterialEntriesList = "baseTex diffuseMapAsset diffuseMap diffuseMapAsset";
+$MaterialEntriesList = $MaterialEntriesList SPC "lightMap lightMapAsset toneMap toneMapAsset";
+$MaterialEntriesList = $MaterialEntriesList SPC "detailTex detailMapAsset detailMap detailMapAsset detailNormalMap detailNormalMapAsset";
+$MaterialEntriesList = $MaterialEntriesList SPC "overlayTex overlayMapAsset overlayMap overlayMapAsset";
+$MaterialEntriesList = $MaterialEntriesList SPC "bumpTex normalMapAsset normalMap normalMapAsset";
+$MaterialEntriesList = $MaterialEntriesList SPC "ormConfigMap ormConfigMapAsset roughMap roughMapAsset";
+$MaterialEntriesList = $MaterialEntriesList SPC "aoMap aoMapAsset metalMap metalMapAsset";
+$MaterialEntriesList = $MaterialEntriesList SPC "glowMap glowMapAsset";
+$MaterialEntriesList = $MaterialEntriesList SPC "customFootstepSound customFootstepSoundAsset customImpactSound customImpactSoundAsset";
+T3Dpre4ProjectImporter::genProcessor("Material", $MaterialEntriesList);
 //==============================================================================
 // Materials
 //==============================================================================
-//long form of the result of T3Dpre4ProjectImporter::genProcessor since that would result in a rediculously long oneliner
-function T3Dpre4ProjectImporter::processMaterialLine(%this, %line)
-{
-   %outLine = processLegacyField(%line, "baseTex", "diffuseMapAsset");
-   if(%outLine !$= %line) return %outLine;
-   %outLine = processLegacyField(%line, "diffuseMap", "diffuseMapAsset");
-   if(%outLine !$= %line) return %outLine;
-   %outLine = processLegacyField(%line, "lightMap", "lightMapAsset");
-   if(%outLine !$= %line) return %outLine;
-   %outLine = processLegacyField(%line, "toneMap", "toneMapAsset");
-   if(%outLine !$= %line) return %outLine;
-   %outLine = processLegacyField(%line, "detailTex", "detailMapAsset");
-   if(%outLine !$= %line) return %outLine;
-   %outLine = processLegacyField(%line, "detailMap", "detailMapAsset");
-   if(%outLine !$= %line) return %outLine;
-   %outLine = processLegacyField(%line, "overlayTex", "overlayMapAsset");
-   if(%outLine !$= %line) return %outLine;
-   %outLine = processLegacyField(%line, "overlayMap", "overlayMapAsset");
-   if(%outLine !$= %line) return %outLine;
-   %outLine = processLegacyField(%line, "bumpTex", "normalMapAsset");
-   if(%outLine !$= %line) return %outLine;
-   %outLine = processLegacyField(%line, "normalMap", "normalMapAsset");
-   if(%outLine !$= %line) return %outLine;
-   %outLine = processLegacyField(%line, "ormConfigMap", "ormConfigMapAsset");
-   if(%outLine !$= %line) return %outLine;
-   %outLine = processLegacyField(%line, "roughMap", "roughMapAsset");
-   if(%outLine !$= %line) return %outLine;
-   %outLine = processLegacyField(%line, "aoMap", "aoMapAsset");
-   if(%outLine !$= %line) return %outLine;
-   %outLine = processLegacyField(%line, "metalMap", "metalMapAsset");
-   if(%outLine !$= %line) return %outLine;
-   %outLine = processLegacyField(%line, "glowMap", "glowMapAsset");
-   if(%outLine !$= %line) return %outLine;
-   %outLine = processLegacyField(%line, "detailNormalMap", "detailNormalMapAsset");
-   if(%outLine !$= %line) return %outLine;
-   return %line;
-}
-
 function T3Dpre4ProjectImporter::processMaterialObject(%this, %file, %objectName)
 {
    %matAsset = MaterialAsset::getAssetIdByMaterialName(%objectName);
@@ -986,7 +986,7 @@ function T3Dpre4ProjectImporter::processMaterialObject(%this, %file, %objectName
       
       if(isFile(%tamlpath))
       {
-         error("T3Dpre4ProjectImporter::processMaterialObject() - Failed to create as taml file already exists: " @ %file);
+         $ProjectImporter::log.add("T3Dpre4ProjectImporter::processMaterialObject() - Failed to create as taml file already exists: " @ %file);
          return false;
       }
       
@@ -1042,7 +1042,7 @@ function T3Dpre4ProjectImporter::processTerrainMaterialObject(%this, %file, %obj
       
       if(isFile(%tamlpath))
       {
-         error("T3Dpre4ProjectImporter::processTerrainMaterialObject() - Failed to create as taml file already exists: " @ %file);
+         $ProjectImporter::log.add("T3Dpre4ProjectImporter::processTerrainMaterialObject() - Failed to create as taml file already exists: " @ %file);
          return false;
       }
       
@@ -1079,6 +1079,9 @@ T3Dpre4ProjectImporter::genProcessor("PostEffect", "texture textureAsset");
 // Using existing SFXProfiles allows us to also injest the descriptions, giving us
 // our meta-properties on the sound asset itself.
 //==============================================================================
+T3Dpre4ProjectImporter::genProcessor("SFXAmbience", "soundTrack soundTrackAsset");
+T3Dpre4ProjectImporter::genProcessor("SFXPlayList", "track trackAsset");
+
 function T3Dpre4ProjectImporter::processSFXProfileLine(%this, %line)
 {
    return %line;
@@ -1095,7 +1098,7 @@ function T3Dpre4ProjectImporter::processSFXProfileObject(%this, %file, %objectNa
    //Throw a warn that this file's already been claimed and move on
    if(%soundAsset !$= "")
    {
-      warn("T3Dpre4ProjectImporter::processSFXProfileObject() - attempting to process SFXProfile " @ %objectName 
+      $ProjectImporter::log.add("T3Dpre4ProjectImporter::processSFXProfileObject() - attempting to process SFXProfile " @ %objectName 
                @ " but its filename is already associated to another sound asset. Continuing, but be aware.");
    }  
 
@@ -1109,7 +1112,7 @@ function T3Dpre4ProjectImporter::processSFXProfileObject(%this, %file, %objectNa
       
       if(isFile(%tamlpath))
       {
-         error("T3Dpre4ProjectImporter::processSFXProfileObject() - Failed to create as taml file already exists: " @ %soundFilename);
+         $ProjectImporter::log.add("T3Dpre4ProjectImporter::processSFXProfileObject() - Failed to create as taml file already exists: " @ %soundFilename);
          return false;
       }
       
@@ -1271,7 +1274,7 @@ function processGuiBitmapButtonCtrlField(%line, %originalFieldName, %newFieldNam
    
    if(%outLine !$= %line && %pos != -1 && %endPos != -1 && %value !$= "")
    {
-      echo("Legacy Project Importer - processing legacy field line: " @ %line);
+      $ProjectImporter::log.add("Legacy Project Importer - processing legacy field line: " @ %line);
       
       if(startsWith(%value, "$") || startsWith(%value, "#"))
       {
@@ -1284,7 +1287,7 @@ function processGuiBitmapButtonCtrlField(%line, %originalFieldName, %newFieldNam
       //If we still have nothing, then we fail it out
       if(!isFile(%targetFilename))
       {
-         error("Legacy Project Importer - file described in line could not be found/is not valid");
+         $ProjectImporter::log.add("Legacy Project Importer - file described in line could not be found/is not valid");
          return %line;
       }
       
@@ -1293,7 +1296,7 @@ function processGuiBitmapButtonCtrlField(%line, %originalFieldName, %newFieldNam
       if(%foundAssets != 0)
       {
          %assetId = $ProjectImporter::assetQuery.getAsset(0);
-         echo("Legacy Project Importer - processing of legacy field line's value: " @ %value @ " has found a matching AssetId: " @ %assetId);
+         $ProjectImporter::log.add("Legacy Project Importer - processing of legacy field line's value: " @ %value @ " has found a matching AssetId: " @ %assetId);
       }
      
       if(%assetId !$= "" && AssetDatabase.isDeclaredAsset(%assetId))
@@ -1307,7 +1310,7 @@ function processGuiBitmapButtonCtrlField(%line, %originalFieldName, %newFieldNam
    
    if(%outLine !$= %line)
    {
-      echo("Legacy Project Importer - processing of legacy line: " @ %line @ " has been updated to: " @ %outLine);
+      $ProjectImporter::log.add("Legacy Project Importer - processing of legacy line: " @ %line @ " has been updated to: " @ %outLine);
       return %outLine;  
    }
    else
@@ -1315,4 +1318,3 @@ function processGuiBitmapButtonCtrlField(%line, %originalFieldName, %newFieldNam
       return %line;  
    }
 }
-

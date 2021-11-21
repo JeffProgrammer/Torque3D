@@ -30,8 +30,8 @@ uniform sampler2D ssaoMask;
 uniform vec4 rtParams6;
 #endif
 
-uniform vec4    inProbePosArray[MAX_PROBES];
-uniform vec4    inRefPosArray[MAX_PROBES];
+uniform vec4    probePosArray[MAX_PROBES];
+uniform vec4    refPosArray[MAX_PROBES];
 uniform mat4    worldToObjArray[MAX_PROBES];
 uniform vec4    refScaleArray[MAX_PROBES];
 uniform vec4    probeConfigData[MAX_PROBES];   //r,g,b/mode,radius,atten
@@ -92,7 +92,7 @@ void main()
          }
          else if (probeConfigData[i].r == 1) //sphere
          {
-            contribution[i] = defineSphereSpaceInfluence(surface.P, inProbePosArray[i].xyz, probeConfigData[i].g);
+            contribution[i] = defineSphereSpaceInfluence(surface.P, probePosArray[i].xyz, probeConfigData[i].g);
             if (contribution[i]>0.0)
                probehits++;
          }
@@ -179,7 +179,7 @@ void main()
       if (contrib > 0.0f)
       {
          float cubemapIdx = probeConfigData[i].a;
-         vec3 dir = boxProject(surface.P, surface.R, worldToObjArray[i], refScaleArray[i].xyz, inRefPosArray[i].xyz);
+         vec3 dir = boxProject(surface.P, surface.R, worldToObjArray[i], refScaleArray[i].xyz, refPosArray[i].xyz);
 
          irradiance += textureLod(irradianceCubemapAR, vec4(dir, cubemapIdx), 0).xyz * contrib;
          specular += textureLod(specularCubemapAR, vec4(dir, cubemapIdx), lod).xyz * contrib;
@@ -202,14 +202,13 @@ void main()
    return;
 #endif
 
-
+   
    //energy conservation
    vec3 F = FresnelSchlickRoughness(surface.NdotV, surface.f0, surface.roughness);
    vec3 kD = 1.0f - F;
    kD *= 1.0f - surface.metalness;
 
-   float dfgNdotV = max( surface.NdotV , 0.0009765625f ); //0.5f/512.0f (512 is size of dfg/brdf lookup tex)
-   vec2 envBRDF = textureLod(BRDFTexture, vec2(dfgNdotV, surface.roughness),0).rg;
+   vec2 envBRDF = textureLod(BRDFTexture, vec2(surface.NdotV, surface.roughness),0).rg;
    specular *= F * envBRDF.x + surface.f90 * envBRDF.y;
    irradiance *= kD * surface.baseColor.rgb;
 

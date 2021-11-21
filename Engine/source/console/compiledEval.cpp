@@ -691,11 +691,11 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
          setFrame = -1;
 
       // Do we want this code to execute using a new stack frame?
-      if (setFrame < 0)
+      // compiling a file will force setFrame to 0, forcing us to get a new frame.
+      if (setFrame <= 0)
       {
          // argc is the local count for eval
          gEvalState.pushFrame(NULL, NULL, argc);
-         gCallStack.pushFrame(0);
          popFrame = true;
       }
       else
@@ -717,7 +717,7 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
       TelDebugger->pushStackFrame();
 
    StringTableEntry var, objParent;
-   U32 failJump;
+   U32 failJump = 0;
    StringTableEntry fnName;
    StringTableEntry fnNamespace, fnPackage;
 
@@ -776,7 +776,6 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
             fnNamespace = CodeToSTE(code, ip + 2);
             fnPackage = CodeToSTE(code, ip + 4);
             bool hasBody = (code[ip + 6] & 0x01) != 0;
-            U32 lineNumber = code[ip + 6] >> 1;
 
             Namespace::unlinkPackages();
             if (fnNamespace == NULL && fnPackage == NULL)
@@ -1819,8 +1818,6 @@ ConsoleValue CodeBlock::exec(U32 ip, const char* functionName, Namespace* thisNa
          // it handles this method.  It is set to an enum from the table
          // above indicating whether it handles it on a component it owns
          // or just on the object.
-         S32 routingId = 0;
-
          fnName = CodeToSTE(code, ip);
          fnNamespace = CodeToSTE(code, ip + 2);
          U32 callType = code[ip + 4];

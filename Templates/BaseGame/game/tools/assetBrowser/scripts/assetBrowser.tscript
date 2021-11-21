@@ -628,7 +628,8 @@ function AssetBrowser::loadDirectories( %this )
    
    %this.loadTags();
    
-   %this.loadCreatorClasses();
+   if (!%this.selectMode)
+      %this.loadCreatorClasses();
    
    //If set to, show core
    if(EditorSettings.value("Assets/Browser/showCoreModule", false) == 1)
@@ -1802,7 +1803,7 @@ function matchesSearch(%assetName, %assetType)
          }
          else
          {
-            if(%assetName.tags !$= %word)
+            if(strstr(strlwr(%assetName.tags), strlwr(%word)) != -1)
                %matchTags = true;
          }
       }
@@ -2486,4 +2487,51 @@ function AssetBrowser::importLooseFiles(%this)
 {
    echo("Adding loose files at directory " @ %this.dirHandler.currentAddress);
    LooseFileAuditWindow.showDialog(%this.dirHandler.currentAddress);  
+}
+
+//
+function getAssetPreviewImage(%asset)
+{
+   if(isFile(%asset))
+   {
+      %aq = new AssetQuery();
+      %assetsFound = AssetDatabase.findAssetLooseFile(%aq, %asset);
+      if(%assetsFound != 0)
+      {
+         %asset = %aq.getAsset(0);
+      }
+      else
+      {
+         %previewPath = %asset;
+      }
+      
+      %aq.delete();
+   }
+   
+   if(AssetDatabase.isDeclaredAsset(%asset))
+   {
+      %moduleName = AssetDatabase.getAssetModule(%asset).ModuleId;
+      %assetName = AssetDatabase.getAssetName(%asset);
+      %previewAssetName = "ToolsModule:" @ %moduleName @ "_" @ %assetName @ "_PreviewImage";
+      
+      if(AssetDatabase.isDeclaredAsset(%previewAssetName))
+      {
+         %previewDef = AssetDatabase.acquireAsset(%previewAssetName);  
+         %previewPath = %previewDef.getImagePath();
+         AssetDatabase.releaseAsset(%previewAssetName);
+      }
+      else
+      {
+         %previewPath = %asset;  
+      }
+   }
+   else
+   {
+      %previewPath = %asset;
+   }
+   
+   if(%previewPath $= "")
+      %previewPath = "ToolsModule:unknownImage_image";
+   
+   return %previewPath;
 }
