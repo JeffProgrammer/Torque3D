@@ -29,8 +29,8 @@ if(UNIX)
     #set(CXX_FLAG32 "-m32") #uncomment for build x32 on OSx64
 
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_FLAG32} -lhwloc -Wundef -pipe -Wfatal-errors -Wno-return-type-c-linkage -Wno-unused-local-typedef ${TORQUE_ADDITIONAL_LINKER_FLAGS}")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CXX_FLAG32} -lhwloc -Wundef -pipe -Wfatal-errors -Wno-return-type-c-linkage -Wno-unused-local-typedef ${TORQUE_ADDITIONAL_LINKER_FLAGS}")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_FLAG32} -Wundef -pipe -Wfatal-errors -Wno-return-type-c-linkage -Wno-unused-local-typedef ${TORQUE_ADDITIONAL_LINKER_FLAGS}")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CXX_FLAG32} -Wundef -pipe -Wfatal-errors -Wno-return-type-c-linkage -Wno-unused-local-typedef ${TORQUE_ADDITIONAL_LINKER_FLAGS}")
 
         # Only use SSE on x86 devices
         if (TORQUE_CPU_X32 OR TORQUE_CPU_X64)
@@ -39,8 +39,8 @@ if(UNIX)
         endif()
     else()
         # default compiler flags
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_FLAG32} -lhwloc -Wundef -pipe -Wfatal-errors -no-pie ${TORQUE_ADDITIONAL_LINKER_FLAGS} -Wl,-rpath,'$ORIGIN'")
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CXX_FLAG32} -lhwloc -Wundef -pipe -Wfatal-errors ${TORQUE_ADDITIONAL_LINKER_FLAGS} -Wl,-rpath,'$ORIGIN'")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX_FLAG32} -Wundef -pipe -Wfatal-errors -no-pie ${TORQUE_ADDITIONAL_LINKER_FLAGS} -Wl,-rpath,'$ORIGIN'")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CXX_FLAG32} -Wundef -pipe -Wfatal-errors ${TORQUE_ADDITIONAL_LINKER_FLAGS} -Wl,-rpath,'$ORIGIN'")
 
         # Only use SSE on x86 devices
         if (TORQUE_CPU_X32 OR TORQUE_CPU_X64)
@@ -764,7 +764,7 @@ endif()
 
 if(UNIX AND NOT APPLE)
     # copy pasted from T3D build system, some might not be needed
-	set(TORQUE_EXTERNAL_LIBS "dl Xxf86vm Xext X11 Xft stdc++ pthread GL" CACHE STRING "external libs to link against")
+	set(TORQUE_EXTERNAL_LIBS "dl Xxf86vm Xext X11 Xft hwloc stdc++ pthread GL" CACHE STRING "external libs to link against")
 	mark_as_advanced(TORQUE_EXTERNAL_LIBS)
 
     string(REPLACE " " ";" TORQUE_EXTERNAL_LIBS_LIST ${TORQUE_EXTERNAL_LIBS})
