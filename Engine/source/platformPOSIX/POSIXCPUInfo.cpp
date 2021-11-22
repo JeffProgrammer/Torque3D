@@ -147,11 +147,6 @@ void getCPUInformation()
                     Platform::SystemInfo.processor.properties |= CPU_PROP_MMX;
                 }
 
-                if (std::find(flags.begin(), flags.end(), "3dnowprefetch") != flags.end())
-                {
-                    Platform::SystemInfo.processor.properties |= CPU_PROP_3DNOW;
-                }
-
                 if (std::find(flags.begin(), flags.end(), "neon") != flags.end())
                 {
                     Platform::SystemInfo.processor.properties |= CPU_PROP_NEON;
@@ -215,8 +210,6 @@ void Processor::init()
     Con::printf("   Processor: %s", Platform::SystemInfo.processor.name);
     if (Platform::SystemInfo.processor.properties & CPU_PROP_MMX)
         Con::printf("      MMX detected" );
-    if (Platform::SystemInfo.processor.properties & CPU_PROP_3DNOW)
-        Con::printf("      3DNow detected" );
     if (Platform::SystemInfo.processor.properties & CPU_PROP_SSE)
         Con::printf("      SSE detected" );
     if (Platform::SystemInfo.processor.properties & CPU_PROP_SSE2)
