@@ -534,12 +534,66 @@ TEST(Script, TorqueScript_Array_Testing)
 
    ASSERT_EQ(value.getInt(), 2);
 
-   ConsoleValue value2 = RunScript(R"(
-         function t(%idx) { %a[%idx, 0] = 2; return %a[%idx, 0]; }
-         return t(5);
+   ConsoleValue literalArray = RunScript(R"(
+         function t()
+         {
+            %array = ["a", 3, "c"];
+            return %array[1];
+         }
+
+         return t();
    )");
 
-   ASSERT_EQ(value2.getInt(), 2);
+   ASSERT_EQ(literalArray.getInt(), 3);
+
+   //ConsoleValue value2 = RunScript(R"(
+   //      function t(%idx) { %a[%idx][0] = 2; return %a[%idx][0]; }
+   //      return t(5);
+   //)");
+
+   //ASSERT_EQ(value2.getInt(), 2);
+
+   ConsoleValue value3 = RunScript(R"(
+         $arrayTest[0] = 1;
+         $arrayTest[1] = 2;
+
+         return $arrayTest[1];
+   )");
+
+   ASSERT_EQ(value3.getInt(), 2);
+
+   ConsoleValue fnTest = RunScript(R"(
+      function arrayTest(%array, %array2) {
+         return %array[2] @ %array2[2];
+      }
+
+      $array2 = [1, 2, 3];
+      return arrayTest(["a", "b", "c"], $array2);
+   )");
+
+   ASSERT_STREQ(fnTest.getString(), "c3");
+
+   ConsoleValue returnTest = RunScript(R"(
+      function arrayTest2() {
+         return ["a", "b", "c"];
+      }
+
+      $arr = arrayTest2();
+      return $arr[1];
+   )");
+
+   ASSERT_STREQ(returnTest.getString(), "b");
+
+   ConsoleValue multiDimTest = RunScript(R"(
+      function arrayTest2() {
+         return ["a", ["b1", "b2"], "c"];
+      }
+
+      $arr = arrayTest2();
+      return $arr[1][0];
+   )");
+
+   ASSERT_STREQ(multiDimTest.getString(), "b1");
 }
 
 TEST(Script, SimObject_Tests)

@@ -95,47 +95,51 @@ struct Token
    ObjectDeclNode*         od;
    AssignDecl              asn;
    IfStmtNode*             ifnode;
+   ParamNode*              param;
+   ArrayLiteralNode*       aln;
 }
 
-%type <s>      parent_block
-%type <ifnode> case_block
-%type <stmt>   switch_stmt
-%type <stmt>   decl
-%type <stmt>   decl_list
-%type <stmt>   package_decl
-%type <stmt>   fn_decl_stmt
-%type <stmt>   fn_decl_list
-%type <stmt>   statement_list
-%type <stmt>   stmt
-%type <expr>   expr_list
-%type <expr>   expr_list_decl
-%type <expr>   aidx_expr
-%type <expr>   funcall_expr
-%type <expr>   assert_expr
-%type <expr>   object_name
-%type <expr>   object_args
-%type <expr>   stmt_expr
-%type <expr>   case_expr
-%type <expr>   class_name_expr
-%type <stmt>   if_stmt
-%type <stmt>   while_stmt
-%type <stmt>   for_stmt
-%type <stmt>   foreach_stmt
-%type <stmt>   stmt_block
-%type <stmt>   datablock_decl
-%type <od>     object_decl
-%type <od>     object_decl_list
-%type <odcl>   object_declare_block
-%type <expr>   expr
-%type <slist>  slot_assign_list_opt
-%type <slist>  slot_assign_list
-%type <slist>  slot_assign
-%type <slot>   slot_acc
-%type <intslot>   intslot_acc
-%type <stmt>   expression_stmt
-%type <var>    var_list
-%type <var>    var_list_decl
-%type <asn>    assign_op_struct
+%type <s>       parent_block
+%type <ifnode>  case_block
+%type <stmt>    switch_stmt
+%type <stmt>    decl
+%type <stmt>    decl_list
+%type <stmt>    package_decl
+%type <stmt>    fn_decl_stmt
+%type <stmt>    fn_decl_list
+%type <stmt>    statement_list
+%type <stmt>    stmt
+%type <expr>    expr_list
+%type <expr>    expr_list_decl
+%type <expr>    funcall_expr
+%type <expr>    assert_expr
+%type <expr>    object_name
+%type <expr>    object_args
+%type <expr>    stmt_expr
+%type <expr>    case_expr
+%type <expr>    class_name_expr
+%type <stmt>    if_stmt
+%type <stmt>    while_stmt
+%type <stmt>    for_stmt
+%type <stmt>    foreach_stmt
+%type <stmt>    stmt_block
+%type <stmt>    datablock_decl
+%type <od>      object_decl
+%type <od>      object_decl_list
+%type <odcl>    object_declare_block
+%type <expr>    expr
+%type <slist>   slot_assign_list_opt
+%type <slist>   slot_assign_list
+%type <slist>   slot_assign
+%type <slot>    slot_acc
+%type <intslot> intslot_acc
+%type <stmt>    expression_stmt
+%type <param>   var_list
+%type <param>   var_list_decl
+%type <param>   var_param
+%type <asn>     assign_op_struct
+%type <aln>     array_literal
+%type <expr>    array_expr
 
 %left '['
 %right opMODASN opANDASN opXORASN opPLASN opMIASN opMLASN opDVASN opMDASN opNDASN opNTASN opORASN opSLASN opSRASN '='
@@ -237,10 +241,15 @@ var_list_decl
    ;
 
 var_list
+   : var_param
+      { $$ = $1; }
+   | var_list ',' var_param
+      { $$ = $1; ((StmtNode*)($1))->append((StmtNode*)$3); }
+   ;
+
+var_param
    : VAR
-      { $$ = VarNode::alloc( $1.lineNumber, $1.value, NULL ); }
-   | var_list ',' VAR
-      { $$ = $1; ((StmtNode*)($1))->append((StmtNode*)VarNode::alloc( $3.lineNumber, $3.value, NULL ) ); }
+      { $$ = ParamNode::alloc( $1.lineNumber, $1.value, false ); }
    ;
 
 datablock_decl
@@ -454,8 +463,10 @@ expr
       { $$ = StrConstNode::alloc( $1.lineNumber, $1.value, false); }
    | VAR
       { $$ = (ExprNode*)VarNode::alloc( $1.lineNumber, $1.value, NULL); }
-   | VAR '[' aidx_expr ']'
-      { $$ = (ExprNode*)VarNode::alloc( $1.lineNumber, $1.value, $3 ); }
+   | VAR array_expr
+      { $$ = (ExprNode*)VarNode::alloc( $1.lineNumber, $1.value, $2 ); }
+   | array_literal
+      { $$ = $1; }
    ;
 /*
    | rwDEFINE '(' var_list_decl ')' '{' statement_list '}'
@@ -475,11 +486,23 @@ expr
       }
 */
 
+array_expr
+   : '[' expr ']'
+      { $$ = $2; }
+   | array_expr '[' expr ']'
+      { $$ = $1; ((StmtNode*)($1))->append((StmtNode*)$3); }
+   ;
+
+array_literal
+   : '[' expr_list_decl ']'
+      { $$ = ArrayLiteralNode::alloc( $2->dbgLineNumber, $2 ); }
+   ;
+
 slot_acc
    : expr '.' IDENT
       { $$.lineNumber = $1->dbgLineNumber; $$.object = $1; $$.slotName = $3.value; $$.array = NULL; }
-   | expr '.' IDENT '[' aidx_expr ']'
-      { $$.lineNumber = $1->dbgLineNumber; $$.object = $1; $$.slotName = $3.value; $$.array = $5; }
+   | expr '.' IDENT array_expr
+      { $$.lineNumber = $1->dbgLineNumber; $$.object = $1; $$.slotName = $3.value; $$.array = $4; }
    ;
 
 intslot_acc
@@ -532,12 +555,12 @@ stmt_expr
       { $$ = $1; }
    | VAR '=' expr
       { $$ = AssignExprNode::alloc( $1.lineNumber, $1.value, NULL, $3); }
-   | VAR '[' aidx_expr ']' '=' expr
-      { $$ = AssignExprNode::alloc( $1.lineNumber, $1.value, $3, $6); }
+   | VAR array_expr '=' expr
+      { $$ = AssignExprNode::alloc( $1.lineNumber, $1.value, $2, $4); }
    | VAR assign_op_struct
       { $$ = AssignOpExprNode::alloc( $1.lineNumber, $1.value, NULL, $2.expr, $2.token); }
-   | VAR '[' aidx_expr ']' assign_op_struct
-      { $$ = AssignOpExprNode::alloc( $1.lineNumber, $1.value, $3, $5.expr, $5.token); }
+   | VAR array_expr assign_op_struct
+      { $$ = AssignOpExprNode::alloc( $1.lineNumber, $1.value, $2, $3.expr, $3.token); }
    | slot_acc assign_op_struct
       { $$ = SlotAssignOpNode::alloc( $1.lineNumber, $1.object, $1.slotName, $1.array, $2.token, $2.expr); }
    | slot_acc '=' expr
@@ -602,17 +625,10 @@ slot_assign
       { $$ = SlotAssignNode::alloc( $1.lineNumber, NULL, NULL, $2.value, $4, $1.value); }
    | rwDATABLOCK '=' expr ';'
       { $$ = SlotAssignNode::alloc( $1.lineNumber, NULL, NULL, StringTable->insert("datablock"), $3); }
-   | IDENT '[' aidx_expr ']' '=' expr ';'
-      { $$ = SlotAssignNode::alloc( $1.lineNumber, NULL, $3, $1.value, $6); }
-   | TYPEIDENT IDENT '[' aidx_expr ']' '=' expr ';'
-      { $$ = SlotAssignNode::alloc( $1.lineNumber, NULL, $4, $2.value, $7, $1.value); }
-   ;
-
-aidx_expr
-   : expr
-      { $$ = $1; }
-   | aidx_expr ',' expr
-      { $$ = CommaCatExprNode::alloc( $1->dbgLineNumber, $1, $3); }
+   | IDENT array_expr '=' expr ';'
+      { $$ = SlotAssignNode::alloc( $1.lineNumber, NULL, $2, $1.value, $4); }
+   | TYPEIDENT IDENT array_expr '=' expr ';'
+      { $$ = SlotAssignNode::alloc( $1.lineNumber, NULL, $3, $2.value, $5, $1.value); }
    ;
 %%
 

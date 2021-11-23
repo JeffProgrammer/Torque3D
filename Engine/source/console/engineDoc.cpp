@@ -114,7 +114,7 @@ static void dumpVariable(  Stream& stream,
 {
    // Skip variables defined in script.
    
-   if( entry->type <= Dictionary::Entry::TypeInternalString )
+   if( !entry->isConsoleType() )
       return;
          
    // Skip internals... don't export them.
@@ -149,7 +149,7 @@ static void dumpVariable(  Stream& stream,
             
    // Skip variables for which we can't decipher their type.
 
-   ConsoleBaseType* type = ConsoleBaseType::getType( entry->type );
+   ConsoleBaseType* type = ConsoleBaseType::getType( entry->getType() );
    if( !type )
    {
       Con::errorf( "Can't find type for variable '%s'", entry->name );

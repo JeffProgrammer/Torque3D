@@ -1254,37 +1254,37 @@ YY_RULE_SETUP
 	YY_BREAK
 case 88:
 YY_RULE_SETUP
-#line 216 "CMDscan.l"
+#line 217 "CMDscan.l"
 { return Sc_ScanIdent(); }
 	YY_BREAK
 case 89:
 YY_RULE_SETUP
-#line 217 "CMDscan.l"
+#line 218 "CMDscan.l"
 return(Sc_ScanHex());
 	YY_BREAK
 case 90:
 YY_RULE_SETUP
-#line 218 "CMDscan.l"
+#line 219 "CMDscan.l"
 { CMDtext[CMDleng] = 0; CMDlval.i = MakeToken< int >( dAtoi(CMDtext), lineIndex ); return INTCONST; }
 	YY_BREAK
 case 91:
 YY_RULE_SETUP
-#line 219 "CMDscan.l"
+#line 220 "CMDscan.l"
 return Sc_ScanNum();
 	YY_BREAK
 case 92:
 YY_RULE_SETUP
-#line 220 "CMDscan.l"
+#line 221 "CMDscan.l"
 return(ILLEGAL_TOKEN);
 	YY_BREAK
 case 93:
 YY_RULE_SETUP
-#line 221 "CMDscan.l"
+#line 222 "CMDscan.l"
 return(ILLEGAL_TOKEN);
 	YY_BREAK
 case 94:
 YY_RULE_SETUP
-#line 222 "CMDscan.l"
+#line 223 "CMDscan.l"
 ECHO;
 	YY_BREAK
 #line 1291 "CMDscan.cpp"
@@ -2147,7 +2147,7 @@ int main()
 	return 0;
 	}
 #endif
-#line 222 "CMDscan.l"
+#line 223 "CMDscan.l"
 
 
 static const char *scanBuffer;

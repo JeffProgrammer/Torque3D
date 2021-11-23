@@ -55,7 +55,6 @@ namespace Compiler
       OP_CREATE_OBJECT,
       OP_ADD_OBJECT,
       OP_END_OBJECT,
-      // Added to fix the stack issue [7/9/2007 Black]
       OP_FINISH_OBJECT,
 
       OP_JMPIFFNOT,
@@ -63,14 +62,13 @@ namespace Compiler
       OP_JMPIFF,
       OP_JMPIF,
       OP_JMPIFNOT_NP,
-      OP_JMPIF_NP,    // 10
+      OP_JMPIF_NP,
       OP_JMP,
+
       OP_RETURN,
-      // fixes a bug when not explicitly returning a value
       OP_RETURN_VOID,
       OP_RETURN_FLT,
       OP_RETURN_UINT,
-
 
       OP_CMPEQ,
       OP_CMPGR,
@@ -78,7 +76,7 @@ namespace Compiler
       OP_CMPLT,
       OP_CMPLE,
       OP_CMPNE,
-      OP_XOR,         // 20
+      OP_XOR,
       OP_MOD,
       OP_BITAND,
       OP_BITOR,
@@ -89,7 +87,7 @@ namespace Compiler
       OP_SHR,
       OP_SHL,
       OP_AND,
-      OP_OR,          // 30
+      OP_OR,
 
       OP_ADD,
       OP_SUB,
@@ -100,31 +98,39 @@ namespace Compiler
 
       OP_SETCURVAR,
       OP_SETCURVAR_CREATE,
-      OP_SETCURVAR_ARRAY,
-      OP_SETCURVAR_ARRAY_CREATE,
 
-      OP_LOADVAR_UINT,// 40
+      OP_LOADVAR_UINT,
       OP_LOADVAR_FLT,
       OP_LOADVAR_STR,
+      OP_LOADVAR_VAR,
 
       OP_SAVEVAR_UINT,
       OP_SAVEVAR_FLT,
       OP_SAVEVAR_STR,
+      OP_SAVEVAR_VAR,
 
       OP_LOAD_LOCAL_VAR_UINT,
       OP_LOAD_LOCAL_VAR_FLT,
       OP_LOAD_LOCAL_VAR_STR,
+      OP_LOAD_LOCAL_VAR_VAR,
 
       OP_SAVE_LOCAL_VAR_UINT,
       OP_SAVE_LOCAL_VAR_FLT,
       OP_SAVE_LOCAL_VAR_STR,
+      OP_SAVE_LOCAL_VAR_VAR,
+
+      OP_SET_ARRAY_KEY,
+      OP_LOAD_LOCAL_ARRAY_INDEX,
+      OP_LOAD_GLOBAL_ARRAY_INDEX,
+      OP_SAVE_LOCAL_ARRAY_INDEX,
+      OP_SAVE_GLOBAL_ARRAY_INDEX,
 
       OP_SETCUROBJECT,
       OP_SETCUROBJECT_NEW,
       OP_SETCUROBJECT_INTERNAL,
 
       OP_SETCURFIELD,
-      OP_SETCURFIELD_ARRAY, // 50
+      OP_SETCURFIELD_ARRAY,
       OP_SETCURFIELD_TYPE,
 
       OP_LOADFIELD_UINT,
@@ -140,9 +146,10 @@ namespace Compiler
       OP_LOADIMMED_UINT,
       OP_LOADIMMED_FLT,
       OP_TAG_TO_STR,
-      OP_LOADIMMED_STR, // 70
-      OP_DOCBLOCK_STR,  // 76
+      OP_LOADIMMED_STR,
+      OP_DOCBLOCK_STR,
       OP_LOADIMMED_IDENT,
+      OP_LOADIMMED_ARRAY,
 
       OP_CALLFUNC,
 
@@ -163,7 +170,7 @@ namespace Compiler
       OP_ITER,             ///< Enter foreach loop.
       OP_ITER_END,         ///< End foreach loop.
 
-      OP_INVALID,   // 90
+      OP_INVALID,
 
       MAX_OP_CODELEN ///< The amount of op codes.
    };
