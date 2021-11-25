@@ -305,6 +305,7 @@ bool GFXShaderConvert::convert(const GFXShaderConvertOptions& options, GFXShader
    shader.setEntryPoint("main"); //t3d doesn't support shader entry points
    shader.setSourceEntryPoint("main"); //t3d doesn't support shader entry points
    shader.setGlobalUniformBlockName("GlobalBlock");
+   shader.setTextureSamplerTransformMode(EShTexSampTransUpgradeTextureRemoveSampler);
 
    //we can hardcode these for now as we only support hlsl to either spirv or glsl via the vulkan path
    shader.setEnvInput(glslang::EShSourceHlsl, stage, glslang::EShClientVulkan, 100);
@@ -371,8 +372,6 @@ bool GFXShaderConvert::convert(const GFXShaderConvertOptions& options, GFXShader
       glslOptions.version = 330;
       //set the options
       compiler.set_common_options(glslOptions);
-      //build combined image samplers
-      compiler.build_combined_image_samplers();
 
       std::string glslSrc = compiler.compile();
 

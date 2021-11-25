@@ -1140,7 +1140,7 @@ void GFXD3D11Shader::_getShaderConstants( ID3D11ShaderReflection *refTable,
 
       switch (bindDesc.Type)
       {
-      case D3D_SIT_SAMPLER:
+      case D3D_SIT_TEXTURE:
          // Prepend a "$" if it doesn't exist.  Just to make things consistent.
          desc.name = String(bindDesc.Name);
          if (desc.name.find("$") != 0)

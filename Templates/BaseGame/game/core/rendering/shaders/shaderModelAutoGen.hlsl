@@ -28,6 +28,6 @@
 
 // Portability helpers for autogenConditioners
 
-#define TORQUE_DEFERRED_UNCONDITION(tex, coords) deferredUncondition(tex, texture_##tex, coords)
+#define TORQUE_DEFERRED_UNCONDITION(tex, coords) deferredUncondition(sampler_##tex, tex, coords)
 
 #endif //_TORQUE_SHADERMODEL_AUTOGEN_

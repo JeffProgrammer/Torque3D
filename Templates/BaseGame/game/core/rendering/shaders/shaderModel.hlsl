@@ -25,40 +25,40 @@
 
 // Sampler uniforms
 //1D is emulated to a 2D for now
-#define TORQUE_UNIFORM_SAMPLER1D(tex,regist) uniform Texture2D texture_##tex : register(t##regist); uniform SamplerState tex : register(s##regist)
-#define TORQUE_UNIFORM_SAMPLER2D(tex,regist) uniform Texture2D texture_##tex : register(t##regist); uniform SamplerState tex : register(s##regist)
-#define TORQUE_UNIFORM_SAMPLER2DCMP(tex,regist) uniform Texture2D texture_##tex : register(t##regist); uniform SamplerComparisonState tex : register(s##regist)
-#define TORQUE_UNIFORM_SAMPLER3D(tex,regist) uniform Texture3D texture_##tex : register(t##regist); uniform SamplerState tex : register(s##regist)
-#define TORQUE_UNIFORM_SAMPLERCUBE(tex,regist) uniform TextureCube texture_##tex : register(t##regist); uniform SamplerState tex : register(s##regist)
-#define TORQUE_UNIFORM_SAMPLERCUBEARRAY(tex,regist) uniform TextureCubeArray texture_##tex : register(t##regist); uniform SamplerState tex : register(s##regist)
+#define TORQUE_UNIFORM_SAMPLER1D(tex,regist) uniform Texture2D tex : register(t##regist); uniform SamplerState sampler_##tex : register(s##regist)
+#define TORQUE_UNIFORM_SAMPLER2D(tex,regist) uniform Texture2D tex : register(t##regist); uniform SamplerState sampler_##tex : register(s##regist)
+#define TORQUE_UNIFORM_SAMPLER2DCMP(tex,regist) uniform Texture2D tex : register(t##regist); uniform SamplerComparisonState sampler_##tex : register(s##regist)
+#define TORQUE_UNIFORM_SAMPLER3D(tex,regist) uniform Texture3D tex : register(t##regist); uniform SamplerState sampler_##tex : register(s##regist)
+#define TORQUE_UNIFORM_SAMPLERCUBE(tex,regist) uniform TextureCube tex : register(t##regist); uniform SamplerState sampler_##tex : register(s##regist)
+#define TORQUE_UNIFORM_SAMPLERCUBEARRAY(tex,regist) uniform TextureCubeArray tex : register(t##regist); uniform SamplerState sampler_##tex : register(s##regist)
 // Sampling functions
-#define TORQUE_TEX1D(tex,coords) texture_##tex.Sample(tex,coords)
-#define TORQUE_TEX2D(tex,coords) texture_##tex.Sample(tex,coords)
-#define TORQUE_TEX2DPROJ(tex,coords) texture_##tex.Sample(tex,coords.xy / coords.w)
-#define TORQUE_TEX3D(tex,coords) texture_##tex.Sample(tex,coords)
-#define TORQUE_TEXCUBE(tex,coords) texture_##tex.Sample(tex,coords)
-#define TORQUE_TEXCUBEARRAY(tex,coords) texture_##tex.Sample(tex,coords)
+#define TORQUE_TEX1D(tex,coords) tex.Sample(sampler_##tex,coords)
+#define TORQUE_TEX2D(tex,coords) tex.Sample(sampler_##tex,coords)
+#define TORQUE_TEX2DPROJ(tex,coords) tex.Sample(sampler_##tex,coords.xy / coords.w)
+#define TORQUE_TEX3D(tex,coords) tex.Sample(sampler_##tex,coords)
+#define TORQUE_TEXCUBE(tex,coords) tex.Sample(sampler_##tex,coords)
+#define TORQUE_TEXCUBEARRAY(tex,coords) tex.Sample(sampler_##tex,coords)
 // The mipmap LOD is specified in coord.w
-#define TORQUE_TEX2DLOD(tex,coords) texture_##tex.SampleLevel(tex,coords.xy,coords.w)
-#define TORQUE_TEXCUBELOD(tex,coords) texture_##tex.SampleLevel(tex,coords.xyz,coords.w)
-#define TORQUE_TEXCUBEARRAYLOD(tex,coords,id,lod) texture_##tex.SampleLevel(tex,float4(coords.xyz,id),lod)
+#define TORQUE_TEX2DLOD(tex,coords) tex.SampleLevel(sampler_##tex,coords.xy,coords.w)
+#define TORQUE_TEXCUBELOD(tex,coords) tex.SampleLevel(sampler_##tex,coords.xyz,coords.w)
+#define TORQUE_TEXCUBEARRAYLOD(tex,coords,id,lod) tex.SampleLevel(sampler_##tex,float4(coords.xyz,id),lod)
 // Tex2d comparison
-#define TORQUE_TEX2DCMP(tex,coords,compare) texture_##tex.SampleCmpLevelZero(tex,coords,compare)
+#define TORQUE_TEX2DCMP(tex,coords,compare) tex.SampleCmpLevelZero(sampler_##tex,coords,compare)
 
-#define TORQUE_TEX2DGATHER(tex,coords,compare,offset) texture_##tex.GatherCmp(tex,coords,compare,offset)
+#define TORQUE_TEX2DGATHER(tex,coords,compare,offset) tex.GatherCmp(sampler_##tex,coords,compare,offset)
 
 //helper if you want to pass sampler/texture in a function
 //2D
-#define TORQUE_SAMPLER2D(tex) Texture2D texture_##tex, SamplerState tex
-#define TORQUE_SAMPLER2DARRAY(tex) Texture2DArray texture_##tex, SamplerState tex
-#define TORQUE_SAMPLER2D_MAKEARG(tex) texture_##tex, tex
+#define TORQUE_SAMPLER2D(tex) Texture2D tex, SamplerState sampler_##tex
+#define TORQUE_SAMPLER2DARRAY(tex) Texture2DArray tex, SamplerState sampler_##tex
+#define TORQUE_SAMPLER2D_MAKEARG(tex) tex, sampler_##tex
 // Sampler comparison state - use above MAKEARG with this
-#define TORQUE_SAMPLER2DCMP(tex) Texture2D texture_##tex, SamplerComparisonState tex
+#define TORQUE_SAMPLER2DCMP(tex) Texture2D tex, SamplerComparisonState sampler_##tex
 //Cube
-#define TORQUE_SAMPLERCUBE(tex) TextureCube texture_##tex, SamplerState tex
-#define TORQUE_SAMPLERCUBE_MAKEARG(tex) texture_##tex, tex
-#define TORQUE_SAMPLERCUBEARRAY(tex) TextureCubeArray texture_##tex, SamplerState tex
-#define TORQUE_SAMPLERCUBEARRAY_MAKEARG(tex) texture_##tex, tex
+#define TORQUE_SAMPLERCUBE(tex) TextureCube tex, SamplerState sampler_##tex
+#define TORQUE_SAMPLERCUBE_MAKEARG(tex) tex, sampler_##tex
+#define TORQUE_SAMPLERCUBEARRAY(tex) TextureCubeArray tex, SamplerState sampler_##tex
+#define TORQUE_SAMPLERCUBEARRAY_MAKEARG(tex) tex, sampler_##tex
 
 //Push constants - Struct must be named PushConstant
 #ifdef TORQUE_VULKAN

@@ -857,7 +857,7 @@ void GFXGLDevice::setupGenericShaders( GenericShaderType type )
 {
    AssertFatal(type != GSTargetRestore, "");
 
-   if( mGenericShader[GSColor] == NULL )
+   if (mGenericShader[GSColor] == NULL)
    {
       ShaderData* shaderData;
 
@@ -873,6 +873,7 @@ void GFXGLDevice::setupGenericShaders( GenericShaderType type )
       shaderData = new ShaderData();
       shaderData->setField("DXVertexShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/modColorTextureV.hlsl"));
       shaderData->setField("DXPixelShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/modColorTextureP.hlsl"));
+      shaderData->setSamplerName("$diffuseMap", 0);
       shaderData->registerObject();
       mGenericShader[GSModColorTexture] = shaderData->getShader();
       mGenericShaderBuffer[GSModColorTexture] = mGenericShader[GSModColorTexture]->allocConstBuffer();
@@ -882,6 +883,7 @@ void GFXGLDevice::setupGenericShaders( GenericShaderType type )
       shaderData = new ShaderData();
       shaderData->setField("DXVertexShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/addColorTextureV.hlsl"));
       shaderData->setField("DXPixelShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/addColorTextureP.hlsl"));
+      shaderData->setSamplerName("$diffuseMap", 0);
       shaderData->registerObject();
       mGenericShader[GSAddColorTexture] = shaderData->getShader();
       mGenericShaderBuffer[GSAddColorTexture] = mGenericShader[GSAddColorTexture]->allocConstBuffer();
@@ -891,6 +893,7 @@ void GFXGLDevice::setupGenericShaders( GenericShaderType type )
       shaderData = new ShaderData();
       shaderData->setField("DXVertexShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/textureV.hlsl"));
       shaderData->setField("DXPixelShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/textureP.hlsl"));
+      shaderData->setSamplerName("$diffuseMap", 0);
       shaderData->registerObject();
       mGenericShader[GSTexture] = shaderData->getShader();
       mGenericShaderBuffer[GSTexture] = mGenericShader[GSTexture]->allocConstBuffer();
