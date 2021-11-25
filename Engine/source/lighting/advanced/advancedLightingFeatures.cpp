@@ -31,15 +31,9 @@
 #include "gfx/gfxDevice.h"
 #include "core/util/safeDelete.h"
 
-#if defined( TORQUE_OS_WIN )
-#  include "lighting/advanced/hlsl/gBufferConditionerHLSL.h"
-#  include "lighting/advanced/hlsl/advancedLightingFeaturesHLSL.h"
-#endif
-#if defined( TORQUE_OPENGL )
-#  include "lighting/advanced/glsl/gBufferConditionerGLSL.h"
-#  include "lighting/advanced/glsl/advancedLightingFeaturesGLSL.h"
-#endif
 
+#include "lighting/advanced/hlsl/gBufferConditionerHLSL.h"
+#include "lighting/advanced/hlsl/advancedLightingFeaturesHLSL.h"
 
 
 bool AdvancedLightingFeatures::smFeaturesRegistered = false;
@@ -51,32 +45,13 @@ void AdvancedLightingFeatures::registerFeatures( const GFXFormat &deferredTarget
    // If we ever need this...
    TORQUE_UNUSED(lightInfoTargetFormat);
 
-   ConditionerFeature *cond = NULL;
-
-   if(GFX->getAdapterType() == OpenGL)
-   {
-#if defined( TORQUE_OPENGL ) 
-      cond = new GBufferConditionerGLSL( deferredTargetFormat, GBufferConditionerGLSL::ViewSpace );
-      FEATUREMGR->registerFeature(MFT_DeferredConditioner, cond);
-      FEATUREMGR->registerFeature(MFT_RTLighting, new DeferredRTLightingFeatGLSL());
-      FEATUREMGR->registerFeature(MFT_NormalMap, new DeferredBumpFeatGLSL());
-      FEATUREMGR->registerFeature(MFT_MinnaertShading, new DeferredMinnaertGLSL());
-      FEATUREMGR->registerFeature(MFT_SubSurface, new DeferredSubSurfaceGLSL());
-      FEATUREMGR->registerFeature(MFT_ReflectionProbes, new ReflectionProbeFeatGLSL);
-#endif
-   }
-   else
-   {
-#if defined( TORQUE_OS_WIN )
-      cond = new GBufferConditionerHLSL( deferredTargetFormat, GBufferConditionerHLSL::ViewSpace );
-      FEATUREMGR->registerFeature(MFT_DeferredConditioner, cond);
-      FEATUREMGR->registerFeature(MFT_RTLighting, new DeferredRTLightingFeatHLSL());
-      FEATUREMGR->registerFeature(MFT_NormalMap, new DeferredBumpFeatHLSL());
-      FEATUREMGR->registerFeature(MFT_MinnaertShading, new DeferredMinnaertHLSL());
-      FEATUREMGR->registerFeature(MFT_SubSurface, new DeferredSubSurfaceHLSL());
-      FEATUREMGR->registerFeature(MFT_ReflectionProbes, new ReflectionProbeFeatHLSL);
-#endif
-   }
+   ConditionerFeature* cond = new GBufferConditionerHLSL( deferredTargetFormat, GBufferConditionerHLSL::ViewSpace );
+   FEATUREMGR->registerFeature(MFT_DeferredConditioner, cond);
+   FEATUREMGR->registerFeature(MFT_RTLighting, new DeferredRTLightingFeatHLSL());
+   FEATUREMGR->registerFeature(MFT_NormalMap, new DeferredBumpFeatHLSL());
+   FEATUREMGR->registerFeature(MFT_MinnaertShading, new DeferredMinnaertHLSL());
+   FEATUREMGR->registerFeature(MFT_SubSurface, new DeferredSubSurfaceHLSL());
+   FEATUREMGR->registerFeature(MFT_ReflectionProbes, new ReflectionProbeFeatHLSL);
 
    NamedTexTarget *target = NamedTexTarget::find( "deferred" );
    if ( target )

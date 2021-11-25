@@ -26,7 +26,7 @@ TORQUE_UNIFORM_SAMPLER2D(diffuseMap, 0);
 
 struct VertToPix
 {
-	float4 hpos       : TORQUE_POSITION;
+	float4 hpos       : SV_Position;
 	float2 uv        : TEXCOORD0;
 };
 
@@ -35,7 +35,7 @@ static float weight[3] = { 0.2270270270, 0.3162162162, 0.0702702703 };
 
 uniform float2 oneOverTargetSize;
 
-float4 main( VertToPix IN ) : TORQUE_TARGET0
+float4 main( VertToPix IN ) : SV_Target0
 {	
 	float4 OUT = TORQUE_TEX2D( diffuseMap, IN.uv ) * weight[0];
 			        

@@ -1852,7 +1852,6 @@ void PostEffect::_checkRequirements()
    // Finally find and load the shader.
    ShaderData *shaderData;
    if ( Sim::findObject( mShaderName, shaderData ) )   
-      if ( shaderData->getPixVersion() <= GFX->getPixelShaderVersion() )
          mShader = shaderData->getShader( macros );
 
    // If we didn't get a shader... we're done.

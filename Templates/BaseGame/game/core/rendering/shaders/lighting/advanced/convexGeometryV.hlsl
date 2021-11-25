@@ -20,21 +20,15 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "../../hlslStructs.hlsl"
+#include "../../shaderVertex.hlsl"
 #include "../../shaderModel.hlsl"
-
-struct VertData
-{
-   float3 pos : POSITION;
-   float4 color : COLOR;
-};
 
 struct ConvexConnectV
 {
-   float4 hpos : TORQUE_POSITION;
-   float4 wsEyeDir : TEXCOORD0;
-   float4 ssPos : TEXCOORD1;
-   float4 vsEyeDir : TEXCOORD2;
+   float4 hpos : SV_Position;
+   TORQUE_LOCATION(0) float4 wsEyeDir : TEXCOORD0;
+   TORQUE_LOCATION(1) float4 ssPos : TEXCOORD1;
+   TORQUE_LOCATION(2) float4 vsEyeDir : TEXCOORD2;
 };
 
 uniform float4x4 modelview;
@@ -42,7 +36,7 @@ uniform float4x4 objTrans;
 uniform float4x4 worldViewOnly;
 uniform float3 eyePosWorld;
 
-ConvexConnectV main( VertData IN )
+ConvexConnectV main( VertexIn_PC IN )
 {
    ConvexConnectV OUT;
 

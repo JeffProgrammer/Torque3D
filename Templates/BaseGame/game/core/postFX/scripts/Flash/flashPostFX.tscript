@@ -25,14 +25,9 @@ singleton ShaderData( PFX_FlashShader )
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile 	= "./flashP.hlsl";
    
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile   = "./flashP.glsl";
-   
    samplerNames[0] = "$backBuffer";
 
    defines = "WHITE_COLOR=float4(1.0,1.0,1.0,0.0);MUL_COLOR=float4(1.0,0.25,0.25,0.0)";
-
-   pixVersion = 2.0;
 };
  
 singleton PostEffect( FlashFx )

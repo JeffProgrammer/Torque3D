@@ -21,7 +21,7 @@
 //-----------------------------------------------------------------------------
 
 #define IN_HLSL
-#include "hlslStructs.hlsl"
+#include "shaderVertex.hlsl"
 #include "shaderModel.hlsl"
 
 //-----------------------------------------------------------------------------
@@ -30,9 +30,9 @@
 
 struct ConnectData
 {
-   float4 hpos            : TORQUE_POSITION;
-   float2 texCoord        : TEXCOORD0;
-   float4 tex2            : TEXCOORD1;
+   float4 hpos : SV_Position;
+   TORQUE_LOCATION(0) float2 texCoord        : TEXCOORD0;
+   TORQUE_LOCATION(1) float4 tex2            : TEXCOORD1;
 };
 
 uniform float4x4 modelview;

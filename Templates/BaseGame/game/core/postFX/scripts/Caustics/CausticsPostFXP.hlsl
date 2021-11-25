@@ -37,7 +37,7 @@ float distanceToPlane(float4 plane, float3 pos)
    return (plane.x * pos.x + plane.y * pos.y + plane.z * pos.z) + plane.w;
 }
 
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0
+float4 main( PFXVertToPix IN ) : SV_Target0
 {   
    //Sample the pre-pass
    float4 deferred = TORQUE_DEFERRED_UNCONDITION( deferredTex, IN.uv0 );

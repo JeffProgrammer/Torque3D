@@ -28,7 +28,7 @@ uniform float4 targetViewport;
 TORQUE_UNIFORM_SAMPLER2D(inputTex, 0);
 
 
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0
+float4 main( PFXVertToPix IN ) : SV_Target0
 {
 	float speed = 2.0;
 	float distortion = 6.0;

@@ -26,7 +26,7 @@ TORQUE_UNIFORM_SAMPLER2D(edgeBuffer,0);
 TORQUE_UNIFORM_SAMPLER2D(backBuffer, 1);
 uniform float2 targetSize;
 
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0
+float4 main( PFXVertToPix IN ) : SV_Target0
 {
    float2 pixelSize = 1.0 / targetSize;
 

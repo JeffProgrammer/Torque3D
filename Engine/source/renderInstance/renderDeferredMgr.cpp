@@ -30,7 +30,6 @@
 #include "core/util/safeDelete.h"
 #include "shaderGen/featureMgr.h"
 #include "shaderGen/HLSL/depthHLSL.h"
-#include "shaderGen/GLSL/depthGLSL.h"
 #include "shaderGen/conditionerFeature.h"
 #include "shaderGen/shaderGenVars.h"
 #include "scene/sceneRenderState.h"
@@ -702,7 +701,7 @@ void ProcessedDeferredMaterial::_determineFeatures( U32 stageNum,
    if (newFeatures[MFT_AccuMap] &&
       (!newFeatures[MFT_DiffuseMap] ||
       !newFeatures[MFT_NormalMap] ||
-      GFX->getPixelShaderVersion() < 3.0f)) {
+      GFX->getShaderModel() < 3.0f)) {
       AssertWarn(false, "SAHARA: Using an Accu Map requires SM 3.0 and a normal map.");
       newFeatures.removeFeature(MFT_AccuMap);
       mHasAccumulation = false;

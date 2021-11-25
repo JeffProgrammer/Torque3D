@@ -1072,7 +1072,7 @@ void TerrCell::preloadMaterials()
       TerrainCellMaterial *material = getMaterial();
       material->getReflectMat();
 
-      if (  GFX->getPixelShaderVersion() > 2.0f && 
+      if (  GFX->getShaderModel() > 2.0f && 
             String::compare( LIGHTMGR->getId(), "BLM" ) != 0)
          material->getDeferredMat();
    }

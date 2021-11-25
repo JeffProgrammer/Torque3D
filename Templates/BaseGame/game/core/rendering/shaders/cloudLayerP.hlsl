@@ -28,12 +28,12 @@
 //-----------------------------------------------------------------------------
 struct ConnectData
 {
-   float4 hpos                : TORQUE_POSITION;   
-   float4 texCoord12          : TEXCOORD0;
-   float4 texCoord34          : TEXCOORD1;   
-   float3 vLightTS            : TEXCOORD2;   // light vector in tangent space, denormalized
-   float3 vViewTS             : TEXCOORD3;   // view vector in tangent space, denormalized
-   float  worldDist           : TEXCOORD4;
+   float4 hpos : SV_Position;
+   TORQUE_LOCATION(0) float4 texCoord12          : TEXCOORD0;
+   TORQUE_LOCATION(1) float4 texCoord34          : TEXCOORD1;   
+   TORQUE_LOCATION(2) float3 vLightTS            : TEXCOORD2;   // light vector in tangent space, denormalized
+   TORQUE_LOCATION(3) float3 vViewTS             : TEXCOORD3;   // view vector in tangent space, denormalized
+   TORQUE_LOCATION(4) float  worldDist           : TEXCOORD4;
 };
 
 //-----------------------------------------------------------------------------
@@ -100,7 +100,7 @@ float3 ComputeIllumination( float2 texCoord,
    return finalColor;
 }   
 
-float4 main( ConnectData IN ) : TORQUE_TARGET0
+float4 main( ConnectData IN ) : SV_Target0
 { 
    //  Normalize the interpolated vectors:
    float3 vViewTS   = normalize( IN.vViewTS  );

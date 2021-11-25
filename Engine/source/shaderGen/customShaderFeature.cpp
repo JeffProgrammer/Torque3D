@@ -21,14 +21,7 @@
 //-----------------------------------------------------------------------------
 
 #include "shaderGen/customShaderFeature.h"
-
-#ifdef TORQUE_D3D11
 #include "shaderGen/HLSL/customFeatureHLSL.h"
-#endif
-#ifdef TORQUE_OPENGL
-#include "shaderGen/GLSL/customFeatureGLSL.h"
-#endif
-
 #include "math/mathIO.h"
 #include "scene/sceneRenderState.h"
 #include "core/stream/bitStream.h"
@@ -52,12 +45,7 @@ ConsoleDocClass(CustomShaderFeatureData,
 //-----------------------------------------------------------------------------
 CustomShaderFeatureData::CustomShaderFeatureData()
 {
-#ifdef TORQUE_D3D11
    mFeatureHLSL = nullptr;
-#endif
-#ifdef TORQUE_OPENGL
-   mFeatureGLSL = nullptr;
-#endif
 }
 
 CustomShaderFeatureData::~CustomShaderFeatureData()
@@ -78,21 +66,8 @@ bool CustomShaderFeatureData::onAdd()
    if (!Parent::onAdd())
       return false;
 
-#ifdef TORQUE_D3D11
-   if (GFX->getAdapterType() == GFXAdapterType::Direct3D11)
-   {
-      mFeatureHLSL = new CustomFeatureHLSL();
-      mFeatureHLSL->mOwner = this;
-   }
-#endif
-
-#ifdef TORQUE_OPENGL
-   if (GFX->getAdapterType() == GFXAdapterType::OpenGL)
-   {
-      mFeatureGLSL = new CustomFeatureGLSL();
-      mFeatureGLSL->mOwner = this;
-   }
-#endif
+   mFeatureHLSL = new CustomFeatureHLSL();
+   mFeatureHLSL->mOwner = this;
 
    return true;
 }
@@ -105,100 +80,42 @@ void CustomShaderFeatureData::onRemove()
 //Shadergen setup functions
 void CustomShaderFeatureData::addVariable(String name, String type, String defaultValue)
 {
-#ifdef TORQUE_D3D11
-   if (GFX->getAdapterType() == GFXAdapterType::Direct3D11)
-      mFeatureHLSL->addVariable(name, type, defaultValue);
-#endif
-#ifdef TORQUE_OPENGL
-   if (GFX->getAdapterType() == GFXAdapterType::OpenGL)
-      mFeatureGLSL->addVariable(name, type, defaultValue);
-#endif
+   mFeatureHLSL->addVariable(name, type, defaultValue);
 }
 
 void CustomShaderFeatureData::addUniform(String name, String type, String defaultValue, U32 arraySize)
 {
-#ifdef TORQUE_D3D11
-   if (GFX->getAdapterType() == GFXAdapterType::Direct3D11)
-      mFeatureHLSL->addUniform(name, type, defaultValue, arraySize);
-#endif
-#ifdef TORQUE_OPENGL
-   if (GFX->getAdapterType() == GFXAdapterType::OpenGL)
-      mFeatureGLSL->addUniform(name, type, defaultValue, arraySize);
-#endif
+   mFeatureHLSL->addUniform(name, type, defaultValue, arraySize);
 }
 
 void CustomShaderFeatureData::addSampler(String name, String type, U32 arraySize)
 {
-#ifdef TORQUE_D3D11
-   if (GFX->getAdapterType() == GFXAdapterType::Direct3D11)
-      mFeatureHLSL->addSampler(name, type, arraySize);
-#endif
-#ifdef TORQUE_OPENGL
-   if (GFX->getAdapterType() == GFXAdapterType::OpenGL)
-      mFeatureGLSL->addSampler(name, type, arraySize);
-#endif
+   mFeatureHLSL->addSampler(name, type, arraySize);
 }
 
 void CustomShaderFeatureData::addTexture(String name, String type, String samplerState, U32 arraySize)
 {
-#ifdef TORQUE_D3D11
-   if (GFX->getAdapterType() == GFXAdapterType::Direct3D11)
-      mFeatureHLSL->addTexture(name, type, samplerState, arraySize);
-#endif
-#ifdef TORQUE_OPENGL
-   if (GFX->getAdapterType() == GFXAdapterType::OpenGL)
-      mFeatureGLSL->addTexture(name, type, samplerState, arraySize);
-#endif
+   mFeatureHLSL->addTexture(name, type, samplerState, arraySize);
 }
 
 void CustomShaderFeatureData::addConnector(String name, String type, String elementName)
 {
-#ifdef TORQUE_D3D11
-   if (GFX->getAdapterType() == GFXAdapterType::Direct3D11)
-      mFeatureHLSL->addConnector(name, type, elementName);
-#endif
-#ifdef TORQUE_OPENGL
-   if (GFX->getAdapterType() == GFXAdapterType::OpenGL)
-      mFeatureGLSL->addConnector(name, type, elementName);
-#endif
+   mFeatureHLSL->addConnector(name, type, elementName);
 }
 
 void CustomShaderFeatureData::addVertTexCoord(String name)
 {
-#ifdef TORQUE_D3D11
-   if (GFX->getAdapterType() == GFXAdapterType::Direct3D11)
-      mFeatureHLSL->addVertTexCoord(name);
-#endif
-#ifdef TORQUE_OPENGL
-   if (GFX->getAdapterType() == GFXAdapterType::OpenGL)
-      mFeatureGLSL->addVertTexCoord(name);
-#endif
+   mFeatureHLSL->addVertTexCoord(name);
 }
 
 bool CustomShaderFeatureData::hasFeature(String name)
 {
-#ifdef TORQUE_D3D11
-   if (GFX->getAdapterType() == GFXAdapterType::Direct3D11)
-      return mFeatureHLSL->hasFeature(name);
-#endif
-#ifdef TORQUE_OPENGL
-   if (GFX->getAdapterType() == GFXAdapterType::OpenGL)
-      return mFeatureGLSL->hasFeature(name);
-#endif
-
-   return false;
+   return mFeatureHLSL->hasFeature(name);
 }
 
 void CustomShaderFeatureData::writeLine(String format, S32 argc, ConsoleValue* argv)
 {
-#ifdef TORQUE_D3D11
-   if (GFX->getAdapterType() == GFXAdapterType::Direct3D11)
-      mFeatureHLSL->writeLine(format, argc, argv);
-#endif
-#ifdef TORQUE_OPENGL
-   if (GFX->getAdapterType() == GFXAdapterType::OpenGL)
-      mFeatureGLSL->writeLine(format, argc, argv);
-#endif
+   mFeatureHLSL->writeLine(format, argc, argv);
 }
 
 DefineEngineMethod(CustomShaderFeatureData, addVariable, void, (String name, String type, String defaultValue), ("", "", ""), "")

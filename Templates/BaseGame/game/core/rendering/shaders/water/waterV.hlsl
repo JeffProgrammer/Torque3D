@@ -21,43 +21,44 @@
 //-----------------------------------------------------------------------------
 
 #include "../shaderModel.hlsl"
+#include "../shaderVertex.hlsl"
 
 //-----------------------------------------------------------------------------
 // Structures                                                                  
 //-----------------------------------------------------------------------------
 struct VertData
 {
-   float3 position         : POSITION;
-   float3 normal           : NORMAL;
-   float2 undulateData     : TEXCOORD0;
-   float4 horizonFactor    : TEXCOORD1;
+   TORQUE_LOCATION(kPosition) float3 position         : POSITION;
+   TORQUE_LOCATION(kNormal) float3 normal           : NORMAL;
+   TORQUE_LOCATION(kTexCoord0) float2 undulateData     : TEXCOORD0;
+   TORQUE_LOCATION(kTexCoord1) float4 horizonFactor    : TEXCOORD1;
 };
 
 struct ConnectData
 {
-   float4 hpos             : TORQUE_POSITION;   
+   float4 hpos             : SV_Position;   
    
    // TexCoord 0 and 1 (xy,zw) for ripple texture lookup
-   float4 rippleTexCoord01 : TEXCOORD0;   
+   TORQUE_LOCATION(0) float4 rippleTexCoord01 : TEXCOORD0;   
    
    // xy is TexCoord 2 for ripple texture lookup 
    // z is the Worldspace unit distance/depth of this vertex/pixel
    // w is amount of the crestFoam ( more at crest of waves ).
-   float4 rippleTexCoord2  : TEXCOORD1;
+   TORQUE_LOCATION(1) float4 rippleTexCoord2  : TEXCOORD1;
    
    // Screenspace vert position BEFORE wave transformation
-   float4 posPreWave       : TEXCOORD2;
+   TORQUE_LOCATION(2) float4 posPreWave       : TEXCOORD2;
    
    // Screenspace vert position AFTER wave transformation
-   float4 posPostWave      : TEXCOORD3;   
+   TORQUE_LOCATION(3) float4 posPostWave      : TEXCOORD3;   
     
    // Objectspace vert position BEFORE wave transformation	
    // w coord is world space z position.
-   float4 objPos           : TEXCOORD4;   
+   TORQUE_LOCATION(4) float4 objPos           : TEXCOORD4;   
    
-   float4 foamTexCoords    : TEXCOORD5;
+   TORQUE_LOCATION(5) float4 foamTexCoords    : TEXCOORD5;
    
-   float3x3 tangentMat     : TEXCOORD6;
+   TORQUE_LOCATION(6) float3x3 tangentMat     : TEXCOORD6;
 };
 
 //-----------------------------------------------------------------------------

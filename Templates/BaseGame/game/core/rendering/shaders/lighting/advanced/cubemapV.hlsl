@@ -24,8 +24,8 @@
 
 struct ConnectData
 {
-    float4 hpos    : TORQUE_POSITION;
-    float2 uv      : TEXCOORD;
+    float4 hpos : SV_Position;
+    TORQUE_LOCATION(0) float2 uv      : TEXCOORD;
 };
 
 ConnectData main( uint vertexID : SV_VertexID )

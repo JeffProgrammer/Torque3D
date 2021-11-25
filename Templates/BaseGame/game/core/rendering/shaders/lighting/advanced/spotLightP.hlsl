@@ -31,10 +31,10 @@
 
 struct ConvexConnectP
 {
-   float4 pos : TORQUE_POSITION;
-   float4 wsEyeDir : TEXCOORD0;
-   float4 ssPos : TEXCOORD1;
-   float4 vsEyeDir : TEXCOORD2;
+   float4 pos : SV_Position;
+   TORQUE_LOCATION(0) float4 wsEyeDir : TEXCOORD0;
+   TORQUE_LOCATION(1) float4 ssPos : TEXCOORD1;
+   TORQUE_LOCATION(2) float4 vsEyeDir : TEXCOORD2;
 };
 
 TORQUE_UNIFORM_SAMPLER2D(deferredBuffer, 0);

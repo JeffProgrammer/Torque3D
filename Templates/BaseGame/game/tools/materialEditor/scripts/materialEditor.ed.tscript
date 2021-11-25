@@ -55,7 +55,6 @@ function MaterialEditorGui::establishMaterials(%this)
    {
       DXVertexShaderFile 	= "shaders/alphaOnlyV.hlsl";
       DXPixelShaderFile 	= "shaders/alphaOnlyP.hlsl";
-      pixVersion = 1.0;
    };
 }
 

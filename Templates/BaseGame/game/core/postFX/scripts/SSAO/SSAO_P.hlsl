@@ -99,7 +99,7 @@ float getOcclusion( float depthDiff, float depthMin, float depthMax, float depth
 }
 
 
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0
+float4 main( PFXVertToPix IN ) : SV_Target0
 {          
    float3 ptSphere[32] =
    {

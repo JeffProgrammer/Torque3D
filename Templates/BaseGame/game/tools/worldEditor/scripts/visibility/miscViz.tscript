@@ -43,11 +43,6 @@ singleton shaderData( Viz_TexelDensity )
 {
    DXVertexShaderFile = $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile  = "./shaders/Viz_TexelDensityP.hlsl";
-   
-   OGLVertexShaderFile = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile  = "./shaders/Viz_TexelDensityP.glsl";
-
-   pixVersion = 2.0;
 };
 
 singleton PostEffect( Viz_TexelDensityPFX )
@@ -84,17 +79,12 @@ singleton shaderData( Viz_SurfaceProperties )
    DXVertexShaderFile = $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile  = "./shaders/Viz_SurfacePropertiesP.hlsl";
    
-   OGLVertexShaderFile = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile  = "./shaders/Viz_SurfacePropertiesP.glsl";
-   
    samplerNames[0] = "$deferredBuffer";
    samplerNames[1] = "$colorBuffer";
    samplerNames[2] = "$matInfoBuffer";
    samplerNames[3] = "$ssaoMaskTex";
    samplerNames[4] = "$backbufferTex";
    samplerNames[5] = "$glowBuffer";
-
-   pixVersion = 2.0;
 };
 
 singleton PostEffect( Viz_SurfacePropertiesPFX )
@@ -256,13 +246,8 @@ singleton shaderData( Viz_ColorBlindness )
 {
    DXVertexShaderFile = $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile  = "./shaders/Viz_ColorblindnessP.hlsl";
-
-   OGLVertexShaderFile = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile  = "./shaders/Viz_ColorblindnessP.glsl";
    
    samplerNames[0] = "$backBuffer";
-   
-   pixVersion = 2.0;
 };
 
 singleton PostEffect( Viz_ColorBlindnessPFX )
@@ -361,12 +346,7 @@ singleton shaderData( Viz_MaterialComplexity )
    DXVertexShaderFile   = "./shaders/Viz_materialComplexityV.hlsl";
    DXPixelShaderFile    = "./shaders/Viz_materialComplexityP.hlsl";
  
-   OGLVertexShaderFile   = "./shaders/basicRibbonShaderV.glsl";
-   OGLPixelShaderFile    = "./shaders/basicRibbonShaderP.glsl";
- 
    //samplerNames[0] = "$ribTex";
- 
-   pixVersion = 2.0;
 };
  
 singleton CustomMaterial( Viz_MaterialComplexityMat )

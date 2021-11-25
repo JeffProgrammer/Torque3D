@@ -136,7 +136,7 @@ void GFXGLDevice::initGLState()
    
    // [JTH 5/6/2016] GLSL 1.50 is really SM 4.0
    // Setting mPixelShaderVersion to 3.0 will allow Advanced Lighting to run.   
-   mPixelShaderVersion = 3.0;
+   mShaderModel = 4.0f;
 
 	// Set capability extensions.
    mCapabilities.anisotropicFiltering = mCardProfiler->queryProfile("GL_EXT_texture_filter_anisotropic");
@@ -213,7 +213,6 @@ GFXGLDevice::GFXGLDevice(U32 adapterIndex) :
    m_mCurrentView(true),
    mContext(NULL),
    mPixelFormat(NULL),
-   mPixelShaderVersion(0.0f),
    mMaxShaderTextures(2),
    mMaxFFTextures(2),
    mMaxTRColors(1),
@@ -888,49 +887,42 @@ void GFXGLDevice::setupGenericShaders( GenericShaderType type )
 
    if( mGenericShader[GSColor] == NULL )
    {
-      ShaderData *shaderData;
+      ShaderData* shaderData;
 
       shaderData = new ShaderData();
-      shaderData->setField("OGLVertexShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/gl/colorV.glsl"));
-      shaderData->setField("OGLPixelShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/gl/colorP.glsl"));
-      shaderData->setField("pixVersion", "2.0");
+      shaderData->setField("DXVertexShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/colorV.hlsl"));
+      shaderData->setField("DXPixelShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/colorP.hlsl"));
       shaderData->registerObject();
-      mGenericShader[GSColor] =  shaderData->getShader();
+      mGenericShader[GSColor] = shaderData->getShader();
       mGenericShaderBuffer[GSColor] = mGenericShader[GSColor]->allocConstBuffer();
-      mModelViewProjSC[GSColor] = mGenericShader[GSColor]->getShaderConstHandle( "$modelView" );
+      mModelViewProjSC[GSColor] = mGenericShader[GSColor]->getShaderConstHandle("$modelView");
       Sim::getRootGroup()->addObject(shaderData);
 
       shaderData = new ShaderData();
-      shaderData->setField("OGLVertexShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/gl/modColorTextureV.glsl"));
-      shaderData->setField("OGLPixelShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/gl/modColorTextureP.glsl"));
-      shaderData->setSamplerName("$diffuseMap", 0);
-      shaderData->setField("pixVersion", "2.0");
+      shaderData->setField("DXVertexShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/modColorTextureV.hlsl"));
+      shaderData->setField("DXPixelShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/modColorTextureP.hlsl"));
       shaderData->registerObject();
       mGenericShader[GSModColorTexture] = shaderData->getShader();
       mGenericShaderBuffer[GSModColorTexture] = mGenericShader[GSModColorTexture]->allocConstBuffer();
-      mModelViewProjSC[GSModColorTexture] = mGenericShader[GSModColorTexture]->getShaderConstHandle( "$modelView" );
+      mModelViewProjSC[GSModColorTexture] = mGenericShader[GSModColorTexture]->getShaderConstHandle("$modelView");
       Sim::getRootGroup()->addObject(shaderData);
 
       shaderData = new ShaderData();
-      shaderData->setField("OGLVertexShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/gl/addColorTextureV.glsl"));
-      shaderData->setField("OGLPixelShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/gl/addColorTextureP.glsl"));
-      shaderData->setSamplerName("$diffuseMap", 0);
-      shaderData->setField("pixVersion", "2.0");
+      shaderData->setField("DXVertexShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/addColorTextureV.hlsl"));
+      shaderData->setField("DXPixelShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/addColorTextureP.hlsl"));
       shaderData->registerObject();
       mGenericShader[GSAddColorTexture] = shaderData->getShader();
       mGenericShaderBuffer[GSAddColorTexture] = mGenericShader[GSAddColorTexture]->allocConstBuffer();
-      mModelViewProjSC[GSAddColorTexture] = mGenericShader[GSAddColorTexture]->getShaderConstHandle( "$modelView" );
+      mModelViewProjSC[GSAddColorTexture] = mGenericShader[GSAddColorTexture]->getShaderConstHandle("$modelView");
       Sim::getRootGroup()->addObject(shaderData);
 
       shaderData = new ShaderData();
-      shaderData->setField("OGLVertexShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/gl/textureV.glsl"));
-      shaderData->setField("OGLPixelShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/gl/textureP.glsl"));
-      shaderData->setSamplerName("$diffuseMap", 0);
-      shaderData->setField("pixVersion", "2.0");
+      shaderData->setField("DXVertexShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/textureV.hlsl"));
+      shaderData->setField("DXPixelShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/textureP.hlsl"));
       shaderData->registerObject();
       mGenericShader[GSTexture] = shaderData->getShader();
       mGenericShaderBuffer[GSTexture] = mGenericShader[GSTexture]->allocConstBuffer();
-      mModelViewProjSC[GSTexture] = mGenericShader[GSTexture]->getShaderConstHandle( "$modelView" );
+      mModelViewProjSC[GSTexture] = mGenericShader[GSTexture]->getShaderConstHandle("$modelView");
       Sim::getRootGroup()->addObject(shaderData);
    }
 
@@ -972,7 +964,7 @@ void GFXGLDevice::setShaderConstBufferInternal(GFXShaderConstBuffer* buffer)
 
 U32 GFXGLDevice::getNumSamplers() const
 {
-   return getMin((U32)GFX_TEXTURE_STAGE_COUNT,mPixelShaderVersion > 0.001f ? mMaxShaderTextures : mMaxFFTextures);
+   return getMin((U32)GFX_TEXTURE_STAGE_COUNT, mShaderModel > 0.001f ? mMaxShaderTextures : mMaxFFTextures);
 }
 
 GFXTextureObject* GFXGLDevice::getDefaultDepthTex() const 

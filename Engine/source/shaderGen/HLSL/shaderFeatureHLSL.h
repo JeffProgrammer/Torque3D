@@ -189,6 +189,9 @@ public:
 class VertPositionHLSL : public ShaderFeatureHLSL
 {
 public:
+
+   VertPositionHLSL();
+
    virtual void processVert( Vector<ShaderComponent*> &componentList,
                              const MaterialFeatureData &fd );
 
@@ -207,6 +210,9 @@ public:
                                     const FeatureSet &features,
                                     MaterialFeatureData *outFeatureData );
 
+protected:
+
+   ShaderIncludeDependency mDep;
 };
 
 

@@ -59,8 +59,8 @@ private:
    friend class GFXD3D11TextureObject;
    friend class GFXD3D11TextureTarget;
    friend class GFXD3D11WindowTarget;
-	friend class OculusVRHMDDevice;
-	friend class D3D11OculusTexture;
+   friend class OculusVRHMDDevice;
+   friend class D3D11OculusTexture;
 
    virtual GFXFormat selectSupportedFormat(GFXTextureProfile *profile,
    const Vector<GFXFormat> &formats, bool texture, bool mustblend, bool mustfilter);
@@ -134,14 +134,12 @@ protected:
 
    U32  mAdapterIndex;
 
-   F32 mPixVersion;
-
    D3D_FEATURE_LEVEL mFeatureLevel;
    // Shader Model targers
    String mVertexShaderTarget;
    String mPixelShaderTarget;
    // String for use with shader macros in the form of shader model version * 10
-   String mShaderModel;
+   String mShaderModelStr;
    bool mDebugLayers;
 
    DXGI_SAMPLE_DESC mMultisampleDesc;
@@ -228,9 +226,7 @@ public:
    virtual GFXCubemapArray *createCubemapArray();
    virtual GFXTextureArray* createTextureArray();
 
-   virtual F32  getPixelShaderVersion() const { return mPixVersion; }
-   virtual void setPixelShaderVersion( F32 version ){ mPixVersion = version;} 
-
+   const String& getShaderModelStr() { return mShaderModelStr; }
    virtual void setShader(GFXShader *shader, bool force = false);
    virtual U32  getNumSamplers() const { return 16; }
    virtual U32  getNumRenderTargets() const { return 8; }
@@ -317,7 +313,6 @@ public:
    // Shader Model targers
    const String &getVertexShaderTarget() const { return mVertexShaderTarget; }
    const String &getPixelShaderTarget() const { return mPixelShaderTarget; }
-   const String &getShaderModel() const { return mShaderModel; }
 
    // grab the sampler map
    const SamplerMap &getSamplersMap() const { return mSamplersMap; }

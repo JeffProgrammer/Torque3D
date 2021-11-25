@@ -38,13 +38,8 @@ class CustomShaderFeatureData : public SimObject
 	typedef SimObject Parent;
 
 public:
-#ifdef TORQUE_D3D11
-	CustomFeatureHLSL* mFeatureHLSL;
-#endif
-#ifdef TORQUE_OPENGL
-   CustomFeatureGLSL* mFeatureGLSL;
-#endif
 
+	CustomFeatureHLSL* mFeatureHLSL;
 	Vector<StringTableEntry> mAddedShaderConstants;
 
 public:

@@ -21,17 +21,12 @@
 //-----------------------------------------------------------------------------
 
 #include "shaderModel.hlsl"
-
-struct CloudVert
-{
-   float3 pos        : POSITION;
-   float2 uv0        : TEXCOORD0;
-};
+#include "shaderVertex.hlsl"
 
 struct ConnectData
 {
-   float4 hpos : TORQUE_POSITION;
-   float2 texCoord : TEXCOORD0;
+   float4 hpos : SV_Position;
+   TORQUE_LOCATION(0) float2 texCoord : TEXCOORD0;
 };
 
 uniform float4x4  modelview;
@@ -41,7 +36,7 @@ uniform float     accumTime;
 uniform float     texScale;
 
 
-ConnectData main( CloudVert IN )
+ConnectData main( VertexIn_PT IN )
 {
    ConnectData OUT;
 

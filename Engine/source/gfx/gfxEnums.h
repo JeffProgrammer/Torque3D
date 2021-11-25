@@ -41,6 +41,8 @@
 
 #define GFX_TEXTURE_STAGE_COUNT 16
 
+#define GFX_MAX_RENDER_TARGETS 8
+
 enum GFXBufferType
 {
    GFXBufferTypeStatic,    ///< Static vertex buffers are created and rarely updated.

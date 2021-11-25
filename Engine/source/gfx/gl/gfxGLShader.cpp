@@ -24,7 +24,7 @@
 #include "gfx/gl/gfxGLShader.h"
 #include "gfx/gl/gfxGLVertexAttribLocation.h"
 #include "gfx/gl/gfxGLDevice.h"
-
+#include "gfx/util/gfxShaderConvert.h"
 #include "core/frameAllocator.h"
 #include "core/stream/fileStream.h"
 #include "core/strings/stringFunctions.h"
@@ -434,7 +434,7 @@ bool GFXGLShader::_init()
    macros.increment();
    macros.last().name = "TORQUE_VERTEX_SHADER";
    macros.last().value = "";
-   
+
    // Default to true so we're "successful" if a vertex/pixel shader wasn't specified.
    bool compiledVertexShader = true;
    bool compiledPixelShader = true;
@@ -1094,10 +1094,47 @@ bool GFXGLShader::initShader( const Torque::Path &file,
    else
       mPixelShader = activeShader;
    glAttachShader(mProgram, activeShader);
-   
-   
+
+   //setup the conversion options
+   GFXShaderConvertOptions options;
+   options.filePath = file;
+   options.sourceLang = GFXShaderLanguageHLSL;
+   options.targetLang = GFXShaderLanguageGLSL;
+   options.stage = isVertex ? GFXShaderStageVertex : GFXShaderStagePixel;
+   options.macros = macros;
+#ifdef TORQUE_DEBUG
+   options.optimize = false;
+#else
+   options.optimize = true;
+#endif
+
+   //add vulkan define to enable explicit locations from the HLSL shaders
+   GFXShaderMacro macro = GFXShaderMacro("TORQUE_VULKAN");
+   options.macros.push_back(macro);
+
+   GFXShaderConvertOutput output;
+
+   //convert from hlsl to glsl
+   if (!GFXShaderConvert::convert(options, output))
+   {
+      Con::errorf("GFXGLShader::initShader: Failed to convert from hlsl to glsl. Source filename: %s", file.getFullPath().c_str());
+      return false;
+   }
+
+   //double check we got the right language
+   if (output.language != GFXShaderLanguageGLSL)
+   {
+      Con::errorf("GFXGLShader::initShader: GFXShaderConvert::convert has produced the wrong output language. source filename: %s", file.getFullPath().c_str());
+      return false;
+   }
+
+   const char* pShaderSrc = output.srcString.c_str();
+   glShaderSource(activeShader, 1, &pShaderSrc, NULL);
+   glCompileShader(activeShader);
+
+/////////////////// OLD GLSL Shader Path ////////////////////////////////////////////
    // Ok it's not in the shader gen manager, so ask Torque for it
-   FileStream stream;
+  /* FileStream stream;
    if ( !stream.open( file, Torque::FS::File::Read ) )
    {
       AssertISV(false, avar("GFXGLShader::initShader - failed to open shader '%s'.", file.getFullPath().c_str()));
@@ -1110,7 +1147,8 @@ bool GFXGLShader::initShader( const Torque::Path &file,
    }
    
    if ( !_loadShaderFromStream( activeShader, file, &stream, macros ) )
-      return false;
+      return false;*/
+//////////////////////////////////////////////////////////////////////////////////////
    
    GLint compile;
    glGetShaderiv(activeShader, GL_COMPILE_STATUS, &compile);

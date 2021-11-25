@@ -35,8 +35,8 @@
 
 struct VertToPix
 {
-   float4 hpos       : TORQUE_POSITION;
-   float2 uv0        : TEXCOORD0;
+   float4 hpos       : SV_Position;
+   TORQUE_LOCATION(0) float2 uv0        : TEXCOORD0;
 };
 
 TORQUE_UNIFORM_SAMPLER2D(colorTex, 0);
@@ -44,7 +44,7 @@ TORQUE_UNIFORM_SAMPLER2D(colorTex, 0);
 uniform float2 oneOverTargetSize;
 
 
-float4 main( VertToPix IN ) : TORQUE_TARGET0
+float4 main( VertToPix IN ) : SV_Target0
 {
 #if TORQUE_SM >=40
    FxaaTex tex;

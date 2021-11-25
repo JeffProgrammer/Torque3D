@@ -24,15 +24,15 @@
 
 struct ConnectData
 {
-    float4 hpos    : TORQUE_POSITION;
-    float2 uv      : TEXCOORD;
+    float4 hpos    : SV_Position;
+    TORQUE_LOCATION(0) float2 uv      : TEXCOORD;
 };
 
 uniform int face;
 
 TORQUE_UNIFORM_SAMPLERCUBE(environmentMap, 0);
 
-float4 main(ConnectData IN) : TORQUE_TARGET0
+float4 main(ConnectData IN) : SV_Target0
 {
     float3 N = getCubeDir(face,IN.uv);
     float3 irradiance = 0;

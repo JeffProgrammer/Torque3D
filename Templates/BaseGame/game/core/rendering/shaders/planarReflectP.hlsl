@@ -28,15 +28,14 @@
 
 struct ConnectData
 {
-   float4 hpos            : TORQUE_POSITION;
-   float2 texCoord        : TEXCOORD0;
-   float4 tex2            : TEXCOORD1;
+   float4 hpos : SV_Position;
+   TORQUE_LOCATION(0) float2 texCoord        : TEXCOORD0;
+   TORQUE_LOCATION(1) float4 tex2            : TEXCOORD1;
 };
-
 
 struct Fragout
 {
-   float4 col : TORQUE_TARGET0;
+   float4 col : SV_Target0;
 };
 
 TORQUE_UNIFORM_SAMPLER2D(texMap, 0);

@@ -46,12 +46,6 @@
 #include "lighting/basic/blTerrainSystem.h"
 #include "lighting/common/projectedShadow.h"
 
-#if defined( TORQUE_OPENGL )
-#include "shaderGen/GLSL/shaderFeatureGLSL.h"
-#include "shaderGen/GLSL/bumpGLSL.h"
-#endif
-
-
 MODULE_BEGIN( BasicLightManager )
 
    MODULE_SHUTDOWN_AFTER( Scene )
@@ -67,7 +61,6 @@ MODULE_BEGIN( BasicLightManager )
    }
 
 MODULE_END;
-
 
 U32 BasicLightManager::smActiveShadowPlugins = 0;
 U32 BasicLightManager::smShadowsUpdated = 0;
@@ -151,34 +144,18 @@ BasicLightManager::~BasicLightManager()
 bool BasicLightManager::isCompatible() const
 {
    // As long as we have some shaders this works.
-   return GFX->getPixelShaderVersion() > 1.0;
+   return GFX->getShaderModel() > 1.0;
 }
 
 void BasicLightManager::activate( SceneManager *sceneManager )
 {
    Parent::activate( sceneManager );
 
-   if( GFX->getAdapterType() == OpenGL )
-   {
-      #if defined( TORQUE_OPENGL ) 
-         FEATUREMGR->registerFeature( MFT_LightMap, new LightmapFeatGLSL );
-         FEATUREMGR->registerFeature( MFT_ToneMap, new TonemapFeatGLSL );
-         FEATUREMGR->registerFeature( MFT_NormalMap, new BumpFeatGLSL );
-         FEATUREMGR->registerFeature( MFT_RTLighting, new RTLightingFeatGLSL );
-         FEATUREMGR->registerFeature(MFT_ReflectionProbes, new ReflectionProbeFeatGLSL);
-      #endif
-   }
-   else
-   {
-      #if defined( TORQUE_OS_WIN )
-         FEATUREMGR->registerFeature( MFT_LightMap, new LightmapFeatHLSL );
-         FEATUREMGR->registerFeature( MFT_ToneMap, new TonemapFeatHLSL );
-         FEATUREMGR->registerFeature( MFT_NormalMap, new BumpFeatHLSL );
-         FEATUREMGR->registerFeature( MFT_RTLighting, new RTLightingFeatHLSL );
-         FEATUREMGR->registerFeature(MFT_ReflectionProbes, new ReflectionProbeFeatHLSL);
-      #endif
-   }
-
+   FEATUREMGR->registerFeature( MFT_LightMap, new LightmapFeatHLSL );
+   FEATUREMGR->registerFeature( MFT_ToneMap, new TonemapFeatHLSL );
+   FEATUREMGR->registerFeature( MFT_NormalMap, new BumpFeatHLSL );
+   FEATUREMGR->registerFeature( MFT_RTLighting, new RTLightingFeatHLSL );
+   FEATUREMGR->registerFeature(MFT_ReflectionProbes, new ReflectionProbeFeatHLSL);
    FEATUREMGR->unregisterFeature( MFT_MinnaertShading );
    FEATUREMGR->unregisterFeature( MFT_SubSurface );
 

@@ -50,9 +50,7 @@ ConsoleDocClass( ShaderData,
 	"{\n"
    "	DXVertexShaderFile   = $Core::CommonShaderPath @ \"/cloudLayerV.hlsl\";\n"
    "	DXPixelShaderFile    = $Core::CommonShaderPath @ \"/cloudLayerP.hlsl\";\n"
-   "	OGLVertexShaderFile = $Core::CommonShaderPath @ \"/gl/cloudLayerV.glsl\";\n"
-   "	OGLPixelShaderFile = $Core::CommonShaderPath @ \"/gl/cloudLayerP.glsl\";\n"
-	"	pixVersion = 2.0;\n"
+	"	shaderModel = 5.0;\n"
 	"};\n"
 	"@endtsexample\n\n"
 
@@ -62,8 +60,7 @@ ShaderData::ShaderData()
 {
    VECTOR_SET_ASSOCIATION( mShaderMacros );
 
-   mUseDevicePixVersion = false;
-   mPixVersion = 1.0;
+   mShaderModel = 0.0f;
 
    for( int i = 0; i < NumTextures; ++i)
       mRTParams[i] = false;
@@ -83,24 +80,10 @@ void ShaderData::initPersistFields()
 	   "shader. It can be either an HLSL or assembly level shader. HLSL's "
 	   "must have a filename extension of .hlsl, otherwise its assumed to be an assembly file.");
 
-   addField("OGLVertexShaderFile",  TypeStringFilename,  Offset(mOGLVertexShaderName,   ShaderData),
-	   "@brief %Path to an OpenGL vertex shader file to use for this ShaderData.\n\n"
-	   "It must contain only one program and no pixel shader, just the vertex shader.");
-
-   addField("OGLPixelShaderFile",   TypeStringFilename,  Offset(mOGLPixelShaderName,  ShaderData),
-	   "@brief %Path to an OpenGL pixel shader file to use for this ShaderData.\n\n"
-	   "It must contain only one program and no vertex shader, just the pixel "
-	   "shader.");
-
-   addField("useDevicePixVersion",  TypeBool,            Offset(mUseDevicePixVersion,   ShaderData),
-	   "@brief If true, the maximum pixel shader version offered by the graphics card will be used.\n\n"
-	   "Otherwise, the script-defined pixel shader version will be used.\n\n");
-
-   addField("pixVersion",           TypeF32,             Offset(mPixVersion,   ShaderData),
-	   "@brief Indicates target level the shader should be compiled.\n\n"
-	   "Valid numbers at the time of this writing are 1.1, 1.4, 2.0, and 3.0. "
-	   "The shader will not run properly if the hardware does not support the "
-	   "level of shader compiled.");
+   addField("shaderModel",           TypeF32,             Offset(mShaderModel,   ShaderData),
+	   "@brief Indicates the shader model the shader should be compiled.\n\n"
+	   "Valid numbers at the time of this writing are 0, 5.0, and 6.0"
+	   "A value of 0 means use the highest availble to the current GFXDevice");
    
    addField("defines",              TypeRealString,      Offset(mDefines,   ShaderData), 
 	   "@brief String of case-sensitive defines passed to the shader compiler.\n\n"
@@ -216,10 +199,6 @@ GFXShader* ShaderData::getShader( const Vector<GFXShaderMacro> &macros )
 
 GFXShader* ShaderData::_createShader( const Vector<GFXShaderMacro> &macros )
 {
-   F32 pixver = mPixVersion;
-   if ( mUseDevicePixVersion )
-      pixver = getMax( pixver, GFX->getPixelShaderVersion() );
-
    // Enable shader error logging.
    GFXShader::setLogging( true, true );
 
@@ -234,26 +213,16 @@ GFXShader* ShaderData::_createShader( const Vector<GFXShaderMacro> &macros )
    // Initialize the right shader type.
    switch( GFX->getAdapterType() )
    {
+      case OpenGL:
       case Direct3D11:
       {
          success = shader->init( mDXVertexShaderName, 
                                  mDXPixelShaderName, 
-                                 pixver,
+                                 mShaderModel,
                                  macros,
                                  samplers);
          break;
-      }
-
-      case OpenGL:
-      {
-         success = shader->init( mOGLVertexShaderName,
-                                 mOGLPixelShaderName,
-                                 pixver,
-                                 macros,
-                                 samplers);
-         break;
-      }
-         
+      }         
       default:
          // Other device types are assumed to not support shaders.
          success = false;

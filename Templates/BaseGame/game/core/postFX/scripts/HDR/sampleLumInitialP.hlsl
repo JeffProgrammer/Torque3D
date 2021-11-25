@@ -36,7 +36,7 @@ static float2 gTapOffsets[9] =
 };
 
 
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0
+float4 main( PFXVertToPix IN ) : SV_Target0
 {
    float2 tsize = 1.0 / texSize0;
 

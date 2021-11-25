@@ -26,20 +26,20 @@ TORQUE_UNIFORM_SAMPLER2D(diffuseMap, 0);
 
 struct VertToPix
 {
-   float4 hpos       : TORQUE_POSITION;
+   float4 hpos       : SV_Position;
 
-   float2 uv0        : TEXCOORD0;
-   float2 uv1        : TEXCOORD1;
-   float2 uv2        : TEXCOORD2;
-   float2 uv3        : TEXCOORD3;
+   TORQUE_LOCATION(0) float2 uv0        : TEXCOORD0;
+   TORQUE_LOCATION(1) float2 uv1        : TEXCOORD1;
+   TORQUE_LOCATION(2) float2 uv2        : TEXCOORD2;
+   TORQUE_LOCATION(3) float2 uv3        : TEXCOORD3;
 
-   float2 uv4        : TEXCOORD4;
-   float2 uv5        : TEXCOORD5;
-   float2 uv6        : TEXCOORD6;
-   float2 uv7        : TEXCOORD7;
+   TORQUE_LOCATION(4) float2 uv4        : TEXCOORD4;
+   TORQUE_LOCATION(5) float2 uv5        : TEXCOORD5;
+   TORQUE_LOCATION(6) float2 uv6        : TEXCOORD6;
+   TORQUE_LOCATION(7) float2 uv7        : TEXCOORD7;
 };
 
-float4 main( VertToPix IN ) : TORQUE_TARGET0
+float4 main( VertToPix IN ) : SV_Target0
 {
    float4 kernel = float4( 0.175, 0.275, 0.375, 0.475 ) * 0.5 / 1.3; //25f;
 

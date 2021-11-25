@@ -6,7 +6,7 @@ TORQUE_UNIFORM_SAMPLER2D(inputTex, 0);
 uniform float sharpness;
 uniform float2 targetSize;
 
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0
+float4 main( PFXVertToPix IN ) : SV_Target0
 {
    float2 step = 1.0 / targetSize.xy;
 

@@ -26,14 +26,10 @@ $PostFX::CameraMotionBlurPostFX::velocityMultiplier = 3000;
 singleton ShaderData( CameraMotionBlurPostFX_Shader )
 {
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
-   DXPixelShaderFile 	= "./CameraMotionBlurPostFXP.hlsl";   
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile   = "./CameraMotionBlurPostFXP.glsl";
-   
+   DXPixelShaderFile 	= "./CameraMotionBlurPostFXP.hlsl";
+      
    samplerNames[0] = "$backBuffer";
    samplerNames[1] = "$deferredTex";
-   
-   pixVersion = 3.0;
 };
 
 singleton GFXStateBlockData( CameraMotionBlurPostFX_StateBlock )

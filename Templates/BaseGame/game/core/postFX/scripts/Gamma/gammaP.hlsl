@@ -30,7 +30,7 @@ uniform float OneOverGamma;
 uniform float Brightness;
 uniform float Contrast;
 
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0  
+float4 main( PFXVertToPix IN ) : SV_Target0  
 {
     float4 color = TORQUE_TEX2D(backBuffer, IN.uv0.xy);
 

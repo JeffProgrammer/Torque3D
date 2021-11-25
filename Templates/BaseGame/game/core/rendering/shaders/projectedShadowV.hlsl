@@ -24,19 +24,19 @@
 
 struct Vert
 {
-   float3 position	: POSITION;
-   float3 normal          : NORMAL;
-   float3 T               : TANGENT;
-   float4 color      : COLOR0;
-   float2 texCoord        : TEXCOORD0;
+   TORQUE_LOCATION(kPosition) float3 position  : POSITION;
+   TORQUE_LOCATION(kNormal) float3 normal      : NORMAL;
+   TORQUE_LOCATION(kTangent) float3 T          : TANGENT;
+   TORQUE_LOCATION(kColor) float4 color        : COLOR;
+   TORQUE_LOCATION(kTexCoord0) float2 texCoord : TEXCOORD0;
 };
 
 struct Conn
 {
-	float4 position : TORQUE_POSITION;
-   float4 color : COLOR0;
-	float2 texCoord	: TEXCOORD0;
-	float fade : TEXCOORD1;
+	float4 position : SV_Position;
+   TORQUE_LOCATION(0) float4 color : COLOR0;
+	TORQUE_LOCATION(1) float2 texCoord	: TEXCOORD0;
+	TORQUE_LOCATION(2) float fade : TEXCOORD1;
 };
 
 uniform float4x4 modelview;

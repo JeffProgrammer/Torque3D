@@ -6,7 +6,7 @@ uniform float distCoeff;
 uniform float cubeDistort;
 uniform float3 colorDistort;
 
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0
+float4 main( PFXVertToPix IN ) : SV_Target0
 {
    float2 tex = IN.uv0;
 

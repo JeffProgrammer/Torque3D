@@ -27,7 +27,7 @@ float4 rtParams0;
 
 struct VertToPix
 {
-   float4 hpos       : TORQUE_POSITION;
+   float4 hpos       : SV_Position;
    float2 uv        : TEXCOORD0;
 };
 

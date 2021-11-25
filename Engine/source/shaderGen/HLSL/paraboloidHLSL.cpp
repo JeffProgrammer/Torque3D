@@ -22,7 +22,7 @@
 
 #include "platform/platform.h"
 #include "shaderGen/HLSL/paraboloidHLSL.h"
-
+#include "shaderGen/shaderGen.h"
 #include "lighting/lightInfo.h"
 #include "materials/sceneData.h"
 #include "materials/materialFeatureTypes.h"
@@ -30,7 +30,12 @@
 #include "gfx/gfxShader.h"
 
 
-void ParaboloidVertTransformHLSL::processVert(  Vector<ShaderComponent*> &componentList, 
+ParaboloidVertTransformHLSL::ParaboloidVertTransformHLSL() : mDep(ShaderGen::smCommonShaderPath + String("/torque.hlsl"))
+{
+   addDependency(&mDep);
+}
+
+void ParaboloidVertTransformHLSL::processVert(  Vector<ShaderComponent*> &componentList,
                                                 const MaterialFeatureData &fd )
 {
    MultiLine *meta = new MultiLine;

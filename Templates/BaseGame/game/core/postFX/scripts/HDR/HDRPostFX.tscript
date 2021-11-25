@@ -76,102 +76,70 @@ $PostFX::HDRPostFX::enableAutoExposure = true;
 singleton ShaderData( HDR_BrightPassShader )
 {
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
-   DXPixelShaderFile 	= "./brightPassFilterP.hlsl";   
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile   = "./brightPassFilterP.glsl";
+   DXPixelShaderFile 	= "./brightPassFilterP.hlsl";
    
    samplerNames[0] = "$inputTex";
    samplerNames[1] = "$luminanceTex";
-   
-   pixVersion = 3.0;
 };
 
 singleton ShaderData( HDR_DownScale4x4Shader )
 {
    DXVertexShaderFile 	= "./downScale4x4V.hlsl";
    DXPixelShaderFile 	= "./downScale4x4P.hlsl";
-   OGLVertexShaderFile  = "./downScale4x4V.glsl";
-   OGLPixelShaderFile   = "./downScale4x4P.glsl";
    
    samplerNames[0] = "$inputTex";
-   
-   pixVersion = 2.0;
 };
 
 singleton ShaderData( HDR_BloomGaussBlurHShader )
 {
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile 	= "./bloomGaussBlurHP.hlsl";
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile   = "./bloomGaussBlurHP.glsl";
    
-   samplerNames[0] = "$inputTex";
-   
-   pixVersion = 3.0;
+   samplerNames[0] = "$inputTex";   
 };
 
 singleton ShaderData( HDR_BloomGaussBlurVShader )
 {
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile 	= "./bloomGaussBlurVP.hlsl";
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile   = "./bloomGaussBlurVP.glsl";
    
    samplerNames[0] = "$inputTex";
-   
-   pixVersion = 3.0;
 };
 
 singleton ShaderData( HDR_SampleLumShader )
 {
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile 	= "./sampleLumInitialP.hlsl";
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile   = "./sampleLumInitialP.glsl";
    
    samplerNames[0] = "$inputTex";
-   
-   pixVersion = 3.0;
 };
 
 singleton ShaderData( HDR_DownSampleLumShader )
 {
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile 	= "./sampleLumIterativeP.hlsl";
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile   = "./sampleLumIterativeP.glsl";
    
    samplerNames[0] = "$inputTex";
-   
-   pixVersion = 3.0;
 };
 
 singleton ShaderData( HDR_CalcAdaptedLumShader )
 {
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile 	= "./calculateAdaptedLumP.hlsl";
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile   = "./calculateAdaptedLumP.glsl";
    
    samplerNames[0] = "$currLum";
    samplerNames[1] = "$lastAdaptedLum";
-   
-   pixVersion = 3.0;
 };
 
 singleton ShaderData( HDR_CombineShader )
 {
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile 	= "./finalPassCombineP.hlsl";
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile   = "./finalPassCombineP.glsl";
    
    samplerNames[0] = "$sceneTex";
    samplerNames[1] = "$luminanceTex";
    samplerNames[2] = "$bloomTex";
    samplerNames[3] = "$colorCorrectionTex";
-   
-   pixVersion = 3.0;
 };
 
 
@@ -559,12 +527,8 @@ singleton ShaderData( LuminanceVisShader )
 {
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile 	= $Core::CommonShaderPath @ "/postFX/hdr/luminanceVisP.hlsl";
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile   = $Core::CommonShaderPath @ "/postFX/hdr/gl/luminanceVisP.glsl";
    
    samplerNames[0] = "$inputTex";
-   
-   pixVersion = 3.0;
 };
 
 singleton GFXStateBlockData( LuminanceVisStateBlock : PFX_DefaultStateBlock )

@@ -244,8 +244,8 @@ protected:
    /// Only used on OpenGL   
    Vector<String> mSamplerNamesOrdered;
 
-   /// The pixel version this is compiled for.
-   F32 mPixVersion;
+   /// The shader model this is compiled for.
+   F32 mShaderModel;
 
    ///
    String mDescription;
@@ -298,18 +298,9 @@ public:
    virtual ~GFXShader();
 
    ///
-   /// Deprecated. Remove on T3D 4.0
-#ifndef TORQUE_OPENGL
    bool init(  const Torque::Path &vertFile, 
                const Torque::Path &pixFile, 
-               F32 pixVersion, 
-               const Vector<GFXShaderMacro> &macros );
-#endif
-
-   ///
-   bool init(  const Torque::Path &vertFile, 
-               const Torque::Path &pixFile, 
-               F32 pixVersion, 
+               F32 shaderModel, 
                const Vector<GFXShaderMacro> &macros,
                const Vector<String> &samplerNames,
                GFXVertexFormat *instanceFormat = NULL );
@@ -338,9 +329,8 @@ public:
    /// Returns the alignment value for constType
    virtual U32 getAlignmentValue(const GFXShaderConstType constType) const = 0;   
 
-   /// Returns the required vertex format for this shader.
-   /// Returns the pixel shader version.
-   F32 getPixVersion() const { return mPixVersion; }
+   /// Returns the shader model this shader requires.
+   F32 getShaderModel() const { return mShaderModel; }
 
    /// Returns a counter which is incremented each time this shader is reloaded.
    U32 getReloadKey() const { return mReloadKey; }

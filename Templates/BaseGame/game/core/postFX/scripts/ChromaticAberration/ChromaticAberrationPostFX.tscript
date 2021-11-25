@@ -33,13 +33,9 @@ $PostFX::EnableChromaticAberrationPostFX::ColorDistFactor = "0.005 -0.005 0.01";
 singleton ShaderData( ChromaticAberrationPostFX_Shader )
 {
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
-   DXPixelShaderFile 	= "./ChromaticAberrationPostFXP.hlsl";   
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile   = "./ChromaticAberrationPostFXP.glsl";
+   DXPixelShaderFile 	= "./ChromaticAberrationPostFXP.hlsl";
    
    samplerNames[0] = "$inputTex";
-   
-   pixVersion = 2.0;
 };
 
 singleton GFXStateBlockData( ChromaticAberrationPostFX_StateBlock )

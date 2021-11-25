@@ -289,7 +289,7 @@ bool TerrainCellMaterial::_initShader(bool deferredMat,
    bool reflectMat,
    bool baseOnly)
 {
-   if (GFX->getPixelShaderVersion() < 3.0f)
+   if (GFX->getShaderModel() < 3.0f)
       baseOnly = true;
 
    // NOTE: At maximum we only try to combine sgMaxTerrainMaterialsPerPass materials 
@@ -313,7 +313,7 @@ bool TerrainCellMaterial::_initShader(bool deferredMat,
    const bool disableNormalMaps = MATMGR->getExclusionFeatures().hasFeature(MFT_NormalMap) || useBLM;
 
    // How about parallax?
-   const bool disableParallaxMaps = GFX->getPixelShaderVersion() < 3.0f ||
+   const bool disableParallaxMaps = GFX->getShaderModel() < 3.0f ||
       MATMGR->getExclusionFeatures().hasFeature(MFT_Parallax);
 
    // Has advanced lightmap support been enabled for deferred.

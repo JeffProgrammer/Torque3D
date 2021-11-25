@@ -21,22 +21,13 @@
 //-----------------------------------------------------------------------------
 #include "../../shaderModel.hlsl"
 
-struct FarFrustumQuadConnectV
+struct FarFrustumQuadConnect
 {
-	float4 hpos : TORQUE_POSITION;
-   float2 uv0 : TEXCOORD0;
-   float3 wsEyeRay : TEXCOORD1;
-   float3 vsEyeRay : TEXCOORD2;
+	float4 hpos : SV_Position;
+   TORQUE_LOCATION(0) float2 uv0 : TEXCOORD0;
+   TORQUE_LOCATION(1) float3 wsEyeRay : TEXCOORD1;
+   TORQUE_LOCATION(2) float3 vsEyeRay : TEXCOORD2;
 };
-
-struct FarFrustumQuadConnectP
-{
-	float4 hpos  : TORQUE_POSITION;
-   float2 uv0 : TEXCOORD0;
-   float3 wsEyeRay : TEXCOORD1;
-   float3 vsEyeRay : TEXCOORD2;
-};
-
 
 float2 getUVFromSSPos( float3 ssPos, float4 rtParams )
 {

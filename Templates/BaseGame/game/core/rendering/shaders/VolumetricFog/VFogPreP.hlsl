@@ -25,11 +25,11 @@
 
 struct ConnectData
 {
-   float4 hpos : TORQUE_POSITION;
-   float4 pos : TEXCOORD0;
+   float4 hpos : SV_Position;
+   TORQUE_LOCATION(0) float4 pos : TEXCOORD0;
 };
 
-float4 main( ConnectData IN ) : TORQUE_TARGET0
+float4 main( ConnectData IN ) : SV_Target0
 {
    float OUT;
    

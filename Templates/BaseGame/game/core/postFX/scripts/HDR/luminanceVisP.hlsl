@@ -27,7 +27,7 @@
 TORQUE_UNIFORM_SAMPLER2D(inputTex, 0);
 uniform float brightPassThreshold;
 
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0
+float4 main( PFXVertToPix IN ) : SV_Target0
 {
    float4 sample = hdrDecode( TORQUE_TEX2D( inputTex, IN.uv0 ) );
    

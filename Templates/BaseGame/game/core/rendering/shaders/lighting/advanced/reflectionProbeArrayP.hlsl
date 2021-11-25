@@ -39,7 +39,7 @@ uniform float4    probeContribColors[MAX_PROBES];
 
 uniform int skylightCubemapIdx;
 
-float4 main(PFXVertToPix IN) : SV_TARGET
+float4 main(PFXVertToPix IN) : SV_Target0
 {
    //unpack normal and linear depth 
    float4 normDepth = TORQUE_DEFERRED_UNCONDITION(deferredBuffer, IN.uv0.xy);

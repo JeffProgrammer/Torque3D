@@ -31,16 +31,16 @@
 
 struct Vert
 {
-	float3 position	: POSITION;
-	float2 texCoord	: TEXCOORD0;
-   float4 color : COLOR0;
+	TORQUE_LOCATION(kPosition) float3 position	: POSITION;
+	TORQUE_LOCATION(kTexCoord0) float2 texCoord	: TEXCOORD0;
+   TORQUE_LOCATION(kColor) float4 color : COLOR;
 };
 
 struct Conn
 {
-	float4 position : TORQUE_POSITION;
-	float2 texCoord	: TEXCOORD0;
-	float4 color : COLOR0;
+	float4 position : SV_Position;
+	TORQUE_LOCATION(0) float2 texCoord	: TEXCOORD0;
+	TORQUE_LOCATION(1) float4 color : COLOR0;
 };
 
 uniform float4x4 modelview : register(C0);

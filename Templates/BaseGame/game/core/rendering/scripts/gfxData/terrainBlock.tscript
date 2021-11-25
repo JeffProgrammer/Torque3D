@@ -26,11 +26,6 @@ singleton ShaderData( TerrainBlendShader )
    DXVertexShaderFile   = $Core::CommonShaderPath @ "/terrain/blendV.hlsl";
    DXPixelShaderFile    = $Core::CommonShaderPath @ "/terrain/blendP.hlsl";
    
-   OGLVertexShaderFile = $Core::CommonShaderPath @ "/terrain/gl/blendV.glsl";
-   OGLPixelShaderFile = $Core::CommonShaderPath @ "/terrain/gl/blendP.glsl";
-   
    samplerNames[0] = "layerTex";
    samplerNames[1] = "textureMap";
-   
-   pixVersion = 2.0;
 };

@@ -27,7 +27,7 @@ uniform float damageFlash;
 uniform float whiteOut;
 TORQUE_UNIFORM_SAMPLER2D(backBuffer, 0);
 
-float4 main(PFXVertToPix IN) : TORQUE_TARGET0
+float4 main(PFXVertToPix IN) : SV_Target0
 {
  float4 color1 = TORQUE_TEX2D(backBuffer, IN.uv0); 
  float4 color2 = color1 * MUL_COLOR;

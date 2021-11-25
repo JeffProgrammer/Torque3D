@@ -39,7 +39,7 @@ static float2 gTapOffsets[4] =
    { -0.5, -0.5 }, { 0.5, 0.5 }
 };
 
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0
+float4 main( PFXVertToPix IN ) : SV_Target0
 {
    float4 average = { 0.0f, 0.0f, 0.0f, 0.0f };      
 

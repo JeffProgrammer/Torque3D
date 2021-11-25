@@ -24,12 +24,8 @@ singleton shaderData( AL_ColorBufferShader )
 {
    DXVertexShaderFile = $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile  = "./shaders/dbgColorBufferP.hlsl";
-   
-   OGLVertexShaderFile = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile  = "./shaders/dbgColorBufferP.glsl";
 
    samplerNames[0] = "colorBufferTex";
-   pixVersion = 2.0;
 };
 
 singleton PostEffect( AL_ColorBufferVisualize )
@@ -64,11 +60,7 @@ singleton shaderData( AL_SpecMapShader )
    DXVertexShaderFile = $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile  = "./shaders/dbgSpecMapVisualizeP.hlsl";
 
-   OGLVertexShaderFile = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile  = "./shaders/dbgSpecMapVisualizeP.glsl";
-
    samplerNames[0] = "matinfoTex";
-   pixVersion = 2.0;
 };
 
 singleton PostEffect( AL_SpecMapVisualize )
@@ -126,13 +118,8 @@ singleton shaderData( AL_DepthVisualizeShader )
    DXVertexShaderFile = $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile  = "./shaders/dbgDepthVisualizeP.hlsl";
 
-   OGLVertexShaderFile = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile  = "./shaders/dbgDepthVisualizeP.glsl";
-
    samplerNames[0] = "deferredTex";
    samplerNames[1] = "depthViz";
-
-   pixVersion = 2.0;
 };
 
 singleton PostEffect( AL_DepthVisualize )
@@ -161,12 +148,8 @@ singleton shaderData( AL_GlowVisualizeShader )
 {
    DXVertexShaderFile = $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile  = "./shaders/dbgGlowVisualizeP.hlsl";
-   
-   OGLVertexShaderFile = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile  = "./shaders/dbgGlowVisualizeP.glsl";
 
    samplerNames[0] = "glowBuffer";
-   pixVersion = 2.0;
 };
 
 singleton PostEffect( AL_GlowVisualize )
@@ -182,13 +165,8 @@ singleton shaderData( AL_NormalsVisualizeShader )
 {
    DXVertexShaderFile = $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile  = "./shaders/dbgNormalVisualizeP.hlsl";
-
-   OGLVertexShaderFile = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile  = "./shaders/dbgNormalVisualizeP.glsl";
    
    samplerNames[0] = "deferredTex";
-   
-   pixVersion = 2.0;
 };
 
 singleton PostEffect( AL_NormalsVisualize )
@@ -218,13 +196,8 @@ singleton shaderData( AL_LightColorVisualizeShader )
 {
    DXVertexShaderFile = $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile  = "./shaders/dbgLightColorVisualizeP.hlsl";
-
-   OGLVertexShaderFile = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile  = "./shaders/dbgLightColorVisualizeP.glsl";
    
    samplerNames[0] = "lightDeferredTex";
-   
-   pixVersion = 2.0;
 };
 
 singleton PostEffect( AL_LightColorVisualize )
@@ -253,13 +226,8 @@ singleton shaderData( AL_LightSpecularVisualizeShader )
 {
    DXVertexShaderFile = $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile  = "./shaders/dbgLightSpecularVisualizeP.hlsl";
-
-   OGLVertexShaderFile = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile  = "./shaders/dbgLightSpecularVisualizeP.glsl";
    
    samplerNames[0] = "lightDeferredTex";
-   
-   pixVersion = 2.0;
 };
 
 singleton PostEffect( AL_LightSpecularVisualize )

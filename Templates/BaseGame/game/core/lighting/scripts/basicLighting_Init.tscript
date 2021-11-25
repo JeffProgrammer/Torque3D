@@ -42,13 +42,8 @@ singleton ShaderData( BL_ProjectedShadowShaderData )
 {
    DXVertexShaderFile     = $Core::CommonShaderPath @ "/projectedShadowV.hlsl";
    DXPixelShaderFile      = $Core::CommonShaderPath @ "/projectedShadowP.hlsl";   
-   
-   OGLVertexShaderFile     = $Core::CommonShaderPath @ "/gl/projectedShadowV.glsl";
-   OGLPixelShaderFile      = $Core::CommonShaderPath @ "/gl/projectedShadowP.glsl";   
       
-   samplerNames[0] = "inputTex";
-   
-   pixVersion = 2.0;
+   samplerNames[0] = "inputTex";   
 };
 
 singleton CustomMaterial( BL_ProjectedShadowMaterial )

@@ -24,14 +24,14 @@
 
 struct Conn
 {
-   float4 HPOS             : TORQUE_POSITION;
-   float4 color            : COLOR;
-   float2 texCoord         : TEXCOORD0;
+   float4 hpos : SV_Position;
+   TORQUE_LOCATION(0) float4 color            : COLOR;
+   TORQUE_LOCATION(1) float2 texCoord         : TEXCOORD0;
 };
 
 TORQUE_UNIFORM_SAMPLER2D(diffuseMap, 0);
 
-float4 main( Conn IN ) : TORQUE_TARGET0
+float4 main( Conn IN ) : SV_Target0
 {
    return TORQUE_TEX2D(diffuseMap, IN.texCoord) * IN.color;
 }

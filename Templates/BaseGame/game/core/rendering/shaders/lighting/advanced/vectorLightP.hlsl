@@ -168,7 +168,7 @@ float4 AL_VectorLightShadowCast( TORQUE_SAMPLER2D(sourceShadowMap),
 };
 
 
-float4 main(FarFrustumQuadConnectP IN) : SV_TARGET
+float4 main(FarFrustumQuadConnect IN) : SV_Target0
 {
    //unpack normal and linear depth  
    float4 normDepth = TORQUE_DEFERRED_UNCONDITION(deferredBuffer, IN.uv0);

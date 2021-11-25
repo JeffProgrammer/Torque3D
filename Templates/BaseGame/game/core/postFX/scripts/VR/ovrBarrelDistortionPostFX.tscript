@@ -32,13 +32,8 @@ singleton ShaderData( OVRMonoToStereoShader )
 {
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile 	= "./monoToStereoP.hlsl";
-   
-   //OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.hlsl";
-   //OGLPixelShaderFile   = $Core::CommonShaderPath @ "/postFX/oculusvr/gl/monoToStereoP.glsl";
-   
-   samplerNames[0] = "$backBuffer";
-
-   pixVersion = 2.0;   
+      
+   samplerNames[0] = "$backBuffer"; 
 };
 
 singleton ShaderData( OVRBarrelDistortionShader )
@@ -46,20 +41,13 @@ singleton ShaderData( OVRBarrelDistortionShader )
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile 	= "./barrelDistortionP.hlsl";
    
-   //OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   //OGLPixelShaderFile   = $Core::CommonShaderPath @ "/postFX/oculusvr/gl/barrelDistortionP.glsl";
-   
    samplerNames[0] = "$backBuffer";
-
-   pixVersion = 2.0;   
 };
 
 singleton ShaderData( OVRBarrelDistortionChromaShader )
 {
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile 	= "./barrelDistortionChromaP.hlsl";
-
-   pixVersion = 2.0;   
 };
 
 //-----------------------------------------------------------------------------

@@ -23,7 +23,7 @@
 #ifndef _TORQUE_SHADERMODEL_AUTOGEN_
 #define _TORQUE_SHADERMODEL_AUTOGEN_
 
-#include "shadergen:/autogenConditioners.h"
+#include "shadergen:autogenConditioners.h"
 #include "./shaderModel.hlsl"
 
 // Portability helpers for autogenConditioners

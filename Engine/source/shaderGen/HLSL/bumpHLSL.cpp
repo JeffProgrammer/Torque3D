@@ -100,7 +100,7 @@ void BumpFeatHLSL::processPix(   Vector<ShaderComponent*> &componentList,
       tileParams->uniform = true;
       tileParams->constSortPos = cspPotentialPrimitive;
 
-      const bool is_sm3 = (GFX->getPixelShaderVersion() > 2.0f);
+      const bool is_sm3 = (GFX->getShaderModel() > 2.0f);
       if(is_sm3)
       {
          // Figure out the mip level
@@ -264,7 +264,7 @@ Var* ParallaxFeatHLSL::_getUniformVar( const char *name, const char *type, Const
 void ParallaxFeatHLSL::processVert( Vector<ShaderComponent*> &componentList, 
                                     const MaterialFeatureData &fd )
 {
-   AssertFatal( GFX->getPixelShaderVersion() >= 2.0, 
+   AssertFatal( GFX->getShaderModel() >= 2.0, 
       "ParallaxFeatHLSL::processVert - We don't support SM 1.x!" );
 
    MultiLine *meta = new MultiLine;
@@ -310,7 +310,7 @@ void ParallaxFeatHLSL::processVert( Vector<ShaderComponent*> &componentList,
 void ParallaxFeatHLSL::processPix(  Vector<ShaderComponent*> &componentList, 
                                     const MaterialFeatureData &fd )
 {
-   AssertFatal( GFX->getPixelShaderVersion() >= 2.0, 
+   AssertFatal( GFX->getShaderModel() >= 2.0, 
       "ParallaxFeatHLSL::processPix - We don't support SM 1.x!" );
 
    MultiLine *meta = new MultiLine;
@@ -362,7 +362,7 @@ void ParallaxFeatHLSL::processPix(  Vector<ShaderComponent*> &componentList,
 
 ShaderFeature::Resources ParallaxFeatHLSL::getResources( const MaterialFeatureData &fd )
 {
-   AssertFatal( GFX->getPixelShaderVersion() >= 2.0, 
+   AssertFatal( GFX->getShaderModel() >= 2.0, 
       "ParallaxFeatHLSL::getResources - We don't support SM 1.x!" );
 
    Resources res;
@@ -383,7 +383,7 @@ void ParallaxFeatHLSL::setTexData(  Material::StageData &stageDat,
                                     RenderPassData &passData,
                                     U32 &texIndex )
 {
-   AssertFatal( GFX->getPixelShaderVersion() >= 2.0, 
+   AssertFatal( GFX->getShaderModel() >= 2.0, 
       "ParallaxFeatHLSL::setTexData - We don't support SM 1.x!" );
 
    GFXTextureObject *tex = stageDat.getTex( MFT_NormalMap );

@@ -31,7 +31,7 @@ uniform float brightScalar;
 static const float3 LUMINANCE_VECTOR = float3(0.3125f, 0.6154f, 0.0721f);
 
 
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0
+float4 main( PFXVertToPix IN ) : SV_Target0
 {
     float4 col = float4( 0, 0, 0, 1 );
     

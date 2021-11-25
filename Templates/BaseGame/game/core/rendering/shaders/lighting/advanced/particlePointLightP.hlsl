@@ -29,9 +29,9 @@
 
 struct ConvexConnectP
 {
-   float4 pos : TORQUE_POSITION;
-   float4 ssPos : TEXCOORD0;
-   float3 vsEyeDir : TEXCOORD1;
+   float4 pos : SV_Position;
+   TORQUE_LOCATION(0) float4 ssPos : TEXCOORD0;
+   TORQUE_LOCATION(1) float3 vsEyeDir : TEXCOORD1;
 };
 
 TORQUE_UNIFORM_SAMPLER2D(deferredBuffer, 0);
@@ -42,7 +42,7 @@ uniform float  lightRange;
 uniform float4 vsFarPlane;
 uniform float4 rtParams0;
 
-float4 main(   ConvexConnectP IN ) : TORQUE_TARGET0
+float4 main(   ConvexConnectP IN ) : SV_Target0
 {
    // Compute scene UV
    float3 ssPos = IN.ssPos.xyz / IN.ssPos.w;

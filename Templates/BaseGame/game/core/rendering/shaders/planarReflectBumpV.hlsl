@@ -20,8 +20,7 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#define IN_HLSL
-#include "shdrConsts.h"
+#include "shaderVertex.hlsl"
 #include "shaderModel.hlsl"
 
 //-----------------------------------------------------------------------------
@@ -29,23 +28,24 @@
 //-----------------------------------------------------------------------------
 struct VertData
 {
-   float3 position        : POSITION;
-   float3 normal          : NORMAL;
-   float2 texCoord        : TEXCOORD0;
-   float2 lmCoord         : TEXCOORD1;
-   float3 T               : TEXCOORD2;
-   float3 B               : TEXCOORD3;   
+   TORQUE_LOCATION(kPosition) float3 position         : POSITION;
+   TORQUE_LOCATION(kNormal) float3 normal             : NORMAL;
+   TORQUE_LOCATION(kTexCoord0) float2 texCoord        : TEXCOORD0;
+   TORQUE_LOCATION(kTexCoord1) float2 lmCoord         : TEXCOORD1;
+   TORQUE_LOCATION(kTexCoord2) float3 T               : TEXCOORD2;
+   TORQUE_LOCATION(kTexCoord3) float3 B               : TEXCOORD3;   
 };
 
 
 struct ConnectData
 {
-   float4 hpos            : TORQUE_POSITION;
-   float4 texCoord        : TEXCOORD0;
-   float2 tex2            : TEXCOORD1;
+   float4 hpos : SV_Position;
+   TORQUE_LOCATION(0) float4 texCoord        : TEXCOORD0;
+   TORQUE_LOCATION(1) float2 tex2            : TEXCOORD1;
 };
 
 uniform float4x4 modelview;
+
 //-----------------------------------------------------------------------------
 // Main                                                                        
 //-----------------------------------------------------------------------------

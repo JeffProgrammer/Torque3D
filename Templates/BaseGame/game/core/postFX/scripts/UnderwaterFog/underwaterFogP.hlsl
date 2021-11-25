@@ -51,7 +51,7 @@ uniform float2    nearFar;
 uniform float4    rtParams0;
 
 
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0
+float4 main( PFXVertToPix IN ) : SV_Target0
 {    
    //float2 deferredCoord = IN.uv0;
    //IN.uv0 = ( IN.uv0.xy * rtParams0.zw ) + rtParams0.xy;

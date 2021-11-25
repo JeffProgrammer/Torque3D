@@ -23,13 +23,13 @@
 // Volumetric Fog final vertex shader V1.00
 
 #include "../shaderModel.hlsl"
-#include "../hlslStructs.hlsl"
+#include "../shaderVertex.hlsl"
 
 struct ConnectData
 {
-   float4 hpos : TORQUE_POSITION;
-   float4 htpos : TEXCOORD0;
-   float2 uv0 : TEXCOORD1;
+   float4 hpos : SV_Position;
+   TORQUE_LOCATION(0) float4 htpos : TEXCOORD0;
+   TORQUE_LOCATION(1) float2 uv0 : TEXCOORD1;
 };
 
 uniform float4x4 modelView;

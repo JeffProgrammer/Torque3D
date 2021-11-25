@@ -35,11 +35,7 @@ singleton ShaderData( PFX_TurbulenceShader )
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile 	= "./turbulenceP.hlsl";
            
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile   = "./turbulenceP.glsl";
-           
    samplerNames[0] = "$inputTex";
-   pixVersion = 3.0;
 };
 
 singleton PostEffect( TurbulencePostFX )  

@@ -24,15 +24,15 @@
 
 struct Vertex
 {
-   float3 pos : POSITION;
-   float4 uvCoord : COLOR0;
+   TORQUE_LOCATION(kPosition) float3 pos : POSITION;
+   TORQUE_LOCATION(kColor) float4 uvCoord : COLOR;
 };
 
 struct Conn
 {
-   float4 hpos : TORQUE_POSITION;
-   float4 offscreenPos : TEXCOORD0;
-   float4 backbufferPos : TEXCOORD1;
+   float4 hpos : SV_Position;
+   TORQUE_LOCATION(0) float4 offscreenPos : TEXCOORD0;
+   TORQUE_LOCATION(1) float4 backbufferPos : TEXCOORD1;
 };
 
 uniform float4 screenRect; // point, extent

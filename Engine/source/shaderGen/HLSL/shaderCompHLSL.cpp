@@ -86,20 +86,12 @@ Var * ShaderConnectorHLSL::getIndexedElement( U32 index, RegisterType type, U32 
          return newVar;
       }
 
-   case RT_VPOS:
-      {
-         Var *newVar = new Var;
-         mElementList.push_back(newVar);
-         newVar->setConnectName("VPOS");
-         newVar->rank = 0;
-         return newVar;
-      }
-
    case RT_SVPOSITION:
       {
          Var *newVar = new Var;
          mElementList.push_back(newVar);
          newVar->setConnectName("SV_Position");
+         newVar->systemValue = true;
          newVar->rank = 0;
          return newVar;
       }
@@ -198,9 +190,8 @@ Var * ShaderConnectorHLSL::getIndexedElement( U32 index, RegisterType type, U32 
          return newVar;
       }
 
-
-
    default:
+      Con::errorf("ShaderConnectorHLSL::getIndexedElement: Don't know this element");
       break;
    }
 
@@ -209,7 +200,7 @@ Var * ShaderConnectorHLSL::getIndexedElement( U32 index, RegisterType type, U32 
 
 
 
-S32 QSORT_CALLBACK ShaderConnectorHLSL::_hlsl4VarSort(const void* e1, const void* e2)
+S32 QSORT_CALLBACK ShaderConnectorHLSL::_hlslVarSort(const void* e1, const void* e2)
 {
    Var* a = *((Var **)e1);
    Var* b = *((Var **)e2);
@@ -219,14 +210,7 @@ S32 QSORT_CALLBACK ShaderConnectorHLSL::_hlsl4VarSort(const void* e1, const void
 
 void ShaderConnectorHLSL::sortVars()
 {
-
-   // If shader model 4+ than we gotta sort the vars to make sure the order is consistent
-   if (GFX->getPixelShaderVersion() >= 4.f)
-   {
-      dQsort((void *)&mElementList[0], mElementList.size(), sizeof(Var *), _hlsl4VarSort);
-      return;
-   }
-
+   dQsort((void *)&mElementList[0], mElementList.size(), sizeof(Var *), _hlslVarSort);
    return;
 }
 
@@ -258,17 +242,35 @@ void ShaderConnectorHLSL::print( Stream &stream, bool isVertexShader )
    stream.write( dStrlen((char*)mName), mName );
    stream.write( dStrlen(header2), header2 );
 
-
    // print out elements
+   S32 connectDataIndex = 0;
    for( U32 i=0; i<mElementList.size(); i++ )
    {
       U8 output[256];
 
       Var *var = mElementList[i];
-      if (var->arraySize <= 1)
-         dSprintf( (char*)output, sizeof(output), "   %s %-15s : %s;\r\n", var->type, var->name, var->connectName );
+
+      if(var->attribute)
+      {
+         if (var->arraySize <= 1)
+            dSprintf((char*)output, sizeof(output), "\tTORQUE_LOCATION(%i) %s %-15s : %s;\r\n", var->location, var->type, var->name, var->connectName);
+         else
+            dSprintf((char*)output, sizeof(output), "\tTORQUE_LOCATION(%i) %s %s[%d] : %s;\r\n", var->location, var->type, var->name, var->arraySize, var->connectName);
+      }
+      else if (var->systemValue)
+      {
+         dSprintf((char*)output, sizeof(output), "\t%s %-15s : %s;\r\n", var->type, var->name, var->connectName);
+      }
       else
-         dSprintf( (char*)output, sizeof(output), "   %s %s[%d] : %s;\r\n", var->type, var->name, var->arraySize, var->connectName );
+      {         
+         if (var->arraySize <= 1)
+            dSprintf((char*)output, sizeof(output), "\tTORQUE_LOCATION(%i) %s %-15s : %s;\r\n", connectDataIndex, var->type, var->name, var->connectName);
+         else
+            dSprintf((char*)output, sizeof(output), "\tTORQUE_LOCATION(%i) %s %s[%d] : %s;\r\n", connectDataIndex, var->type, var->name, var->arraySize, var->connectName);
+
+         //increment the connectDataIndex
+         connectDataIndex++;
+      }
 
       stream.write( dStrlen((char*)output), output );
    }
@@ -329,44 +331,32 @@ void VertexParamsDefHLSL::print( Stream &stream, bool isVerterShader )
 {
    assignConstantNumbers();
 
-   const char *opener = "ConnectData main( VertData IN";
-   stream.write( dStrlen(opener), opener );
-
    // find all the uniform variables and print them out
    for( U32 i=0; i<LangElement::elementList.size(); i++)
    {
       Var *var = dynamic_cast<Var*>(LangElement::elementList[i]);
       if( var )
       {
-         if( var->uniform )
+         if (var->uniform)
          {
-            const char* nextVar = ",\r\n                  ";
-            stream.write( dStrlen(nextVar), nextVar );            
-
-            U8 varNum[64];
-            dSprintf( (char*)varNum, sizeof(varNum), "register(C%d)", var->constNum );
-
             U8 output[256];
             if (var->arraySize <= 1)
-               dSprintf( (char*)output, sizeof(output), "uniform %-8s %-15s : %s", var->type, var->name, varNum );
+               dSprintf((char*)output, sizeof(output), "uniform %s %s;\r\n", var->type, var->name);
             else
-               dSprintf( (char*)output, sizeof(output), "uniform %-8s %s[%d] : %s", var->type, var->name, var->arraySize, varNum );
+               dSprintf((char*)output, sizeof(output), "uniform %s %s[%d];\r\n", var->type, var->name, var->arraySize);
 
-            stream.write( dStrlen((char*)output), output );
+            stream.write(dStrlen((char*)output), output);
          }
       }
    }
 
-   const char *closer = "\r\n)\r\n{\r\n   ConnectData OUT;\r\n\r\n";
+   const char *closer = "\r\nConnectData main( VertData IN )\r\n{\r\n   ConnectData OUT;\r\n\r\n";
    stream.write( dStrlen(closer), closer );
 }
 
 void PixelParamsDefHLSL::print( Stream &stream, bool isVerterShader )
 {
    assignConstantNumbers();
-
-   const char * opener = "Fragout main( ConnectData IN";
-   stream.write( dStrlen(opener), opener );
 
    // find all the sampler & uniform variables and print them out
    for( U32 i=0; i<LangElement::elementList.size(); i++)
@@ -376,34 +366,32 @@ void PixelParamsDefHLSL::print( Stream &stream, bool isVerterShader )
       {
          if( var->uniform )
          {
-            WRITESTR( ",\r\n              " );
-
             U8 varNum[32];
 
             if( var->sampler )
             {
-               dSprintf( (char*)varNum, sizeof(varNum), ": register(S%d)", var->constNum );
+               dSprintf( (char*)varNum, sizeof(varNum), " : register(S%d);\r\n", var->constNum );
             }
             else if (var->texture)
             {
-               dSprintf((char*)varNum, sizeof(varNum), ": register(T%d)", var->constNum);
+               dSprintf((char*)varNum, sizeof(varNum), " : register(T%d);\r\n", var->constNum);
             }
             else
             {
-               dSprintf( (char*)varNum, sizeof(varNum), ": register(C%d)", var->constNum );
+               dSprintf((char*)varNum, sizeof(varNum), ";\r\n");
             }
 
             U8 output[256];
             if (var->arraySize <= 1)
-               dSprintf( (char*)output, sizeof(output), "uniform %-9s %-15s %s", var->type, var->name, varNum );
+               dSprintf((char*)output, sizeof(output), "uniform %s %s%s", var->type, var->name, varNum);
             else
-               dSprintf( (char*)output, sizeof(output), "uniform %-9s %s[%d] %s", var->type, var->name, var->arraySize, varNum );
+               dSprintf((char*)output, sizeof(output), "uniform %s %s[%d]%s", var->type, var->name, var->arraySize, varNum);
 
             WRITESTR( (char*) output );
          }
       }
    }
 
-   const char *closer = "\r\n)\r\n{\r\n   Fragout OUT;\r\n\r\n";
+   const char *closer = "\r\nFragout main( ConnectData IN )\r\n{\r\n   Fragout OUT;\r\n\r\n";
    stream.write( dStrlen(closer), closer );
 }

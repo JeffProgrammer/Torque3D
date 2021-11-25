@@ -4,15 +4,15 @@
 // http://www.garagegames.com/community/resources/view/17821
 //~~~~~~~~~~~~~~~~~~~~//~~~~~~~~~~~~~~~~~~~~//~~~~~~~~~~~~~~~~~~~~//~~~~~~~~~~~~~~~~~~~~~//
 
-#include "../common/shaderModel.hlsl"
-#include "../common/shaderModelAutoGen.hlsl"
+#include "../shaderModel.hlsl"
+#include "../shaderModelAutoGen.hlsl"
 #include "shaders/common/postFX/postFx.hlsl"  
   
 TORQUE_UNIFORM_SAMPLER2D(highlightBuffer,0);
 TORQUE_UNIFORM_SAMPLER2D(backBuffer,1);
 uniform float2 targetSize;
 
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0
+float4 main( PFXVertToPix IN ) : SV_Target0
 {  
 	float4 bufferColor = TORQUE_TEX2D(backBuffer, IN.uv0);
 	float4 highlightColor = TORQUE_TEX2D(highlightBuffer, IN.uv0);

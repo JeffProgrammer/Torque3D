@@ -439,7 +439,7 @@ Var* ShaderFeatureHLSL::addOutVpos( MultiLine *meta,
                                     Vector<ShaderComponent*> &componentList )
 {
    // Nothing to do if we're on SM 3.0... we use the real vpos.
-   if ( GFX->getPixelShaderVersion() >= 3.0f )
+   if ( GFX->getShaderModel() >= 3.0f )
       return NULL;
 
    // For SM 2.x we need to generate the vpos in the vertex shader
@@ -547,6 +547,8 @@ Var* ShaderFeatureHLSL::getObjTrans(   Vector<ShaderComponent*> &componentList,
       Var *instObjTrans = vertStruct->getElement( RT_TEXCOORD, 4, 4 );
       instObjTrans->setStructName( "IN" );
       instObjTrans->setName( "inst_objectTrans" );
+      instObjTrans->attribute = true;
+      instObjTrans->location = GFXAttributeLocation::TexCoord4;
 
       mInstancingFormat->addElement( "objTrans", GFXDeclType_Float4, instObjTrans->constNum+0 );
       mInstancingFormat->addElement( "objTrans", GFXDeclType_Float4, instObjTrans->constNum+1 );
@@ -1005,7 +1007,7 @@ void DiffuseMapFeatHLSL::processPix(   Vector<ShaderComponent*> &componentList,
       tileParams->uniform = true;
       tileParams->constSortPos = cspPotentialPrimitive;
 
-      const bool is_sm3 = (GFX->getPixelShaderVersion() > 2.0f);
+      const bool is_sm3 = (GFX->getShaderModel() > 2.0f);
       if(is_sm3)
       {
          // Figure out the mip level
@@ -1764,7 +1766,12 @@ void VertPositionHLSL::determineFeature(  Material *material,
    outFeatureData->features.addFeature( type );
 }
 
-void VertPositionHLSL::processVert( Vector<ShaderComponent*> &componentList, 
+VertPositionHLSL::VertPositionHLSL() : mDep(ShaderGen::smCommonShaderPath + String("/torque.hlsl"))
+{
+   addDependency(&mDep);
+}
+
+void VertPositionHLSL::processVert( Vector<ShaderComponent*> &componentList,
                                     const MaterialFeatureData &fd )
 {
    // First check for an input position from a previous feature
@@ -1776,7 +1783,7 @@ void VertPositionHLSL::processVert( Vector<ShaderComponent*> &componentList,
    // grab connector position
    ShaderConnector *connectComp = dynamic_cast<ShaderConnector *>( componentList[C_CONNECTOR] );
    Var *outPosition = connectComp->getElement(RT_SVPOSITION);
-   
+   outPosition->systemValue = true;
    outPosition->setName( "hpos" );
    outPosition->setStructName( "OUT" );
 
@@ -2348,7 +2355,7 @@ void FogFeatHLSL::processVert(   Vector<ShaderComponent*> &componentList,
    MultiLine *meta = new MultiLine;
 
    const bool vertexFog = Con::getBoolVariable( "$useVertexFog", false );
-   if ( vertexFog || GFX->getPixelShaderVersion() < 3.0 )
+   if ( vertexFog || GFX->getShaderModel() < 3.0 )
    {
       // Grab the eye position.
       Var *eyePos = (Var*)LangElement::find( "eyePosWorld" );
@@ -2415,7 +2422,7 @@ void FogFeatHLSL::processPix( Vector<ShaderComponent*> &componentList,
    Var *fogAmount;
 
    const bool vertexFog = Con::getBoolVariable( "$useVertexFog", false );
-   if ( vertexFog || GFX->getPixelShaderVersion() < 3.0 )
+   if ( vertexFog || GFX->getShaderModel() < 3.0 )
    {
       // Per-vertex.... just get the fog amount.
       ShaderConnector *connectComp = dynamic_cast<ShaderConnector *>( componentList[C_CONNECTOR] );
@@ -2497,6 +2504,8 @@ void VisibilityFeatHLSL::processVert( Vector<ShaderComponent*> &componentList,
       instVisibility->setStructName( "IN" );
       instVisibility->setName( "inst_visibility" );
       instVisibility->setType( "float" );
+      instVisibility->attribute = true;
+      instVisibility->location = GFXAttributeLocation::TexCoord8;
       mInstancingFormat->addElement( "visibility", GFXDeclType_Float, instVisibility->constNum );
 
       meta->addStatement( new GenOp( "   @ = @; // Instancing!\r\n", outVisibility, instVisibility ) );
@@ -2513,6 +2522,7 @@ void VisibilityFeatHLSL::processPix(   Vector<ShaderComponent*> &componentList,
 {
    // Get the visibility constant.
    Var *visibility = NULL;
+   Var* visibilityLocal = NULL;
    if ( fd.features[ MFT_UseInstancing ] )
       visibility = getInTexCoord( "visibility", "float", componentList );
    else
@@ -2540,10 +2550,20 @@ void VisibilityFeatHLSL::processPix(   Vector<ShaderComponent*> &componentList,
       return;
    }
 
+   // We need to create a new local variable because "Visibility" uniform may be changed and uniforms(constants) are read only
+   visibilityLocal = (Var*)LangElement::find("visibilityLocal");
+   if (!visibilityLocal)
+   {
+      visibilityLocal = new Var();
+      visibilityLocal->setType("float");
+      visibilityLocal->setName("visibilityLocal");
+      meta->addStatement(new GenOp("   @ = @;\r\n", new DecOp(visibilityLocal), visibility));
+   }
+
    // Everything else does a fizzle.
    Var *vPos = getInVpos( meta, componentList );
    // vpos is a float4 in d3d11
-   meta->addStatement( new GenOp( "   fizzle( @.xy, @ );\r\n", vPos, visibility ) );
+   meta->addStatement( new GenOp( "   fizzle( @.xy, @ );\r\n", vPos, visibilityLocal) );
 }
 
 ShaderFeature::Resources VisibilityFeatHLSL::getResources( const MaterialFeatureData &fd )
@@ -2567,7 +2587,7 @@ void AlphaTestHLSL::processPix(  Vector<ShaderComponent*> &componentList,
 {
    // If we're below SM3 and don't have a depth output
    // feature then don't waste an instruction here.
-   if (( GFX->getPixelShaderVersion() < 3.0 &&
+   if (( GFX->getShaderModel() < 3.0 &&
         !fd.features[ MFT_EyeSpaceDepthOut ]  &&
         !fd.features[ MFT_DepthOut ] ) ||
          fd.features[MFT_IsTranslucent])
@@ -2736,8 +2756,17 @@ void FoliageFeatureHLSL::processPix( Vector<ShaderComponent*> &componentList,
 
    MultiLine *meta = new MultiLine;
 
+   Var* visibilityLocal = (Var*)LangElement::find("visibilityLocal");
+   if (!visibilityLocal)
+   {
+      visibilityLocal = new Var();
+      visibilityLocal->setType("float");
+      visibilityLocal->setName("visibilityLocal");
+      meta->addStatement(new GenOp("   @ = @;\r\n", new DecOp(visibilityLocal), visibility));
+   }
+
    // Multiply foliageFade into visibility.
-   meta->addStatement( new GenOp( "   @ *= @;\r\n", visibility, fade ) );
+   meta->addStatement( new GenOp( "   @ *= @;\r\n", visibilityLocal, fade ) );
 
    output = meta;
 }
@@ -2929,8 +2958,17 @@ void ImposterVertFeatureHLSL::processPix( Vector<ShaderComponent*> &componentLis
 
    MultiLine *meta = new MultiLine;
 
+   Var* visibilityLocal = (Var*)LangElement::find("visibilityLocal");
+   if (!visibilityLocal)
+   {
+      visibilityLocal = new Var();
+      visibilityLocal->setType("float");
+      visibilityLocal->setName("visibilityLocal");
+      meta->addStatement(new GenOp("   @ = @;\r\n", new DecOp(visibilityLocal), visibility));
+   }
+
    // Multiply foliageFade into visibility.
-   meta->addStatement( new GenOp( "   @ *= @;\r\n", visibility, fade ) );
+   meta->addStatement( new GenOp( "   @ *= @;\r\n", visibilityLocal, fade ) );
 
    output = meta;
 }

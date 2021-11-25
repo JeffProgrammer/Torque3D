@@ -20,8 +20,7 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#define IN_HLSL
-#include "core/rendering/shaders/shdrConsts.h"
+#include "core/rendering/shaders/shaderVertex.hlsl"
 #include "core/rendering/shaders/postFX/postFx.hlsl"
 //-----------------------------------------------------------------------------
 // Constants
@@ -29,8 +28,8 @@
  
 struct Conn
 {
-	float4 hpos : TORQUE_POSITION;
-   float4 texCoords[8] : TEXCOORD0;
+	float4 hpos : SV_Position;
+   TORQUE_LOCATION(0) float4 texCoords[8] : TEXCOORD0;
 };
 
 uniform float2 targetSize;

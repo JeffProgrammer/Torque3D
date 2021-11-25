@@ -24,11 +24,11 @@
 
 struct Conn
 {
-   float4 HPOS             : TORQUE_POSITION;
-   float4 color            : COLOR;
+   float4 hpos : SV_Position;
+   TORQUE_LOCATION(0) float4 color            : COLOR;
 };
 
-float4 main(Conn IN) : TORQUE_TARGET0
+float4 main(Conn IN) : SV_Target0
 {
    return IN.color;
 }

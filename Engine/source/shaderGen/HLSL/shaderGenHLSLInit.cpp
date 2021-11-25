@@ -62,7 +62,7 @@ void _initShaderGenHLSL( ShaderGen *shaderGen )
    FEATUREMGR->registerFeature( MFT_NormalMap, new BumpFeatHLSL );
    FEATUREMGR->registerFeature( MFT_DetailNormalMap, new NamedFeatureHLSL( "Detail Normal Map" ) );
    FEATUREMGR->registerFeature( MFT_DetailMap, new DetailFeatHLSL );
-	FEATUREMGR->registerFeature( MFT_StaticCubemap, new NamedFeatureHLSL( "Static Cubemap" ) );
+   FEATUREMGR->registerFeature( MFT_StaticCubemap, new NamedFeatureHLSL( "Static Cubemap" ) );
    FEATUREMGR->registerFeature( MFT_CubeMap, new ReflectCubeFeatHLSL );
    FEATUREMGR->registerFeature( MFT_ReflectionProbes, new ReflectionProbeFeatHLSL);
    FEATUREMGR->registerFeature( MFT_InvertRoughness, new NamedFeatureHLSL( "Roughest = 1.0" ) );
@@ -119,7 +119,12 @@ MODULE_BEGIN( ShaderGenHLSL )
    MODULE_INIT
    {
       sInitDelegate.bind(_initShaderGenHLSL);
+   #ifdef TORQUE_D3D11
       SHADERGEN->registerInitDelegate(Direct3D11, sInitDelegate);
+   #endif
+   #ifdef TORQUE_OPENGL
+      SHADERGEN->registerInitDelegate(OpenGL, sInitDelegate);
+   #endif
    }
    
 MODULE_END;

@@ -220,8 +220,6 @@ void CustomFeatureHLSL::addConnector(String name, String type, String elementNam
       element = RT_COLOR;
    else if (elementName == String("RT_TEXCOORD"))
       element = RT_TEXCOORD;
-   else if (elementName == String("RT_VPOS"))
-      element = RT_VPOS;
    else if (elementName == String("RT_SVPOSITION"))
       element = RT_SVPOSITION;
    else if (elementName == String("RT_BLENDINDICES"))

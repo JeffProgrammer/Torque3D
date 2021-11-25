@@ -38,26 +38,18 @@ singleton ShaderData( LightRayOccludeShader )
 {
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile 	= "./lightRayOccludeP.hlsl";
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile   = "./lightRayOccludeP.glsl";
    
    samplerNames[0] = "$backBuffer";
    samplerNames[1] = "$deferredTex";
-
-   pixVersion = 3.0;   
 };
 
 singleton ShaderData( LightRayShader )
 {
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile 	= "./lightRayP.hlsl";
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile   = "./lightRayP.glsl";
    
    samplerNames[0] = "$frameSampler";
-   samplerNames[1] = "$backBuffer";
-
-   pixVersion = 3.0;   
+   samplerNames[1] = "$backBuffer"; 
 };
 
 singleton GFXStateBlockData( LightRayStateBlock : PFX_DefaultStateBlock )

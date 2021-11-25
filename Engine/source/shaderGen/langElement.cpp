@@ -99,6 +99,9 @@ Var::Var()
    sampler = false;
    arraySize = 1;
    texture = false;
+   attribute = false;
+   systemValue = false;
+   location = 0;
    rank = 0;
 }
 
@@ -115,7 +118,10 @@ Var::Var( const char *inName, const char *inType )
    constNum = 0;
    arraySize = 1;
    texture = false;
-   rank = 0;
+   attribute = false;
+   systemValue = false;
+   location = 0;
+   rank = 0;   
 
    setName( inName );
    setType( inType );

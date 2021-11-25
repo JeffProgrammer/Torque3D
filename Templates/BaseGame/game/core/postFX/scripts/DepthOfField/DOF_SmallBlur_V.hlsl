@@ -27,17 +27,18 @@
 
 #include "core/rendering/shaders/postFX/postFx.hlsl"
 #include "core/rendering/shaders/torque.hlsl"
+#include "core/rendering/shaders/shaderVertex.hlsl"
 
 struct Vert
 {
-   float3 position : POSITION;
-   float2 texCoords : TEXCOORD0;
+   TORQUE_LOCATION(kPosition) float3 position : POSITION;
+   TORQUE_LOCATION(kTexCoord0) float2 texCoords : TEXCOORD0;
 };
 
 struct Pixel
 {  
-   float4 position : TORQUE_POSITION;  
-   float4 texCoords : TEXCOORD0;  
+   float4 position : SV_Position;  
+   TORQUE_LOCATION(0) float4 texCoords : TEXCOORD0;  
 };  
 
 uniform float2 oneOverTargetSize;  

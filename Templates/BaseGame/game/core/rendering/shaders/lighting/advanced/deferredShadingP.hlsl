@@ -29,7 +29,7 @@ TORQUE_UNIFORM_SAMPLER2D(lightDeferredTex,1);
 TORQUE_UNIFORM_SAMPLER2D(matInfoTex,2);
 TORQUE_UNIFORM_SAMPLER2D(deferredTex,3);
 
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0
+float4 main( PFXVertToPix IN ) : SV_Target0
 {        
    float4 lightBuffer = TORQUE_TEX2D( lightDeferredTex, IN.uv0 );
    float4 colorBuffer = TORQUE_TEX2D( colorBufferTex, IN.uv0 );

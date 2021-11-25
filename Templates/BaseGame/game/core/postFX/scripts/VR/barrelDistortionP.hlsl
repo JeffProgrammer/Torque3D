@@ -42,7 +42,7 @@ float2 HmdWarp(float2 in01, float2 lensCenter)
    return lensCenter + Scale * theta1;
 }
 
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0  
+float4 main( PFXVertToPix IN ) : SV_Target0  
 {
    float2 texCoord;
    float xOffset;

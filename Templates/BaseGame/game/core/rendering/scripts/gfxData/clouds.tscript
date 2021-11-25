@@ -28,13 +28,8 @@ singleton ShaderData( CloudLayerShader )
 {
    DXVertexShaderFile   = $Core::CommonShaderPath @ "/cloudLayerV.hlsl";
    DXPixelShaderFile    = $Core::CommonShaderPath @ "/cloudLayerP.hlsl";
-   
-   OGLVertexShaderFile = $Core::CommonShaderPath @ "/gl/cloudLayerV.glsl";
-   OGLPixelShaderFile = $Core::CommonShaderPath @ "/gl/cloudLayerP.glsl";
       
-   samplerNames[0] = "$normalHeightMap";
-      
-   pixVersion = 2.0;   
+   samplerNames[0] = "$normalHeightMap"; 
 };
 
 //------------------------------------------------------------------------------
@@ -46,10 +41,5 @@ singleton ShaderData( BasicCloudsShader )
    DXVertexShaderFile   = $Core::CommonShaderPath @ "/basicCloudsV.hlsl";
    DXPixelShaderFile    = $Core::CommonShaderPath @ "/basicCloudsP.hlsl";
    
-   OGLVertexShaderFile = $Core::CommonShaderPath @ "/gl/basicCloudsV.glsl";
-   OGLPixelShaderFile = $Core::CommonShaderPath @ "/gl/basicCloudsP.glsl";
-   
-   samplerNames[0] = "$diffuseMap";
-      
-   pixVersion = 2.0;   
+   samplerNames[0] = "$diffuseMap"; 
 };

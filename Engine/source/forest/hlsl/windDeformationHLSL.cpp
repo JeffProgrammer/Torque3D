@@ -147,7 +147,7 @@ void WindDeformationHLSL::processVert( Vector<ShaderComponent*> &componentList,
    Var *inColor = (Var*)LangElement::find( "diffuse" );
 
    // Do a dynamic branch based on wind force.
-   if ( GFX->getPixelShaderVersion() >= 3.0f )
+   if ( GFX->getShaderModel() >= 3.0f )
       meta->addStatement( new GenOp("   [branch] if ( any( @ ) ) {\r\n", windDirAndSpeed ) );
 
    // Do the branch and detail bending first so that 
@@ -194,7 +194,7 @@ void WindDeformationHLSL::processVert( Vector<ShaderComponent*> &componentList,
       outPosition, outPosition, windDirAndSpeed, outPosition, windParams ) );
 
    // End the dynamic branch.
-   if ( GFX->getPixelShaderVersion() >= 3.0f )
+   if ( GFX->getShaderModel() >= 3.0f )
       meta->addStatement( new GenOp("   } // [branch]\r\n" ) );
 }
 

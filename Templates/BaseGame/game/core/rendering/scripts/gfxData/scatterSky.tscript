@@ -37,12 +37,7 @@ singleton GFXStateBlockData( ScatterSkySBData )
 singleton ShaderData( ScatterSkyShaderData )
 {
    DXVertexShaderFile     = $Core::CommonShaderPath @ "/scatterSkyV.hlsl";
-   DXPixelShaderFile      = $Core::CommonShaderPath @ "/scatterSkyP.hlsl";   
-   
-   OGLVertexShaderFile     = $Core::CommonShaderPath @ "/gl/scatterSkyV.glsl";
-   OGLPixelShaderFile      = $Core::CommonShaderPath @ "/gl/scatterSkyP.glsl";   
+   DXPixelShaderFile      = $Core::CommonShaderPath @ "/scatterSkyP.hlsl";
    
    samplerNames[0] = "$nightSky";
-   
-   pixVersion = 2.0;
 };

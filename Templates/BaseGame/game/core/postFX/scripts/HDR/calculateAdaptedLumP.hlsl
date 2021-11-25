@@ -28,7 +28,7 @@ TORQUE_UNIFORM_SAMPLER2D(lastAdaptedLum, 1);
 uniform float adaptRate;
 uniform float deltaTime;
 
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0
+float4 main( PFXVertToPix IN ) : SV_Target0
 {
    float fAdaptedLum = TORQUE_TEX2D( lastAdaptedLum, float2(0.5f, 0.5f) ).r;
    float fCurrentLum = TORQUE_TEX2D( currLum, float2(0.5f, 0.5f) ).r;

@@ -39,12 +39,7 @@ singleton ShaderData( FXAA_ShaderData )
    DXVertexShaderFile 	= "./fxaaV.hlsl";
    DXPixelShaderFile 	= "./fxaaP.hlsl";
    
-   OGLVertexShaderFile  = "./fxaaV.glsl";
-   OGLPixelShaderFile   = "./fxaaP.glsl";
-   
    samplerNames[0] = "$colorTex";
-
-   pixVersion = 3.0;
 };
 
 singleton PostEffect( FXAAPostFX )

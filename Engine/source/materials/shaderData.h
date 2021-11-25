@@ -51,17 +51,12 @@ protected:
 
    ShaderCache mShaders;
 
-   bool mUseDevicePixVersion;
-
-   F32 mPixVersion;
+   F32 mShaderModel;
 
    StringTableEntry mDXVertexShaderName;
 
    StringTableEntry mDXPixelShaderName;
 
-   StringTableEntry mOGLVertexShaderName;
-
-   StringTableEntry mOGLPixelShaderName;
 
    /// A semicolon, tab, or newline delimited string of case
    /// sensitive defines that are passed to the shader compiler.
@@ -122,8 +117,8 @@ public:
    /// all loaded ShaderData objects in the system.
    static void reloadAllShaders();
 
-   /// Returns the required pixel shader version for this shader.
-   F32 getPixVersion() const { return mPixVersion; }
+   /// Returns the shader model for this shader.
+   F32 getShaderModel() const { return mShaderModel; }
    
    // SimObject
    virtual bool onAdd();

@@ -27,7 +27,7 @@
 
 struct ConnectData
 {
-   float4 hpos            : TORQUE_POSITION;
+   float4 hpos            : SV_Position;
    float2 tex0            : TEXCOORD0;
 };
 
@@ -47,7 +47,7 @@ uniform float texSize : register(C0);
 uniform float2 blurDimension : register(C2);
 uniform float2 blurBoundaries : register(C3);
 
-float4 main( ConnectData IN ) : TORQUE_TARGET0
+float4 main( ConnectData IN ) : SV_Target0
 {   
    // 5x5
    if (IN.tex0.x <= blurBoundaries.x)

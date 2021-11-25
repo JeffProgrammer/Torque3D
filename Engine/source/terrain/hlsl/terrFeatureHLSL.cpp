@@ -39,8 +39,6 @@ namespace
 {
    void register_hlsl_shader_features_for_terrain(GFXAdapterType type)
    {
-      if (type != Direct3D11)
-         return;
 
       FEATUREMGR->registerFeature( MFT_TerrainBaseMap, new TerrainBaseMapFeatHLSL );
       FEATUREMGR->registerFeature( MFT_TerrainParallaxMap, new NamedFeatureHLSL( "Terrain Parallax Texture" ) );   
@@ -655,7 +653,7 @@ void TerrainDetailMapFeatHLSL::processPix(   Vector<ShaderComponent*> &component
 
       // If we're using SM 3.0 then take advantage of 
       // dynamic branching to skip layers per-pixel.
-      if (GFX->getPixelShaderVersion() >= 3.0f)
+      if (GFX->getShaderModel() >= 3.0f)
          meta->addStatement(new GenOp("   if ( @ > 0.0f )\r\n", detailBlend));
 
       meta->addStatement(new GenOp("   {\r\n"));
@@ -885,7 +883,7 @@ void TerrainMacroMapFeatHLSL::processPix(   Vector<ShaderComponent*> &componentL
 
    // If we're using SM 3.0 then take advantage of 
    // dynamic branching to skip layers per-pixel.
-   if ( GFX->getPixelShaderVersion() >= 3.0f )
+   if ( GFX->getShaderModel() >= 3.0f )
       meta->addStatement( new GenOp( "   if ( @ > 0.0f )\r\n", detailBlend ) );
 
    meta->addStatement( new GenOp( "   {\r\n" ) );
@@ -1038,7 +1036,7 @@ void TerrainNormalMapFeatHLSL::processPix(   Vector<ShaderComponent*> &component
 
       // If we're using SM 3.0 then take advantage of 
       // dynamic branching to skip layers per-pixel.
-      if (GFX->getPixelShaderVersion() >= 3.0f)
+      if (GFX->getShaderModel() >= 3.0f)
          meta->addStatement(new GenOp("   if ( @ > 0.0f )\r\n", detailBlend));
 
       meta->addStatement(new GenOp("   {\r\n"));

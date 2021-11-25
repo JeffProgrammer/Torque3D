@@ -29,11 +29,6 @@ GFXImplementVertexFormat( GFXVertexP )
    addElement( "POSITION", GFXDeclType_Float3 );
 }
 
-GFXImplementVertexFormat( GFXVertexPad )
-{
-   addElement("PADDING", GFXDeclType_UByte4);
-}
-
 GFXImplementVertexFormat( GFXVertexPT )
 {
    addElement( "POSITION", GFXDeclType_Float3 );

@@ -139,7 +139,6 @@ public:
 
    virtual void _updateRenderTargets(){};
 
-   virtual F32 getPixelShaderVersion() const { return 0.0f; };
    virtual void setPixelShaderVersion( F32 version ) { };
    virtual U32 getNumSamplers() const { return 0; };
    virtual U32 getNumRenderTargets() const { return 0; };

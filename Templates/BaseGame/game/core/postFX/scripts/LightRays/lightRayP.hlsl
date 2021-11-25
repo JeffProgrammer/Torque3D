@@ -36,7 +36,7 @@ uniform float weight;
 uniform float decay;
 uniform float exposure;
 
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0 
+float4 main( PFXVertToPix IN ) : SV_Target0 
 {  
     float4 texCoord = float4( IN.uv0.xy, 0, 0 );        
     

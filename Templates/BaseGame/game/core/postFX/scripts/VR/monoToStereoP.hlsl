@@ -27,7 +27,7 @@ TORQUE_UNIFORM_SAMPLER2D(backBuffer, 0);
 
 uniform float2 LensXOffsets;
 
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0
+float4 main( PFXVertToPix IN ) : SV_Target0
 {
    float2 texCoord;
    float xOffset;

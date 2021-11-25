@@ -30,11 +30,11 @@ TORQUE_UNIFORM_SAMPLER2D(colorSampler, 0); // Output of DofNearCoc()
 
 struct Pixel
 {  
-   float4 position : TORQUE_POSITION;  
-   float4 texCoords : TEXCOORD0;  
+   float4 position : SV_Position;  
+   TORQUE_LOCATION(0) float4 texCoords : TEXCOORD0;  
 };  
 
-float4 main( Pixel IN ) : TORQUE_TARGET0
+float4 main( Pixel IN ) : SV_Target0
 {  
    float4 color;  
    color = 0.0;  

@@ -20,8 +20,7 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#define IN_HLSL
-#include "core/rendering/shaders/shdrConsts.h"
+#include "core/rendering/shaders/shaderVertex.hlsl"
 #include "core/rendering/shaders/postFX/postFx.hlsl"
 
 //-----------------------------------------------------------------------------
@@ -29,8 +28,8 @@
 //-----------------------------------------------------------------------------
 struct VertIn
 {
-	float4 hpos : TORQUE_POSITION;
-	float4 texCoords[8] : TEXCOORD0;
+	float4 hpos : SV_Position;
+	TORQUE_LOCATION(0) float4 texCoords[8] : TEXCOORD0;
 };
 
 TORQUE_UNIFORM_SAMPLER2D(inputTex, 0);
@@ -38,7 +37,7 @@ TORQUE_UNIFORM_SAMPLER2D(inputTex, 0);
 //-----------------------------------------------------------------------------
 // Main
 //-----------------------------------------------------------------------------
-float4 main(  VertIn IN) : TORQUE_TARGET0
+float4 main(  VertIn IN) : SV_Target0
 {
    // We calculate the texture coords
    // in the vertex shader as an optimization.

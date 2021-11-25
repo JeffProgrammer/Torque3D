@@ -111,13 +111,11 @@ GFXD3D11Device::GFXD3D11Device(U32 index)
    mCurrentStateBlock = NULL;
    mResourceListHead = NULL;
 
-   mPixVersion = 0.0;
-
    mFeatureLevel = D3D_FEATURE_LEVEL_9_1; //lowest listed. should be overridden by init
 
    mVertexShaderTarget = String::EmptyString;
    mPixelShaderTarget = String::EmptyString;
-   mShaderModel = String::EmptyString;
+   mShaderModelStr = String::EmptyString;
 
    mDrawInstancesCount = 0;
 
@@ -517,14 +515,14 @@ void GFXD3D11Device::init(const GFXVideoMode &mode, PlatformWindow *window)
    case D3D_FEATURE_LEVEL_11_0:
       mVertexShaderTarget = "vs_5_0";
       mPixelShaderTarget = "ps_5_0";
-      mPixVersion = 5.0f;
-      mShaderModel = "50";
+      mShaderModel = 5.0f;
+      mShaderModelStr = "50";
       break;
    case D3D_FEATURE_LEVEL_10_1:
       mVertexShaderTarget = "vs_4_1";
       mPixelShaderTarget = "ps_4_1";
-      mPixVersion = 4.1f;
-      mShaderModel = "41";
+      mShaderModel = 4.1f;
+      mShaderModelStr = "41";
       break;
    default:
       AssertFatal(false, "GFXD3D11Device::init - We don't support this feature level");
@@ -688,12 +686,10 @@ void GFXD3D11Device::setupGenericShaders(GenericShaderType type)
    if(mGenericShader[GSColor] == NULL)
    {
       ShaderData *shaderData;
-      //shader model 4.0 is enough for the generic shaders
-      const char* shaderModel = "4.0";
+
       shaderData = new ShaderData();
       shaderData->setField("DXVertexShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/colorV.hlsl"));
       shaderData->setField("DXPixelShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/colorP.hlsl"));
-      shaderData->setField("pixVersion", shaderModel);
       shaderData->registerObject();
       mGenericShader[GSColor] =  shaderData->getShader();
       mGenericShaderBuffer[GSColor] = mGenericShader[GSColor]->allocConstBuffer();
@@ -703,7 +699,6 @@ void GFXD3D11Device::setupGenericShaders(GenericShaderType type)
       shaderData = new ShaderData();
       shaderData->setField("DXVertexShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/modColorTextureV.hlsl"));
       shaderData->setField("DXPixelShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/modColorTextureP.hlsl"));
-      shaderData->setField("pixVersion", shaderModel);
       shaderData->registerObject();
       mGenericShader[GSModColorTexture] = shaderData->getShader();
       mGenericShaderBuffer[GSModColorTexture] = mGenericShader[GSModColorTexture]->allocConstBuffer();
@@ -713,7 +708,6 @@ void GFXD3D11Device::setupGenericShaders(GenericShaderType type)
       shaderData = new ShaderData();
       shaderData->setField("DXVertexShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/addColorTextureV.hlsl"));
       shaderData->setField("DXPixelShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/addColorTextureP.hlsl"));
-      shaderData->setField("pixVersion", shaderModel);
       shaderData->registerObject();
       mGenericShader[GSAddColorTexture] = shaderData->getShader();
       mGenericShaderBuffer[GSAddColorTexture] = mGenericShader[GSAddColorTexture]->allocConstBuffer();
@@ -723,7 +717,6 @@ void GFXD3D11Device::setupGenericShaders(GenericShaderType type)
       shaderData = new ShaderData();
       shaderData->setField("DXVertexShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/textureV.hlsl"));
       shaderData->setField("DXPixelShaderFile", ShaderGen::smCommonShaderPath + String("/fixedFunction/textureP.hlsl"));
-      shaderData->setField("pixVersion", shaderModel);
       shaderData->registerObject();
       mGenericShader[GSTexture] = shaderData->getShader();
       mGenericShaderBuffer[GSTexture] = mGenericShader[GSTexture]->allocConstBuffer();

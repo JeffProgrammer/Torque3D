@@ -26,7 +26,7 @@
 TORQUE_UNIFORM_SAMPLER2D(inputTex, 0);
 TORQUE_UNIFORM_SAMPLER1D(colorCorrectionTex, 1);
 
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0
+float4 main( PFXVertToPix IN ) : SV_Target0
 {
    float3 color = TORQUE_TEX2D(inputTex, IN.uv0).rgb;
 

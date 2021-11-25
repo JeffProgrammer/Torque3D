@@ -1,12 +1,7 @@
 singleton ShaderData( DeferredColorShader )
 {
    DXVertexShaderFile = $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
-   DXPixelShaderFile  = $Core::CommonShaderPath @ "/lighting/advanced/deferredColorShaderP.hlsl";
-   
-   OGLVertexShaderFile = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile  = $Core::CommonShaderPath @ "/lighting/advanced/gl/deferredColorShaderP.glsl";
-
-   pixVersion = 2.0;   
+   DXPixelShaderFile  = $Core::CommonShaderPath @ "/lighting/advanced/deferredColorShaderP.hlsl";  
 };
 
 singleton GFXStateBlockData( AL_DeferredCaptureState : PFX_DefaultStateBlock )
@@ -31,16 +26,12 @@ singleton shaderData( AL_ProbeShader )
 {
    DXVertexShaderFile = $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile  = $Core::CommonShaderPath @ "/lighting/advanced/probeShadingP.hlsl";
-   
-   OGLVertexShaderFile = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile  = $Core::CommonShaderPath @ "/lighting/advanced/gl/probeShadingP.glsl";
 
    samplerNames[0] = "colorBufferTex";
    samplerNames[1] = "diffuseLightingBuffer";
    samplerNames[2] = "matInfoTex";
    samplerNames[3] = "specularLightingBuffer";
    samplerNames[4] = "deferredTex";
-   pixVersion = 2.0;
 };
 
 singleton PostEffect( AL_PreCapture )

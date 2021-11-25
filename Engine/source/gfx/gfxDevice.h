@@ -19,7 +19,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
-#pragma once
+
 #ifndef _GFXDEVICE_H_
 #define _GFXDEVICE_H_
 
@@ -686,6 +686,9 @@ protected:
    /// it must be updated on the next draw/clear.
    bool mViewportDirty;
 
+   //Shader model support by this device
+   F32 mShaderModel;
+
 public:
 
    /// @name Texture functions
@@ -743,8 +746,7 @@ public:
 
    /// @name Shader functions
    /// @{
-   virtual F32   getPixelShaderVersion() const = 0;
-   virtual void  setPixelShaderVersion( F32 version ) = 0;
+   F32 getShaderModel() {return mShaderModel;}
 
    /// Returns the number of texture samplers that can be used in a shader rendering pass
    virtual U32 getNumSamplers() const = 0;

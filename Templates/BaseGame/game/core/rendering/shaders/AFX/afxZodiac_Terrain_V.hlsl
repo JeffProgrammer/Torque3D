@@ -8,31 +8,26 @@
 // Copyright (C) Faust Logic, Inc.
 //~~~~~~~~~~~~~~~~~~~~//~~~~~~~~~~~~~~~~~~~~//~~~~~~~~~~~~~~~~~~~~//~~~~~~~~~~~~~~~~~~~~~//
 
-#include "../common/shaderModel.hlsl"
-struct VertData
-{
-   float3 position        : POSITION;
-   float4 color           : COLOR0;
-   float2 texCoord        : TEXCOORD0;
-};
+#include "../shaderModel.hlsl"
+#include "../shaderVertex.hlsl"
 
 struct ConnectData
 {
-   float4 hpos         : TORQUE_POSITION;
-   float2 texCoord     : TEXCOORD0;
+   float4 hpos : SV_Position;
+   TORQUE_LOCATION(0) float2 texCoord     : TEXCOORD0;
 };
+
+uniform float4x4 modelView;
 
 //-----------------------------------------------------------------------------
 // Main
 //-----------------------------------------------------------------------------
-ConnectData main( VertData IN,
-                  uniform float4x4 modelView : register(C0)
-                  )
+ConnectData main( VertexIn_PCT IN )
 {
    ConnectData OUT;
 
-   OUT.hpos = mul(modelView, float4(IN.position,1.0));
-   OUT.texCoord = IN.texCoord;
+   OUT.hpos = mul(modelView, float4(IN.pos,1.0));
+   OUT.texCoord = IN.uv0;
     
    return OUT;
 }

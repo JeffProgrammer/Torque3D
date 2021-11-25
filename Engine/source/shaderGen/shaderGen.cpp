@@ -30,13 +30,7 @@
 #include "gfx/gfxDevice.h"
 #include "core/memVolume.h"
 #include "core/module.h"
-
-#ifdef TORQUE_D3D11
 #include "shaderGen/HLSL/customFeatureHLSL.h"
-#endif
-#ifdef TORQUE_OPENGL
-#include "shaderGen/GLSL/customFeatureGLSL.h"
-#endif
 
 MODULE_BEGIN( ShaderGen )
 
@@ -163,7 +157,7 @@ void ShaderGen::generateShader( const MaterialFeatureData &featureData,
    dStrcpy( pixFile, pixShaderName, 256 );
    
    // this needs to change - need to optimize down to ps v.1.1
-   *pixVersion = GFX->getPixelShaderVersion();
+   *pixVersion = GFX->getShaderModel();
    
    if ( !Con::getBoolVariable( "ShaderGen::GenNewShaders", true ) )
    {

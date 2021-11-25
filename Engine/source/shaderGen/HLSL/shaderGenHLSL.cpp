@@ -127,72 +127,77 @@ ShaderComponent* ShaderGenComponentFactoryHLSL::createVertexInputConnector( cons
    {
       const GFXVertexElement &element = vertexFormat.getElement( i );
       
-      Var *var = NULL;
+      Var *var = NULL;      
 
       if ( element.isSemantic( GFXSemantic::POSITION ) )
       {
          var = vertComp->getElement( RT_POSITION );
          var->setName( "position" );
+         var->location = GFXAttributeLocation::Position;
       }
       else if ( element.isSemantic( GFXSemantic::NORMAL ) )
       {
          var = vertComp->getElement( RT_NORMAL );
          var->setName( "normal" );
+         var->location = GFXAttributeLocation::Normal;
       }
       else if ( element.isSemantic( GFXSemantic::TANGENT ) )
       {
          var = vertComp->getElement( RT_TANGENT );
          var->setName( "T" );
+         var->location = GFXAttributeLocation::Tangent;
       }
       else if ( element.isSemantic( GFXSemantic::TANGENTW ) )
       {
          var = vertComp->getIndexedElement(element.getSemanticIndex(), RT_TEXCOORD);
          var->setName("tangentW");
+         var->location = GFXAttributeLocation::TangentW;
       }
       else if ( element.isSemantic( GFXSemantic::BINORMAL ) )
       {
          var = vertComp->getElement( RT_BINORMAL );
          var->setName( "B" );
+         var->location = GFXAttributeLocation::Binormal;
       }
       else if ( element.isSemantic( GFXSemantic::COLOR ) )
       {
          var = vertComp->getElement( RT_COLOR );
          var->setName( "diffuse" );
+         var->location = GFXAttributeLocation::Color;
       }
       else if ( element.isSemantic( GFXSemantic::TEXCOORD ) )
       {
          var = vertComp->getIndexedElement( element.getSemanticIndex(), RT_TEXCOORD );
-         if ( element.getSemanticIndex() == 0 )
-            var->setName( "texCoord" );
+         var->location = GFXAttributeLocation::TexCoord0 + element.getSemanticIndex();
+         if (element.getSemanticIndex() == 0)
+            var->setName("texCoord");
          else
-            var->setName( String::ToString( "texCoord%d", element.getSemanticIndex() + 1 ) );
+            var->setName(String::ToString("texCoord%d", element.getSemanticIndex() + 1));
       }
       else if ( element.isSemantic( GFXSemantic::BLENDINDICES ) )
       {
          var = vertComp->getIndexedElement( element.getSemanticIndex(), RT_BLENDINDICES );
          var->setName( String::ToString( "blendIndices%d", element.getSemanticIndex() ) );
+         var->location = GFXAttributeLocation::BlendIndex0 + element.getSemanticIndex();
       }
       else if ( element.isSemantic( GFXSemantic::BLENDWEIGHT ) )
       {
          var = vertComp->getIndexedElement( element.getSemanticIndex(), RT_BLENDWEIGHT );
          var->setName( String::ToString( "blendWeight%d", element.getSemanticIndex() ) );
-      }
-      else if ( element.isSemantic( GFXSemantic::PADDING ) )
-      {
-         var = NULL;
-         //var = vertComp->getIndexedElement( vertComp->getCurTexElem() + element.getSemanticIndex(), RT_TEXCOORD );
-         //var->setName( String::ToString( "pad%d", element.getSemanticIndex() + 1 ) );
+         var->location = GFXAttributeLocation::BlendWeight0 + element.getSemanticIndex();
       }
       else
       {
          // Everything else is a texcoord!
          var = vertComp->getIndexedElement( element.getSemanticIndex(), RT_TEXCOORD );
          var->setName( "tc" + element.getSemantic() );
+         var->location = GFXAttributeLocation::TexCoord0 + element.getSemanticIndex();
       }
 
       if ( !var )
          continue;
 
+      var->attribute = true;
       var->setStructName( "IN" );
       var->setType( typeToString( element.getType() ) );
    }

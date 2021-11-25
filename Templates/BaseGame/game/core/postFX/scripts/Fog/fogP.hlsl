@@ -31,7 +31,7 @@ uniform float4    fogColor;
 uniform float3    fogData;
 uniform float4    rtParams0;
 
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0
+float4 main( PFXVertToPix IN ) : SV_Target0
 {
    float depth = TORQUE_DEFERRED_UNCONDITION( deferredTex, IN.uv0 ).w;
    //return float4( depth, 0, 0, 0.7 );

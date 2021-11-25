@@ -20,14 +20,14 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "../../hlslStructs.hlsl"
+#include "../../shaderVertex.hlsl"
 #include "farFrustumQuad.hlsl"
 
 uniform float4 rtParams0;
 
-FarFrustumQuadConnectV main( VertexIn_PNTT IN )
+FarFrustumQuadConnect main( VertexIn_PNTT IN )
 {
-   FarFrustumQuadConnectV OUT;
+   FarFrustumQuadConnect OUT;
 
    OUT.hpos = float4( IN.uv0, 0, 1 );
 

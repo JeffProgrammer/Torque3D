@@ -23,12 +23,12 @@
 // Volumetric Fog deferred vertex shader V1.00
 
 #include "../shaderModel.hlsl"
-#include "../hlslStructs.hlsl"
+#include "../shaderVertex.hlsl"
 
 struct ConnectData
 {
-   float4 hpos : TORQUE_POSITION;
-   float4 pos : TEXCOORD0;
+   float4 hpos : SV_Position;
+   TORQUE_LOCATION(0) float4 pos : TEXCOORD0;
 };
 
 uniform float4x4 modelView;

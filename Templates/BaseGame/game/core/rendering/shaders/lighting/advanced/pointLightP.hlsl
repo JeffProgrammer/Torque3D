@@ -30,10 +30,10 @@
 
 struct ConvexConnectP
 {
-   float4 pos : TORQUE_POSITION;
-   float4 wsEyeDir : TEXCOORD0;
-   float4 ssPos : TEXCOORD1;
-   float4 vsEyeDir : TEXCOORD2;
+   float4 pos : SV_Position;
+   TORQUE_LOCATION(0) float4 wsEyeDir : TEXCOORD0;
+   TORQUE_LOCATION(1) float4 ssPos : TEXCOORD1;
+   TORQUE_LOCATION(2) float4 vsEyeDir : TEXCOORD2;
 };
 
 #ifdef USE_COOKIE_TEX
@@ -137,7 +137,7 @@ uniform float3x3 worldToLightProj;
 uniform float3 eyePosWorld;
 uniform float4x4 cameraToWorld;
 
-float4 main(   ConvexConnectP IN ) : SV_TARGET
+float4 main(   ConvexConnectP IN ) : SV_Target0
 {   
    // Compute scene UV
    float3 ssPos = IN.ssPos.xyz / IN.ssPos.w;

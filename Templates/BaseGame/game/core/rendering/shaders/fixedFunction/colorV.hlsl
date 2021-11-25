@@ -21,25 +21,20 @@
 //-----------------------------------------------------------------------------
 
 #include "../shaderModel.hlsl"
-
-struct Appdata
-{
-	float3 position   : POSITION;
-	float4 color      : COLOR;
-};
+#include "../shaderVertex.hlsl"
 
 struct Conn
 {
-   float4 HPOS             : TORQUE_POSITION;
-   float4 color            : COLOR;
+   float4 HPOS : SV_Position;
+   TORQUE_LOCATION(0) float4 color            : COLOR;
 };
 
 uniform float4x4 modelview;
 
-Conn main( Appdata In )
+Conn main( VertexIn_PC In )
 {
    Conn Out;
-   Out.HPOS = mul(modelview, float4(In.position,1.0));
+   Out.HPOS = mul(modelview, float4(In.pos,1.0));
    Out.color = In.color;
    return Out;
 }

@@ -20,14 +20,14 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "../../hlslStructs.hlsl"
+#include "../../shaderVertex.hlsl"
 #include "../../shaderModel.hlsl"
 
 struct ConvexConnectV
 {
-   float4 hpos : TORQUE_POSITION;
-   float4 ssPos : TEXCOORD0;
-   float3 vsEyeDir : TEXCOORD1;
+   float4 hpos : SV_Position;
+   TORQUE_LOCATION(0) float4 ssPos : TEXCOORD0;
+   TORQUE_LOCATION(1) float3 vsEyeDir : TEXCOORD1;
 };
 
 uniform float4x4 viewProj;

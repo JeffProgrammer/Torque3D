@@ -20,23 +20,22 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "shdrConsts.h"
 #include "shaderModel.hlsl"
 //-----------------------------------------------------------------------------
 // Structures                                                                  
 //-----------------------------------------------------------------------------
 struct ConnectData
 {
-   float4 hpos            : TORQUE_POSITION;
-   float2 outTexCoord     : TEXCOORD0;
-   float4 color			  : COLOR0;
-   float4 groundAlphaCoeff : COLOR1;
-   float2 alphaLookup	  : TEXCOORD1;
+   float4 hpos : SV_Position;
+   TORQUE_LOCATION(0) float2 outTexCoord      : TEXCOORD0;
+   TORQUE_LOCATION(1) float4 color			    : COLOR0;
+   TORQUE_LOCATION(2) float4 groundAlphaCoeff : COLOR1;
+   TORQUE_LOCATION(3) float2 alphaLookup	    : TEXCOORD1;
 };
 
 struct Fragout
 {
-   float4 col : TORQUE_TARGET0;
+   float4 col : SV_Target0;
 };
 
 TORQUE_UNIFORM_SAMPLER2D(diffuseMap, 0);

@@ -87,7 +87,7 @@ float4 BlurH (TORQUE_SAMPLER2D(source), float2 size, float2 uv, float radius)
 	return TORQUE_TEX2D(source, uv);
 }
 
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0
+float4 main( PFXVertToPix IN ) : SV_Target0
 {
    float4 color = { 0.0f, 0.0f, 0.0f, 0.0f };
    float offset = 0;

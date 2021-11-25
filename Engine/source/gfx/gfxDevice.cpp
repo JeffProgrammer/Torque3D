@@ -176,6 +176,8 @@ GFXDevice::GFXDevice()
 
    mStereoTargets[0] = NULL;
    mStereoTargets[1] = NULL;
+
+   mShaderModel = 0.0f;
 }
 
 GFXDrawUtil* GFXDevice::getDrawUtil()
@@ -1260,25 +1262,12 @@ DefineEngineFunction( describeGFXStateBlocks, void, ( const char *filePath ),,
    GFX->dumpStates( filePath );   
 }
 
-DefineEngineFunction( getPixelShaderVersion, F32, (),,
+DefineEngineFunction( getShaderModel, F32, (),,
    "Returns the pixel shader version for the active device.\n"
    "@ingroup GFX\n" )
 {
-   return GFX->getPixelShaderVersion();
+   return GFX->getShaderModel();
 }   
-
-DefineEngineFunction( setPixelShaderVersion, void, ( F32 version ),,
-   "@brief Sets the pixel shader version for the active device.\n"
-   "This can be used to force a lower pixel shader version than is supported by "
-   "the device for testing or performance optimization.\n"
-   "@param version The floating point shader version number.\n"
-   "@note This will only affect shaders/materials created after the call "
-   "and should be used before the game begins.\n"
-   "@see $pref::Video::forcedPixVersion\n"
-   "@ingroup GFX\n" )
-{
-   GFX->setPixelShaderVersion( version );
-}
 
 DefineEngineFunction( getDisplayDeviceInformation, const char*, (),,
    "Get the string describing the active GFX device.\n"

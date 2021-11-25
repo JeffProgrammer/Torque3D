@@ -28,15 +28,10 @@ singleton ShaderData( UnderwaterFogPassShader )
 {   
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile 	= "./underwaterFogP.hlsl";
-         
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile   = "./underwaterFogP.glsl";
             
    samplerNames[0] = "$deferredTex";
    samplerNames[1] = "$backbuffer";
-   samplerNames[2] = "$waterDepthGradMap";
-   
-   pixVersion = 2.0;      
+   samplerNames[2] = "$waterDepthGradMap";   
 };
 
 

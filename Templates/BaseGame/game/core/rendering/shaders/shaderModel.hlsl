@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// Copyright (c) 2015 GarageGames, LLC
+// Copyright (c) 2021 Tim Barnes
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to
@@ -20,27 +20,17 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#ifndef _TORQUE_SHADERMODEL_
-#define _TORQUE_SHADERMODEL_
+#ifndef TORQUE_SHADERMODEL_H
+#define TORQUE_SHADERMODEL_H
 
-// Portability helpers for different shader models
-#define TORQUE_POSITION SV_Position
-#define TORQUE_DEPTH SV_Depth
-#define TORQUE_VPOS SV_Position //note float4 compared to SM 3 where it is a float2
-#define TORQUE_TARGET0 SV_Target0
-#define TORQUE_TARGET1 SV_Target1
-#define TORQUE_TARGET2 SV_Target2
-#define TORQUE_TARGET3 SV_Target3
-#define TORQUE_TARGET4 SV_Target4
-#define TORQUE_TARGET5 SV_Target5
 // Sampler uniforms
 //1D is emulated to a 2D for now
-#define TORQUE_UNIFORM_SAMPLER1D(tex,regist) uniform Texture2D texture_##tex : register(T##regist); uniform SamplerState tex : register(S##regist)
-#define TORQUE_UNIFORM_SAMPLER2D(tex,regist) uniform Texture2D texture_##tex : register(T##regist); uniform SamplerState tex : register(S##regist)
-#define TORQUE_UNIFORM_SAMPLER2DCMP(tex,regist) uniform Texture2D texture_##tex : register(T##regist); uniform SamplerComparisonState tex : register(S##regist)
-#define TORQUE_UNIFORM_SAMPLER3D(tex,regist) uniform Texture3D texture_##tex : register(T##regist); uniform SamplerState tex : register(S##regist)
-#define TORQUE_UNIFORM_SAMPLERCUBE(tex,regist) uniform TextureCube texture_##tex : register(T##regist); uniform SamplerState tex : register(S##regist)
-#define TORQUE_UNIFORM_SAMPLERCUBEARRAY(tex,regist) uniform TextureCubeArray texture_##tex : register(T##regist); uniform SamplerState tex : register(S##regist)
+#define TORQUE_UNIFORM_SAMPLER1D(tex,regist) uniform Texture2D texture_##tex : register(t##regist); uniform SamplerState tex : register(s##regist)
+#define TORQUE_UNIFORM_SAMPLER2D(tex,regist) uniform Texture2D texture_##tex : register(t##regist); uniform SamplerState tex : register(s##regist)
+#define TORQUE_UNIFORM_SAMPLER2DCMP(tex,regist) uniform Texture2D texture_##tex : register(t##regist); uniform SamplerComparisonState tex : register(s##regist)
+#define TORQUE_UNIFORM_SAMPLER3D(tex,regist) uniform Texture3D texture_##tex : register(t##regist); uniform SamplerState tex : register(s##regist)
+#define TORQUE_UNIFORM_SAMPLERCUBE(tex,regist) uniform TextureCube texture_##tex : register(t##regist); uniform SamplerState tex : register(s##regist)
+#define TORQUE_UNIFORM_SAMPLERCUBEARRAY(tex,regist) uniform TextureCubeArray texture_##tex : register(t##regist); uniform SamplerState tex : register(s##regist)
 // Sampling functions
 #define TORQUE_TEX1D(tex,coords) texture_##tex.Sample(tex,coords)
 #define TORQUE_TEX2D(tex,coords) texture_##tex.Sample(tex,coords)
@@ -70,5 +60,26 @@
 #define TORQUE_SAMPLERCUBEARRAY(tex) TextureCubeArray texture_##tex, SamplerState tex
 #define TORQUE_SAMPLERCUBEARRAY_MAKEARG(tex) texture_##tex, tex
 
-#endif // _TORQUE_SHADERMODEL_
+//Push constants - Struct must be named PushConstant
+#ifdef TORQUE_VULKAN
+#define TORQUE_PUSHCONSTANT(varName) [[vk::push_constant]] PushConstant varName
+#else
+//will go into $Global cbuffer
+#define TORQUE_PUSHCONSTANT(varName) uniform PushConstant varName
+#endif
 
+//Specialization constants
+#ifdef TORQUE_VULKAN
+#define TORQUE_CONSTANTID(Id) [[vk::constant_id(Id)]]
+#else
+#define TORQUE_CONSTANTID(Id)
+#endif
+
+//Input/Output explicit location
+#ifdef TORQUE_VULKAN
+#define TORQUE_LOCATION(x) [[vk::location(x)]]
+#else
+#define TORQUE_LOCATION(x)
+#endif
+
+#endif

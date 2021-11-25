@@ -25,8 +25,8 @@
 
 struct VertToPix
 {
-   float4 hpos       : TORQUE_POSITION;
-   float2 uv0        : TEXCOORD0;
+   float4 hpos       : SV_Position;
+   TORQUE_LOCATION(0) float2 uv0        : TEXCOORD0;
 };
 
 uniform float4 rtParams0;

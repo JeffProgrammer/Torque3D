@@ -24,14 +24,9 @@ singleton ShaderData( GammaShader )
 {
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile 	= "./gammaP.hlsl";
-
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile   = "./gammaP.glsl";
    
    samplerNames[0] = "$backBuffer";
    samplerNames[1] = "$colorCorrectionTex";
-
-   pixVersion = 2.0;   
 };
 
 singleton GFXStateBlockData( GammaStateBlock : PFX_DefaultStateBlock )

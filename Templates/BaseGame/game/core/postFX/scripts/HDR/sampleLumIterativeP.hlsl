@@ -34,7 +34,7 @@ static float2 gTapOffsets[16] =
    { -1.5, 1.5 },  { -0.5, 1.5 },  { 0.5, 1.5 },  { 1.5, 1.5 }
 };
 
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0
+float4 main( PFXVertToPix IN ) : SV_Target0
 {
    float2 pixelSize = oneOverTargetSize;
 

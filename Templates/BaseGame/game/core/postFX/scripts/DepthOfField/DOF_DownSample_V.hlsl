@@ -22,23 +22,24 @@
 
 #include "core/rendering/shaders/postFX/postFx.hlsl"
 #include "core/rendering/shaders/torque.hlsl"
+#include "core/rendering/shaders/shaderVertex.hlsl"
 
 struct Vert
 {
-   float3 pos        : POSITION;
-   float2 tc         : TEXCOORD0;
-   float3 wsEyeRay   : TEXCOORD1;
+   TORQUE_LOCATION(kPosition) float3 pos        : POSITION;
+   TORQUE_LOCATION(kTexCoord0) float2 tc         : TEXCOORD0;
+   TORQUE_LOCATION(kTexCoord1) float3 wsEyeRay   : TEXCOORD1;
 };
 
 struct Pixel
 {  
-   float4 position : TORQUE_POSITION;  
-   float2 tcColor0 : TEXCOORD0;  
-   float2 tcColor1 : TEXCOORD1;  
-   float2 tcDepth0 : TEXCOORD2;  
-   float2 tcDepth1 : TEXCOORD3;  
-   float2 tcDepth2 : TEXCOORD4;  
-   float2 tcDepth3 : TEXCOORD5;  
+   float4 position : SV_Position;  
+   TORQUE_LOCATION(0) float2 tcColor0 : TEXCOORD0;  
+   TORQUE_LOCATION(1) float2 tcColor1 : TEXCOORD1;  
+   TORQUE_LOCATION(2) float2 tcDepth0 : TEXCOORD2;  
+   TORQUE_LOCATION(3) float2 tcDepth1 : TEXCOORD3;  
+   TORQUE_LOCATION(4) float2 tcDepth2 : TEXCOORD4;  
+   TORQUE_LOCATION(5) float2 tcDepth3 : TEXCOORD5;  
 };  
 
 uniform float4    rtParams0;

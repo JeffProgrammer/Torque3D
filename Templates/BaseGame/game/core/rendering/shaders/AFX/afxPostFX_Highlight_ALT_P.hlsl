@@ -5,15 +5,15 @@
 // (currently not used for default AFX selection-highlighting)
 //~~~~~~~~~~~~~~~~~~~~//~~~~~~~~~~~~~~~~~~~~//~~~~~~~~~~~~~~~~~~~~//~~~~~~~~~~~~~~~~~~~~~//
 
-#include "../common/shaderModel.hlsl"
-#include "../common/shaderModelAutoGen.hlsl"
+#include "../shaderModel.hlsl"
+#include "../shaderModelAutoGen.hlsl"
 #include "shaders/common/postFX/postFx.hlsl"  
   
 TORQUE_UNIFORM_SAMPLER2D(highlightBuffer,0);
 TORQUE_UNIFORM_SAMPLER2D(backBuffer,1);
 uniform float2 targetSize;
 				 
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0
+float4 main( PFXVertToPix IN ) : SV_Target0
 {  
    float2 offsets[9] = {  
       float2( 0.0,  0.0),  

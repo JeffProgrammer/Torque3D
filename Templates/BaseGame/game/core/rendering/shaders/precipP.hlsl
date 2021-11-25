@@ -28,14 +28,14 @@
 
 struct Conn
 {
-   float4 position : TORQUE_POSITION;
-   float2 texCoord	: TEXCOORD0;
-   float4 color : COLOR0;
+   float4 hpos : SV_Position;
+   TORQUE_LOCATION(0) float2 texCoord	: TEXCOORD0;
+   TORQUE_LOCATION(1) float4 color : COLOR0;
 };
 
 struct Frag
 {
-   float4 col : TORQUE_TARGET0;
+   float4 col : SV_Target0;
 };
 
 TORQUE_UNIFORM_SAMPLER2D(diffuseMap, 0);

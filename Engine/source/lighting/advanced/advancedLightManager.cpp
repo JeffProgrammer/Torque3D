@@ -85,7 +85,7 @@ bool AdvancedLightManager::isCompatible() const
 {
    // TODO: We need at least 3.0 shaders at the moment
    // but this should be relaxed to 2.0 soon.
-   if ( GFX->getPixelShaderVersion() < 3.0 )
+   if ( GFX->getShaderModel() < 3.0 )
       return false;
 
    // TODO: Test for the necessary texture formats!

@@ -25,11 +25,11 @@
 
 struct Conn
 {
-   float4 hpos : TORQUE_POSITION;
-   float4 rayleighColor : TEXCOORD0;
-   float4 mieColor : TEXCOORD1;
-   float3 v3Direction : TEXCOORD2;
-   float3 pos : TEXCOORD3;
+   float4 hpos : SV_Position;
+   TORQUE_LOCATION(0) float4 rayleighColor : TEXCOORD0;
+   TORQUE_LOCATION(1) float4 mieColor : TEXCOORD1;
+   TORQUE_LOCATION(2) float3 v3Direction : TEXCOORD2;
+   TORQUE_LOCATION(3) float3 pos : TEXCOORD3;
 };
 
 TORQUE_UNIFORM_SAMPLERCUBE(nightSky, 0);
@@ -39,7 +39,7 @@ uniform float useCubemap;
 uniform float3 lightDir;
 uniform float3 sunDir;
 
-float4 main( Conn In ) : TORQUE_TARGET0
+float4 main( Conn In ) : SV_Target0
 { 
 
    float fCos = dot( lightDir, In.v3Direction ) / length(In.v3Direction);

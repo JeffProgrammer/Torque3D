@@ -37,15 +37,10 @@ singleton ShaderData( PFX_CausticsShader )
 {   
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile 	= "./CausticsPostFXP.hlsl";
-         
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile   = "./CausticsPostFXP.glsl";
       
    samplerNames[0] = "$deferredTex";
    samplerNames[1] = "$causticsTex0";
    samplerNames[2] = "$causticsTex1";
-   
-   pixVersion = 3.0;
 };
 
 singleton PostEffect( CausticsPFX )

@@ -8,18 +8,18 @@
 // Copyright (C) Faust Logic, Inc.
 //~~~~~~~~~~~~~~~~~~~~//~~~~~~~~~~~~~~~~~~~~//~~~~~~~~~~~~~~~~~~~~//~~~~~~~~~~~~~~~~~~~~~//
 
-#include "../common/shaderModel.hlsl"
+#include "../shaderModel.hlsl"
 
 struct ConnectData
 {
-   float4 hpos         : TORQUE_POSITION;
-   float2 texCoord     : TEXCOORD0;
+   float4 hpos : SV_Position;
+   TORQUE_LOCATION(0) float2 texCoord     : TEXCOORD0;
 };
 
 TORQUE_UNIFORM_SAMPLER2D(zodiacMap,0);
 uniform float4    zodiacColor;
 
-float4 main( ConnectData IN ) : TORQUE_TARGET0
+float4 main( ConnectData IN ) : SV_Target0
 {
    float4 outColor = zodiacColor*TORQUE_TEX2D(zodiacMap, IN.texCoord);   
    return outColor;

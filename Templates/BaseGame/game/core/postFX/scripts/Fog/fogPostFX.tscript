@@ -28,13 +28,8 @@ singleton ShaderData( FogPassShader )
 {   
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile 	= "./fogP.hlsl";
-         
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile   = "./fogP.glsl";
             
    samplerNames[0] = "$deferredTex";
-   
-   pixVersion = 2.0;
 };
 
 

@@ -21,8 +21,8 @@
 //-----------------------------------------------------------------------------
 
 #define IN_HLSL
-#include "shdrConsts.h"
-#include "hlslStructs.hlsl"
+#include "shaderModel.hlsl"
+#include "shaderVertex.hlsl"
 
 //-----------------------------------------------------------------------------
 // Constants
@@ -30,23 +30,22 @@
 
 struct Conn
 {
-   float4 HPOS             : POSITION;
-	float2 TEX0             : TEXCOORD0;
-	float4 tangentToCube0   : TEXCOORD1;
-	float4 tangentToCube1   : TEXCOORD2;
-	float4 tangentToCube2   : TEXCOORD3;
-   float4 outLightVec      : TEXCOORD4;
-   float3 pos              : TEXCOORD5;
-   float3 outEyePos        : TEXCOORD6;
-   
+   float4 HPOS             : SV_POSITION;
+	TORQUE_LOCATION(0) float2 TEX0             : TEXCOORD0;
+	TORQUE_LOCATION(0) float4 tangentToCube0   : TEXCOORD1;
+	TORQUE_LOCATION(0) float4 tangentToCube1   : TEXCOORD2;
+	TORQUE_LOCATION(0) float4 tangentToCube2   : TEXCOORD3;
+   TORQUE_LOCATION(0) float4 outLightVec      : TEXCOORD4;
+   TORQUE_LOCATION(0) float3 pos              : TEXCOORD5;
+   TORQUE_LOCATION(0) float3 outEyePos        : TEXCOORD6;   
 };
 
 
-uniform float4x4 modelview : register(VC_WORLD_PROJ);
-uniform float3x3 cubeTrans : register(VC_CUBE_TRANS);
-uniform float3   cubeEyePos : register(VC_CUBE_EYE_POS);
-uniform float3   inLightVec : register(VC_LIGHT_DIR1);
-uniform float3   eyePos : register(VC_EYE_POS);
+uniform float4x4 modelview;
+uniform float3x3 cubeTrans;
+uniform float3   cubeEyePos;
+uniform float3   inLightVec;
+uniform float3   eyePos;
 
 //-----------------------------------------------------------------------------
 // Main

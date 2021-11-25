@@ -24,17 +24,17 @@
 
 struct PFXVert
 {
-   float3 pos        : POSITION;
-   float2 uv         : TEXCOORD0;
-   float3 wsEyeRay   : TEXCOORD1;
+   TORQUE_LOCATION(kPosition) float3 pos        : POSITION;
+   TORQUE_LOCATION(kTexCoord0) float2 uv         : TEXCOORD0;
+   TORQUE_LOCATION(kTexCoord1) float3 wsEyeRay   : TEXCOORD1;
 };
 
 struct PFXVertToPix
 {
-   float4 hpos       : TORQUE_POSITION;
-   float2 uv0        : TEXCOORD0;
-   float2 uv1        : TEXCOORD1;
-   float2 uv2        : TEXCOORD2;
-   float2 uv3        : TEXCOORD3;
-   float3 wsEyeRay   : TEXCOORD4;
+   float4 hpos : SV_Position;
+   TORQUE_LOCATION(0) float2 uv0        : TEXCOORD0;
+   TORQUE_LOCATION(1) float2 uv1        : TEXCOORD1;
+   TORQUE_LOCATION(2) float2 uv2        : TEXCOORD2;
+   TORQUE_LOCATION(3) float2 uv3        : TEXCOORD3;
+   TORQUE_LOCATION(4) float3 wsEyeRay   : TEXCOORD4;
 };

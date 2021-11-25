@@ -25,13 +25,8 @@ singleton shaderData( AL_ShadowVisualizeShader )
    DXVertexShaderFile = $Core::CommonShaderPath @ "/guiMaterialV.hlsl";
    DXPixelShaderFile  = "./shaders/dbgShadowVisualizeP.hlsl";
    
-   OGLVertexShaderFile = $Core::CommonShaderPath @ "/gl/guiMaterialV.glsl";
-   OGLPixelShaderFile  = "./shaders/dbgShadowVisualizeP.glsl";
-   
    samplerNames[0] = "$shadowMap";
    samplerNames[1] = "$depthViz";
-   
-   pixVersion = 2.0;
 };
 
 singleton CustomMaterial( AL_ShadowVisualizeMaterial )
@@ -41,8 +36,6 @@ singleton CustomMaterial( AL_ShadowVisualizeMaterial )
    
    sampler["shadowMap"] = "#AL_ShadowVizTexture";
    sampler["depthViz"] = "tools/worldEditor/images/depthviz";
-
-   pixVersion = 2.0;
 };
 
 singleton GuiControlProfile( AL_ShadowLabelTextProfile )

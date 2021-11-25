@@ -936,7 +936,7 @@ F32 WaterPlane::getSurfaceHeight( const Point2F &pos ) const
 void WaterPlane::onReflectionInfoChanged()
 {
    /*
-   if ( isClientObject() && GFX->getPixelShaderVersion() >= 1.4 )
+   if ( isClientObject() && GFX->getShaderModel() >= 1.4 )
    {
       if ( mFullReflect )
          REFLECTMGR->registerObject( this, ReflectDelegate( this, &WaterPlane::updateReflection ), mReflectPriority, mReflectMaxRateMs, mReflectMaxDist );

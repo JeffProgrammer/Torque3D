@@ -227,7 +227,7 @@ bool Ribbon::onAdd()
 
    if (!isServerObject()) {
 
-      if(GFX->getPixelShaderVersion() >= 1.1 && dStrlen(mDataBlock->mMatName) > 0 )
+      if(GFX->getShaderModel() >= 1.1 && dStrlen(mDataBlock->mMatName) > 0 )
       {
          mRibbonMat = MATMGR->createMatInstance( mDataBlock->mMatName );
          GFXStateBlockDesc desc;

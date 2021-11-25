@@ -33,7 +33,7 @@ uniform float2 ScaleIn;
 uniform float4 HmdWarpParam;
 uniform float4 HmdChromaAbParam; // Chromatic aberration correction
 
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0  
+float4 main( PFXVertToPix IN ) : SV_Target0  
 {
    float2 texCoord;
    float xOffset;

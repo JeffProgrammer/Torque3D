@@ -34,7 +34,7 @@ bool GFXShader::smLogWarnings = true;
 
 
 GFXShader::GFXShader()
-   :  mPixVersion( 0.0f ),
+   :  mShaderModel( 0.0f ),
       mReloadKey( 0 ),
       mInstancingFormat( NULL )
 {
@@ -48,20 +48,9 @@ GFXShader::~GFXShader()
    SAFE_DELETE(mInstancingFormat);
 }
 
-#ifndef TORQUE_OPENGL
 bool GFXShader::init(   const Torque::Path &vertFile, 
                         const Torque::Path &pixFile, 
-                        F32 pixVersion, 
-                        const Vector<GFXShaderMacro> &macros )
-{
-   Vector<String> samplerNames;
-   return init( vertFile, pixFile, pixVersion, macros, samplerNames );
-}
-#endif
-
-bool GFXShader::init(   const Torque::Path &vertFile, 
-                        const Torque::Path &pixFile, 
-                        F32 pixVersion, 
+                        F32 shaderModel, 
                         const Vector<GFXShaderMacro> &macros,
                         const Vector<String> &samplerNames,
                         GFXVertexFormat *instanceFormat)
@@ -76,7 +65,7 @@ bool GFXShader::init(   const Torque::Path &vertFile,
    // Store the inputs for use in reloading.
    mVertexFile = vertFile;
    mPixelFile = pixFile;
-   mPixVersion = pixVersion;
+   mShaderModel = shaderModel;
    mMacros = macros;
    mSamplerNamesOrdered = samplerNames;
 
@@ -120,7 +109,7 @@ bool GFXShader::reload()
 void GFXShader::_updateDesc()
 {
    mDescription = String::ToString( "Files: %s, %s Pix Version: %0.2f\nMacros: ", 
-      mVertexFile.getFullPath().c_str(), mPixelFile.getFullPath().c_str(), mPixVersion );
+      mVertexFile.getFullPath().c_str(), mPixelFile.getFullPath().c_str(), mShaderModel );
 
    GFXShaderMacro::stringize( smGlobalMacros, &mDescription );
    GFXShaderMacro::stringize( mMacros, &mDescription );   

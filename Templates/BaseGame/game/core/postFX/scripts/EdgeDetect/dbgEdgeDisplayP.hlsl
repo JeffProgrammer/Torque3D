@@ -24,7 +24,7 @@
 
 TORQUE_UNIFORM_SAMPLER2D(edgeBuffer);
 
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0
+float4 main( PFXVertToPix IN ) : SV_Target0
 {
    return float4( TORQUE_TEX2D( edgeBuffer, IN.uv0 ).rrr, 1.0 );
 }

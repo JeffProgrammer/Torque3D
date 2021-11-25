@@ -36,40 +36,25 @@ singleton ShaderData( PFX_EdgeAADetectShader )
 {   
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile 	= "./edgeDetectP.hlsl";
-         
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile   = "./edgeDetectP.glsl";
       
    samplerNames[0] = "$deferredBuffer";
-   
-   pixVersion = 3.0;
 };
 
 singleton ShaderData( PFX_EdgeAAShader )
 {   
    DXVertexShaderFile 	= "./edgeAAV.hlsl";
    DXPixelShaderFile 	= "./edgeAAP.hlsl";
-         
-   OGLVertexShaderFile  = "./edgeAAV.glsl";
-   OGLPixelShaderFile   = "./edgeAAP.glsl";
       
    samplerNames[0] = "$edgeBuffer";
    samplerNames[1] = "$backBuffer";
-   
-   pixVersion = 3.0;
 };
 
 singleton ShaderData( PFX_EdgeAADebugShader )
 {   
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile 	= "./dbgEdgeDisplayP.hlsl";
-         
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile   = "./dbgEdgeDisplayP.glsl";
       
    samplerNames[0] = "$edgeBuffer";
-   
-   pixVersion = 3.0;
 };
 
 singleton PostEffect( EdgeDetectPostEffect )

@@ -47,7 +47,28 @@ namespace GFXSemantic
    extern const String TEXCOORD;
    extern const String BLENDWEIGHT;
    extern const String BLENDINDICES;
-   extern const String PADDING;
+}
+
+namespace GFXAttributeLocation
+{
+   static const S32 Position = 0;
+   static const S32 Normal = 1;
+   static const S32 Color = 2;
+   static const S32 Tangent = 3;
+   static const S32 TangentW = 4;
+   static const S32 Binormal = 5;
+   static const S32 TexCoord0 = 6;
+   static const S32 TexCoord1 = 7;
+   static const S32 TexCoord2 = 8;
+   static const S32 TexCoord3 = 9;
+   static const S32 TexCoord4 = 10;
+   static const S32 TexCoord5 = 11;
+   static const S32 TexCoord6 = 12;
+   static const S32 TexCoord7 = 13;
+   static const S32 TexCoord8 = 14;
+   static const S32 TexCoord9 = 15;
+   static const S32 BlendWeight0 = TexCoord6;
+   static const S32 BlendIndex0 = TexCoord2;
 }
 
 

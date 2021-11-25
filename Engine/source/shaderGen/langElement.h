@@ -119,9 +119,12 @@ struct Var : public LangElement
    bool  uniform;       // argument passed in through constant registers
    bool  vertData;      // argument coming from vertex data
    bool  connector;     // variable that will be passed to pixel shader
-   bool  sampler;       // texture
+   bool  sampler;       // sampler
    bool  texture;       //for D3D11 texture variables
+   bool  attribute;      // attribute
+   bool  systemValue;    // HLSL SV_ system value
    U32   arraySize;     // 1 = no array, > 1 array of "type"
+   S32   location;      // input/output binding location of the attribute
    U32   rank;          // optional rank system to assist in sorting vars if needed
 
    static U32  texUnitCount;

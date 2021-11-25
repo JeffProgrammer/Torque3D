@@ -37,7 +37,7 @@ struct VertData
 
 struct ConnectData
 {
-   float4 hpos            : TORQUE_POSITION;
+   float4 hpos            : SV_Position;
    float2 tex0            : TEXCOORD0;
 };
 

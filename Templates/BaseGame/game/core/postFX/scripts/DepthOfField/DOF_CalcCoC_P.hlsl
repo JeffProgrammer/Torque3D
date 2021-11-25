@@ -30,7 +30,7 @@ TORQUE_UNIFORM_SAMPLER2D(blurredSampler, 1); // Blurred version of the shrunk sa
 // This is the pixel shader function that calculates the actual  
 // value used for the near circle of confusion.  
 // "texCoords" are 0 at the bottom left pixel and 1 at the top right.  
-float4 main( PFXVertToPix IN ) : TORQUE_TARGET0
+float4 main( PFXVertToPix IN ) : SV_Target0
 {
    float3 color;  
    float coc;  

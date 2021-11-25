@@ -21,26 +21,20 @@
 //-----------------------------------------------------------------------------
 
 #include "../shaderModel.hlsl"
-
-struct Appdata
-{
-	float3 position   : POSITION;
-	float4 color      : COLOR;
-	float2 texCoord   : TEXCOORD0;
-};
+#include "../shaderVertex.hlsl"
 
 struct Conn
 {
-	float4 hpos             : TORQUE_POSITION;
-	float2 texCoord         : TEXCOORD0;
+	float4 hpos : SV_Position;
+	TORQUE_LOCATION(0) float2 texCoord : TEXCOORD0;
 };
 
 uniform float4x4 modelview;
 
-Conn main( Appdata In )
+Conn main( VertexIn_PCT In )
 {
 	Conn Out;
-	Out.hpos = mul(modelview, float4(In.position, 1.0));
-	Out.texCoord = In.texCoord;
+	Out.hpos = mul(modelview, float4(In.pos, 1.0));
+	Out.texCoord = In.uv0;
 	return Out;
 }

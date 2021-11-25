@@ -33,13 +33,12 @@ uniform float4 edgeTargetParams;
 
 struct Conn
 {
-   float4 hpos : TORQUE_POSITION;
-   float4 offscreenPos : TEXCOORD0;
-   float4 backbufferPos : TEXCOORD1;
+   float4 hpos : SV_Position;
+   TORQUE_LOCATION(0) float4 offscreenPos : TEXCOORD0;
+   TORQUE_LOCATION(0) float4 backbufferPos : TEXCOORD1;
 };
 
-
-float4 main(Conn IN) : TORQUE_TARGET0
+float4 main(Conn IN) : SV_Target0
 {  
    // Off-screen particle source screenspace position in XY
    // Back-buffer screenspace position in ZW

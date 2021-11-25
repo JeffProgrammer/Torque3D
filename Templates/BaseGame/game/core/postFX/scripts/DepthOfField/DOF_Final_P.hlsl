@@ -85,7 +85,7 @@ half4 InterpolateDof( half3 small, half3 med, half3 large, half t )
    return half4( color, alpha );  
 }  
 
-half4 main( PFXVertToPix IN ) : TORQUE_TARGET0
+half4 main( PFXVertToPix IN ) : SV_Target0
 {  
    //return half4( 1,0,1,1 );
    //return half4( TORQUE_TEX2D( colorSampler, IN.uv0 ).rgb, 1.0 );

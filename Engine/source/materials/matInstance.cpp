@@ -333,7 +333,7 @@ bool MatInstance::processMaterial()
 
    if( dynamic_cast<CustomMaterial*>(mMaterial) )
    {
-      F32 pixVersion = GFX->getPixelShaderVersion();
+      F32 pixVersion = GFX->getShaderModel();
       custMat = static_cast<CustomMaterial*>(mMaterial);
       if ((custMat->mVersion > pixVersion) || (custMat->mVersion == 0.0))
       {

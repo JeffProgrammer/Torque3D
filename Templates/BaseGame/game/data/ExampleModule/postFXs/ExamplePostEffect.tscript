@@ -23,13 +23,9 @@
 singleton ShaderData( ExamplePostEffect_Shader )
 {
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
-   DXPixelShaderFile 	= $Core:modulePath @ "ExamplePostEffectP.hlsl";   
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile   = $Core:modulePath @ "ExamplePostEffectP.glsl";
+   DXPixelShaderFile 	= $Core:modulePath @ "ExamplePostEffectP.hlsl";
    
    samplerNames[0] = "$inputTex";
-   
-   pixVersion = 3.0;
 };
 
 singleton GFXStateBlockData( ExamplePostEffect_StateBlock )

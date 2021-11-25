@@ -103,9 +103,7 @@ public:
 
    /// @name Shader functions
    /// @{
-   virtual F32 getPixelShaderVersion() const { return mPixelShaderVersion; }
-   virtual void  setPixelShaderVersion( F32 version ) { mPixelShaderVersion = version; }
-   
+  
    virtual void setShader(GFXShader *shader, bool force = false);
    
    /// @attention GL cannot check if the given format supports blending or filtering!
@@ -233,8 +231,6 @@ private:
 
    void* mContext;
    void* mPixelFormat;
-
-   F32 mPixelShaderVersion;
    
    bool mSupportsAnisotropic;   
 

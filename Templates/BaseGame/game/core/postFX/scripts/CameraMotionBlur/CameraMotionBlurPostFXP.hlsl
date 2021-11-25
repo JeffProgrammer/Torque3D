@@ -34,7 +34,7 @@ uniform float samples;
 TORQUE_UNIFORM_SAMPLER2D(backBuffer, 0);
 TORQUE_UNIFORM_SAMPLER2D(deferredTex, 1);
 
-float4 main(PFXVertToPix IN) : TORQUE_TARGET0
+float4 main(PFXVertToPix IN) : SV_Target0
 {
    // First get the deferred texture for uv channel 0
    float4 deferred = TORQUE_DEFERRED_UNCONDITION( deferredTex, IN.uv0 );

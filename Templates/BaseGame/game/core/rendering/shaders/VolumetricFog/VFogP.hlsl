@@ -46,12 +46,12 @@ uniform float2 PixelSize;
 
 struct ConnectData
 {
-   float4 hpos : TORQUE_POSITION;
-   float4 htpos : TEXCOORD0;
-   float2 uv0 : TEXCOORD1;
+   float4 hpos : SV_Position;
+   TORQUE_LOCATION(0) float4 htpos : TEXCOORD0;
+   TORQUE_LOCATION(1) float2 uv0 : TEXCOORD1;
 };
 
-float4 main( ConnectData IN ) : TORQUE_TARGET0
+float4 main( ConnectData IN ) : SV_Target0
 {
 	float2 uvscreen=((IN.htpos.xy/IN.htpos.w) + 1.0 ) / 2.0;
 	uvscreen.y = 1.0 - uvscreen.y;

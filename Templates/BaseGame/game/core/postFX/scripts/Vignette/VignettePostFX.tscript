@@ -27,13 +27,9 @@ $PostFX::VignettePostFX::Color = "0 0 0 1";
 singleton ShaderData( VignettePostFX_Shader )
 {
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
-   DXPixelShaderFile 	= "./VignettePostFXP.hlsl";   
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile   = "./VignettePostFXP.glsl";
+   DXPixelShaderFile 	= "./VignettePostFXP.hlsl";
    
    samplerNames[0] = "$backBuffer";
-   
-   pixVersion = 3.0;
 };
 
 singleton GFXStateBlockData( VignettePostFX_StateBlock )

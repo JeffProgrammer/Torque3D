@@ -24,29 +24,24 @@
 /// base terrain texture.
 
 #include "../shaderModel.hlsl"
-
-struct VertData
-{
-   float3 position : POSITION;
-   float2 texCoord : TEXCOORD0;
-};
+#include "../shaderVertex.hlsl"
 
 struct ConnectData
 {
-   float4 hpos : TORQUE_POSITION;
-   float2 layerCoord : TEXCOORD0;
-   float2 texCoord : TEXCOORD1;
+   float4 hpos : SV_Position;
+   TORQUE_LOCATION(0) float2 layerCoord : TEXCOORD0;
+   TORQUE_LOCATION(1) float2 texCoord : TEXCOORD1;
 };
 
 uniform float2 texScale;
 
-ConnectData main( VertData IN )
+ConnectData main( VertexIn_PT IN )
 {
    ConnectData OUT;
 
-   OUT.hpos = float4( IN.position, 1 );
-   OUT.layerCoord = IN.texCoord;
-   OUT.texCoord = IN.texCoord * texScale;
+   OUT.hpos = float4( IN.pos, 1 );
+   OUT.layerCoord = IN.uv0;
+   OUT.texCoord = IN.uv0 * texScale;
 
    return OUT;
 }

@@ -25,13 +25,9 @@ $PostFX::SharpenPostFX::sharpness = "1";
 singleton ShaderData( SharpenPostFX_Shader )
 {
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
-   DXPixelShaderFile 	= "./SharpenPostFXP.hlsl";   
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile   = "./SharpenPostFXP.glsl";
+   DXPixelShaderFile 	= "./SharpenPostFXP.hlsl";
    
    samplerNames[0] = "$inputTex";
-   
-   pixVersion = 3.0;
 };
 
 singleton GFXStateBlockData( SharpenPostFX_StateBlock )

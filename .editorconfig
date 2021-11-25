@@ -9,5 +9,5 @@ indent_size = 3
 
 insert_final_newline = true
 trim_trailing_whitespace = true
-end_of_line = lf
+end_of_line = crlf
 charset = utf-8

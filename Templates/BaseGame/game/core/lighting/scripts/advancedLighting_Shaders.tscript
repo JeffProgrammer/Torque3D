@@ -61,9 +61,6 @@ singleton shaderData( AL_VectorLightShader )
 {
    DXVertexShaderFile = $Core::CommonShaderPath @ "/lighting/advanced/farFrustumQuadV.hlsl";
    DXPixelShaderFile  = $Core::CommonShaderPath @ "/lighting/advanced/vectorLightP.hlsl";
-
-   OGLVertexShaderFile = $Core::CommonShaderPath @ "/lighting/advanced/gl/farFrustumQuadV.glsl";
-   OGLPixelShaderFile  = $Core::CommonShaderPath @ "/lighting/advanced/gl/vectorLightP.glsl";
    
    samplerNames[0] = "$deferredBuffer";
    samplerNames[1] = "$shadowMap";
@@ -71,8 +68,6 @@ singleton shaderData( AL_VectorLightShader )
    samplerNames[3] = "$lightBuffer";
    samplerNames[4] = "$colorBuffer";
    samplerNames[5] = "$matInfoBuffer";  
-   
-   pixVersion = 3.0;
 };
 
 singleton CustomMaterial( AL_VectorLightMaterial )
@@ -87,8 +82,6 @@ singleton CustomMaterial( AL_VectorLightMaterial )
    sampler["matInfoBuffer"] = "#matinfo";
    
    target = "AL_FormatToken";
-   
-   pixVersion = 3.0;
 };
 
 //------------------------------------------------------------------------------
@@ -135,9 +128,6 @@ singleton shaderData( AL_PointLightShader )
    DXVertexShaderFile = $Core::CommonShaderPath @ "/lighting/advanced/convexGeometryV.hlsl";
    DXPixelShaderFile  = $Core::CommonShaderPath @ "/lighting/advanced/pointLightP.hlsl";
 
-   OGLVertexShaderFile = $Core::CommonShaderPath @ "/lighting/advanced/gl/convexGeometryV.glsl";
-   OGLPixelShaderFile  = $Core::CommonShaderPath @ "/lighting/advanced/gl/pointLightP.glsl";
-
    samplerNames[0] = "$deferredBuffer";
    samplerNames[1] = "$shadowMap";
    samplerNames[2] = "$cookieMap";
@@ -145,8 +135,6 @@ singleton shaderData( AL_PointLightShader )
    samplerNames[4] = "$lightBuffer";
    samplerNames[5] = "$colorBuffer";
    samplerNames[6] = "$matInfoBuffer";
-   
-   pixVersion = 3.0;
 };
 
 singleton CustomMaterial( AL_PointLightMaterial )
@@ -162,8 +150,6 @@ singleton CustomMaterial( AL_PointLightMaterial )
    sampler["matInfoBuffer"] = "#matinfo";
    
    target = "AL_FormatToken";
-   
-   pixVersion = 3.0;
 };
 
 // Spot Light Material
@@ -171,9 +157,6 @@ singleton shaderData( AL_SpotLightShader )
 {
    DXVertexShaderFile = $Core::CommonShaderPath @ "/lighting/advanced/convexGeometryV.hlsl";
    DXPixelShaderFile  = $Core::CommonShaderPath @ "/lighting/advanced/spotLightP.hlsl";
-
-   OGLVertexShaderFile = $Core::CommonShaderPath @ "/lighting/advanced/gl/convexGeometryV.glsl";
-   OGLPixelShaderFile  = $Core::CommonShaderPath @ "/lighting/advanced/gl/spotLightP.glsl";
    
    samplerNames[0] = "$deferredBuffer";
    samplerNames[1] = "$shadowMap";
@@ -182,8 +165,6 @@ singleton shaderData( AL_SpotLightShader )
    samplerNames[4] = "$lightBuffer";
    samplerNames[5] = "$colorBuffer";
    samplerNames[6] = "$matInfoBuffer";
-
-   pixVersion = 3.0;
 };
 
 singleton CustomMaterial( AL_SpotLightMaterial )
@@ -199,8 +180,6 @@ singleton CustomMaterial( AL_SpotLightMaterial )
    sampler["matInfoBuffer"] = "#matinfo";
    
    target = "AL_FormatToken";
-   
-   pixVersion = 3.0;
 };
 
 /// This material is used for generating deferred 
@@ -246,13 +225,8 @@ singleton shaderData( AL_ParticlePointLightShader )
 {
    DXVertexShaderFile = $Core::CommonShaderPath @ "/lighting/advanced/particlePointLightV.hlsl";
    DXPixelShaderFile  = $Core::CommonShaderPath @ "/lighting/advanced/particlePointLightP.hlsl";
-
-   OGLVertexShaderFile = $Core::CommonShaderPath @ "/lighting/advanced/gl/convexGeometryV.glsl";
-   OGLPixelShaderFile  = $Core::CommonShaderPath @ "/lighting/advanced/gl/pointLightP.glsl";
    
-   samplerNames[0] = "$deferredBuffer";   
-      
-   pixVersion = 3.0;
+   samplerNames[0] = "$deferredBuffer";
 };
 
 singleton CustomMaterial( AL_ParticlePointLightMaterial )
@@ -262,8 +236,6 @@ singleton CustomMaterial( AL_ParticlePointLightMaterial )
    
    sampler["deferredBuffer"] = "#deferred";
    target = "diffuseLighting";
-   
-   pixVersion = 3.0;
 };
 
 //Probe Processing
@@ -271,26 +243,16 @@ singleton shaderData( IrradianceShader )
 {
    DXVertexShaderFile = $Core::CommonShaderPath @ "/lighting/advanced/cubemapV.hlsl";
    DXPixelShaderFile  = $Core::CommonShaderPath @ "/lighting/advanced/irradianceP.hlsl";
-
-   OGLVertexShaderFile = $Core::CommonShaderPath @ "/lighting/advanced/gl/cubemapV.glsl";
-   OGLPixelShaderFile  = $Core::CommonShaderPath @ "/lighting/advanced/gl/irradianceP.glsl";
    
    samplerNames[0] = "$environmentMap";
-   
-   pixVersion = 3.0;
 };
 
 singleton shaderData( PrefiterCubemapShader )
 {
    DXVertexShaderFile = $Core::CommonShaderPath @ "/lighting/advanced/cubemapV.hlsl";
    DXPixelShaderFile  = $Core::CommonShaderPath @ "/lighting/advanced/prefilterP.hlsl";
-
-   OGLVertexShaderFile = $Core::CommonShaderPath @ "/lighting/advanced/gl/cubemapV.glsl";
-   OGLPixelShaderFile  = $Core::CommonShaderPath @ "/lighting/advanced/gl/prefilterP.glsl";
    
-   samplerNames[0] = "$environmentMap";
-   
-   pixVersion = 3.0;
+   samplerNames[0] = "$environmentMap";   
 };
 
 //
@@ -298,9 +260,6 @@ singleton ShaderData( PFX_ReflectionProbeArray )
 {
    DXVertexShaderFile   = $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
    DXPixelShaderFile    = $Core::CommonShaderPath @ "/lighting/advanced/reflectionProbeArrayP.hlsl";
-
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile   = $Core::CommonShaderPath @ "/lighting/advanced/gl/reflectionProbeArrayP.glsl";
    
    samplerNames[0] = "$deferredBuffer";
    samplerNames[1] = "$colorBuffer";
@@ -309,8 +268,6 @@ singleton ShaderData( PFX_ReflectionProbeArray )
    samplerNames[4] = "$specularCubemapAR";
    samplerNames[5] = "$irradianceCubemapAR";
    samplerNames[6] = "$ssaoMask";
-
-   pixVersion = 2.0;
 };  
 
 singleton GFXStateBlockData( PFX_ReflectionProbeArrayStateBlock )

@@ -25,15 +25,10 @@ singleton ShaderData( PFX_GlowBlurVertShader )
 {
    DXVertexShaderFile 	= "./glowBlurV.hlsl";
    DXPixelShaderFile 	= "./glowBlurP.hlsl";
-   
-   OGLVertexShaderFile  = "./glowBlurV.glsl";
-   OGLPixelShaderFile   = "./glowBlurP.glsl";
       
    defines = "BLUR_DIR=float2(0.0,1.0)";
 
    samplerNames[0] = "$diffuseMap";
-         
-   pixVersion = 2.0;
 };
 
 
@@ -110,22 +105,15 @@ singleton PostEffect( GlowPostFX )
 singleton ShaderData( PFX_VolFogGlowBlurVertShader )
 {
 	DXVertexShaderFile = "./glowBlurV.hlsl";
-	DXPixelShaderFile = "./VolFogGlowP.hlsl";
-	
-	OGLVertexShaderFile = "./glowBlurV.glsl";
-	OGLPixelShaderFile = "./VolFogGlowP.glsl";	
+	DXPixelShaderFile = "./VolFogGlowP.hlsl";	
 	
 	defines = "BLUR_DIR=float2(0.0,1.0)";
 	samplerNames[0] = "$diffuseMap";
-	pixVersion = 2.0;
 };
 singleton ShaderData( PFX_VolFogGlowBlurHorzShader : PFX_VolFogGlowBlurVertShader )
 {
 	DXVertexShaderFile = "./glowBlurV.hlsl";
 	DXPixelShaderFile = "./VolFogGlowP.hlsl";
-	
-	OGLVertexShaderFile = "./glowBlurV.glsl";
-	OGLPixelShaderFile = "./VolFogGlowP.glsl";
 	
 	defines = "BLUR_DIR=float2(1.0,0.0)";
 };

@@ -549,7 +549,7 @@ AdvancedLightBinManager::LightMaterialInfo* AdvancedLightBinManager::_getLightMa
          {
             shadowMacros.push_back( GFXShaderMacro( "SOFTSHADOW" ) );
            
-            const F32 SM = GFX->getPixelShaderVersion();
+            const F32 SM = GFX->getShaderModel();
             if ( SM >= 3.0f && smShadowFilterMode == ShadowFilterMode_SoftShadowHighQuality )
                shadowMacros.push_back( GFXShaderMacro( "SOFTSHADOW_HIGH_QUALITY" ) );
          }

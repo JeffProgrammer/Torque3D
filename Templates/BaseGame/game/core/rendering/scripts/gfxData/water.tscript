@@ -31,9 +31,6 @@ singleton ShaderData( WaterShader )
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/water/waterV.hlsl";
    DXPixelShaderFile 	= $Core::CommonShaderPath @ "/water/waterP.hlsl";
    
-   OGLVertexShaderFile = $Core::CommonShaderPath @ "/water/gl/waterV.glsl";
-   OGLPixelShaderFile = $Core::CommonShaderPath @ "/water/gl/waterP.glsl";
-   
    samplerNames[0] = "$bumpMap";  // noise
    samplerNames[1] = "$deferredTex";  // #deferred
    samplerNames[2] = "$reflectMap"; // $reflectbuff
@@ -41,8 +38,6 @@ singleton ShaderData( WaterShader )
    samplerNames[4] = "$skyMap";  // $cubemap   
    samplerNames[5] = "$foamMap";  // foam     
    samplerNames[6] = "$depthGradMap"; // depthMap ( color gradient ) 
-   
-   pixVersion = 3.0;
 };
 
 singleton GFXSamplerStateData(WaterSampler)
@@ -134,16 +129,11 @@ singleton ShaderData( WaterBasicShader )
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/water/waterBasicV.hlsl";
    DXPixelShaderFile 	= $Core::CommonShaderPath @ "/water/waterBasicP.hlsl";
    
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/water/gl/waterBasicV.glsl";
-   OGLPixelShaderFile   = $Core::CommonShaderPath @ "/water/gl/waterBasicP.glsl";
-   
    samplerNames[0] = "$bumpMap";
    samplerNames[2] = "$reflectMap";
    samplerNames[3] = "$refractBuff";
    samplerNames[4] = "$skyMap";
    samplerNames[5] = "$depthGradMap";
-   
-   pixVersion = 2.0;
 };
 
 singleton GFXStateBlockData( WaterBasicStateBlock )

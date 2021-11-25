@@ -74,32 +74,7 @@ function AssetBrowser::createPostEffectAsset(%this)
       %templateFile.close();
       
       warnf("CreatePostFXAsset - Something went wrong and we couldn't write the PostFX hlsl file!");
-   }
-   
-   //glsl shader
-   %postFXTemplateCodeFilePath = %this.templateFilesPath @ "postFXFileP.glsl.template";
-   
-   if(%file.openForWrite(%glslPath) && %templateFile.openForRead(%postFXTemplateCodeFilePath))
-   {
-      while( !%templateFile.isEOF() )
-      {
-         %line = %templateFile.readline();
-         %line = strreplace( %line, "@@", %assetName );
-         
-         %file.writeline(%line);
-         echo(%line);
-      }
-      
-      %file.close();
-      %templateFile.close();
-   }
-   else
-   {
-      %file.close();
-      %templateFile.close();
-      
-      warnf("CreatePostFXAsset - Something went wrong and we couldn't write the PostFX glsl file!");
-   }
+   }   
    
 	return %tamlpath;
 }

@@ -21,7 +21,6 @@
 //-----------------------------------------------------------------------------
 
 #define IN_HLSL
-#include "shdrConsts.h"
 #include "shaderModel.hlsl"
 
 //-----------------------------------------------------------------------------
@@ -29,21 +28,21 @@
 //-----------------------------------------------------------------------------
 struct v2f
 {
-   float4 HPOS             : TORQUE_POSITION;
-	float2 TEX0             : TEXCOORD0;
-	float4 tangentToCube0   : TEXCOORD1;
-	float4 tangentToCube1   : TEXCOORD2;
-	float4 tangentToCube2   : TEXCOORD3;
-   float4 lightVec         : TEXCOORD4;
-   float3 pixPos           : TEXCOORD5;
-   float3 eyePos           : TEXCOORD6;
+   float4 hpos : SV_Position;
+	TORQUE_LOCATION(0) float2 TEX0             : TEXCOORD0;
+	TORQUE_LOCATION(1) float4 tangentToCube0   : TEXCOORD1;
+	TORQUE_LOCATION(2) float4 tangentToCube1   : TEXCOORD2;
+	TORQUE_LOCATION(3) float4 tangentToCube2   : TEXCOORD3;
+   TORQUE_LOCATION(4) float4 lightVec         : TEXCOORD4;
+   TORQUE_LOCATION(5) float3 pixPos           : TEXCOORD5;
+   TORQUE_LOCATION(6) float3 eyePos           : TEXCOORD6;
 };
 
 
 
 struct Fragout
 {
-   float4 col : TORQUE_TARGET0;
+   float4 col : SV_Target0;
 };
 
 // Uniforms
@@ -51,10 +50,10 @@ TORQUE_UNIFORM_SAMPLER2D(diffMap,0);
 //TORQUE_UNIFORM_SAMPLERCUBE(cubeMap, 1); not used?
 TORQUE_UNIFORM_SAMPLER2D(bumpMap,2);
 
-uniform float4    specularColor   : register(PC_MAT_SPECCOLOR);
-uniform float4    ambient : register(PC_AMBIENT_COLOR);
-uniform float     specularPower : register(PC_MAT_SPECPOWER);
-uniform float accumTime : register(PC_ACCUM_TIME);
+uniform float4    specularColor;
+uniform float4    ambient;
+uniform float     specularPower;
+uniform float accumTime;
 
 //-----------------------------------------------------------------------------
 // Main

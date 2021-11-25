@@ -297,7 +297,7 @@ void ProcessedShaderMaterial::_determineFeatures(  U32 stageNum,
 {
    PROFILE_SCOPE( ProcessedShaderMaterial_DetermineFeatures );
 
-   const F32 shaderVersion = GFX->getPixelShaderVersion();
+   const F32 shaderVersion = GFX->getShaderModel();
    AssertFatal(shaderVersion > 0.0 , "Cannot create a shader material if we don't support shaders");
 
    bool lastStage = stageNum == (mMaxStages-1);
@@ -463,7 +463,7 @@ void ProcessedShaderMaterial::_determineFeatures(  U32 stageNum,
    if(   fd.features[ MFT_AccuMap ] && 
        ( !fd.features[ MFT_DiffuseMap ] || 
          !fd.features[ MFT_NormalMap ] ||
-         GFX->getPixelShaderVersion() < 3.0f ) ) {
+         GFX->getShaderModel() < 3.0f ) ) {
       AssertWarn(false, "SAHARA: Using an Accu Map requires SM 3.0 and a normal map.");
       fd.features.removeFeature( MFT_AccuMap );
       mHasAccumulation = false;

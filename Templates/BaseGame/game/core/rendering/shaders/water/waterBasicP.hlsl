@@ -57,28 +57,28 @@
 
 struct ConnectData
 {
-   float4 hpos             : TORQUE_POSITION;   
+   float4 hpos             : SV_Position;   
    
    // TexCoord 0 and 1 (xy,zw) for ripple texture lookup
-   float4 rippleTexCoord01 : TEXCOORD0;   
+   TORQUE_LOCATION(0) float4 rippleTexCoord01 : TEXCOORD0;   
    
    // TexCoord 2 for ripple texture lookup
-   float2 rippleTexCoord2  : TEXCOORD1;
+   TORQUE_LOCATION(1) float2 rippleTexCoord2  : TEXCOORD1;
    
    // Screenspace vert position BEFORE wave transformation
-   float4 posPreWave       : TEXCOORD2;
+   TORQUE_LOCATION(2) float4 posPreWave       : TEXCOORD2;
    
    // Screenspace vert position AFTER wave transformation
-   float4 posPostWave      : TEXCOORD3;   
+   TORQUE_LOCATION(3) float4 posPostWave      : TEXCOORD3;   
    
    // Worldspace unit distance/depth of this vertex/pixel
-   float  pixelDist        : TEXCOORD4;   
+   TORQUE_LOCATION(4) float  pixelDist        : TEXCOORD4;   
    
    // Objectspace vert position BEFORE wave transformation	
    // w coord is world space z position.
-   float4 objPos           : TEXCOORD5; 
+   TORQUE_LOCATION(5) float4 objPos           : TEXCOORD5; 
    
-   float3 misc             : TEXCOORD6;   
+   TORQUE_LOCATION(6) float3 misc             : TEXCOORD6;   
 };
 
 //-----------------------------------------------------------------------------
@@ -113,7 +113,7 @@ uniform float4x4     modelMat;
 //-----------------------------------------------------------------------------
 // Main                                                                        
 //-----------------------------------------------------------------------------
-float4 main( ConnectData IN ) : TORQUE_TARGET0
+float4 main( ConnectData IN ) : SV_Target0
 { 
    // Modulate baseColor by the ambientColor.
    float4 waterBaseColor = baseColor * float4( ambientColor.rgb, 1 );

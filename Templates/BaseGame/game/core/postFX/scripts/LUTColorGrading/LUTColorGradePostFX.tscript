@@ -23,14 +23,10 @@
 singleton ShaderData( LUTColorGradePostFX_Shader )
 {
    DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
-   DXPixelShaderFile 	= "./LUTColorGradePostFXP.hlsl";   
-   OGLVertexShaderFile  = $Core::CommonShaderPath @ "/postFX/gl/postFxV.glsl";
-   OGLPixelShaderFile   = "./LUTColorGradePostFXP.glsl";
+   DXPixelShaderFile 	= "./LUTColorGradePostFXP.hlsl";
    
    samplerNames[0] = "$inputTex";
    samplerNames[1] = "$colorCorrectionTex";
-   
-   pixVersion = 3.0;
 };
 
 singleton GFXStateBlockData( LUTColorGradePostFX_StateBlock )

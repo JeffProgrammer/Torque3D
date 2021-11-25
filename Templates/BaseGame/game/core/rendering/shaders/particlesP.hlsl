@@ -42,10 +42,10 @@
 
 struct Conn
 {
-   float4 hpos : TORQUE_POSITION;
-   float4 color : TEXCOORD0;
-   float2 uv0 : TEXCOORD1;
-   float4 pos : TEXCOORD2;
+   float4 hpos : SV_Position;
+   TORQUE_LOCATION(0) float4 color : TEXCOORD0;
+   TORQUE_LOCATION(1) float2 uv0 : TEXCOORD1;
+   TORQUE_LOCATION(2) float4 pos : TEXCOORD2;
 };
 
 TORQUE_UNIFORM_SAMPLER2D(diffuseMap, 0);
@@ -76,7 +76,7 @@ float4 lmSample( float3 nrm )
 uniform float alphaFactor;
 uniform float alphaScale;
 
-float4 main( Conn IN ) : TORQUE_TARGET0
+float4 main( Conn IN ) : SV_Target0
 {
    float softBlend = 1;
    

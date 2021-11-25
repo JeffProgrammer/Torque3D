@@ -1421,7 +1421,7 @@ VectorF River::getFlow( const Point3F &pos ) const
 void River::onReflectionInfoChanged()
 {
    /*
-   if ( isClientObject() && GFX->getPixelShaderVersion() >= 1.4 )
+   if ( isClientObject() && GFX->getShaderModel() >= 1.4 )
    {
       if ( mFullReflect )
          REFLECTMGR->registerObject( this, ReflectDelegate( this, &River::updateReflection ), mReflectPriority, mReflectMaxRateMs, mReflectMaxDist );
