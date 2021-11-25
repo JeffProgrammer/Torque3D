@@ -83,11 +83,6 @@ AdvancedLightManager::~AdvancedLightManager()
 
 bool AdvancedLightManager::isCompatible() const
 {
-   // TODO: We need at least 3.0 shaders at the moment
-   // but this should be relaxed to 2.0 soon.
-   if ( GFX->getShaderModel() < 3.0 )
-      return false;
-
    // TODO: Test for the necessary texture formats!
    bool autoMips;
    if(!GFX->getCardProfiler()->checkFormat(GFXFormatR16F, &GFXRenderTargetProfile, autoMips))
