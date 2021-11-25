@@ -593,34 +593,6 @@ void GFXGLDevice::clearColorAttachment(const U32 attachment, const LinearColorF&
    glClearBufferfv(GL_COLOR, attachment, clearColor);
 }
 
-// Given a primitive type and a number of primitives, return the number of indexes/vertexes used.
-inline GLsizei GFXGLDevice::primCountToIndexCount(GFXPrimitiveType primType, U32 primitiveCount)
-{
-   switch (primType)
-   {
-      case GFXPointList :
-         return primitiveCount;
-         break;
-      case GFXLineList :
-         return primitiveCount * 2;
-         break;
-      case GFXLineStrip :
-         return primitiveCount + 1;
-         break;
-      case GFXTriangleList :
-         return primitiveCount * 3;
-         break;
-      case GFXTriangleStrip :
-         return 2 + primitiveCount;
-         break;
-      default:
-         AssertFatal(false, "GFXGLDevice::primCountToIndexCount - unrecognized prim type");
-         break;
-   }
-   
-   return 0;
-}
-
 GFXVertexDecl* GFXGLDevice::allocVertexDecl( const GFXVertexFormat *vertexFormat ) 
 {
    PROFILE_SCOPE(GFXGLDevice_allocVertexDecl);

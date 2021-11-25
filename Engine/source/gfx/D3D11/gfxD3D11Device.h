@@ -23,7 +23,7 @@
 #ifndef _GFXD3D11DEVICE_H_
 #define _GFXD3D11DEVICE_H_
 
-#include <d3d11_1.h>
+#include <d3d11.h>
 
 #include "platform/tmm_off.h"
 #include "platformWin32/platformWin32.h"
@@ -70,9 +70,9 @@ private:
    virtual GFXWindowTarget *allocWindowTarget(PlatformWindow *window);
    virtual GFXTextureTarget *allocRenderToTextureTarget(bool genMips = true);
 
-   virtual void enterDebugEvent(ColorI color, const char *name);
+   virtual void enterDebugEvent(const ColorI& color, const char *name);
    virtual void leaveDebugEvent();
-   virtual void setDebugMarker(ColorI color, const char *name);
+   virtual void setDebugMarker(const ColorI& color, const char *name);
 
 protected:
 

@@ -73,9 +73,9 @@ public:
    virtual void deactivate() { }
    virtual GFXAdapterType getAdapterType() { return OpenGL; }
 
-   virtual void enterDebugEvent(ColorI color, const char *name);
+   virtual void enterDebugEvent(const ColorI& color, const char *name);
    virtual void leaveDebugEvent();
-   virtual void setDebugMarker(ColorI color, const char *name);
+   virtual void setDebugMarker(const ColorI& color, const char *name);
 
    virtual void enumerateVideoModes();
 
@@ -250,7 +250,6 @@ private:
    Vector< StrongRefPtr<GFXGLVertexBuffer> > mVolatileVBs; ///< Pool of existing volatile VBs so we can reuse previously created ones
    Vector< StrongRefPtr<GFXGLPrimitiveBuffer> > mVolatilePBs; ///< Pool of existing volatile PBs so we can reuse previously created ones
 
-   GLsizei primCountToIndexCount(GFXPrimitiveType primType, U32 primitiveCount);
    void preDrawPrimitive();
    void postDrawPrimitive(U32 primitiveCount);  
    

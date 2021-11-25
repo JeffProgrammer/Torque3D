@@ -75,9 +75,9 @@ public:
 
    /// @name Debug Methods
    /// @{
-   virtual void enterDebugEvent(ColorI color, const char *name) { };
+   virtual void enterDebugEvent(const ColorI& color, const char *name) { };
    virtual void leaveDebugEvent() { };
-   virtual void setDebugMarker(ColorI color, const char *name) { };
+   virtual void setDebugMarker(const ColorI& color, const char *name) { };
    /// @}
 
    /// Enumerates the supported video modes of the device

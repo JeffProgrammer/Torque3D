@@ -69,24 +69,25 @@ namespace ImageUtil
    {
       S32 width;
       S32 height;
-      const U8 *pSrc;
-      U8 *pDst;
+      S32 flags;
+      const U8* pSrc;
+      U8* pDst;
       GFXFormat format;
       CompressQuality quality;
 
-      CompressJob(const U8 *srcRGBA, U8 *dst, const S32 w, const S32 h, const GFXFormat compressFormat, const CompressQuality compressQuality)
-         : pSrc(srcRGBA),pDst(dst), width(w), height(h), format(compressFormat),quality(compressQuality) {}
+      CompressJob(const U8* srcRGBA, U8* dst, const S32 w, const S32 h, const GFXFormat compressFormat, const CompressQuality compressQuality)
+         : pSrc(srcRGBA), pDst(dst), width(w), height(h), format(compressFormat), quality(compressQuality) {}
 
    protected:
       virtual void execute()
       {
-         rawCompress(pSrc,pDst, width, height, format,quality);
+         rawCompress(pSrc, pDst, width, height, format, quality);
       }
    };
 
 
    // compress raw pixel data, expects rgba format
-   bool rawCompress(const U8 *srcRGBA, U8 *dst, const S32 width, const S32 height, const GFXFormat compressFormat, const CompressQuality compressQuality)
+   bool rawCompress(const U8* srcRGBA, U8* dst, const S32 width, const S32 height, const GFXFormat compressFormat, const CompressQuality compressQuality)
    {
       if (!isCompressedFormat(compressFormat))
          return false;
@@ -96,13 +97,13 @@ namespace ImageUtil
 
       squishFlags |= squishFormat;
 
-      squish::CompressImage(srcRGBA, width,height,dst,squishFlags);
+      squish::CompressImage(srcRGBA, width, height, dst, squishFlags);
 
       return true;
    }
 
    // compress DDSFile
-   bool ddsCompress(DDSFile *srcDDS, const GFXFormat compressFormat,const CompressQuality compressQuality)
+   bool ddsCompress(DDSFile* srcDDS, const GFXFormat compressFormat, const CompressQuality compressQuality)
    {
       if (srcDDS->mBytesPerPixel != 4)
       {
@@ -128,19 +129,18 @@ namespace ImageUtil
 
       if (cubemap)
       {
-         static U32 nCubeFaces = 6;
          Vector<U8*> dstDataStore;
-         dstDataStore.setSize(nCubeFaces * mipCount);
+         dstDataStore.setSize(GFX_CUBE_FACES * mipCount);
 
-         for (S32 cubeFace = 0; cubeFace < nCubeFaces; cubeFace++)
+         for (S32 cubeFace = 0; cubeFace < GFX_CUBE_FACES; cubeFace++)
          {
-            DDSFile::SurfaceData *srcSurface = srcDDS->mSurfaces[cubeFace];
+            DDSFile::SurfaceData* srcSurface = srcDDS->mSurfaces[cubeFace];
             for (U32 currentMip = 0; currentMip < mipCount; currentMip++)
             {
                const U32 dataIndex = cubeFace * mipCount + currentMip;
-               const U8 *srcBits = srcSurface->mMips[currentMip];
+               const U8* srcBits = srcSurface->mMips[currentMip];
                const U32 mipSz = srcDDS->getSurfaceSize(currentMip);
-               U8 *dstBits = new U8[mipSz];
+               U8* dstBits = new U8[mipSz];
                dstDataStore[dataIndex] = dstBits;
 
                ThreadSafeRef<CompressJob> item(new CompressJob(srcBits, dstBits, srcDDS->getWidth(currentMip), srcDDS->getHeight(currentMip), compressFormat, compressQuality));
@@ -152,9 +152,9 @@ namespace ImageUtil
          //wait for work items to finish
          pThreadPool->waitForAllItems();
 
-         for (S32 cubeFace = 0; cubeFace < nCubeFaces; cubeFace++)
+         for (S32 cubeFace = 0; cubeFace < GFX_CUBE_FACES; cubeFace++)
          {
-            DDSFile::SurfaceData *pSrcSurface = srcDDS->mSurfaces[cubeFace];
+            DDSFile::SurfaceData* pSrcSurface = srcDDS->mSurfaces[cubeFace];
             for (U32 currentMip = 0; currentMip < mipCount; currentMip++)
             {
                const U32 dataIndex = cubeFace * mipCount + currentMip;
@@ -166,19 +166,19 @@ namespace ImageUtil
       else
       {
          // The source surface is the original surface of the file
-         DDSFile::SurfaceData *pSrcSurface = srcDDS->mSurfaces.last();
+         DDSFile::SurfaceData* pSrcSurface = srcDDS->mSurfaces.last();
 
          // Create a new surface, this will be the DXT compressed surface. Once we
          // are done, we can discard the old surface, and replace it with this one.
-         DDSFile::SurfaceData *pNewSurface = new DDSFile::SurfaceData();
+         DDSFile::SurfaceData* pNewSurface = new DDSFile::SurfaceData();
          //no point using threading if only 1 mip
          const bool useThreading = bool(mipCount > 1);
          for (U32 currentMip = 0; currentMip < mipCount; currentMip++)
          {
-            const U8 *pSrcBits = pSrcSurface->mMips[currentMip];
+            const U8* pSrcBits = pSrcSurface->mMips[currentMip];
 
             const U32 mipSz = srcDDS->getSurfaceSize(currentMip);
-            U8 *pDstBits = new U8[mipSz];
+            U8* pDstBits = new U8[mipSz];
             pNewSurface->mMips.push_back(pDstBits);
 
             if (useThreading)
@@ -192,7 +192,7 @@ namespace ImageUtil
 
          }
          //block and wait for CompressJobs to finish
-         if(useThreading)
+         if (useThreading)
             pThreadPool->waitForAllItems();
 
          // Now delete the source surface and replace with new compressed surface
@@ -204,22 +204,22 @@ namespace ImageUtil
       return true;
    }
 
-   bool decompress(const U8 *src, U8 *dstRGBA,const S32 width,const S32 height, const GFXFormat srcFormat)
+   bool decompress(const U8* src, U8* dstRGBA, const S32 width, const S32 height, const GFXFormat srcFormat)
    {
       if (!isCompressedFormat(srcFormat))
          return false;
 
       S32 squishFlag = _getSquishFormat(srcFormat);
-      squish::DecompressImage(dstRGBA, width, height, src, squishFlag);  
+      squish::DecompressImage(dstRGBA, width, height, src, squishFlag);
 
       return true;
    }
 
-   void swizzleDDS(DDSFile *srcDDS, const Swizzle<U8, 4> &swizzle)
+   void swizzleDDS(DDSFile* srcDDS, const Swizzle<U8, 4>& swizzle)
    {
       if (srcDDS->mFlags.test(DDSFile::CubeMapFlag))
       {
-         for (S32 cubeFace = 0; cubeFace < DDSFile::Cubemap_Surface_Count; cubeFace++)
+         for (S32 cubeFace = 0; cubeFace < GFX_CUBE_FACES; cubeFace++)
          {
             for (S32 i = 0; i < srcDDS->mMipMapCount; i++)
             {
@@ -248,22 +248,51 @@ namespace ImageUtil
    {
       switch (format)
       {
-         case GFXFormatA8:
-         case GFXFormatA4L4:
-         case GFXFormatA8L8:
-         case GFXFormatR5G5B5A1:
-         case GFXFormatR8G8B8A8:
-         case GFXFormatB8G8R8A8:
-         case GFXFormatR16G16B16A16F:
-         case GFXFormatR32G32B32A32F:
-         case GFXFormatR10G10B10A2:
+      case GFXFormatA8:
+      case GFXFormatA4L4:
+      case GFXFormatA8L8:
+      case GFXFormatR5G5B5A1:
+      case GFXFormatR8G8B8A8:
+      case GFXFormatB8G8R8A8:
+      case GFXFormatR16G16B16A16F:
+      case GFXFormatR32G32B32A32F:
+      case GFXFormatR10G10B10A2:
          //case GFXFormatBC1://todo BC1 can store alpha
-         case GFXFormatBC2:
-         case GFXFormatBC3:
-            return true;
-         default:
-            return false;
+      case GFXFormatBC2:
+      case GFXFormatBC3:
+         return true;
+      default:
+         return false;
       }
+   }
+
+
+   bool isDepthFormat(const GFXFormat format)
+   {
+      switch (format)
+      {
+      case GFXFormatD16:
+      case GFXFormatD24S8:
+         return true;
+      default:
+         return false;
+      }
+   }
+
+   bool isDepthStencilFormat(const GFXFormat format)
+   {
+      switch (format)
+      {
+      case GFXFormatD24S8:
+         return true;
+      default:
+         return false;
+      }
+   }
+
+   U32 getMaxMipCount(const U32 width, const U32 height)
+   {
+      return mFloor(mLog2(mMax(width, height))) + 1;
    }
 
    bool isSRGBFormat(const GFXFormat format)
@@ -272,6 +301,7 @@ namespace ImageUtil
       {
       case GFXFormatR8G8B8_SRGB:
       case GFXFormatR8G8B8A8_SRGB:
+      case GFXFormatB8G8R8A8_SRGB:
       case GFXFormatBC1_SRGB:
       case GFXFormatBC2_SRGB:
       case GFXFormatBC3_SRGB:
@@ -287,9 +317,10 @@ namespace ImageUtil
       {
       case GFXFormatR8G8B8:
          return GFXFormatR8G8B8_SRGB;
-      case GFXFormatR8G8B8X8:
       case GFXFormatR8G8B8A8:
          return GFXFormatR8G8B8A8_SRGB;
+      case GFXFormatB8G8R8A8:
+         return GFXFormatB8G8R8A8_SRGB;
       case GFXFormatBC1:
          return GFXFormatBC1_SRGB;
       case GFXFormatBC2:
@@ -299,10 +330,5 @@ namespace ImageUtil
       default:
          return format;
       };
-   }
-
-   U32 getMaxMipCount(const U32 width, const U32 height)
-   {
-      return mFloor(mLog2(mMax(width, height))) + 1;
    }
 }

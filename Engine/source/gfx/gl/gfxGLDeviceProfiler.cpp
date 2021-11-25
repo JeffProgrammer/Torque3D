@@ -102,7 +102,7 @@ bool initGLProfiler(GFXDevice::GFXDeviceEventType ev)
    return true;
 }
 
-void GFXGLDevice::enterDebugEvent(ColorI color, const char *name)
+void GFXGLDevice::enterDebugEvent(const ColorI& color, const char *name)
 {
 #ifdef TORQUE_BASIC_GPU_PROFILER
    gfxProfiler.enterDebugEvent(color, name);
@@ -134,7 +134,7 @@ void GFXGLDevice::leaveDebugEvent()
    }
 }
 
-void GFXGLDevice::setDebugMarker(ColorI color, const char *name)
+void GFXGLDevice::setDebugMarker(const ColorI& color, const char *name)
 {
    if (mCapabilities.khrDebug)
    {

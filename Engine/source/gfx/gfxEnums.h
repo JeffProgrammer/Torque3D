@@ -42,6 +42,8 @@
 #define GFX_TEXTURE_STAGE_COUNT 16
 
 #define GFX_MAX_RENDER_TARGETS 8
+#define GFX_MAX_MIP_LEVELS 13
+#define GFX_CUBE_FACES 6
 
 enum GFXBufferType
 {
@@ -125,6 +127,8 @@ enum GFXFormat
    //
    GFXFormat_FIRST = 0,
 
+   GFXFormatUndefined = 0,
+
    // 8 bit texture formats...
    GFXFormatA8 = 0,// first in group...
    GFXFormatL8,
@@ -147,6 +151,7 @@ enum GFXFormat
    GFXFormatR8G8B8X8,
    GFXFormatB8G8R8A8,
    GFXFormatR8G8B8A8_SRGB,
+   GFXFormatB8G8R8A8_SRGB,
    GFXFormatR32F,
    GFXFormatR16G16,
    GFXFormatR16G16F,

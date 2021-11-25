@@ -59,6 +59,8 @@ private:
 
 protected:
 
+   U32 mNumColorAttachments;
+
    /// Called whenever a change is made to this target.
    inline void invalidateState()
    {
@@ -74,7 +76,8 @@ public:
 
    /// Constructor to initialize the state tracking logic.
    GFXTarget() : mChangeToken( 0 ),
-                 mLastAppliedChange( 0 )
+                 mLastAppliedChange( 0 ),
+                 mNumColorAttachments( 0 )
    {
    }
    virtual ~GFXTarget() {}
@@ -84,6 +87,9 @@ public:
    {
       return (mChangeToken != mLastAppliedChange);
    }
+
+   /// Return the number of color attachments this target has
+   inline const U32 getNumColorAttachments() const { return mNumColorAttachments; }
 
    /// Returns the size in pixels of the render target.
    virtual const Point2I getSize()=0;

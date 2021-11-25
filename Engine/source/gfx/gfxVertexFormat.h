@@ -222,6 +222,9 @@ public:
    /// counting the number of TEXCOORD semantics.
    U32 getTexCoordCount() const;
 
+   // Returns the number of vertex streams
+   U32 getNumStreams() const;
+
    /// Returns true if these two formats are equal.
    inline bool isEqual( const GFXVertexFormat &format ) const;
 
@@ -273,6 +276,9 @@ protected:
 
    /// The size in bytes of the vertex format as described.
    U32 mSizeInBytes;
+
+   /// The number of streams in this vertex format.
+   U32 mNumStreams;
 
    /// An interned string which uniquely identifies the format.
    String mDescription;

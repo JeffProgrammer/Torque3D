@@ -106,9 +106,11 @@ ImplementEnumType( GFXFormat,
    "@note Not all formats are supported on all platforms.\n"
    "@ingroup GFX" )
 
+   { GFXFormatUndefined, "GFXFormatUndefined" },
    { GFXFormatR8G8B8, "GFXFormatR8G8B8" },
    { GFXFormatR8G8B8A8, "GFXFormatR8G8B8A8" },
    { GFXFormatR8G8B8A8_SRGB, "GFXFormatR8G8B8A8_SRGB" },
+   { GFXFormatB8G8R8A8_SRGB, "GFXFormatB8G8R8A8_SRGB" },
    { GFXFormatR8G8B8X8, "GFXFormatR8G8B8X8" },
    { GFXFormatR32F, "GFXFormatR32F" },
    { GFXFormatR5G6B5, "GFXFormatR5G6B5" },

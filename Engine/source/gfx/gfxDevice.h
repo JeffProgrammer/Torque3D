@@ -420,9 +420,9 @@ public:
    /// @name Debug Methods
    /// @{
 
-   virtual void enterDebugEvent(ColorI color, const char *name) = 0;
+   virtual void enterDebugEvent(const ColorI& color, const char *name) = 0;
    virtual void leaveDebugEvent() = 0;
-   virtual void setDebugMarker(ColorI color, const char *name) = 0;
+   virtual void setDebugMarker(const ColorI& color, const char *name) = 0;
    virtual const char* interpretDebugResult(long result) { return "Not Implemented"; };
    /// @}
 
@@ -479,6 +479,8 @@ public:
       const Vector<GFXFormat> &formats, bool texture, bool mustblend, bool mustfilter) = 0;
 
    /// @}
+
+   static bool isVSyncEnabled() { return !smDisableVSync; }
 
    //-----------------------------------------------------------------------------
 protected:
@@ -1044,6 +1046,9 @@ public:
    /// Get access to this device's drawing utility class.
    GFXDrawUtil *getDrawUtil();
 
+   /// Convert primitive count to index/vertex count
+   U32 primCountToIndexCount(GFXPrimitiveType primType, U32 primitiveCount);
+
 #ifndef TORQUE_SHIPPING
    /// This is a method designed for debugging. It will allow you to dump the states
    /// in the render manager out to a file so that it can be diffed and examined.
@@ -1130,6 +1135,33 @@ inline void GFXDevice::setVertexFormat( const GFXVertexFormat *vertexFormat )
    mCurrVertexDecl = vertexFormat->getDecl();
    mVertexDeclDirty = true;
    mStateDirty = true;
+}
+
+inline U32 GFXDevice::primCountToIndexCount(GFXPrimitiveType primType, U32 primitiveCount)
+{
+   switch (primType)
+   {
+   case GFXPointList:
+      return primitiveCount;
+      break;
+   case GFXLineList:
+      return primitiveCount * 2;
+      break;
+   case GFXLineStrip:
+      return primitiveCount + 1;
+      break;
+   case GFXTriangleList:
+      return primitiveCount * 3;
+      break;
+   case GFXTriangleStrip:
+      return 2 + primitiveCount;
+      break;
+   default:
+      AssertFatal(false, "GFXDevice::primCountToIndexCount - unrecognized prim type");
+      break;
+   }
+
+   return 0;
 }
 
 

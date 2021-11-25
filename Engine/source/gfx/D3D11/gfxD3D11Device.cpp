@@ -1742,7 +1742,7 @@ GFXTextureArray * GFXD3D11Device::createTextureArray()
 
 // Debug events
 //------------------------------------------------------------------------------
-void GFXD3D11Device::enterDebugEvent(ColorI color, const char *name)
+void GFXD3D11Device::enterDebugEvent(const ColorI& color, const char *name)
 {
    // BJGFIX
    WCHAR  eventName[260];
@@ -1759,7 +1759,7 @@ void GFXD3D11Device::leaveDebugEvent()
 }
 
 //------------------------------------------------------------------------------
-void GFXD3D11Device::setDebugMarker(ColorI color, const char *name)
+void GFXD3D11Device::setDebugMarker(const ColorI& color, const char *name)
 {
    // BJGFIX
    WCHAR  eventName[260];

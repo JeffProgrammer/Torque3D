@@ -45,23 +45,27 @@ namespace ImageUtil
    };
 
    // compress raw pixel data, expects rgba format
-   bool rawCompress(const U8 *srcRGBA, U8 *dst, const S32 width, const S32 height, const GFXFormat compressFormat, const CompressQuality compressQuality = LowQuality);
+   bool rawCompress(const U8* srcRGBA, U8* dst, const S32 width, const S32 height, const GFXFormat compressFormat, const CompressQuality compressQuality = LowQuality);
    // compress DDSFile
-   bool ddsCompress(DDSFile *srcDDS, const GFXFormat compressFormat, const CompressQuality compressQuality = LowQuality);
+   bool ddsCompress(DDSFile* srcDDS, const GFXFormat compressFormat, const CompressQuality compressQuality = LowQuality);
    // decompress compressed pixel data, dest data should be rgba format
-   bool decompress(const U8 *src, U8 *dstRGBA, const S32 width, const S32 height, const GFXFormat srcFormat);
+   bool decompress(const U8* src, U8* dstRGBA, const S32 width, const S32 height, const GFXFormat srcFormat);
    //swizzle dds file
-   void swizzleDDS(DDSFile *srcDDS, const Swizzle<U8, 4> &swizzle);
+   void swizzleDDS(DDSFile* srcDDS, const Swizzle<U8, 4>& swizzle);
    //check if a GFXFormat is compressed
    bool isCompressedFormat(const GFXFormat format);
    bool isSRGBFormat(const GFXFormat format);
    //check if a GFXFormat has an alpha channel
    bool isAlphaFormat(const GFXFormat format);
+   //check if depth format
+   bool isDepthFormat(const GFXFormat format);
+   //check if depth stencil format
+   bool isDepthStencilFormat(const GFXFormat format);
+   //get the maximum mip map count for an image
+   U32 getMaxMipCount(const U32 width, const U32 height);
 
    //convert to sRGB format
    GFXFormat toSRGBFormat(const GFXFormat format);
-
-   U32 getMaxMipCount(const U32 width, const U32 height);
 };
 
 #endif

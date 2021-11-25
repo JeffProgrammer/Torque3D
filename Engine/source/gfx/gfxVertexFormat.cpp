@@ -78,6 +78,7 @@ GFXVertexFormat::GFXVertexFormat()
       mHasInstancing( false ),
       mHasBlendIndices(false),
       mTexCoordCount( 0 ),
+      mNumStreams( 0 ),
       mSizeInBytes( 0 ),
       mDecl( NULL )
 {
@@ -94,6 +95,7 @@ void GFXVertexFormat::copy( const GFXVertexFormat &format )
    mHasBlendIndices = format.mHasBlendIndices;
    mTexCoordCount = format.mTexCoordCount;
    mSizeInBytes = format.mSizeInBytes;
+   mNumStreams = format.mNumStreams;
    mDescription = format.mDescription;
    mElements = format.mElements;
    mDecl = format.mDecl;
@@ -215,6 +217,14 @@ U32 GFXVertexFormat::getTexCoordCount() const
    return mTexCoordCount;
 }
 
+U32 GFXVertexFormat::getNumStreams() const
+{
+   if (mDirty)
+      const_cast<GFXVertexFormat*>(this)->_updateDirty();
+
+   return mNumStreams;
+}
+
 U32 GFXVertexFormat::getSizeInBytes() const
 {
    if ( mDirty )
@@ -239,8 +249,13 @@ void GFXVertexFormat::_updateDirty()
    mHasNormal = false;
    mHasTangent = false;
    mSizeInBytes = 0;
+   mNumStreams = 0;
 
    String desc;
+
+   // If this shows up in profiling, maybe we need Vector to use FrameTemp memory or something along those lines
+   // atm we could just do mNumStreams = hasInstancing() ? 2 : 1; but this will break if we ever change anything in t3d with streams
+   Vector<U32> uniqueStreams;
 
    for ( U32 i=0; i < mElements.size(); i++ )
    {
@@ -263,10 +278,14 @@ void GFXVertexFormat::_updateDirty()
          mHasBlendIndices = true;
 
       mSizeInBytes += element.getSizeInBytes();
+
+      uniqueStreams.push_back_unique(element.getStreamIndex());
    }
 
    // Intern the string for fast compares later.
    mDescription = desc.intern();
+   // Set number of streams
+   mNumStreams = uniqueStreams.size();
 
    mDirty = false;
 }
