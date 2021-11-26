@@ -27,7 +27,7 @@
 #include "gfx/gfxStringEnumTranslate.h"
 #include "materials/materialFeatureTypes.h"
 #include "materials/materialFeatureData.h"
-#include "shaderGen/hlsl/shaderFeatureHLSL.h"
+#include "shaderGen/HLSL/shaderFeatureHLSL.h"
 #include "gfx/gfxDevice.h"
 
 GBufferConditionerHLSL::GBufferConditionerHLSL( const GFXFormat bufferFormat, const NormalSpace nrmSpace ) : 
