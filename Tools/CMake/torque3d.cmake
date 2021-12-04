@@ -669,8 +669,11 @@ finishExecutable()
 ###############################################################################
 ###############################################################################
 
+# Torque requires c++17
+target_compile_features(${TORQUE_APP_NAME} PRIVATE cxx_std_17)
+
 # Set Visual Studio startup project
-if((${CMAKE_VERSION} VERSION_EQUAL 3.6.0) OR (${CMAKE_VERSION} VERSION_GREATER 3.6.0) AND MSVC)
+if(MSVC)
 set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${TORQUE_APP_NAME})
 endif()
 
