@@ -238,10 +238,10 @@ TerrainBlock::~TerrainBlock()
 #endif
    deleteZodiacPrimitiveBuffer();
 
-   SAFE_RELEASE(mDetailTextureArray);
-   SAFE_RELEASE(mMacroTextureArray);
-   SAFE_RELEASE(mNormalTextureArray);
-   SAFE_RELEASE(mOrmTextureArray);
+   mDetailTextureArray = NULL;
+   mMacroTextureArray = NULL;
+   mNormalTextureArray = NULL;
+   mOrmTextureArray = NULL;
 }
 
 void TerrainBlock::_onTextureEvent( GFXTexCallbackCode code )

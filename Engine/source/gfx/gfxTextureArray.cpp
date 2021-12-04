@@ -7,7 +7,7 @@
 #include "console/console.h"
 
 GFXTextureArray::GFXTextureArray()
-   : mFormat(GFXFormat_COUNT),
+   : mFormat(GFXFormatUndefined),
      mIsCompressed(false),
      mWidth(0),
      mHeight(0),
@@ -18,22 +18,16 @@ GFXTextureArray::GFXTextureArray()
 
 void GFXTextureArray::set(U32 width, U32 height, U32 size, GFXFormat format, U32 mipLevels)
 {
-   if (mipLevels == 0 && width == height && isPow2(width))
+   if (mWidth == width && mHeight == height && mArraySize == size && mFormat == format && mMipLevels == mipLevels)
    {
-      mipLevels = mLog2(static_cast<F32>(width)) + 1;
-   }
-   if (
-      mWidth == width &&
-      mHeight == height &&
-      mArraySize == size &&
-      mFormat == format &&
-      mMipLevels == mipLevels
-      )
-   {
+      Con::errorf("GFXTextureArray::set: The texture dimensions, format and mip levels must all be the same");
       return;
    }
 
-   Release();
+   if (mipLevels == 0 && width == height && isPow2(width))
+   {
+      mipLevels = ImageUtil::getMaxMipCount(width, height);
+   }
 
    mWidth = width;
    mHeight = height;
@@ -41,8 +35,6 @@ void GFXTextureArray::set(U32 width, U32 height, U32 size, GFXFormat format, U32
    mFormat = format;
    mIsCompressed = ImageUtil::isCompressedFormat(mFormat);
    mMipLevels = getMax(mipLevels, static_cast<U32>(1));
-
-   mTextures.setSize(size);
 
    init();
 }
@@ -163,17 +155,7 @@ void GFXTextureArray::setTexture(const GFXTexHandle& texture, U32 slot)
       return;
    }
 
-   mTextures[slot] = handle;
-
    _setTexture(handle, slot);
-}
-
-void GFXTextureArray::Release()
-{
-   for (GFXTexHandle& mTexture : mTextures)
-   {
-      mTexture = NULL;
-   }
 }
 
 const String GFXTextureArray::describeSelf() const

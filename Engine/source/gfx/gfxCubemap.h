@@ -126,7 +126,7 @@ protected:
 
 public:
    GFXCubemapArray() :mNumCubemaps(0), mSize(0), mMipMapLevels(0), mFormat(GFXFormatUndefined) {}
-   virtual ~GFXCubemapArray() {};
+   virtual ~GFXCubemapArray() {}
    /// Initialize from an array of cubemaps
    virtual void init(GFXCubemapHandle *cubemaps, const U32 cubemapCount) = 0;
    /// Initialize cubemapCount number of blank cubemaps in the array

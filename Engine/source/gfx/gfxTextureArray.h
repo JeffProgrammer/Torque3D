@@ -35,30 +35,30 @@
 #ifndef _GFXTEXTUREHANDLE_H_
 #include "gfxTextureHandle.h"
 #endif
+#ifndef _TVECTOR_H_
 #include "core/util/tVector.h"
-
-
-class GFXTextureProfile;
-class GFXTextureObject;
+#endif
 
 class GFXTextureArray : public StrongRefBase, public GFXResource
 {
 public:
    GFXTextureArray();
+   virtual ~GFXTextureArray() {}
 
    virtual void init() = 0;
+   virtual void setToTexUnit(U32 tuNum) = 0;
+
    virtual void set(U32 width, U32 height, U32 size, GFXFormat format, U32 mipLevels = 0);
    virtual bool fromTextureArray(const Vector<GFXTexHandle> &textureArray, U32 capacity = 0);
    virtual void setTexture(const GFXTexHandle &texture, U32 slot);
-   virtual void setToTexUnit(U32 tuNum) = 0;
-
 
    // GFXResource interface
    virtual void zombify() = 0;
    virtual void resurrect() = 0;
-   virtual void Release();
-
    virtual const String describeSelf() const;
+
+protected:
+   virtual void _setTexture(const GFXTexHandle& texture, U32 slot) = 0;
 
    GFXFormat mFormat;
    bool mIsCompressed;
@@ -66,13 +66,7 @@ public:
    U32 mHeight;
    U32 mArraySize;
    U32 mMipLevels;
-
-   Vector<GFXTexHandle> mTextures;
-
-protected:
-   virtual void _setTexture(const GFXTexHandle& texture, U32 slot) = 0;
 };
-
 
 /// A reference counted handle to a texture array resource.
 class GFXTextureArrayHandle : public StrongRefPtr<GFXTextureArray>

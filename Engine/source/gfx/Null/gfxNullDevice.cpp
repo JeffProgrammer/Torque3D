@@ -181,11 +181,10 @@ public:
 class GFXNullTextureArray : public GFXTextureArray
 {
 public:
-   void zombify() override {}
-   void resurrect() override {}
-   void Release() override {}
-   void setToTexUnit(U32 tuNum) override { }
-   void init() override { }
+   virtual void zombify() override {}
+   virtual void resurrect() override {}
+   virtual void setToTexUnit(U32 tuNum) override {}
+   virtual void init() override {}
 
 protected:
    void _setTexture(const GFXTexHandle& texture, U32 slot) override { }

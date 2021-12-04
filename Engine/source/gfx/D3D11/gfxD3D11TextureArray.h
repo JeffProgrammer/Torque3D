@@ -1,8 +1,27 @@
+//-----------------------------------------------------------------------------
+// Copyright (c) 2012 GarageGames, LLC
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to
+// deal in the Software without restriction, including without limitation the
+// rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+// sell copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+// IN THE SOFTWARE.
+//-----------------------------------------------------------------------------
+
 #ifndef _GFXD3D11TEXTUREARRAY_H_
 #define _GFXD3D11TEXTUREARRAY_H_
-
-#include <dxgiformat.h>
-
 
 #include "gfx/gfxTextureArray.h"
 #include "gfx/gfxTextureManager.h"
@@ -12,45 +31,27 @@
 class GFXD3D11TextureArray : public GFXTextureArray
 {
 public:
-   GFXD3D11TextureArray()
-      : mSRView( NULL ),
-        mRTView( NULL ),
-        mDSView( NULL ),
-        mTextureArray( NULL )
-   {
-   }
+   GFXD3D11TextureArray();
+   virtual ~GFXD3D11TextureArray();
 
-   ~GFXD3D11TextureArray() { Release();  };
-
-   void init();
-   void setToTexUnit(U32 tuNum) override;
-
-   void createResourceView(DXGI_FORMAT format, U32 numMipLevels, U32 usageFlags);
+   // GFXTextureArray interface
+   virtual void init();
+   virtual void setToTexUnit(U32 tuNum);
 
    // GFXResource interface
-   void zombify() override;
-   void resurrect() override;
-   void Release() override;
-
+   virtual void zombify();
+   virtual void resurrect();
 
    ID3D11ShaderResourceView* getSRView();
-   ID3D11RenderTargetView* getRTView();
-   ID3D11DepthStencilView* getDSView();
-
    ID3D11ShaderResourceView** getSRViewPtr();
-   ID3D11RenderTargetView** getRTViewPtr();
-   ID3D11DepthStencilView** getDSViewPtr();
 
 protected:
-   void _setTexture(const GFXTexHandle& texture, U32 slot) override;
+   virtual void _setTexture(const GFXTexHandle& texture, U32 slot);
 
 private:
-   ID3D11ShaderResourceView* mSRView; // for shader resource input
-   ID3D11RenderTargetView* mRTView; // for render targets
-   ID3D11DepthStencilView* mDSView; //render target view for depth stencil
+   ID3D11ShaderResourceView* mSRView;
    ID3D11Texture2D* mTextureArray;
    D3D11_TEXTURE2D_DESC mTextureArrayDesc;
 };
-
 
 #endif
