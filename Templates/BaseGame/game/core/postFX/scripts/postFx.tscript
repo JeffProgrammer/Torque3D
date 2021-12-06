@@ -20,16 +20,16 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-singleton ShaderData( PFX_PassthruShader )
-{   
-   DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
-   DXPixelShaderFile 	= $Core::CommonShaderPath @ "/postFX/passthruP.hlsl";
-      
-   samplerNames[0] = "$inputTex";
-};
-
 function postFXInit()
 {
+   singleton ShaderData( PFX_PassthruShader )
+   {   
+      DXVertexShaderFile 	= $Core::CommonShaderPath @ "/postFX/postFxV.hlsl";
+      DXPixelShaderFile 	= $Core::CommonShaderPath @ "/postFX/passthruP.hlsl";
+               
+      samplerNames[0] = "$inputTex";
+   };
+
    //Load the core postFX files themselves
    if (!$Server::Dedicated)
    {
