@@ -23,7 +23,6 @@
 #include "platform/platform.h"
 #include "core/ogg/oggTheoraDecoder.h"
 
-#include "gfx/gfxFormatUtils.h"
 #include "math/mMathFn.h"
 #include "console/console.h"
 
@@ -79,6 +78,49 @@ static void initLookupTables()
          sClamp[ i ] = mClamp( i, 0, 0xFF );
       
       sGenerated = true;
+   }
+}
+
+static inline void PackPixel(GFXFormat format, U8*& ptr, U8 red, U8 green, U8 blue, U8 alpha, bool leastSignficantFirst = true)
+{
+   switch (format)
+   {
+   case GFXFormatR8G8B8A8:
+      if (leastSignficantFirst)
+      {
+         ptr[0] = blue;
+         ptr[1] = green;
+         ptr[2] = red;
+         ptr[3] = alpha;
+      }
+      else
+      {
+         ptr[0] = red;
+         ptr[1] = green;
+         ptr[2] = blue;
+         ptr[3] = alpha;
+      }
+      ptr += 4;
+      break;
+
+   case GFXFormatR8G8B8:
+      if (leastSignficantFirst)
+      {
+         ptr[0] = blue;
+         ptr[1] = green;
+         ptr[2] = red;
+      }
+      else
+      {
+         ptr[0] = red;
+         ptr[1] = green;
+         ptr[2] = blue;
+      }
+      ptr += 3;
+      break;
+
+   default:
+      AssertISV(false, "GFXPackPixel() - pixel format not implemented.");
    }
 }
 
@@ -207,7 +249,7 @@ bool OggTheoraDecoder::_init()
    // Make sure we have a valid pitch.
    
    if( !mPacketFormat.mPitch )
-      mPacketFormat.mPitch = getFrameWidth() * GFXFormatInfo( mPacketFormat.mFormat ).getBytesPerPixel();
+      mPacketFormat.mPitch = getFrameWidth() * GFXFormat_getByteSize( mPacketFormat.mFormat );
       
    return true;
 }
@@ -322,7 +364,7 @@ void OggTheoraDecoder::_transcode( th_ycbcr_buffer ycbcr, U8* buffer, const U32 
 {
    #define ycbcrToRGB( rgb, pY, pCb, pCr, G )                        \
    {                                                                 \
-      GFXPackPixel(                                                  \
+      PackPixel(                                                  \
          mPacketFormat.mFormat,                                      \
          rgb,                                                        \
          sClamp[ sRGBY[ *pY ][ 2 ] + sRGBCr[ *pCr ][ 2 ] ],          \

@@ -273,6 +273,8 @@ namespace ImageUtil
       {
       case GFXFormatD16:
       case GFXFormatD24S8:
+      case GFXFormatD32F:
+      case GFXFormatD32FS8:
          return true;
       default:
          return false;
@@ -284,6 +286,7 @@ namespace ImageUtil
       switch (format)
       {
       case GFXFormatD24S8:
+      case GFXFormatD32FS8:
          return true;
       default:
          return false;

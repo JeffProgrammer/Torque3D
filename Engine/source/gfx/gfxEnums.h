@@ -157,10 +157,8 @@ enum GFXFormat
    GFXFormatR16G16F,
    GFXFormatR10G10B10A2,
    GFXFormatR11G11B10,
-   GFXFormatD32,
-   GFXFormatD24X8,
+   GFXFormatD32F,
    GFXFormatD24S8,   
-   GFXFormatD24FS8,
 
    // Guaranteed RGBA8 (for apis which really dont like bgr)
    GFXFormatR8G8B8A8_LINEAR_FORCE,
@@ -168,6 +166,7 @@ enum GFXFormat
    // 64 bit texture formats...
    GFXFormatR16G16B16A16,// first in group...
    GFXFormatR16G16B16A16F,
+   GFXFormatD32FS8, 
 
    // 128 bit texture formats...
    GFXFormatR32G32B32A32F,// first in group...

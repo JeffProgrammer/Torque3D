@@ -51,7 +51,6 @@
 #include "math/mMath.h"
 #include "gfx/bitmap/gBitmap.h"
 #include "gfx/gfxDevice.h"
-#include "gfx/gfxFormatUtils.h"
 #include "gfx/gfxTextureManager.h"
 
 
@@ -385,7 +384,7 @@ void TheoraTexture::_initVideo()
    
    OggTheoraDecoder::PacketFormat format;
    format.mFormat = GFXFormatR8G8B8A8;
-   format.mPitch = GFXFormatInfo( format.mFormat ).getBytesPerPixel() * theora->getFrameWidth();
+   format.mPitch = GFXFormat_getByteSize( format.mFormat ) * theora->getFrameWidth();
    
    theora->setPacketFormat( format );
 }
