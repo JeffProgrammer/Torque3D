@@ -46,7 +46,6 @@
 #include "gfx/gl/gfxGLOcclusionQuery.h"
 #include "materials/shaderData.h"
 #include "gfx/gl/gfxGLStateCache.h"
-#include "gfx/gl/gfxGLVertexAttribLocation.h"
 #include "gfx/gl/gfxGLVertexDecl.h"
 #include "shaderGen/shaderGen.h"
 #include "gfxGLUtils.h"

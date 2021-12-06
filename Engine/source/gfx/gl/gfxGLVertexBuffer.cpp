@@ -26,7 +26,6 @@
 #include "gfx/gl/gfxGLDevice.h"
 #include "gfx/gl/gfxGLEnumTranslate.h"
 #include "gfx/gl/gfxGLUtils.h"
-#include "gfx/gl/gfxGLVertexAttribLocation.h"
 
 #include "gfx/gl/gfxGLCircularVolatileBuffer.h"
 

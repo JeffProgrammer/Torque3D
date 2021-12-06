@@ -22,7 +22,6 @@
 
 #include "platform/platform.h"
 #include "gfx/gl/gfxGLShader.h"
-#include "gfx/gl/gfxGLVertexAttribLocation.h"
 #include "gfx/gl/gfxGLDevice.h"
 #include "gfx/util/gfxShaderConvert.h"
 #include "core/frameAllocator.h"
@@ -472,22 +471,22 @@ bool GFXGLShader::_init()
       
       StringTableEntry argName = StringTable->insert(tempData.address());
       
-      CHECK_AARG(Torque::GL_VertexAttrib_Position,    vPosition);
-      CHECK_AARG(Torque::GL_VertexAttrib_Normal,      vNormal);
-      CHECK_AARG(Torque::GL_VertexAttrib_Color,       vColor);
-      CHECK_AARG(Torque::GL_VertexAttrib_Tangent,     vTangent);
-      CHECK_AARG(Torque::GL_VertexAttrib_TangentW,    vTangentW);
-      CHECK_AARG(Torque::GL_VertexAttrib_Binormal,    vBinormal);
-      CHECK_AARG(Torque::GL_VertexAttrib_TexCoord0,   vTexCoord0);
-      CHECK_AARG(Torque::GL_VertexAttrib_TexCoord1,   vTexCoord1);
-      CHECK_AARG(Torque::GL_VertexAttrib_TexCoord2,   vTexCoord2);
-      CHECK_AARG(Torque::GL_VertexAttrib_TexCoord3,   vTexCoord3);
-      CHECK_AARG(Torque::GL_VertexAttrib_TexCoord4,   vTexCoord4);
-      CHECK_AARG(Torque::GL_VertexAttrib_TexCoord5,   vTexCoord5);
-      CHECK_AARG(Torque::GL_VertexAttrib_TexCoord6,   vTexCoord6);
-      CHECK_AARG(Torque::GL_VertexAttrib_TexCoord7,   vTexCoord7);
-      CHECK_AARG(Torque::GL_VertexAttrib_TexCoord8,   vTexCoord8);
-      CHECK_AARG(Torque::GL_VertexAttrib_TexCoord9,   vTexCoord9);
+      CHECK_AARG(GFXAttributeLocation::Position,    vPosition);
+      CHECK_AARG(GFXAttributeLocation::Normal,      vNormal);
+      CHECK_AARG(GFXAttributeLocation::Color,       vColor);
+      CHECK_AARG(GFXAttributeLocation::Tangent,     vTangent);
+      CHECK_AARG(GFXAttributeLocation::TangentW,    vTangentW);
+      CHECK_AARG(GFXAttributeLocation::Binormal,    vBinormal);
+      CHECK_AARG(GFXAttributeLocation::TexCoord0,   vTexCoord0);
+      CHECK_AARG(GFXAttributeLocation::TexCoord1,   vTexCoord1);
+      CHECK_AARG(GFXAttributeLocation::TexCoord2,   vTexCoord2);
+      CHECK_AARG(GFXAttributeLocation::TexCoord3,   vTexCoord3);
+      CHECK_AARG(GFXAttributeLocation::TexCoord4,   vTexCoord4);
+      CHECK_AARG(GFXAttributeLocation::TexCoord5,   vTexCoord5);
+      CHECK_AARG(GFXAttributeLocation::TexCoord6,   vTexCoord6);
+      CHECK_AARG(GFXAttributeLocation::TexCoord7,   vTexCoord7);
+      CHECK_AARG(GFXAttributeLocation::TexCoord8,   vTexCoord8);
+      CHECK_AARG(GFXAttributeLocation::TexCoord9,   vTexCoord9);
    }
 
    //always have OUT_col

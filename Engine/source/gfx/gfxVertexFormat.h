@@ -49,6 +49,7 @@ namespace GFXSemantic
    extern const String BLENDINDICES;
 }
 
+//for GFX api that use explicit attribute locations
 namespace GFXAttributeLocation
 {
    static const S32 Position = 0;
@@ -67,10 +68,11 @@ namespace GFXAttributeLocation
    static const S32 TexCoord7 = 13;
    static const S32 TexCoord8 = 14;
    static const S32 TexCoord9 = 15;
+   static const S32 COUNT = 16; //number of attribute locations
+   //Aliased
    static const S32 BlendWeight0 = TexCoord6;
    static const S32 BlendIndex0 = TexCoord2;
 }
-
 
 /// This is a simple wrapper for the platform specific
 /// vertex declaration data which is held by the vertex

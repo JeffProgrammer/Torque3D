@@ -1,6 +1,5 @@
 #include "gfx/gl/gfxGLDevice.h"
 #include "gfx/gl/gfxGLStateCache.h"
-#include "gfx/gl/gfxGLVertexAttribLocation.h"
 #include "gfx/gl/gfxGLVertexDecl.h"
 
 void GFXGLVertexDecl::init(const GFXVertexFormat *format)
@@ -74,7 +73,7 @@ void GFXGLVertexDecl::updateActiveVertexAttrib(U32 lastActiveMask) const
 
    U32 forActiveMask = mVertexAttribActiveMask & ~lastActiveVerxtexAttrib;
    U32 forDeactiveMask = ~mVertexAttribActiveMask & lastActiveVerxtexAttrib;
-   for(int i = 0; i < Torque::GL_VertexAttrib_COUNT; ++i)
+   for(int i = 0; i < GFXAttributeLocation::COUNT; ++i)
    {         
       if( BIT(i) & forActiveMask ) //if is active but not in last mask
          glEnableVertexAttribArray(i);
@@ -125,7 +124,7 @@ void GFXGLVertexDecl::_initVerticesFormat(U32 stream)
 
       if ( element.isSemantic( GFXSemantic::POSITION ) )
       {           
-         glElement.attrIndex = Torque::GL_VertexAttrib_Position;
+         glElement.attrIndex = GFXAttributeLocation::Position;
          glElement.elementCount = element.getSizeInBytes() / 4;
          glElement.normalized = false;
          glElement.type = GL_FLOAT;
@@ -136,7 +135,7 @@ void GFXGLVertexDecl::_initVerticesFormat(U32 stream)
       }
       else if ( element.isSemantic( GFXSemantic::NORMAL ) )
       {
-         glElement.attrIndex = Torque::GL_VertexAttrib_Normal;
+         glElement.attrIndex = GFXAttributeLocation::Normal;
          glElement.elementCount = 3;
          glElement.normalized = false;
          glElement.type = GL_FLOAT;
@@ -147,7 +146,7 @@ void GFXGLVertexDecl::_initVerticesFormat(U32 stream)
       }
       else if ( element.isSemantic( GFXSemantic::TANGENT ) )
       {
-         glElement.attrIndex = Torque::GL_VertexAttrib_Tangent;
+         glElement.attrIndex = GFXAttributeLocation::Tangent;
          glElement.elementCount = 3;
          glElement.normalized = false;
          glElement.type = GL_FLOAT;
@@ -158,7 +157,7 @@ void GFXGLVertexDecl::_initVerticesFormat(U32 stream)
       }
       else if ( element.isSemantic( GFXSemantic::TANGENTW ) )
       {
-         glElement.attrIndex = Torque::GL_VertexAttrib_TangentW;
+         glElement.attrIndex = GFXAttributeLocation::TangentW;
          glElement.elementCount = element.getSizeInBytes()/4;
          glElement.normalized = false;
          glElement.type = GL_FLOAT;
@@ -169,7 +168,7 @@ void GFXGLVertexDecl::_initVerticesFormat(U32 stream)
       }
       else if ( element.isSemantic( GFXSemantic::BINORMAL ) )
       {
-         glElement.attrIndex = Torque::GL_VertexAttrib_Binormal;
+         glElement.attrIndex = GFXAttributeLocation::Binormal;
          glElement.elementCount = 3;
          glElement.normalized = false;
          glElement.type = GL_FLOAT;
@@ -180,7 +179,7 @@ void GFXGLVertexDecl::_initVerticesFormat(U32 stream)
       }
       else if ( element.isSemantic( GFXSemantic::COLOR ) )
       {
-         glElement.attrIndex = Torque::GL_VertexAttrib_Color;
+         glElement.attrIndex = GFXAttributeLocation::Color;
          glElement.elementCount = element.getSizeInBytes();
          glElement.normalized = true;
          glElement.type = GL_UNSIGNED_BYTE;
@@ -191,7 +190,7 @@ void GFXGLVertexDecl::_initVerticesFormat(U32 stream)
       }
       else if ( element.isSemantic( GFXSemantic::BLENDWEIGHT ) )
       {
-         glElement.attrIndex = Torque::GL_VertexAttrib_BlendWeight0 + element.getSemanticIndex();
+         glElement.attrIndex = GFXAttributeLocation::BlendWeight0 + element.getSemanticIndex();
          glElement.elementCount = 4;
          glElement.normalized = false;
          glElement.type = GL_FLOAT;
@@ -202,7 +201,7 @@ void GFXGLVertexDecl::_initVerticesFormat(U32 stream)
       }
       else if ( element.isSemantic( GFXSemantic::BLENDINDICES ) )
       {
-         glElement.attrIndex = Torque::GL_VertexAttrib_BlendIndex0 + element.getSemanticIndex();
+         glElement.attrIndex = GFXAttributeLocation::BlendIndex0 + element.getSemanticIndex();
          glElement.elementCount = 4;
          glElement.normalized = false;
          glElement.type = GL_UNSIGNED_BYTE;
@@ -216,7 +215,7 @@ void GFXGLVertexDecl::_initVerticesFormat(U32 stream)
          String name = element.getSemantic();
          glElement.elementCount = element.getSizeInBytes() / 4;
          texCoordIndex = getMax(texCoordIndex, element.getSemanticIndex());
-         glElement.attrIndex = Torque::GL_VertexAttrib_TexCoord0 + texCoordIndex;
+         glElement.attrIndex = GFXAttributeLocation::TexCoord0 + texCoordIndex;
             
          glElement.normalized = false;
          glElement.type = GL_FLOAT;
