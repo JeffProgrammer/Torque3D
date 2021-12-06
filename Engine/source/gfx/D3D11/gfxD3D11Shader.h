@@ -36,23 +36,10 @@ class GFXD3D11Shader;
 
 /////////////////// Constant Buffers /////////////////////////////
 
-// Maximum number of CBuffers ($Globals & $Params)
-const U32 CBUFFER_MAX = 2;
-
-struct ConstSubBufferDesc
-{
-   U32 start;
-   U32 size;
-
-   ConstSubBufferDesc() : start(0), size(0){}
-};
-
 class GFXD3D11ConstBufferLayout : public GenericConstBufferLayout
 {
 public:
-   GFXD3D11ConstBufferLayout();
-   /// Get our constant sub buffer data
-   Vector<ConstSubBufferDesc> &getSubBufferDesc(){ return mSubBuffers; }
+   GFXD3D11ConstBufferLayout() {}
    
    /// We need to manually set the size due to D3D11 alignment
    void setSize(U32 size){ mBufferSize = size;}
@@ -64,7 +51,6 @@ protected:
    /// Set a matrix, given a base pointer
    virtual bool setMatrix(const ParamDesc& pd, const GFXShaderConstType constType, const U32 size, const void* data, U8* basePointer);
 
-   Vector<ConstSubBufferDesc> mSubBuffers;
 };
 
 class GFXD3D11ShaderConstHandle : public GFXShaderConstHandle
@@ -178,8 +164,8 @@ protected:
       GenericConstBuffer *pBuffer);
 
    // Constant buffers, VSSetConstantBuffers1 has issues on win 7. So unfortunately for now we have multiple constant buffers
-   ID3D11Buffer* mConstantBuffersV[CBUFFER_MAX];
-   ID3D11Buffer* mConstantBuffersP[CBUFFER_MAX];
+   ID3D11Buffer* mConstantBufferV;
+   ID3D11Buffer* mConstantBufferP;
 
    /// We keep a weak reference to the shader 
    /// because it will often be deleted.
