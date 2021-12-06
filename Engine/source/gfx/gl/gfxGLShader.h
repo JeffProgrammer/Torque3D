@@ -64,7 +64,7 @@ public:
    /// @}      
 
    /// Activates this shader in the GL context.
-   void useProgram();
+   void bindProgramPipeline();
    
 protected:
 
@@ -81,19 +81,12 @@ protected:
    void initConstantDescs();
    void initHandles();
    void setConstantsFromBuffer(GFXGLShaderConstBuffer* buffer);
-   
-   static char* _handleIncludes( const Torque::Path &path, FileStream *s );
-
-   static bool _loadShaderFromStream(  GLuint shader, 
-                                       const Torque::Path& path, 
-                                       FileStream* s, 
-                                       const Vector<GFXShaderMacro>& macros );
 
    /// @name Internal GL handles
    /// @{
-   GLuint mVertexShader;
-   GLuint mPixelShader;
-   GLuint mProgram;
+   GLuint mProgramPipeline;
+   GLuint mVertexProgram;
+   GLuint mFragmentProgram;
    /// @}
     
    Vector<GFXShaderConstDesc> mConstants;
@@ -147,8 +140,12 @@ public:
 private:
 
    friend class GFXGLShader;
-   U8* mBuffer;
+
    WeakRefPtr<GFXGLShader> mShader;
+
+   //uniform buffers
+   GLuint mVertexUBO;
+   GLuint mFragmentUBO;
    
    template<typename ConstType>
    void internalSet(GFXShaderConstHandle* handle, const ConstType& param);

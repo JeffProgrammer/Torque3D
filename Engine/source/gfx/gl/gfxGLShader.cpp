@@ -136,19 +136,26 @@ GFXGLShaderConstHandle::~GFXGLShaderConstHandle()
 GFXGLShaderConstBuffer::GFXGLShaderConstBuffer(GFXGLShader* shader, U32 bufSize, U8* existingConstants)
 {
    mShader = shader;
-   mBuffer = new U8[bufSize];
    mWasLost = true;
 
-   // Copy the existing constant buffer to preserve sampler numbers
-   /// @warning This preserves a lot more than sampler numbers, obviously. If there
-   /// is any code that assumes a new constant buffer will have everything set to
-   /// 0, it will break.
-   dMemcpy(mBuffer, existingConstants, bufSize);
+   //Generate vertex and shader stage uniform buffers
+   GLuint* buffers[] = { &mVertexUBO, &mFragmentUBO };
+   glGenBuffers(2, buffers[0]);
+
+   //allocate memory for the buffers - TODO bufferStorage extension
+   glBindBuffer(GL_UNIFORM_BUFFER, mVertexUBO);
+   glBufferData(GL_UNIFORM_BUFFER, bufSize, NULL, GL_DYNAMIC_DRAW);
+
+   glBindBuffer(GL_UNIFORM_BUFFER, mFragmentUBO);
+   glBufferData(GL_UNIFORM_BUFFER, bufSize, NULL, GL_DYNAMIC_DRAW);
+
+   glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
 GFXGLShaderConstBuffer::~GFXGLShaderConstBuffer()
 {
-   delete[] mBuffer;
+   GLuint* buffers[] = { &mVertexUBO, &mFragmentUBO };
+   glDeleteBuffers(2, buffers[0]);
 
    if ( mShader )
       mShader->_unlinkBuffer( this );
@@ -163,12 +170,7 @@ void GFXGLShaderConstBuffer::internalSet(GFXShaderConstHandle* handle, const Con
 
    GFXGLShaderConstHandle* _glHandle = static_cast<GFXGLShaderConstHandle*>(handle);
    AssertFatal(mShader == _glHandle->mShader, "GFXGLShaderConstBuffer::set - Should only set handles which are owned by our shader");
-   U8 *buf = mBuffer + _glHandle->mOffset;
 
-   if(_glHandle->mInstancingConstant)            
-      buf = mInstPtr + _glHandle->mOffset;
-
-   dMemcpy(buf, &param, sizeof(ConstType));
 }
 
 void GFXGLShaderConstBuffer::set(GFXShaderConstHandle* handle, const F32 fv)
@@ -231,12 +233,6 @@ void GFXGLShaderConstBuffer::internalSet(GFXShaderConstHandle* handle, const Ali
    GFXGLShaderConstHandle* _glHandle = static_cast<GFXGLShaderConstHandle*>(handle);
    AssertFatal(mShader == _glHandle->mShader, "GFXGLShaderConstBuffer::set - Should only set handles which are owned by our shader");
    AssertFatal(!_glHandle->mInstancingConstant, "GFXGLShaderConstBuffer::set - Instancing not supported for array");
-   const U8* fvBuffer = static_cast<const U8*>(fv.getBuffer());
-   for(U32 i = 0; i < fv.size(); ++i)
-   {
-      dMemcpy(mBuffer + _glHandle->mOffset + i * sizeof(ConstType), fvBuffer, sizeof(ConstType));
-      fvBuffer += fv.getElementSize();
-   }
 }
 
 void GFXGLShaderConstBuffer::set(GFXShaderConstHandle* handle, const AlignedArray<F32>& fv)
@@ -287,47 +283,7 @@ void GFXGLShaderConstBuffer::set(GFXShaderConstHandle* handle, const MatrixF& ma
 
    GFXGLShaderConstHandle* _glHandle = static_cast<GFXGLShaderConstHandle*>(handle);
    AssertFatal(mShader == _glHandle->mShader, "GFXGLShaderConstBuffer::set - Should only set handles which are owned by our shader");
-   AssertFatal(!_glHandle->mInstancingConstant || matType == GFXSCT_Float4x4, "GFXGLShaderConstBuffer::set - Only support GFXSCT_Float4x4 for instancing");
-   
-   switch(matType)
-   {
-   case GFXSCT_Float2x2:
-      reinterpret_cast<F32*>(mBuffer + _glHandle->mOffset)[0] = mat[0];
-      reinterpret_cast<F32*>(mBuffer + _glHandle->mOffset)[1] = mat[1];
-      reinterpret_cast<F32*>(mBuffer + _glHandle->mOffset)[2] = mat[4];
-      reinterpret_cast<F32*>(mBuffer + _glHandle->mOffset)[3] = mat[5];
-      break;
-   case GFXSCT_Float3x3:
-      reinterpret_cast<F32*>(mBuffer + _glHandle->mOffset)[0] = mat[0];
-      reinterpret_cast<F32*>(mBuffer + _glHandle->mOffset)[1] = mat[1];
-      reinterpret_cast<F32*>(mBuffer + _glHandle->mOffset)[2] = mat[2];
-      reinterpret_cast<F32*>(mBuffer + _glHandle->mOffset)[3] = mat[4];
-      reinterpret_cast<F32*>(mBuffer + _glHandle->mOffset)[4] = mat[5];
-      reinterpret_cast<F32*>(mBuffer + _glHandle->mOffset)[5] = mat[6];
-      reinterpret_cast<F32*>(mBuffer + _glHandle->mOffset)[6] = mat[8];
-      reinterpret_cast<F32*>(mBuffer + _glHandle->mOffset)[7] = mat[9];
-      reinterpret_cast<F32*>(mBuffer + _glHandle->mOffset)[8] = mat[10];
-      break;
-   case GFXSCT_Float4x3:
-      dMemcpy(mBuffer + _glHandle->mOffset, (const F32*)mat, (sizeof(F32) * 12));// matrix with end row chopped off
-      break;
-   case GFXSCT_Float4x4:
-   {      
-      if(_glHandle->mInstancingConstant)
-      {
-         MatrixF transposed;   
-         mat.transposeTo(transposed);
-         dMemcpy( mInstPtr + _glHandle->mOffset, (const F32*)transposed, sizeof(MatrixF) );
-         return;
-      }
-      
-      dMemcpy(mBuffer + _glHandle->mOffset, (const F32*)mat, sizeof(MatrixF));
-      break;
-   }
-   default:
-      AssertFatal(false, "GFXGLShaderConstBuffer::set - Invalid matrix type");
-      break;
-   }
+   AssertFatal(!_glHandle->mInstancingConstant || matType == GFXSCT_Float4x4, "GFXGLShaderConstBuffer::set - Only support GFXSCT_Float4x4 for instancing");   
 }
 
 void GFXGLShaderConstBuffer::set(GFXShaderConstHandle* handle, const MatrixF* mat, const U32 arraySize, const GFXShaderConstType matrixType)
@@ -338,22 +294,6 @@ void GFXGLShaderConstBuffer::set(GFXShaderConstHandle* handle, const MatrixF* ma
    GFXGLShaderConstHandle* _glHandle = static_cast<GFXGLShaderConstHandle*>(handle);
    AssertFatal(mShader == _glHandle->mShader, "GFXGLShaderConstBuffer::set - Should only set handles which are owned by our shader");  
    AssertFatal(!_glHandle->mInstancingConstant, "GFXGLShaderConstBuffer::set - Instancing not supported for matrix arrays");
-
-   switch (matrixType) {
-      case GFXSCT_Float4x3:
-         // Copy each item with the last row chopped off
-         for (int i = 0; i<arraySize; i++)
-         {
-            dMemcpy(mBuffer + _glHandle->mOffset + (i*(sizeof(F32) * 12)), (F32*)(mat + i), sizeof(F32) * 12);
-         }
-      break;
-      case GFXSCT_Float4x4:
-         dMemcpy(mBuffer + _glHandle->mOffset, (F32*)mat, _glHandle->getSize());
-         break;
-      default:
-         AssertFatal(false, "GFXGLShaderConstBuffer::set - setting array of non 4x4 matrices!");
-         break;
-   }
 }
 
 void GFXGLShaderConstBuffer::activate()
@@ -372,16 +312,13 @@ void GFXGLShaderConstBuffer::onShaderReload( GFXGLShader *shader )
 {
    AssertFatal( shader == mShader, "GFXGLShaderConstBuffer::onShaderReload, mismatched shaders!" );
 
-   delete[] mBuffer;
-   mBuffer = new U8[mShader->mConstBufferSize];
-   dMemset(mBuffer, 0, mShader->mConstBufferSize);
    mWasLost = true;
 }
 
 GFXGLShader::GFXGLShader(GFXGLDevice* device) :
-   mVertexShader(0),
-   mPixelShader(0),
-   mProgram(0),
+   mProgramPipeline(0),
+   mVertexProgram(0),
+   mFragmentProgram(0),
    mDevice(device),
    mConstBufferSize(0),
    mConstBuffer(NULL)
@@ -399,13 +336,13 @@ GFXGLShader::~GFXGLShader()
 
 void GFXGLShader::clearShaders()
 {
-   glDeleteProgram(mProgram);
-   glDeleteShader(mVertexShader);
-   glDeleteShader(mPixelShader);
+   glDeleteProgramPipelines(1, &mProgramPipeline);
+   glDeleteProgram(mVertexProgram);
+   glDeleteProgram(mFragmentProgram);
    
-   mProgram = 0;
-   mVertexShader = 0;
-   mPixelShader = 0;
+   mProgramPipeline = 0;
+   mVertexProgram = 0;
+   mFragmentProgram = 0;
 }
 
 bool GFXGLShader::_init()
@@ -417,7 +354,7 @@ bool GFXGLShader::_init()
 
    clearShaders();
 
-   mProgram = glCreateProgram();
+   glGenProgramPipelines(1, &mProgramPipeline);
    
    // Set the macros and add the global ones.
    Vector<GFXShaderMacro> macros;
@@ -431,9 +368,9 @@ bool GFXGLShader::_init()
    macros.last().name = "TORQUE_VERTEX_SHADER";
    macros.last().value = "";
 
-   // Default to true so we're "successful" if a vertex/pixel shader wasn't specified.
-   bool compiledVertexShader = true;
-   bool compiledPixelShader = true;
+
+   bool compiledVertexShader = false;
+   bool compiledPixelShader = false;
    
    // Compile the vertex and pixel shaders if specified.
    if(!mVertexFile.isEmpty())
@@ -446,42 +383,10 @@ bool GFXGLShader::_init()
    // If either shader was present and failed to compile, bail.
    if(!compiledVertexShader || !compiledPixelShader)
       return false;
-  
-   // Link it!
-   glLinkProgram( mProgram );
-   
-   // Get the link status
-   GLint linkStatus;
-   glGetProgramiv( mProgram, GL_LINK_STATUS, &linkStatus );
-   
-   // Dump the info log to the console
-   U32 logLength = 0;
-   glGetProgramiv(mProgram, GL_INFO_LOG_LENGTH, (GLint*)&logLength);
-   if ( logLength )
-   {
-      FrameAllocatorMarker fam;
-      char* log = (char*)fam.alloc( logLength );
-      glGetProgramInfoLog( mProgram, logLength, NULL, log );
-      
-      if ( linkStatus == GL_FALSE )
-      {
-         if ( smLogErrors )
-         {
-            Con::errorf( "GFXGLShader::init - Error linking shader!" );
-            Con::errorf( "Program %s / %s: %s",
-               mVertexFile.getFullPath().c_str(), mPixelFile.getFullPath().c_str(), log);
-         }
-      }
-      else if ( smLogWarnings )
-      {
-         Con::warnf( "Program %s / %s: %s",
-            mVertexFile.getFullPath().c_str(), mPixelFile.getFullPath().c_str(), log);
-      }
-   }
 
-   // If we failed to link, bail.
-   if ( linkStatus == GL_FALSE )
-      return false;
+   //Bind the separate program stages to the program pipeline
+   glUseProgramStages(mProgramPipeline, GL_VERTEX_SHADER_BIT, mVertexProgram);
+   glUseProgramStages(mProgramPipeline, GL_FRAGMENT_SHADER_BIT, mFragmentProgram); 
 
    initConstantDescs();   
    initHandles();
@@ -498,241 +403,10 @@ bool GFXGLShader::_init()
 
 void GFXGLShader::initConstantDescs()
 {
-   mConstants.clear();
-   GLint numUniforms;
-   glGetProgramiv(mProgram, GL_ACTIVE_UNIFORMS, &numUniforms);
-   GLint maxNameLength;
-   glGetProgramiv(mProgram, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameLength);
-
-   if(!maxNameLength)
-      return;
-   maxNameLength++;
-
-   FrameTemp<GLchar> uniformName(maxNameLength);
-   
-   for(U32 i = 0; i < numUniforms; i++)
-   {
-      GLint size;
-      GLenum type;
-      glGetActiveUniform(mProgram, i, maxNameLength, NULL, &size, &type, uniformName);
-      GFXShaderConstDesc desc;
-      
-      desc.name = String((char*)uniformName);
-      
-      // Remove array brackets from the name
-      desc.name = desc.name.substr(0, desc.name.find('['));
-     
-      // Insert $ to match D3D behavior of having a $ prepended to parameters to main.
-      desc.name.insert(0, '$');
-      desc.arraySize = size;
-      
-      switch(type)
-      {
-         case GL_FLOAT:
-            desc.constType = GFXSCT_Float;
-            break;
-         case GL_FLOAT_VEC2:
-            desc.constType = GFXSCT_Float2;
-            break;
-         case GL_FLOAT_VEC3:
-            desc.constType = GFXSCT_Float3;
-            break;
-         case GL_FLOAT_VEC4:
-            desc.constType = GFXSCT_Float4;
-            break;
-         case GL_INT:
-            desc.constType = GFXSCT_Int;
-            break;
-         case GL_INT_VEC2:
-            desc.constType = GFXSCT_Int2;
-            break;
-         case GL_INT_VEC3:
-            desc.constType = GFXSCT_Int3;
-            break;
-         case GL_INT_VEC4:
-            desc.constType = GFXSCT_Int4;
-            break;
-         case GL_FLOAT_MAT2:
-            desc.constType = GFXSCT_Float2x2;
-            break;
-         case GL_FLOAT_MAT3:
-            desc.constType = GFXSCT_Float3x3;
-            break;
-         case GL_FLOAT_MAT4:
-            desc.constType = GFXSCT_Float4x4;
-            break;
-         case GL_FLOAT_MAT4x3: // jamesu - columns, rows
-            desc.constType = GFXSCT_Float4x3;
-            break;
-         case GL_SAMPLER_1D:
-         case GL_SAMPLER_2D:
-         case GL_SAMPLER_3D:
-         case GL_SAMPLER_1D_SHADOW:
-         case GL_SAMPLER_2D_SHADOW:
-            desc.constType = GFXSCT_Sampler;
-            break;
-         case GL_SAMPLER_CUBE:
-            desc.constType = GFXSCT_SamplerCube;
-            break;
-         case GL_SAMPLER_CUBE_MAP_ARRAY_ARB:
-            desc.constType = GFXSCT_SamplerCubeArray;
-            break;
-         case GL_SAMPLER_2D_ARRAY:
-            desc.constType = GFXSCT_SamplerTextureArray;
-            break;
-         default:
-            AssertFatal(false, "GFXGLShader::initConstantDescs - unrecognized uniform type");
-            // If we don't recognize the constant don't add its description.
-            continue;
-      }
-      
-      mConstants.push_back(desc);
-   }
 }
 
 void GFXGLShader::initHandles()
-{      
-   // Mark all existing handles as invalid.
-   // Those that are found when parsing the descriptions will then be marked valid again.
-   for ( HandleMap::Iterator iter = mHandles.begin(); iter != mHandles.end(); ++iter )      
-      (iter->value)->setValid( false );  
-   mValidHandles.clear();
-
-   // Loop through all ConstantDescriptions, 
-   // if they aren't in the HandleMap add them, if they are reinitialize them.
-   for ( U32 i = 0; i < mConstants.size(); i++ )
-   {
-      GFXShaderConstDesc &desc = mConstants[i];            
-
-      // Index element 1 of the name to skip the '$' we inserted earier.
-      GLint loc = glGetUniformLocation(mProgram, &desc.name.c_str()[1]);
-
-      AssertFatal(loc != -1, avar("uniform %s in shader file Vert: (%s) Frag: (%s)", &desc.name.c_str()[1], mVertexFile.getFullPath().c_str(), mPixelFile.getFullPath().c_str()));
-
-      HandleMap::Iterator handle = mHandles.find(desc.name);
-      S32 sampler = -1;
-      if(desc.constType == GFXSCT_Sampler ||
-         desc.constType == GFXSCT_SamplerCube ||
-         desc.constType == GFXSCT_SamplerCubeArray ||
-         desc.constType == GFXSCT_SamplerTextureArray)
-      {
-         S32 idx = mSamplerNamesOrdered.find_next(desc.name);
-         AssertFatal(idx != -1, "");
-         sampler = idx; //assignedSamplerNum++;
-      }
-      if ( handle != mHandles.end() )
-      {
-         handle->value->reinit( desc, loc, sampler );         
-      } 
-      else 
-      {
-         mHandles[desc.name] = new GFXGLShaderConstHandle( this, desc, loc, sampler );      
-      }
-   }
-
-   // Loop through handles once more to set their offset and calculate our
-   // constBuffer size.
-
-   if ( mConstBuffer )
-      delete[] mConstBuffer;
-   mConstBufferSize = 0;
-
-   for ( HandleMap::Iterator iter = mHandles.begin(); iter != mHandles.end(); ++iter )
-   {
-      GFXGLShaderConstHandle* handle = iter->value;
-      if ( handle->isValid() )
-      {
-      	mValidHandles.push_back(handle);
-         handle->mOffset = mConstBufferSize;
-         mConstBufferSize += handle->getSize();
-      }
-   }
-   
-   mConstBuffer = new U8[mConstBufferSize];
-   dMemset(mConstBuffer, 0, mConstBufferSize);
-   
-   // Set our program so uniforms are assigned properly.
-   mDevice->setShader(this, false);
-
-   // Iterate through uniforms to set sampler numbers.
-   for (HandleMap::Iterator iter = mHandles.begin(); iter != mHandles.end(); ++iter)
-   {
-      GFXGLShaderConstHandle* handle = iter->value;
-      if(handle->isValid() &&
-         (handle->getType() == GFXSCT_Sampler ||
-            handle->getType() == GFXSCT_SamplerCube ||
-            handle->getType() == GFXSCT_SamplerCubeArray ||
-            handle->getType() == GFXSCT_SamplerTextureArray))
-      {
-         // Set sampler number on our program.
-         glUniform1i(handle->mLocation, handle->mSamplerNum);
-         // Set sampler in constant buffer so it does not get unset later.
-         dMemcpy(mConstBuffer + handle->mOffset, &handle->mSamplerNum, handle->getSize());
-      }
-   }
-
-   //instancing
-   if (!mInstancingFormat)
-      return;
-
-   U32 offset = 0;
-
-   for ( U32 i=0; i < mInstancingFormat->getElementCount(); i++ )
-   {
-      const GFXVertexElement &element = mInstancingFormat->getElement( i );
-      
-      String constName = String::ToString( "$%s", element.getSemantic().c_str() );
-
-      HandleMap::Iterator handle = mHandles.find(constName);      
-      if ( handle != mHandles.end() )
-      {          
-         AssertFatal(0, "");
-      } 
-      else 
-      {
-         GFXShaderConstDesc desc;
-         desc.name = constName;
-         desc.arraySize = 1;
-         switch(element.getType())
-         {
-         case GFXDeclType_Float4:
-            desc.constType = GFXSCT_Float4;
-            break;
-
-         default:
-            desc.constType = GFXSCT_Float;
-            break;
-         }
-         
-         GFXGLShaderConstHandle *h = new GFXGLShaderConstHandle( this, desc, -1, -1 );
-         h->mInstancingConstant = true;
-         h->mOffset = offset;
-         mHandles[constName] =  h;
-
-         offset += element.getSizeInBytes();
-         ++i;
-
-         // If this is a matrix we will have 2 or 3 more of these
-         // semantics with the same name after it.
-         for ( ; i < mInstancingFormat->getElementCount(); i++ )
-         {
-            const GFXVertexElement &nextElement = mInstancingFormat->getElement( i );
-            if ( nextElement.getSemantic() != element.getSemantic() )
-            {
-               i--;
-               break;
-            }
-            ++desc.arraySize;
-            if(desc.arraySize == 4 && desc.constType == GFXSCT_Float4)
-            {
-               desc.arraySize = 1;
-               desc.constType = GFXSCT_Float4x4;
-            }
-            offset += nextElement.getSizeInBytes();
-         }
-      }
-
-   }
+{
 }
 
 GFXShaderConstHandle* GFXGLShader::getShaderConstHandle(const String& name)
@@ -762,70 +436,6 @@ GFXShaderConstHandle* GFXGLShader::findShaderConstHandle(const String& name)
 
 void GFXGLShader::setConstantsFromBuffer(GFXGLShaderConstBuffer* buffer)
 {
-   for(Vector<GFXGLShaderConstHandle*>::iterator i = mValidHandles.begin(); i != mValidHandles.end(); ++i)
-   {
-      GFXGLShaderConstHandle* handle = *i;
-      AssertFatal(handle, "GFXGLShader::setConstantsFromBuffer - Null handle");
-
-      if(handle->mInstancingConstant)
-         continue;
-      
-      // Don't set if the value has not be changed.
-      if(dMemcmp(mConstBuffer + handle->mOffset, buffer->mBuffer + handle->mOffset, handle->getSize()) == 0)
-         continue;
-         
-      // Copy new value into our const buffer and set in GL.
-      dMemcpy(mConstBuffer + handle->mOffset, buffer->mBuffer + handle->mOffset, handle->getSize());
-
-      switch(handle->mDesc.constType)
-      {
-         case GFXSCT_Float:
-            glUniform1fv(handle->mLocation, handle->mDesc.arraySize, (GLfloat*)(mConstBuffer + handle->mOffset));
-            break;
-         case GFXSCT_Float2:
-            glUniform2fv(handle->mLocation, handle->mDesc.arraySize, (GLfloat*)(mConstBuffer + handle->mOffset));
-            break;
-         case GFXSCT_Float3:
-            glUniform3fv(handle->mLocation, handle->mDesc.arraySize, (GLfloat*)(mConstBuffer + handle->mOffset));
-            break;
-         case GFXSCT_Float4:
-            glUniform4fv(handle->mLocation, handle->mDesc.arraySize, (GLfloat*)(mConstBuffer + handle->mOffset));
-            break;
-         case GFXSCT_Int:
-         case GFXSCT_Sampler:
-         case GFXSCT_SamplerCube:
-         case GFXSCT_SamplerCubeArray:
-         case GFXSCT_SamplerTextureArray:
-            glUniform1iv(handle->mLocation, handle->mDesc.arraySize, (GLint*)(mConstBuffer + handle->mOffset));
-            break;
-         case GFXSCT_Int2:
-            glUniform2iv(handle->mLocation, handle->mDesc.arraySize, (GLint*)(mConstBuffer + handle->mOffset));
-            break;
-         case GFXSCT_Int3:
-            glUniform3iv(handle->mLocation, handle->mDesc.arraySize, (GLint*)(mConstBuffer + handle->mOffset));
-            break;
-         case GFXSCT_Int4:
-            glUniform4iv(handle->mLocation, handle->mDesc.arraySize, (GLint*)(mConstBuffer + handle->mOffset));
-            break;
-         case GFXSCT_Float2x2:
-            glUniformMatrix2fv(handle->mLocation, handle->mDesc.arraySize, true, (GLfloat*)(mConstBuffer + handle->mOffset));
-            break;
-         case GFXSCT_Float3x3:
-            glUniformMatrix3fv(handle->mLocation, handle->mDesc.arraySize, true, (GLfloat*)(mConstBuffer + handle->mOffset));
-            break;
-         case GFXSCT_Float4x3:
-            // NOTE: To save a transpose here we could store the matrix transposed (i.e. column major) in the constant buffer.
-            // See _mesa_uniform_matrix in the mesa source for the correct transpose algorithm for a 4x3 matrix. 
-            glUniformMatrix4x3fv(handle->mLocation, handle->mDesc.arraySize, true, (GLfloat*)(mConstBuffer + handle->mOffset));
-            break;
-         case GFXSCT_Float4x4:
-            glUniformMatrix4fv(handle->mLocation, handle->mDesc.arraySize, true, (GLfloat*)(mConstBuffer + handle->mOffset));
-            break;
-         default:
-            AssertFatal(0,"");
-            break;
-      }
-   }
 }
 
 GFXShaderConstBufferRef GFXGLShader::allocConstBuffer()
@@ -836,9 +446,9 @@ GFXShaderConstBufferRef GFXGLShader::allocConstBuffer()
    return buffer;
 }
 
-void GFXGLShader::useProgram()
+void GFXGLShader::bindProgramPipeline()
 {
-   glUseProgram(mProgram);
+   glBindProgramPipeline(mProgramPipeline);
 }
 
 void GFXGLShader::zombify()
@@ -847,197 +457,11 @@ void GFXGLShader::zombify()
    dMemset(mConstBuffer, 0, mConstBufferSize);
 }
 
-char* GFXGLShader::_handleIncludes( const Torque::Path& path, FileStream *s )
-{
-   // TODO:  The #line pragma on GLSL takes something called a
-   // "source-string-number" which it then never explains.
-   //
-   // Until i resolve this mystery i disabled this.
-   //
-   //String linePragma = String::ToString( "#line 1 \r\n");
-   //U32 linePragmaLen = linePragma.length();
-
-   U32 shaderLen = s->getStreamSize();
-   char* buffer = (char*)dMalloc(shaderLen + 1);
-   //dStrncpy( buffer, linePragma.c_str(), linePragmaLen );
-   s->read(shaderLen, buffer);
-   buffer[shaderLen] = 0;
-   
-   char* p = dStrstr(buffer, "#include");
-   while(p)
-   {
-      char* q = p;
-      p += 8;
-      if(dIsspace(*p))
-      {
-         U32 n = 0;
-         while(dIsspace(*p)) ++p;
-         AssertFatal(*p == '"', "Bad #include directive");
-         ++p;
-         static char includeFile[256];
-         while(*p != '"')
-         {
-            AssertFatal(*p != 0, "Bad #include directive");
-            includeFile[n++] = *p++;
-            AssertFatal(n < sizeof(includeFile), "#include directive too long");
-         }
-         ++p;
-         includeFile[n] = 0;
-
-         // First try it as a local file.
-         Torque::Path includePath = Torque::Path::Join(path.getPath(), '/', includeFile);
-         includePath = Torque::Path::CompressPath(includePath);
-         
-         FileStream includeStream;
-
-         if ( !includeStream.open( includePath, Torque::FS::File::Read ) )
-         {
-            // Try again assuming the path is absolute 
-            // and/or relative.
-            includePath = String( includeFile );
-            includePath = Torque::Path::CompressPath(includePath);
-            if ( !includeStream.open( includePath, Torque::FS::File::Read ) )
-            {
-               AssertISV(false, avar("failed to open include '%s'.", includePath.getFullPath().c_str()));
-
-               if ( smLogErrors )
-                  Con::errorf( "GFXGLShader::_handleIncludes - Failed to open include '%s'.", 
-                     includePath.getFullPath().c_str() );
-
-               // Fail... don't return the buffer.
-               dFree(buffer);
-               return NULL;
-            }
-         }
-
-         char* includedText = _handleIncludes(includePath, &includeStream);
-         
-         // If a sub-include fails... cleanup and return.
-         if ( !includedText )
-         {
-            dFree(buffer);
-            return NULL;
-         }
-         
-         // TODO: Disabled till this is fixed correctly.
-         //
-         // Count the number of lines in the file 
-         // before the include.
-         /*
-         U32 includeLine = 0;
-         {
-            char* nl = dStrstr( buffer, "\n" );
-            while ( nl )
-            {
-               includeLine++;
-               nl = dStrstr( nl, "\n" );
-               if(nl) ++nl;
-            }
-         }
-         */
-
-         String manip(buffer);
-         manip.erase(q-buffer, p-q);
-         String sItx(includedText);
-
-         // TODO: Disabled till this is fixed correctly.
-         //
-         // Add a new line pragma to restore the proper
-         // file and line number after the include.
-         //sItx += String::ToString( "\r\n#line %d \r\n", includeLine );
-         
-         dFree(includedText);
-         manip.insert(q-buffer, sItx);
-         char* manipBuf = dStrdup(manip.c_str());
-         p = manipBuf + (q - buffer);
-         dFree(buffer);
-         buffer = manipBuf;
-      }
-      p = dStrstr(p, "#include");
-   }
-   
-   return buffer;
-}
-
-bool GFXGLShader::_loadShaderFromStream(  GLuint shader, 
-                                          const Torque::Path &path, 
-                                          FileStream *s, 
-                                          const Vector<GFXShaderMacro> &macros )
-{
-   Vector<char*> buffers;
-   Vector<U32> lengths;
-   
-   // The GLSL version declaration must go first!
-   const char *versionDecl = "#version 330\n";
-   buffers.push_back( dStrdup( versionDecl ) );
-   lengths.push_back( dStrlen( versionDecl ) );
-
-   //Required extensions. These are already checked when creating the GFX adapter, if we make it this far it's supported
-   const char* cubeArrayExt = "#extension GL_ARB_texture_cube_map_array : enable\n";
-   buffers.push_back(dStrdup(cubeArrayExt));
-   lengths.push_back(dStrlen(cubeArrayExt));
-
-   const char* gpuShader5Ext = "#extension GL_ARB_gpu_shader5 : enable\n";
-   buffers.push_back(dStrdup(gpuShader5Ext));
-   lengths.push_back(dStrlen(gpuShader5Ext));
-
-   const char* newLine = "\r\n";
-   buffers.push_back(dStrdup(newLine));
-   lengths.push_back(dStrlen(newLine));
-
-   // Now add all the macros.
-   for( U32 i = 0; i < macros.size(); i++ )
-   {
-      if(macros[i].name.isEmpty())  // TODO OPENGL
-         continue;
-
-      String define = String::ToString( "#define %s %s\n", macros[i].name.c_str(), macros[i].value.c_str() );
-      buffers.push_back( dStrdup( define.c_str() ) );
-      lengths.push_back( define.length() );
-   }
-   
-   // Now finally add the shader source.
-   U32 shaderLen = s->getStreamSize();
-   char *buffer = _handleIncludes(path, s);
-   if ( !buffer )
-      return false;
-   
-   buffers.push_back(buffer);
-   lengths.push_back(shaderLen);
-   
-   glShaderSource(shader, buffers.size(), (const GLchar**)const_cast<const char**>(buffers.address()), NULL);
-
-#if defined(TORQUE_DEBUG) && defined(TORQUE_DEBUG_GFX)
-   FileStream stream;
-   if ( !stream.open( path.getFullPath()+"_DEBUG", Torque::FS::File::Write ) )
-   {
-      AssertISV(false, avar("GFXGLShader::initShader - failed to write debug shader '%s'.", path.getFullPath().c_str()));
-   }
-
-   for(int i = 0; i < buffers.size(); ++i)
-         stream.writeText(buffers[i]);
-#endif
-
-   // Cleanup the shader source buffer.
-   for ( U32 i=0; i < buffers.size(); i++ )
-      dFree( buffers[i] );
-
-   glCompileShader(shader);
-
-   return true;
-}
-
 bool GFXGLShader::initShader( const Torque::Path &file, 
                               bool isVertex, 
                               const Vector<GFXShaderMacro> &macros )
 {
    PROFILE_SCOPE(GFXGLShader_CompileShader);
-   GLuint activeShader = glCreateShader(isVertex ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER);
-   if(isVertex)
-      mVertexShader = activeShader;
-   else
-      mPixelShader = activeShader;
-   glAttachShader(mProgram, activeShader);
 
    //setup the conversion options
    GFXShaderConvertOptions options;
@@ -1052,13 +476,14 @@ bool GFXGLShader::initShader( const Torque::Path &file,
    options.optimize = true;
 #endif
 
-   //add vulkan define to enable explicit locations from the HLSL shaders
+   //add vulkan define to enable explicit locations from the HLSL shaders - TODO break this up in shadermodel.hlsl and add a new define because...
+   //TORQUE_VULKAN may in the future introduce features that break this hlsl->glsl path
    GFXShaderMacro macro = GFXShaderMacro("TORQUE_VULKAN");
    options.macros.push_back(macro);
 
    GFXShaderConvertOutput output;
 
-   //convert from hlsl to glsl
+   //convert from hlsl to glsl - TODO use GL_ARB_spirv_extensions for drivers that support it
    if (!GFXShaderConvert::convert(options, output))
    {
       Con::errorf("GFXGLShader::initShader: Failed to convert from hlsl to glsl. Source filename: %s", file.getFullPath().c_str());
@@ -1072,58 +497,54 @@ bool GFXGLShader::initShader( const Torque::Path &file,
       return false;
    }
 
+   //shader stage we are creating
+   GLuint stage = GL_FRAGMENT_SHADER;
+   if (isVertex)
+      stage = GL_VERTEX_SHADER;
+
+   //glsl source
    const char* pShaderSrc = output.srcString.c_str();
-   glShaderSource(activeShader, 1, &pShaderSrc, NULL);
-   glCompileShader(activeShader);
+   //create the program - this peforms both compiling and linking
+   GLuint program = glCreateShaderProgramv(stage, 1, &pShaderSrc);
 
-/////////////////// OLD GLSL Shader Path ////////////////////////////////////////////
-   // Ok it's not in the shader gen manager, so ask Torque for it
-  /* FileStream stream;
-   if ( !stream.open( file, Torque::FS::File::Read ) )
-   {
-      AssertISV(false, avar("GFXGLShader::initShader - failed to open shader '%s'.", file.getFullPath().c_str()));
-
-      if ( smLogErrors )
-         Con::errorf( "GFXGLShader::initShader - Failed to open shader file '%s'.", 
-            file.getFullPath().c_str() );
-
-      return false;
-   }
-   
-   if ( !_loadShaderFromStream( activeShader, file, &stream, macros ) )
-      return false;*/
-//////////////////////////////////////////////////////////////////////////////////////
-   
-   GLint compile;
-   glGetShaderiv(activeShader, GL_COMPILE_STATUS, &compile);
+   //check for errors. We only check for link errors because of the way glCreateShaderProgramv operates - see above
+   GLint linkStatus;
+   glGetProgramiv(program, GL_LINK_STATUS, &linkStatus);
 
    // Dump the info log to the console
    U32 logLength = 0;
-   glGetShaderiv(activeShader, GL_INFO_LOG_LENGTH, (GLint*)&logLength);
-   
-   GLint compileStatus = GL_TRUE;
-   if ( logLength )
+   glGetProgramiv(program, GL_INFO_LOG_LENGTH, (GLint*)&logLength);
+   if (logLength)
    {
       FrameAllocatorMarker fam;
       char* log = (char*)fam.alloc(logLength);
-      glGetShaderInfoLog(activeShader, logLength, NULL, log);
+      glGetProgramInfoLog(program, logLength, NULL, log);
 
-      // Always print errors
-      glGetShaderiv( activeShader, GL_COMPILE_STATUS, &compileStatus );
-
-      if ( compileStatus == GL_FALSE )
+      if (linkStatus == GL_FALSE)
       {
-         if ( smLogErrors )
+         if (smLogErrors)
          {
-            Con::errorf( "GFXGLShader::initShader - Error compiling shader!" );
-            Con::errorf( "Program %s: %s", file.getFullPath().c_str(), log );
+            Con::errorf("GFXGLShader::init - Error linking shader!");
+            Con::errorf("Program %s : %s", isVertex ? mVertexFile.getFullPath().c_str() :  mPixelFile.getFullPath().c_str(), log);
          }
       }
-      else if ( smLogWarnings )
-         Con::warnf( "Program %s: %s", file.getFullPath().c_str(), log );
+      else if (smLogWarnings)
+      {
+         Con::warnf("Program %s : %s", isVertex ? mVertexFile.getFullPath().c_str() : mPixelFile.getFullPath().c_str(), log);
+      }
    }
 
-   return compileStatus != GL_FALSE;
+   // If we failed to link, bail.
+   if (linkStatus == GL_FALSE)
+      return false;
+
+   //store the program stage
+   if (isVertex)
+      mVertexProgram = program;
+   else
+      mFragmentProgram = program;
+
+   return true;
 }
 
 /// Returns our list of shader constants, the material can get this and just set the constants it knows about
@@ -1143,7 +564,7 @@ U32 GFXGLShader::getAlignmentValue(const GFXShaderConstType constType) const
 const String GFXGLShader::describeSelf() const
 {
    String ret;
-   ret = String::ToString("   Program: %i", mProgram);
+   ret = String::ToString("   Program Pipeline: %i", mProgramPipeline);
    ret += String::ToString("   Vertex Path: %s", mVertexFile.getFullPath().c_str());
    ret += String::ToString("   Pixel Path: %s", mPixelFile.getFullPath().c_str());
    

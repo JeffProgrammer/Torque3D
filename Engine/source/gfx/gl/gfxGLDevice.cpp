@@ -917,7 +917,7 @@ void GFXGLDevice::setShader(GFXShader *shader, bool force)
    if ( shader )
    {
       GFXGLShader *glShader = static_cast<GFXGLShader*>( shader );
-      glShader->useProgram();
+      glShader->bindProgramPipeline();
       mCurrentShader = shader;
    }
    else
