@@ -304,7 +304,6 @@ bool GFXShaderConvert::convert(const GFXShaderConvertOptions& options, GFXShader
    shader.setPreamble(preamble.c_str());
    shader.setEntryPoint("main"); //t3d doesn't support shader entry points
    shader.setSourceEntryPoint("main"); //t3d doesn't support shader entry points
-   shader.setGlobalUniformBlockName("GlobalBlock");
    shader.setTextureSamplerTransformMode(EShTexSampTransUpgradeTextureRemoveSampler);
 
    //we can hardcode these for now as we only support hlsl to either spirv or glsl via the vulkan path
@@ -366,10 +365,10 @@ bool GFXShaderConvert::convert(const GFXShaderConvertOptions& options, GFXShader
 
       spirv_cross::CompilerGLSL::Options glslOptions = {};
       glslOptions.vertex.flip_vert_y = true;
-      glslOptions.emit_uniform_buffer_as_plain_uniforms = true;
+      glslOptions.emit_uniform_buffer_as_plain_uniforms = false;
       glslOptions.enable_420pack_extension = false;
       glslOptions.emit_push_constant_as_uniform_buffer = true;
-      glslOptions.version = 330;
+      glslOptions.version = 410;
       //set the options
       compiler.set_common_options(glslOptions);
 

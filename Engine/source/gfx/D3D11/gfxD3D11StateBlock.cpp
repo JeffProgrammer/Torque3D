@@ -29,7 +29,7 @@ namespace DictHash
 {
    inline U32 hash(const GFXSamplerStateDesc &data)
    {
-      return CRC::calculateCRC(&data, sizeof(GFXSamplerStateDesc));;
+      return CRC::calculateCRC(&data, sizeof(GFXSamplerStateDesc));
    }
 }
 

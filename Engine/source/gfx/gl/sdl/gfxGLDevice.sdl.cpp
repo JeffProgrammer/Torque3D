@@ -99,8 +99,8 @@ void GFXGLDevice::enumerateAdapters( Vector<GFXAdapter*> &adapterList )
    }
 
    SDL_ClearError();
-   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
    SDL_GL_SetAttribute(SDL_GL_FRAMEBUFFER_SRGB_CAPABLE, 1);
 
@@ -127,25 +127,12 @@ void GFXGLDevice::enumerateAdapters( Vector<GFXAdapter*> &adapterList )
    loadGLCore();
    loadGLExtensions(tempContext);
 
-   //check minimun Opengl 3.3
+   //check minimun Opengl 4.1
    int major, minor;
    glGetIntegerv(GL_MAJOR_VERSION, &major);
    glGetIntegerv(GL_MINOR_VERSION, &minor);
-   if( major < 3 || ( major == 3 && minor < 3 ) )
+   if( major < 4 || ( major == 1 && minor < 1 ) )
    {
-      return;
-   }
-
-   //check for required extensions
-   if (!gglHasExtension(ARB_texture_cube_map_array))
-   {
-      Con::warnf("Adapater supports OpenGL 3.3 but doesnt support GL_ARB_texture_cube_map_array");
-      return;
-   }
-
-   if (!gglHasExtension(ARB_gpu_shader5))
-   {
-      Con::warnf("Adapater supports OpenGL 3.3 but doesnt support GL_ARB_gpu_shader5");
       return;
    }
     
@@ -164,7 +151,7 @@ void GFXGLDevice::enumerateAdapters( Vector<GFXAdapter*> &adapterList )
       dStrcpy(toAdd->mName, "OpenGL", GFXAdapter::MaxAdapterNameLen);
 
    toAdd->mType = OpenGL;
-   toAdd->mShaderModel = 0.f;
+   toAdd->mShaderModel = 5.f;
    toAdd->mCreateDeviceInstanceDelegate = mCreateDeviceInstance;
 
    // Enumerate all available resolutions:

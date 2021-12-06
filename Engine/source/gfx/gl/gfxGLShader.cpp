@@ -31,9 +31,6 @@
 #include "gfx/gfxStructs.h"
 #include "console/console.h"
 
-#define CHECK_AARG(pos, name) static StringTableEntry attr_##name = StringTable->insert(#name); if (argName == attr_##name) { glBindAttribLocation(mProgram, pos, attr_##name); continue; }
-
-
 class GFXGLShaderConstHandle : public GFXShaderConstHandle
 {
    friend class GFXGLShader;
@@ -429,7 +426,7 @@ bool GFXGLShader::_init()
    
    macros.increment();
    macros.last().name = "TORQUE_SM";
-   macros.last().value = 40;
+   macros.last().value = 50;
    macros.increment();
    macros.last().name = "TORQUE_VERTEX_SHADER";
    macros.last().value = "";
@@ -453,58 +450,7 @@ bool GFXGLShader::_init()
    // Link it!
    glLinkProgram( mProgram );
    
-   GLint activeAttribs  = 0;
-   glGetProgramiv(mProgram, GL_ACTIVE_ATTRIBUTES, &activeAttribs );
-   
-   GLint maxLength;
-   glGetProgramiv(mProgram, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
-   
-   FrameTemp<GLchar> tempData(maxLength+1);
-   *tempData.address() = '\0';
-   // Check atributes
-   for (U32 i=0; i<activeAttribs; i++)
-   {
-      GLint size;
-      GLenum type;
-      
-      glGetActiveAttrib(mProgram, i, maxLength + 1, NULL, &size, &type, tempData.address());
-      
-      StringTableEntry argName = StringTable->insert(tempData.address());
-      
-      CHECK_AARG(GFXAttributeLocation::Position,    vPosition);
-      CHECK_AARG(GFXAttributeLocation::Normal,      vNormal);
-      CHECK_AARG(GFXAttributeLocation::Color,       vColor);
-      CHECK_AARG(GFXAttributeLocation::Tangent,     vTangent);
-      CHECK_AARG(GFXAttributeLocation::TangentW,    vTangentW);
-      CHECK_AARG(GFXAttributeLocation::Binormal,    vBinormal);
-      CHECK_AARG(GFXAttributeLocation::TexCoord0,   vTexCoord0);
-      CHECK_AARG(GFXAttributeLocation::TexCoord1,   vTexCoord1);
-      CHECK_AARG(GFXAttributeLocation::TexCoord2,   vTexCoord2);
-      CHECK_AARG(GFXAttributeLocation::TexCoord3,   vTexCoord3);
-      CHECK_AARG(GFXAttributeLocation::TexCoord4,   vTexCoord4);
-      CHECK_AARG(GFXAttributeLocation::TexCoord5,   vTexCoord5);
-      CHECK_AARG(GFXAttributeLocation::TexCoord6,   vTexCoord6);
-      CHECK_AARG(GFXAttributeLocation::TexCoord7,   vTexCoord7);
-      CHECK_AARG(GFXAttributeLocation::TexCoord8,   vTexCoord8);
-      CHECK_AARG(GFXAttributeLocation::TexCoord9,   vTexCoord9);
-   }
-
-   //always have OUT_col
-   glBindFragDataLocation(mProgram, 0, "OUT_col");
-   // Check OUT_colN
-   for(U32 i=1;i<4;i++)
-   {
-      char buffer[10];
-      dSprintf(buffer, sizeof(buffer), "OUT_col%u",i);
-      GLint location = glGetFragDataLocation(mProgram, buffer);
-      if(location>0)
-         glBindFragDataLocation(mProgram, i, buffer);
-
-   }
-   
-   // Link it again!
-   glLinkProgram( mProgram );
-   
+   // Get the link status
    GLint linkStatus;
    glGetProgramiv( mProgram, GL_LINK_STATUS, &linkStatus );
    
@@ -532,7 +478,6 @@ bool GFXGLShader::_init()
             mVertexFile.getFullPath().c_str(), mPixelFile.getFullPath().c_str(), log);
       }
    }
-
 
    // If we failed to link, bail.
    if ( linkStatus == GL_FALSE )
@@ -576,7 +521,7 @@ void GFXGLShader::initConstantDescs()
       
       // Remove array brackets from the name
       desc.name = desc.name.substr(0, desc.name.find('['));
-      
+     
       // Insert $ to match D3D behavior of having a $ prepended to parameters to main.
       desc.name.insert(0, '$');
       desc.arraySize = size;

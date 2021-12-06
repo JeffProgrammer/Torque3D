@@ -126,16 +126,12 @@ void GFXGLDevice::initGLState()
    mCardProfiler = new GFXGLCardProfiler();
    mCardProfiler->init(); 
    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, (GLint*)&mMaxShaderTextures);
-   // JTH: Needs removed, ffp
-   //glGetIntegerv(GL_MAX_TEXTURE_UNITS, (GLint*)&mMaxFFTextures);
    glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, (GLint*)&mMaxTRColors);
    mMaxTRColors = getMin( mMaxTRColors, (U32)(GFXTextureTarget::MaxRenderSlotId-1) );
    
    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
    
-   // [JTH 5/6/2016] GLSL 1.50 is really SM 4.0
-   // Setting mPixelShaderVersion to 3.0 will allow Advanced Lighting to run.   
-   mShaderModel = 4.0f;
+   mShaderModel = 5.0f;
 
 	// Set capability extensions.
    mCapabilities.anisotropicFiltering = mCardProfiler->queryProfile("GL_EXT_texture_filter_anisotropic");

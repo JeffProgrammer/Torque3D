@@ -13,8 +13,8 @@ namespace PlatformGL
 
    void init()
    {
-       const U32 majorOGL = 3;
-       const U32 minorOGL = 3;
+       const U32 majorOGL = 4;
+       const U32 minorOGL = 1;
        U32 debugFlag = 0;
 #ifdef TORQUE_DEBUG
        debugFlag |= SDL_GL_CONTEXT_DEBUG_FLAG;

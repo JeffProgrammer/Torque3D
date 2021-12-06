@@ -480,7 +480,6 @@ void GFXD3D11ShaderConstBuffer::set(GFXShaderConstHandle* handle, const AlignedA
 { 
    SET_CONSTANT(handle, fv, mVertexConstBuffer, mPixelConstBuffer);
 }
-#undef SET_CONSTANT
 
 void GFXD3D11ShaderConstBuffer::set(GFXShaderConstHandle* handle, const MatrixF& mat, const GFXShaderConstType matrixType) 
 {    

@@ -1105,7 +1105,7 @@ void GFXD3D11Device::setVertexStream( U32 stream, GFXVertexBuffer *buffer )
    U32 offset = d3dBuffer && stream != 0 ? d3dBuffer->mVolatileStart * d3dBuffer->mVertexSize : 0;
    ID3D11Buffer* buff = d3dBuffer ? d3dBuffer->vb : NULL;
 
-   getDeviceContext()->IASetVertexBuffers(stream, 1, &buff, strides, &offset);
+   mD3DDeviceContext->IASetVertexBuffers(stream, 1, &buff, strides, &offset);
 }
 
 void GFXD3D11Device::setVertexStreamFrequency( U32 stream, U32 frequency )
