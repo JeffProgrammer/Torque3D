@@ -36,10 +36,7 @@ Var *AdvancedLightBufferConditioner::_conditionOutput( Var *unconditionedOutput,
 {
    Var *conditionedOutput = new Var;
 
-   if(GFX->getAdapterType() == OpenGL)
-      conditionedOutput->setType("vec4");
-   else
-      conditionedOutput->setType("float4");
+   conditionedOutput->setType("float4");
 
    DecOp *outputDecl = new DecOp(conditionedOutput);
    if(mColorFormat == RGB)
@@ -109,22 +106,11 @@ Var *AdvancedLightBufferConditioner::printMethodHeader( MethodType methodType, c
 
    const bool isCondition = ( methodType == ConditionerFeature::ConditionMethod );
 
-   if(GFX->getAdapterType() == OpenGL)
-   {
-      methodVar->setType(avar("%s", isCondition ? "vec4" : "void"));
-      lightColor->setType(avar("%s vec3", isCondition ? "in" : "out"));
-      NLAtt->setType(avar("%s float", isCondition ? "in" : "out"));
-      specular->setType(avar("%s float", isCondition ? "in" : "out"));
-      bufferSample->setType("in vec4");
-   }
-   else
-   {
-      methodVar->setType(avar("inline %s", isCondition ? "float4" : "void"));
-      lightColor->setType(avar("%s float3", isCondition ? "in" : "out"));
-      NLAtt->setType(avar("%s float", isCondition ? "in" : "out"));
-      specular->setType(avar("%s float", isCondition ? "in" : "out"));
-      bufferSample->setType("in float4");
-   }
+   methodVar->setType(avar("inline %s", isCondition ? "float4" : "void"));
+   lightColor->setType(avar("%s float3", isCondition ? "in" : "out"));
+   NLAtt->setType(avar("%s float", isCondition ? "in" : "out"));
+   specular->setType(avar("%s float", isCondition ? "in" : "out"));
+   bufferSample->setType("in float4");
 
    // If this is LUV, print methods to convert RGB<->LUV as needed
    if(mColorFormat == LUV)

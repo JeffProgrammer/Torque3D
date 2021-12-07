@@ -21,6 +21,7 @@
 //-----------------------------------------------------------------------------
 
 #include "shaderModel.hlsl"
+#include "shaderVertex.hlsl"
 
 struct Vertex
 {

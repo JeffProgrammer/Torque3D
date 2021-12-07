@@ -73,30 +73,15 @@ LangElement *ConditionerFeature::assignOutput( Var *unconditionedOutput, ShaderF
    {
       // create color var
       color = new Var;
+      color->setType( "fragout" );
+      color->setName( getOutputTargetVarName(outputTarget) );
+      color->setStructName( "OUT" );
 
-      if(GFX->getAdapterType() == OpenGL)
-      {
-         color->setName( getOutputTargetVarName(outputTarget) );
-         color->setType( "vec4" );
-         color->setStructName( "OUT" );
-
-         assign = new GenOp( "@ = vec4(@)", color, conditionedOutput );
-      }
-      else
-      {
-         color->setType( "fragout" );
-         color->setName( getOutputTargetVarName(outputTarget) );
-         color->setStructName( "OUT" );
-
-         assign = new GenOp( "@ = @", color, conditionedOutput );
-      }
+      assign = new GenOp( "@ = @", color, conditionedOutput );
    }
    else
    {
-      if (GFX->getAdapterType() == OpenGL)
-         assign = new GenOp( "@ = vec4(@)", color, conditionedOutput);
-      else
-         assign = new GenOp( "@ = @", color, conditionedOutput );
+      assign = new GenOp( "@ = @", color, conditionedOutput );
    }
 
    meta->addStatement( new GenOp( "   @;\r\n", assign ) );
@@ -171,16 +156,8 @@ Var *ConditionerFeature::printMethodHeader( MethodType methodType, const String 
    paramVar->setName(avar("%sconditioned%sput", isCondition ? "un" : "", isCondition ? "Out" : "In"));
    DecOp *paramDecl = new DecOp(paramVar);
 
-   if(GFX->getAdapterType() == OpenGL)
-   {
-      methodVar->setType("vec4");
-      paramVar->setType("vec4");
-   }
-   else
-   {
-      methodVar->setType("inline float4");
-      paramVar->setType("in float4");
-   }
+   methodVar->setType("inline float4");
+   paramVar->setType("in float4");
 
    // Method header and opening bracket
    meta->addStatement( new GenOp( "@(@)\r\n", methodDecl, paramDecl ) );

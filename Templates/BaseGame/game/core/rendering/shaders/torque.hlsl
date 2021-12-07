@@ -42,7 +42,6 @@ float computeSceneFog(  float3 startPos,
    return exp( -fogDensity * f * h );  
 }
 
-
 /// Calculate fog based on a start and end position and a height.
 /// Positions do not need to be in worldSpace but height does.
 float computeSceneFog( float3 startPos,
@@ -56,7 +55,6 @@ float computeSceneFog( float3 startPos,
    float h = 1.0 - ( height * fogHeightFalloff );
    return exp( -fogDensity * f * h );
 }
-
 
 /// Calculate fog based on a distance, height is not used.
 float computeSceneFog( float dist, float fogDensity, float fogDensityOffset )
@@ -204,12 +202,8 @@ float3 hdrEncode( float3 sample )
 {
    #if defined( TORQUE_HDR_RGB10 )
       return sample / HDR_RGB10_MAX;
-
-   #else
-
-      // No encoding.
+   #else         // No encoding.
       return sample;
-
    #endif
 }
 
@@ -224,12 +218,9 @@ float3 hdrDecode( float3 sample )
 {
    #if defined( TORQUE_HDR_RGB10 )
       return sample * HDR_RGB10_MAX;
-
    #else
-
       // No encoding.
       return sample;
-
    #endif
 }
 

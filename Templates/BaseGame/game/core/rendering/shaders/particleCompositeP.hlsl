@@ -35,7 +35,7 @@ struct Conn
 {
    float4 hpos : SV_Position;
    TORQUE_LOCATION(0) float4 offscreenPos : TEXCOORD0;
-   TORQUE_LOCATION(0) float4 backbufferPos : TEXCOORD1;
+   TORQUE_LOCATION(1) float4 backbufferPos : TEXCOORD1;
 };
 
 float4 main(Conn IN) : SV_Target0

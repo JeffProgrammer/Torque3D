@@ -957,7 +957,7 @@ Var *LinearEyeDepthConditioner::_conditionOutput( Var *unconditionedOutput, Mult
 {
    Var *retVar = NULL;
 
-   String fracMethodName = (GFX->getAdapterType() == OpenGL) ? "fract" : "frac";
+   String fracMethodName = "frac";
 
    switch(getBufferFormat())
    {
@@ -982,7 +982,7 @@ Var *LinearEyeDepthConditioner::_conditionOutput( Var *unconditionedOutput, Mult
 
 Var *LinearEyeDepthConditioner::_unconditionInput( Var *conditionedInput, MultiLine *meta )
 {
-   String float4Typename = (GFX->getAdapterType() == OpenGL) ? "vec4" : "float4";
+   String float4Typename = "float4";
 
    Var *retVar = conditionedInput;
    if(getBufferFormat() != GFXFormat_COUNT)
@@ -1027,10 +1027,7 @@ Var* LinearEyeDepthConditioner::printMethodHeader( MethodType methodType, const 
    {
       Var *methodVar = new Var;
       methodVar->setName(methodName);
-      if (GFX->getAdapterType() == OpenGL)
-         methodVar->setType("vec4");
-      else
-         methodVar->setType("inline float4");
+      methodVar->setType("inline float4");
       DecOp *methodDecl = new DecOp(methodVar);
 
       Var *deferredSampler = new Var;
@@ -1054,18 +1051,12 @@ Var* LinearEyeDepthConditioner::printMethodHeader( MethodType methodType, const 
 
       Var *screenUV = new Var;
       screenUV->setName("screenUVVar");
-      if (GFX->getAdapterType() == OpenGL)
-         screenUV->setType("vec2");
-      else
-         screenUV->setType("float2");
+      screenUV->setType("float2");
       DecOp *screenUVDecl = new DecOp(screenUV);
 
       Var *bufferSample = new Var;
       bufferSample->setName("bufferSample");
-      if (GFX->getAdapterType() == OpenGL)
-         bufferSample->setType("vec4");
-      else
-         bufferSample->setType("float4");
+      bufferSample->setType("float4");
       DecOp *bufferSampleDecl = new DecOp(bufferSample);
 
       if (deferredTex)
@@ -1079,15 +1070,10 @@ Var* LinearEyeDepthConditioner::printMethodHeader( MethodType methodType, const 
 
       // The linear depth target has no mipmaps, so use tex2dlod when
       // possible so that the shader compiler can optimize.
-      if (GFX->getAdapterType() == OpenGL)
-         meta->addStatement(new GenOp("@ = texture2DLod(@, @, 0); \r\n", bufferSampleDecl, deferredSampler, screenUV));
+      if (deferredTex)
+         meta->addStatement(new GenOp("@ = @.SampleLevel(@, @, 0);\r\n", bufferSampleDecl, deferredTex, deferredSampler, screenUV));
       else
-      {
-         if (deferredTex)
-            meta->addStatement(new GenOp("@ = @.SampleLevel(@, @, 0);\r\n", bufferSampleDecl, deferredTex, deferredSampler, screenUV));
-         else
-            meta->addStatement(new GenOp("@ = tex2Dlod(@, float4(@,0,0));\r\n", bufferSampleDecl, deferredSampler, screenUV));
-      }
+         meta->addStatement(new GenOp("@ = tex2Dlod(@, float4(@,0,0));\r\n", bufferSampleDecl, deferredSampler, screenUV));
 
       // We don't use this way of passing var's around, so this should cause a crash
       // if something uses this improperly
