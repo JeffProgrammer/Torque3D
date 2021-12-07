@@ -628,8 +628,12 @@ bool GFXGLShader::_init()
       compiledFragShader = _compileShader(mPixelFile, false, macros);
       
    // If either shader was present and failed to compile, bail.
-   if(!compiledVertexShader || !compiledFragShader)
+   if (!compiledVertexShader || !compiledFragShader)
+   {
+      //failing to compile a shader is a show stopper
+      AssertISV(false, "GFXGLShader::initShader - failed to compile shader");
       return false;
+   }
 
    //Bind the separate program stages to the program pipeline
    glUseProgramStages(mProgramPipeline, GL_VERTEX_SHADER_BIT, mVertexProgram);

@@ -29,7 +29,7 @@
 struct Conn
 {
 	float4 hpos : SV_Position;
-   TORQUE_LOCATION(0) float4 texCoords[8] : TEXCOORD0;
+   float4 texCoords[8] : TEXCOORD0;
 };
 
 uniform float2 targetSize;

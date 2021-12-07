@@ -75,6 +75,7 @@ Var * ShaderConnectorHLSL::getElement( RegisterType type,
 
 Var * ShaderConnectorHLSL::getIndexedElement( U32 index, RegisterType type, U32 numElements /*= 1*/, U32 numRegisters /*= -1 */ )
 {
+   //we are going to use the GFXAttributeLocation for the connect data location even though they are not vertex attributes, this avoids any conflicts
    switch( type )
    { 
    case RT_POSITION:
@@ -83,6 +84,7 @@ Var * ShaderConnectorHLSL::getIndexedElement( U32 index, RegisterType type, U32 
          mElementList.push_back( newVar );
          newVar->setConnectName( "POSITION" );
          newVar->rank = 0;
+         newVar->location = GFXAttributeLocation::Position;
          return newVar;
       }
 
@@ -102,6 +104,7 @@ Var * ShaderConnectorHLSL::getIndexedElement( U32 index, RegisterType type, U32 
          mElementList.push_back( newVar );
          newVar->setConnectName( "NORMAL" );
          newVar->rank = 1;
+         newVar->location = GFXAttributeLocation::Normal;
          return newVar;
       }
 
@@ -111,6 +114,7 @@ Var * ShaderConnectorHLSL::getIndexedElement( U32 index, RegisterType type, U32 
          mElementList.push_back( newVar );
          newVar->setConnectName( "BINORMAL" );
          newVar->rank = 2;
+         newVar->location = GFXAttributeLocation::Binormal;
          return newVar;
       }
 
@@ -120,6 +124,7 @@ Var * ShaderConnectorHLSL::getIndexedElement( U32 index, RegisterType type, U32 
          mElementList.push_back( newVar );
          newVar->setConnectName( "TANGENT" );
          newVar->rank = 3;
+         newVar->location = GFXAttributeLocation::Tangent;
          return newVar;
       }
 
@@ -129,6 +134,7 @@ Var * ShaderConnectorHLSL::getIndexedElement( U32 index, RegisterType type, U32 
          mElementList.push_back( newVar );
          newVar->setConnectName( "COLOR" );
          newVar->rank = 4;
+         newVar->location = GFXAttributeLocation::Color;
          return newVar;
       }
 
@@ -148,6 +154,7 @@ Var * ShaderConnectorHLSL::getIndexedElement( U32 index, RegisterType type, U32 
          newVar->constNum = index;
          newVar->arraySize = numElements;
          newVar->rank = 5 + index;
+         newVar->location = GFXAttributeLocation::TexCoord0 + index;
 
          return newVar;
       }
@@ -167,6 +174,7 @@ Var * ShaderConnectorHLSL::getIndexedElement( U32 index, RegisterType type, U32 
          newVar->setConnectName( out );
          newVar->constNum = index;
          newVar->arraySize = numElements;
+         newVar->location = GFXAttributeLocation::BlendIndex0 + index;
 
          return newVar;
       }
@@ -186,7 +194,7 @@ Var * ShaderConnectorHLSL::getIndexedElement( U32 index, RegisterType type, U32 
          newVar->setConnectName( out );
          newVar->constNum = index;
          newVar->arraySize = numElements;
-
+         newVar->location = GFXAttributeLocation::BlendWeight0 + index;
          return newVar;
       }
 
@@ -243,33 +251,23 @@ void ShaderConnectorHLSL::print( Stream &stream, bool isVertexShader )
    stream.write( dStrlen(header2), header2 );
 
    // print out elements
-   S32 connectDataIndex = 0;
    for( U32 i=0; i<mElementList.size(); i++ )
    {
       U8 output[256];
 
       Var *var = mElementList[i];
 
-      if(var->attribute)
+      if (var->systemValue)
       {
+         dSprintf((char*)output, sizeof(output), "\t%s %-15s : %s;\r\n", var->type, var->name, var->connectName);
+      }
+      //we are using location for vertex attributes and connect data
+      else
+      {         
          if (var->arraySize <= 1)
             dSprintf((char*)output, sizeof(output), "\tTORQUE_LOCATION(%i) %s %-15s : %s;\r\n", var->location, var->type, var->name, var->connectName);
          else
             dSprintf((char*)output, sizeof(output), "\tTORQUE_LOCATION(%i) %s %s[%d] : %s;\r\n", var->location, var->type, var->name, var->arraySize, var->connectName);
-      }
-      else if (var->systemValue)
-      {
-         dSprintf((char*)output, sizeof(output), "\t%s %-15s : %s;\r\n", var->type, var->name, var->connectName);
-      }
-      else
-      {         
-         if (var->arraySize <= 1)
-            dSprintf((char*)output, sizeof(output), "\tTORQUE_LOCATION(%i) %s %-15s : %s;\r\n", connectDataIndex, var->type, var->name, var->connectName);
-         else
-            dSprintf((char*)output, sizeof(output), "\tTORQUE_LOCATION(%i) %s %s[%d] : %s;\r\n", connectDataIndex, var->type, var->name, var->arraySize, var->connectName);
-
-         //increment the connectDataIndex
-         connectDataIndex++;
       }
 
       stream.write( dStrlen((char*)output), output );
