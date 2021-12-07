@@ -34,7 +34,9 @@
 
 class GFXD3D11Shader;
 
-/////////////////// Constant Buffers /////////////////////////////
+//-----------------------------------------------------------------------------
+// GFXD3D11ConstBufferLayout
+//-----------------------------------------------------------------------------
 
 class GFXD3D11ConstBufferLayout : public GenericConstBufferLayout
 {
@@ -52,6 +54,10 @@ protected:
    virtual bool setMatrix(const ParamDesc& pd, const GFXShaderConstType constType, const U32 size, const void* data, U8* basePointer);
 
 };
+
+//-----------------------------------------------------------------------------
+// GFXD3D11ShaderConstHandle
+//-----------------------------------------------------------------------------
 
 class GFXD3D11ShaderConstHandle : public GFXShaderConstHandle
 {
@@ -99,7 +105,10 @@ public:
    GFXD3D11ShaderConstHandle();
 };
 
-/// The D3D11 implementation of a shader constant buffer.
+//-----------------------------------------------------------------------------
+// GFXD3D11ShaderConstBuffer
+//-----------------------------------------------------------------------------
+
 class GFXD3D11ShaderConstBuffer : public GFXShaderConstBuffer
 {
    friend class GFXD3D11Shader;
@@ -163,7 +172,7 @@ protected:
       GenericConstBuffer *vBuffer,
       GenericConstBuffer *pBuffer);
 
-   // Constant buffers, VSSetConstantBuffers1 has issues on win 7. So unfortunately for now we have multiple constant buffers
+   // Constant buffers
    ID3D11Buffer* mConstantBufferV;
    ID3D11Buffer* mConstantBufferP;
 
@@ -182,7 +191,9 @@ protected:
 class gfxD3D11Include;
 typedef StrongRefPtr<gfxD3D11Include> gfxD3DIncludeRef;
 
-/////////////////// GFXShader implementation /////////////////////////////
+//-----------------------------------------------------------------------------
+// GFXD3D11Shader
+//-----------------------------------------------------------------------------
 
 class GFXD3D11Shader : public GFXShader
 {
@@ -259,9 +270,9 @@ protected:
                              Vector<GFXShaderConstDesc> &samplerDescriptions );
   
    // This is used in both cases
-   virtual void _buildShaderConstantHandles(GenericConstBufferLayout *layout, bool vertexConst);
+   void _buildShaderConstantHandles(GenericConstBufferLayout *layout, bool vertexConst);
    
-   virtual void _buildSamplerShaderConstantHandles( Vector<GFXShaderConstDesc> &samplerDescriptions );
+   void _buildSamplerShaderConstantHandles( Vector<GFXShaderConstDesc> &samplerDescriptions );
 
    /// Used to build the instancing shader constants from 
    /// the instancing vertex format.

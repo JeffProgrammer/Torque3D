@@ -247,6 +247,8 @@ GFXGLDevice::GFXGLDevice(U32 adapterIndex) :
       mModelViewProjSC[i] = NULL;
 
    mOpenglStateCache = new GFXGLStateCache;
+
+   mCurrentConstBuffer = NULL;
 }
 
 GFXGLDevice::~GFXGLDevice()
@@ -928,8 +930,19 @@ void GFXGLDevice::setShader(GFXShader *shader, bool force)
 
 void GFXGLDevice::setShaderConstBufferInternal(GFXShaderConstBuffer* buffer)
 {
-   PROFILE_SCOPE(GFXGLDevice_setShaderConstBufferInternal);
-   static_cast<GFXGLShaderConstBuffer*>(buffer)->activate();
+   if (buffer)
+   {
+      PROFILE_SCOPE(GFXGLDevice_setShaderConstBufferInternal);
+      AssertFatal(static_cast<GFXGLShaderConstBuffer*>(buffer), "Incorrect shader const buffer type for this device!");
+      GFXGLShaderConstBuffer* glBuffer = static_cast<GFXGLShaderConstBuffer*>(buffer);
+
+      glBuffer->activate(mCurrentConstBuffer);
+      mCurrentConstBuffer = glBuffer;
+   }
+   else
+   {
+      mCurrentConstBuffer = NULL;
+   }
 }
 
 U32 GFXGLDevice::getNumSamplers() const

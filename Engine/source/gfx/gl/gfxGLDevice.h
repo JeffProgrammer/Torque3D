@@ -43,6 +43,7 @@ class GFXGLCubemap;
 class GFXGLCubemapArray;
 class GFXGLStateCache;
 class GFXGLVertexDecl;
+class GFXGLShaderConstBuffer;
 
 class GFXGLDevice : public GFXDevice
 {
@@ -165,8 +166,11 @@ protected:
    /// Called by GFXDevice to create a device specific stateblock
    virtual GFXStateBlockRef createStateBlockInternal(const GFXStateBlockDesc& desc);
    /// Called by GFXDevice to actually set a stateblock.
-   virtual void setStateBlockInternal(GFXStateBlock* block, bool force);   
+   virtual void setStateBlockInternal(GFXStateBlock* block, bool force);
 
+   /// Track the last const buffer we've used.  Used to notify new constant buffers that
+   /// they should send all of their constants up
+   StrongRefPtr<GFXGLShaderConstBuffer> mCurrentConstBuffer;
    /// Called by base GFXDevice to actually set a const buffer
    virtual void setShaderConstBufferInternal(GFXShaderConstBuffer* buffer);
 

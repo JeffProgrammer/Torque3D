@@ -33,6 +33,10 @@ extern bool gDisassembleAllShaders;
 
 gfxD3DIncludeRef GFXD3D11Shader::smD3DInclude = NULL;
 
+//-----------------------------------------------------------------------------
+// gfxD3D11Include
+//-----------------------------------------------------------------------------
+
 class gfxD3D11Include : public ID3DInclude, public StrongRefBase
 {
 private:
@@ -93,9 +97,13 @@ HRESULT gfxD3D11Include::Close( THIS_ LPCVOID pData )
    return S_OK;
 }
 
+//-----------------------------------------------------------------------------
+// GFXD3D11ConstBufferLayout
+//-----------------------------------------------------------------------------
+
 bool GFXD3D11ConstBufferLayout::set(const ParamDesc& pd, const GFXShaderConstType constType, const U32 inSize, const void* data, U8* basePointer)
 {
-   PROFILE_SCOPE(GenericConstBufferLayout_set);
+   PROFILE_SCOPE(GFXD3D11ConstBufferLayout_set);
    S32 size = inSize;
    // Shader compilers like to optimize float4x4 uniforms into float3x3s.
    // So long as the real paramater is a matrix of-some-type and the data
@@ -207,6 +215,10 @@ bool GFXD3D11ConstBufferLayout::setMatrix(const ParamDesc& pd, const GFXShaderCo
    }
 }
 
+//-----------------------------------------------------------------------------
+// GFXD3D11ShaderConstHandle
+//-----------------------------------------------------------------------------
+
 GFXD3D11ShaderConstHandle::GFXD3D11ShaderConstHandle()
 {
    clear();
@@ -247,7 +259,10 @@ S32 GFXD3D11ShaderConstHandle::getSamplerRegister() const
    return mPixelHandle.offset;   
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+// GFXD3D11ShaderConstBuffer
+//-----------------------------------------------------------------------------
+
 GFXD3D11ShaderConstBuffer::GFXD3D11ShaderConstBuffer( GFXD3D11Shader* shader, 
                                                       GFXD3D11ConstBufferLayout* vertexLayout,
                                                       GFXD3D11ConstBufferLayout* pixelLayout)
@@ -261,7 +276,6 @@ GFXD3D11ShaderConstBuffer::GFXD3D11ShaderConstBuffer( GFXD3D11Shader* shader,
    mConstantBufferV = NULL;
    mConstantBufferP = NULL;
 
-   // TODO: Remove buffers and layouts that don't exist for performance?
    //Mandatory
    mVertexConstBufferLayout = vertexLayout;
    mVertexConstBuffer = new GenericConstBuffer(vertexLayout);
@@ -606,21 +620,18 @@ void GFXD3D11ShaderConstBuffer::activate( GFXD3D11ShaderConstBuffer *prevShaderB
          mPixelConstBuffer->setDirty( true );
       }      
    }
-
-   D3D11_MAPPED_SUBRESOURCE pConstData;
-   ZeroMemory(&pConstData, sizeof(D3D11_MAPPED_SUBRESOURCE));
    
-   const U8* buf;
+   
    if(mVertexConstBuffer->isDirty())
    {
-      buf = mVertexConstBuffer->getEntireBuffer();
+      const U8* buf = mVertexConstBuffer->getEntireBuffer();
       mDeviceContext->UpdateSubresource(mConstantBufferV, 0, NULL, buf, mVertexConstBufferLayout->getBufferSize(), 0);
       mDeviceContext->VSSetConstantBuffers(0, 1, &mConstantBufferV);
    }
 
    if(mPixelConstBuffer->isDirty())    
    {
-      buf = mPixelConstBuffer->getEntireBuffer();
+      const U8* buf = mPixelConstBuffer->getEntireBuffer();
       mDeviceContext->UpdateSubresource(mConstantBufferP, 0, NULL, buf, mPixelConstBufferLayout->getBufferSize(), 0);
       mDeviceContext->PSSetConstantBuffers(0, 1, &mConstantBufferP);
    }
@@ -660,7 +671,9 @@ void GFXD3D11ShaderConstBuffer::onShaderReload( GFXD3D11Shader *shader )
    mWasLost = true;
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+// GFXD3D11Shader
+//-----------------------------------------------------------------------------
 
 GFXD3D11Shader::GFXD3D11Shader()
 {
@@ -675,8 +688,6 @@ GFXD3D11Shader::GFXD3D11Shader()
    if( smD3DInclude == NULL )
       smD3DInclude = new gfxD3D11Include;
 }
-
-//------------------------------------------------------------------------------
 
 GFXD3D11Shader::~GFXD3D11Shader()
 {
