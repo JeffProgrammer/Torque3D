@@ -720,7 +720,7 @@ bool GFXGLShader::_compileShader( const Torque::Path &file,
 {
    PROFILE_SCOPE(GFXGLShader_CompileShader);
 
-   Con::warnf("Compiling %s", file.getFullPath().c_str());
+   //Con::warnf("Compiling %s", file.getFullPath().c_str());
 
    //setup the conversion options
    GFXShaderConvertOptions options;
