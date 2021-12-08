@@ -957,13 +957,13 @@ void DiffuseMapFeatHLSL::processPix(   Vector<ShaderComponent*> &componentList,
    // create texture var
    Var *diffuseMap = new Var;
    diffuseMap->setType( "SamplerState" );
-   diffuseMap->setName( "diffuseMap" );
+   diffuseMap->setName( "diffuseMapTex" );
    diffuseMap->uniform = true;
    diffuseMap->sampler = true;
    diffuseMap->constNum = Var::getTexUnitNum();     // used as texture unit num here
 
    Var* diffuseMapTex = new Var;
-   diffuseMapTex->setName("diffuseMapTex");
+   diffuseMapTex->setName("diffuseMap");
    diffuseMapTex->setType("Texture2D");
    diffuseMapTex->uniform = true;
    diffuseMapTex->texture = true;

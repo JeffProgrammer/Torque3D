@@ -720,6 +720,8 @@ bool GFXGLShader::_compileShader( const Torque::Path &file,
 {
    PROFILE_SCOPE(GFXGLShader_CompileShader);
 
+   Con::warnf("Compiling %s", file.getFullPath().c_str());
+
    //setup the conversion options
    GFXShaderConvertOptions options;
    options.filePath = file;
@@ -832,15 +834,13 @@ void GFXGLShader::_getShaderConstants(GLuint program, GFXGLConstBufferLayout* bu
    GLint maxNameLength;
    glGetProgramiv(program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameLength);
 
-   GLuint blockIndex = glGetUniformBlockIndex(program, GFX_GL_UBO_NAME);
-
    if (!maxNameLength)
       return;
 
    maxNameLength++;
 
    FrameTemp<GLchar> uniformName(maxNameLength);
-
+   S32 bindingPoint = 0;
    for (U32 i = 0; i < numUniforms; i++)
    {
       GLint size;
@@ -931,6 +931,10 @@ void GFXGLShader::_getShaderConstants(GLuint program, GFXGLConstBufferLayout* bu
       if (isSampler)
       {
          samplerDescriptions.push_back(desc);
+
+         GLint location = glGetUniformLocation(program, uniformName);
+         glProgramUniform1i(program, location, bindingPoint);
+         bindingPoint++;
       }
       else
       {
