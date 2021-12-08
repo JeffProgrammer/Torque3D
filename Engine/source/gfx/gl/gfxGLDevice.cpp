@@ -725,7 +725,7 @@ void GFXGLDevice::setCubemapArrayInternal(U32 textureUnit, const GFXGLCubemapArr
 {
    if (texture)
    {
-      mActiveTextureType[textureUnit] = GL_TEXTURE_CUBE_MAP_ARRAY_ARB;
+      mActiveTextureType[textureUnit] = GL_TEXTURE_CUBE_MAP_ARRAY;
       texture->bind(textureUnit);
    }
    else if (mActiveTextureType[textureUnit] != GL_ZERO)

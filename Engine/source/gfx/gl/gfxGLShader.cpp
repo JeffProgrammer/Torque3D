@@ -914,7 +914,7 @@ void GFXGLShader::_getShaderConstants(GLuint program, GFXGLConstBufferLayout* bu
          desc.constType = GFXSCT_SamplerCube;
          isSampler = true;
          break;
-      case GL_SAMPLER_CUBE_MAP_ARRAY_ARB:
+      case GL_SAMPLER_CUBE_MAP_ARRAY:
          desc.constType = GFXSCT_SamplerCubeArray;
          isSampler = true;
          break;
