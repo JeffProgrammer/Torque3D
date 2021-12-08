@@ -145,14 +145,14 @@ void DebugVizHLSL::processPix(Vector<ShaderComponent*>& componentList,
       Var* probeConfigData = (Var*)LangElement::find("inProbeConfigData");
       Var* worldToObjArray = (Var*)LangElement::find("inWorldToObjArray");
 
-      Var* BRDFTexture = (Var*)LangElement::find("BRDFTexture");
-      Var* BRDFTextureTex = (Var*)LangElement::find("texture_BRDFTexture");
+      Var* BRDFTexture = (Var*)LangElement::find("sampler_BRDFTexture");
+      Var* BRDFTextureTex = (Var*)LangElement::find("BRDFTexture");
 
-      Var* specularCubemapAR = (Var*)LangElement::find("inSpecularCubemapAR");
-      Var* specularCubemapARTex = (Var*)LangElement::find("texture_inSpecularCubemapAR");
+      Var* specularCubemapAR = (Var*)LangElement::find("sampler_inSpecularCubemapAR");
+      Var* specularCubemapARTex = (Var*)LangElement::find("inSpecularCubemapAR");
 
-      Var* irradianceCubemapAR = (Var*)LangElement::find("inIrradianceCubemapAR");
-      Var* irradianceCubemapARTex = (Var*)LangElement::find("texture_inIrradianceCubemapAR");
+      Var* irradianceCubemapAR = (Var*)LangElement::find("sampler_inIrradianceCubemapAR");
+      Var* irradianceCubemapARTex = (Var*)LangElement::find("inIrradianceCubemapAR");
 
       Var* matinfo = (Var*)LangElement::find("ORMConfig");
       Var* metalness = (Var*)LangElement::find("metalness");
@@ -185,8 +185,8 @@ void DebugVizHLSL::processPix(Vector<ShaderComponent*>& componentList,
       computeForwardProbes += String("TORQUE_SAMPLERCUBEARRAY_MAKEARG(@),TORQUE_SAMPLERCUBEARRAY_MAKEARG(@), @, @, @, @).rgb; \r\n");
 
       meta->addStatement(new GenOp(computeForwardProbes.c_str(), ibl, surface, cubeMips, numProbes, worldToObjArray, probeConfigData, inProbePosArray, refScaleArray, inRefPosArray,
-         skylightCubemapIdx, BRDFTexture,
-         irradianceCubemapAR, specularCubemapAR,
+         skylightCubemapIdx, BRDFTextureTex,
+         irradianceCubemapARTex, specularCubemapARTex,
          showAttenVar, showContribVar, showSpecVar, showDiffVar));
 
       meta->addStatement(new GenOp("   @.rgb = @.rgb;\r\n", color, ibl));

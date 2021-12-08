@@ -3129,32 +3129,32 @@ void ReflectionProbeFeatHLSL::processPix(Vector<ShaderComponent*> &componentList
    worldToObjArray->uniform = true;
    worldToObjArray->constSortPos = cspPotentialPrimitive;
 
-   Var *BRDFTexture = new Var("BRDFTexture", "SamplerState");
+   Var *BRDFTexture = new Var("sampler_BRDFTexture", "SamplerState");
    BRDFTexture->uniform = true;
    BRDFTexture->sampler = true;
    BRDFTexture->constNum = Var::getTexUnitNum();     // used as texture unit num here
 
-   Var *BRDFTextureTex = new Var("texture_BRDFTexture", "Texture2D");
+   Var *BRDFTextureTex = new Var("BRDFTexture", "Texture2D");
    BRDFTextureTex->uniform = true;
    BRDFTextureTex->texture = true;
    BRDFTextureTex->constNum = BRDFTexture->constNum;
 
-   Var *specularCubemapAR = new Var("inSpecularCubemapAR", "SamplerState");
+   Var *specularCubemapAR = new Var("sampler_inSpecularCubemapAR", "SamplerState");
    specularCubemapAR->uniform = true;
    specularCubemapAR->sampler = true;
    specularCubemapAR->constNum = Var::getTexUnitNum();     // used as texture unit num here
 
-   Var *specularCubemapARTex = new Var("texture_inSpecularCubemapAR", "TextureCubeArray");
+   Var *specularCubemapARTex = new Var("inSpecularCubemapAR", "TextureCubeArray");
    specularCubemapARTex->uniform = true;
    specularCubemapARTex->texture = true;
    specularCubemapARTex->constNum = specularCubemapAR->constNum;
 
-   Var *irradianceCubemapAR = new Var("inIrradianceCubemapAR", "SamplerState");
+   Var *irradianceCubemapAR = new Var("sampler_inIrradianceCubemapAR", "SamplerState");
    irradianceCubemapAR->uniform = true;
    irradianceCubemapAR->sampler = true;
    irradianceCubemapAR->constNum = Var::getTexUnitNum();     // used as texture unit num here
 
-   Var *irradianceCubemapARTex = new Var("texture_inIrradianceCubemapAR", "TextureCubeArray");
+   Var *irradianceCubemapARTex = new Var("inIrradianceCubemapAR", "TextureCubeArray");
    irradianceCubemapARTex->uniform = true;
    irradianceCubemapARTex->texture = true;
    irradianceCubemapARTex->constNum = irradianceCubemapAR->constNum;
@@ -3181,8 +3181,8 @@ void ReflectionProbeFeatHLSL::processPix(Vector<ShaderComponent*> &componentList
    computeForwardProbes += String("TORQUE_SAMPLERCUBEARRAY_MAKEARG(@),TORQUE_SAMPLERCUBEARRAY_MAKEARG(@)).rgb; \r\n");
       
    meta->addStatement(new GenOp(computeForwardProbes.c_str(), new DecOp(ibl), surface, cubeMips, numProbes, worldToObjArray, probeConfigData, inProbePosArray, refScaleArray, inRefPosArray,
-      skylightCubemapIdx, BRDFTexture,
-      irradianceCubemapAR, specularCubemapAR));
+      skylightCubemapIdx, BRDFTextureTex,
+      irradianceCubemapARTex, specularCubemapARTex));
 
    meta->addStatement(new GenOp("   @.rgb = @.rgb;\r\n", curColor, ibl));
 

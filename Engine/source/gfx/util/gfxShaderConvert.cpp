@@ -339,7 +339,7 @@ bool GFXShaderConvert::convert(const GFXShaderConvertOptions& options, GFXShader
       return false;
    }
 
-   //can't use torque Vector, glslang and spirv_cross both use std::vector :(
+   //can't use torque Vector, it requires a std::vector :(
    std::vector<U32> spirv;
    glslang::GlslangToSpv(*program.getIntermediate(stage), spirv);
 
@@ -369,6 +369,7 @@ bool GFXShaderConvert::convert(const GFXShaderConvertOptions& options, GFXShader
       glslOptions.emit_uniform_buffer_as_plain_uniforms = false;
       glslOptions.enable_420pack_extension = false;
       glslOptions.emit_push_constant_as_uniform_buffer = true;
+      glslOptions.emit_line_directives = true;
       glslOptions.version = 410;
       //set the options
       compiler.set_common_options(glslOptions);
@@ -383,19 +384,6 @@ bool GFXShaderConvert::convert(const GFXShaderConvertOptions& options, GFXShader
 
       output.language = GFXShaderLanguageGLSL;
       output.srcString = glslSrc.c_str();
-
-      // Basic example of shader reflection using the spirv generated above
-      /*if (options.stage == GFXShaderStagePixel)
-      {
-         spirv_cross::ShaderResources resources = compiler.get_shader_resources();
-
-         // Print out the sampler name and binding
-         for (auto& resource : resources.separate_samplers)
-         {
-            U32 binding = compiler.get_decoration(resource.id, spv::DecorationBinding);
-            Con::printf("Image %s , binding = %u\n", resource.name.c_str(), binding);
-         }
-      }*/
 
       return true;
    }

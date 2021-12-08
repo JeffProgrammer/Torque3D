@@ -438,7 +438,7 @@ void GFXGLShaderConstBuffer::set(GFXShaderConstHandle* handle, const MatrixF* ma
 
    if (matrixType == GFXSCT_Float4x3)
    {
-      dMemcpy(transposed.address(), mat, arraySize * sizeof(MatrixF));
+      dMemcpy(transposed.address(), mat, arraySize * sizeof(MatrixF));      
    }
    else
    {

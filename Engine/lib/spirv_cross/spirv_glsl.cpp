@@ -631,7 +631,7 @@ string CompilerGLSL::compile()
 	{
 		// only NV_gpu_shader5 supports divergent indexing on OpenGL, and it does so without extra qualifiers
 		backend.nonuniform_qualifier = "";
-		backend.needs_row_major_load_workaround = true;
+		backend.needs_row_major_load_workaround = false; //T3D temp fix(disable this check) - todo report spvWorkaroundRowMajor bug
 	}
 	backend.allow_precision_qualifiers = options.vulkan_semantics || options.es;
 	backend.force_gl_in_out_block = true;
