@@ -220,7 +220,6 @@ GFXGLShaderConstBuffer::GFXGLShaderConstBuffer(GFXGLShader* shader,
 
 GFXGLShaderConstBuffer::~GFXGLShaderConstBuffer()
 {
-
    if (mVertexUBO)
       glDeleteBuffers(1, &mVertexUBO);
 
@@ -500,25 +499,25 @@ void GFXGLShaderConstBuffer::activate(GFXGLShaderConstBuffer* prevShaderBuffer)
       }
    }
 
-   U32 bufferStart;
-   U32 bufferSize;
+   U32 bufferStartOffset;
+   U32 bufferUpdateSize;
 
    if (mVertexConstBuffer->isDirty())
    {
-      const U8* pData = mVertexConstBuffer->getDirtyBuffer(&bufferStart, &bufferSize);
+      const U8* pData = mVertexConstBuffer->getDirtyBuffer(&bufferStartOffset, &bufferUpdateSize);
       glBindBuffer(GL_UNIFORM_BUFFER, mVertexUBO);
-      glBufferSubData(GL_UNIFORM_BUFFER, bufferStart, bufferSize, pData);
+      glBufferSubData(GL_UNIFORM_BUFFER, bufferStartOffset, bufferUpdateSize, pData);
 
-      glBindBufferRange(GL_UNIFORM_BUFFER, GFX_GL_UBO_VERT_BIND, mVertexUBO, 0, bufferSize);
+      glBindBufferRange(GL_UNIFORM_BUFFER, GFX_GL_UBO_VERT_BIND, mVertexUBO, 0, mVertexConstBufferLayout->getBufferSize());
    }
 
    if (mFragConstBuffer->isDirty())
    {
-      const U8* pData = mFragConstBuffer->getDirtyBuffer(&bufferStart, &bufferSize);
+      const U8* pData = mFragConstBuffer->getDirtyBuffer(&bufferStartOffset, &bufferUpdateSize);
       glBindBuffer(GL_UNIFORM_BUFFER, mFragUBO);
-      glBufferSubData(GL_UNIFORM_BUFFER, bufferStart, bufferSize, pData);
+      glBufferSubData(GL_UNIFORM_BUFFER, bufferStartOffset, bufferUpdateSize, pData);
 
-      glBindBufferRange(GL_UNIFORM_BUFFER, GFX_GL_UBO_FRAG_BIND, mFragUBO, 0, bufferSize);
+      glBindBufferRange(GL_UNIFORM_BUFFER, GFX_GL_UBO_FRAG_BIND, mFragUBO, 0, mFragConstBufferLayout->getBufferSize());
    }
 
 #ifdef TORQUE_DEBUG
