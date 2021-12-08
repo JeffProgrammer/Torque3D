@@ -198,7 +198,6 @@ S32 GFXGLShaderConstHandle::getSamplerRegister() const
    return mFragHandle.offset;
 }
 
-
 //-----------------------------------------------------------------------------
 // GFXGLShaderConstBuffer
 //-----------------------------------------------------------------------------
@@ -719,8 +718,6 @@ bool GFXGLShader::_compileShader( const Torque::Path &file,
 {
    PROFILE_SCOPE(GFXGLShader_CompileShader);
 
-   //Con::warnf("Compiling %s", file.getFullPath().c_str());
-
    //setup the conversion options
    GFXShaderConvertOptions options;
    options.filePath = file;
@@ -929,16 +926,14 @@ void GFXGLShader::_getShaderConstants(GLuint program, GFXGLConstBufferLayout* bu
 
       if (isSampler)
       {
-         samplerDescriptions.push_back(desc);
-
          GLint location = glGetUniformLocation(program, uniformName);
          glProgramUniform1i(program, location, bindingPoint);
+         desc.arraySize = bindingPoint; //we store the binding point in here
          bindingPoint++;
+         samplerDescriptions.push_back(desc);
       }
       else
       {
-         mShaderConsts.push_back(desc);
-
          GLuint index;
          GLint offset;
          //get the index of this uniform name
@@ -952,6 +947,8 @@ void GFXGLShader::_getShaderConstants(GLuint program, GFXGLConstBufferLayout* bu
          //add to the buffer layout
          bufferLayout->addParameter(desc.name, desc.constType, offset, varSize, desc.arraySize, alignBytes);
       }
+
+      mShaderConsts.push_back(desc);
    }
 }
 

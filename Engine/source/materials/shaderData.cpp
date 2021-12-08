@@ -242,6 +242,7 @@ GFXShader* ShaderData::_createShader( const Vector<GFXShaderMacro> &macros )
          continue;
 
       int reg = handle->getSamplerRegister();
+      AssertFatal(reg != -1, "Invalid sampler register");
       if( descs[i].name != samplers[reg] )
       {
          const char *err = avar("ShaderData(%s): samplerNames[%d] = \"%s\" are diferent to sampler in shader: %s : register(S%d)"
