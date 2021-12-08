@@ -725,8 +725,9 @@ bool GFXGLShader::_compileShader( const Torque::Path &file,
    options.targetLang = GFXShaderLanguageGLSL;
    options.stage = isVertex ? GFXShaderStageVertex : GFXShaderStagePixel;
    options.macros = macros;
+   //TODO: implement optimization - glslang needs spirv_tools added
 #ifdef TORQUE_DEBUG
-   options.optimize = false;
+   options.optimize = false; 
 #else
    options.optimize = true;
 #endif
