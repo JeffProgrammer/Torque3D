@@ -846,7 +846,7 @@ void GFXGLShader::_getShaderConstants(GLuint program, GFXGLConstBufferLayout* bu
 
       desc.name = String((char*)uniformName);
       // Remove array brackets from the name
-      //desc.name = desc.name.substr(0, desc.name.find('['));
+      desc.name = desc.name.substr(0, desc.name.find('['));
 
       //remove the ubo block name
       if (desc.name.startsWith(GFX_GL_UBO_NAME))
