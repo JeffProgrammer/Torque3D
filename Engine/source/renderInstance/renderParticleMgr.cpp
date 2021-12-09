@@ -542,8 +542,12 @@ bool RenderParticleMgr::_initShader()
       mDeferredTarget->getShaderMacros( &macros );
 
    // Create particle shader
-   if ( !Sim::findObject( "ParticlesShaderData", shaderData ) || !shaderData )
-      Con::warnf( "RenderParticleMgr::_initShader - failed to locate shader ParticlesShaderData!" );
+   if (!Sim::findObject("ParticlesShaderData", shaderData) || !shaderData)
+   {
+      Con::errorf("RenderParticleMgr::_initShader - failed to locate shader ParticlesShaderData!");
+      return false;
+   }
+
    if( shaderData )
       mParticleShader = shaderData->getShader( macros );
    ret &= (mParticleShader != NULL);
@@ -568,8 +572,12 @@ bool RenderParticleMgr::_initShader()
    shaderData = NULL;
 
    // Create off screen particle composite shader
-   if ( !Sim::findObject( "OffscreenParticleCompositeShaderData", shaderData ) || !shaderData )
-      Con::warnf( "RenderParticleMgr::_initShader - failed to locate shader OffscreenParticleCompositeShaderData!" );
+   if (!Sim::findObject("OffscreenParticleCompositeShaderData", shaderData) || !shaderData)
+   {
+      Con::errorf("RenderParticleMgr::_initShader - failed to locate shader OffscreenParticleCompositeShaderData!");
+      return false;
+   }
+
    if( shaderData )
       mParticleCompositeShader = shaderData->getShader( macros );
    ret &= (mParticleCompositeShader != NULL);
