@@ -246,6 +246,8 @@ private:
    U32 mMaxTRColors;
 
    RectI mClip;
+
+   MatrixF mTempMatrix;    ///< Temporary matrix, no assurances on value at all
    
    GFXGLStateBlockRef mCurrentGLStateBlock;
    

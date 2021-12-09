@@ -1472,7 +1472,6 @@ void makeProjection( MatrixF *outMatrix,
                      F32 farPlane,
                      bool gfxRotate)
 {
-   const bool isGL = GFX->getAdapterType() == OpenGL;
    Point4F row;
    row.x = 2.0f * nearPlane / (right - left);
    row.y = 0.0f;
@@ -1488,13 +1487,13 @@ void makeProjection( MatrixF *outMatrix,
 
    row.x = (left + right) / (right - left);
    row.y = (top + bottom) / (top - bottom);
-   row.z = isGL ? (nearPlane + farPlane) / (nearPlane - farPlane) : farPlane / (nearPlane - farPlane);
+   row.z = farPlane / (nearPlane - farPlane);
    row.w = -1.0f;
    outMatrix->setRow(2, row);
 
    row.x = 0.0f;
    row.y = 0.0f;
-   row.z = isGL ? 2.0f * nearPlane * farPlane / (nearPlane - farPlane) : farPlane * nearPlane / (nearPlane - farPlane);
+   row.z = farPlane * nearPlane / (nearPlane - farPlane);
    row.w = 0.0f;
    outMatrix->setRow(3, row);
 

@@ -364,13 +364,16 @@ bool GFXShaderConvert::convert(const GFXShaderConvertOptions& options, GFXShader
       spirv_cross::CompilerGLSL compiler(spirv);
 
       spirv_cross::CompilerGLSL::Options glslOptions = {};
+
       glslOptions.vertex.flip_vert_y = true;
+      glslOptions.vertex.fixup_clipspace = true; //this can also be done with glslang using setDxPositionW(true)
       glslOptions.separate_shader_objects = true;
       glslOptions.emit_uniform_buffer_as_plain_uniforms = false;
       glslOptions.enable_420pack_extension = false;
       glslOptions.emit_push_constant_as_uniform_buffer = true;
       glslOptions.emit_line_directives = true;
       glslOptions.version = 410;
+      
       //set the options
       compiler.set_common_options(glslOptions);
 
