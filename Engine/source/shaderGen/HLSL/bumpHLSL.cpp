@@ -148,13 +148,13 @@ void BumpFeatHLSL::processPix(   Vector<ShaderComponent*> &componentList,
    {
       bumpMap = new Var;
       bumpMap->setType( "SamplerState" );
-      bumpMap->setName( "detailBumpMap" );
+      bumpMap->setName( "sampler_detailBumpMap" );
       bumpMap->uniform = true;
       bumpMap->sampler = true;
       bumpMap->constNum = Var::getTexUnitNum();
 
       Var* detailBumpTex = new Var;
-      detailBumpTex->setName("detailBumpTex");
+      detailBumpTex->setName("detailBumpMap");
       detailBumpTex->setType("Texture2D");
       detailBumpTex->uniform = true;
       detailBumpTex->texture = true;

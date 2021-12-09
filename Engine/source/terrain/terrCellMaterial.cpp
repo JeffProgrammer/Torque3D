@@ -52,14 +52,14 @@ Vector<TerrainCellMaterial*> TerrainCellMaterial::smAllMaterials;
 Vector<String> _initSamplerNames()
 {
    Vector<String> samplerNames;
-   samplerNames.push_back("$baseTexMap");
+   samplerNames.push_back("$baseTexture");
    samplerNames.push_back("$layerTex");
-   samplerNames.push_back("$lightMapTex");
+   samplerNames.push_back("$lightMap");
    samplerNames.push_back("$lightInfoBuffer");
-   samplerNames.push_back("$normalMapSampler");
-   samplerNames.push_back("$detailMapSampler");
-   samplerNames.push_back("$macroMapSampler");
-   samplerNames.push_back("$ormMapSampler"); 
+   samplerNames.push_back("$normalMapArray");
+   samplerNames.push_back("$detailMapArray");
+   samplerNames.push_back("$macroMapArray");
+   samplerNames.push_back("$ormMapArray"); 
 
    return samplerNames;
 }
@@ -518,11 +518,11 @@ bool TerrainCellMaterial::_initShader(bool deferredMat,
    mObjTransConst = mShader->getShaderConstHandle("$objTrans");
    mWorldToObjConst = mShader->getShaderConstHandle("$worldToObj");
    mLightInfoBufferConst = mShader->getShaderConstHandle("$lightInfoBuffer");
-   mBaseTexMapConst = mShader->getShaderConstHandle("$baseTexMap");
+   mBaseTexMapConst = mShader->getShaderConstHandle("$baseTexture");
    mLayerTexConst = mShader->getShaderConstHandle("$layerTex");
    mFogDataConst = mShader->getShaderConstHandle("$fogData");
    mFogColorConst = mShader->getShaderConstHandle("$fogColor");
-   mLightMapTexConst = mShader->getShaderConstHandle("$lightMapTex");
+   mLightMapTexConst = mShader->getShaderConstHandle("$lightMap");
    mOneOverTerrainSizeConst = mShader->getShaderConstHandle("$oneOverTerrainSize");
    mSquareSizeConst = mShader->getShaderConstHandle("$squareSize");
    mBlendDepthConst = mShader->getShaderConstHandle("$baseBlendDepth");
@@ -558,7 +558,7 @@ bool TerrainCellMaterial::_initShader(bool deferredMat,
    mMacroInfoVArrayConst = mShader->getShaderConstHandle("$macroIdStrengthParallax");
    mMacroInfoPArrayConst = mShader->getShaderConstHandle("$macroIdStrengthParallax");
 
-   mDetailTexArrayConst = mShader->getShaderConstHandle("$detailMapSampler");
+   mDetailTexArrayConst = mShader->getShaderConstHandle("$detailMapArray");
    if (mDetailTexArrayConst->isValid())
    {
       const S32 sampler = mDetailTexArrayConst->getSamplerRegister();
@@ -576,7 +576,7 @@ bool TerrainCellMaterial::_initShader(bool deferredMat,
          desc.samplers[sampler].minFilter = GFXTextureFilterLinear;
    }
 
-   mMacroTexArrayConst = mShader->getShaderConstHandle("$macroMapSampler");
+   mMacroTexArrayConst = mShader->getShaderConstHandle("$macroMapArray");
    if (mMacroTexArrayConst->isValid())
    {
       const S32 sampler = mMacroTexArrayConst->getSamplerRegister();
@@ -594,7 +594,7 @@ bool TerrainCellMaterial::_initShader(bool deferredMat,
          desc.samplers[sampler].minFilter = GFXTextureFilterLinear;
    }
 
-   mNormalTexArrayConst = mShader->getShaderConstHandle("$normalMapSampler");
+   mNormalTexArrayConst = mShader->getShaderConstHandle("$normalMapArray");
    if (mNormalTexArrayConst->isValid())
    {
       const S32 sampler = mNormalTexArrayConst->getSamplerRegister();
@@ -612,7 +612,7 @@ bool TerrainCellMaterial::_initShader(bool deferredMat,
          desc.samplers[sampler].minFilter = GFXTextureFilterLinear;
    }
 
-   mOrmTexArrayConst = mShader->getShaderConstHandle("$ormMapSampler");
+   mOrmTexArrayConst = mShader->getShaderConstHandle("$ormMapArray");
    if (mOrmTexArrayConst->isValid())
    {
       const S32 sampler = mOrmTexArrayConst->getSamplerRegister();

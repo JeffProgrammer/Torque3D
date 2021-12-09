@@ -72,13 +72,13 @@ void DeferredOrmMapHLSL::processPix( Vector<ShaderComponent*> &componentList, co
    // create texture var
    Var * ormMap = new Var;
    ormMap->setType( "SamplerState" );
-   ormMap->setName( "ORMConfigMap" );
+   ormMap->setName( "sampler_ORMConfigMap" );
    ormMap->uniform = true;
    ormMap->sampler = true;
    ormMap->constNum = Var::getTexUnitNum();
 
    Var* ormMapTex = new Var;
-   ormMapTex->setName("ORMConfigMapTex");
+   ormMapTex->setName("ORMConfigMap");
    ormMapTex->setType("Texture2D");
    ormMapTex->uniform = true;
    ormMapTex->texture = true;
@@ -236,13 +236,13 @@ void GlowMapHLSL::processPix(Vector<ShaderComponent*> &componentList, const Mate
    // create texture var
    Var* glowMap = new Var;
    glowMap->setType("SamplerState");
-   glowMap->setName("glowMap");
+   glowMap->setName("sampler_glowMap");
    glowMap->uniform = true;
    glowMap->sampler = true;
    glowMap->constNum = Var::getTexUnitNum();
 
    Var* glowMapTex = new Var;
-   glowMapTex->setName("glowMapTex");
+   glowMapTex->setName("glowMap");
    glowMapTex->setType("Texture2D");
    glowMapTex->uniform = true;
    glowMapTex->texture = true;

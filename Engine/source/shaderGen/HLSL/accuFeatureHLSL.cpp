@@ -66,7 +66,7 @@ void AccuTexFeatHLSL::processPix(   Vector<ShaderComponent*> &componentList,
    Var *accuMap = new Var;
    accuMap->setType("SamplerState");
 
-   accuMap->setName( "accuMap" );
+   accuMap->setName( "sampler_accuMap" );
    accuMap->uniform = true;
    accuMap->sampler = true;
    accuMap->constNum = Var::getTexUnitNum();     // used as texture unit num here
@@ -149,7 +149,7 @@ void AccuTexFeatHLSL::processPix(   Vector<ShaderComponent*> &componentList,
 
    Var *accuMapTex = new Var;
    accuMapTex->setType("Texture2D");
-   accuMapTex->setName("accuMapTex");
+   accuMapTex->setName("accuMap");
    accuMapTex->uniform = true;
    accuMapTex->texture = true;
    accuMapTex->constNum = accuMap->constNum;

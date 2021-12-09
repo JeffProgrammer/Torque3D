@@ -124,7 +124,7 @@ Var* TerrainFeatHLSL::_getInMacroCoord( Vector<ShaderComponent*> &componentList 
 
 Var* TerrainFeatHLSL::_getDetailMapSampler()
 {
-   String name("detailMapSampler");
+   String name("sampler_detailMapArray");
    Var* detailMapSampler = (Var*)LangElement::find(name);
 
    if(!detailMapSampler)
@@ -160,7 +160,7 @@ Var* TerrainFeatHLSL::_getDetailMapArray()
 
 Var* TerrainFeatHLSL::_getNormalMapSampler()
 {
-   String name("normalMapSampler");
+   String name("sampler_normalMapArray");
    Var* normalMapSampler = (Var*)LangElement::find(name);
 
    if (!normalMapSampler)
@@ -196,7 +196,7 @@ Var* TerrainFeatHLSL::_getNormalMapArray()
 
 Var* TerrainFeatHLSL::_getOrmMapSampler()
 {
-   String name("ormMapSampler");
+   String name("sampler_ormMapArray");
    Var* ormMapSampler = (Var*)LangElement::find(name);
 
    if (!ormMapSampler)
@@ -344,7 +344,7 @@ void TerrainBaseMapFeatHLSL::processPix(Vector<ShaderComponent*>& componentList,
    // create texture var
    Var* diffuseMap = new Var;
    diffuseMap->setType("SamplerState");
-   diffuseMap->setName("baseTexMap");
+   diffuseMap->setName("sampler_baseTexture");
    diffuseMap->uniform = true;
    diffuseMap->sampler = true;
    diffuseMap->constNum = Var::getTexUnitNum();     // used as texture unit num here
@@ -544,13 +544,13 @@ void TerrainDetailMapFeatHLSL::processPix(   Vector<ShaderComponent*> &component
       // Get the layer texture var
       Var *layerTex = new Var;
       layerTex->setType( "SamplerState" );
-      layerTex->setName( "layerTex" );
+      layerTex->setName( "sampler_layerTex" );
       layerTex->uniform = true;
       layerTex->sampler = true;
       layerTex->constNum = Var::getTexUnitNum();
 
       Var* layerTexObj = new Var;
-      layerTexObj->setName("layerTexObj");
+      layerTexObj->setName("layerTex");
       layerTexObj->setType("Texture2D");
       layerTexObj->uniform = true;
       layerTexObj->texture = true;
@@ -815,7 +815,7 @@ void TerrainMacroMapFeatHLSL::processPix(   Vector<ShaderComponent*> &componentL
       // Get the layer texture var
       Var *layerTex = new Var;
       layerTex->setType( "SamplerState" );
-      layerTex->setName( "macrolayerTex" );
+      layerTex->setName( "sampler_macrolayerTex" );
       layerTex->uniform = true;
       layerTex->sampler = true;
       layerTex->constNum = Var::getTexUnitNum();
@@ -823,7 +823,7 @@ void TerrainMacroMapFeatHLSL::processPix(   Vector<ShaderComponent*> &componentL
       // Read the layer texture to get the samples.
       Var *layerTexObj = new Var;
       layerTexObj->setType("Texture2D");
-      layerTexObj->setName("macroLayerTexObj");
+      layerTexObj->setName("macroLayerTex");
       layerTexObj->uniform = true;
       layerTexObj->texture = true;
       layerTexObj->constNum = layerTex->constNum;
@@ -1091,7 +1091,7 @@ void TerrainLightMapFeatHLSL::processPix( Vector<ShaderComponent*> &componentLis
    // Get the lightmap texture.
    Var *lightMap = new Var;
    lightMap->setType( "SamplerState" );
-   lightMap->setName( "lightMapTex" );
+   lightMap->setName( "sampler_lightMap" );
    lightMap->uniform = true;
    lightMap->sampler = true;
    lightMap->constNum = Var::getTexUnitNum();
@@ -1112,7 +1112,7 @@ void TerrainLightMapFeatHLSL::processPix( Vector<ShaderComponent*> &componentLis
    }
 
    Var* lightMapTex = new Var;
-   lightMapTex->setName("lightMapTexObj");
+   lightMapTex->setName("lightMap");
    lightMapTex->setType("Texture2D");
    lightMapTex->uniform = true;
    lightMapTex->texture = true;

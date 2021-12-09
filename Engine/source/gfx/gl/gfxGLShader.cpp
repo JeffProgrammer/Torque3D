@@ -837,7 +837,6 @@ void GFXGLShader::_getShaderConstants(GLuint program, GFXGLConstBufferLayout* bu
    maxNameLength++;
 
    FrameTemp<GLchar> uniformName(maxNameLength);
-   S32 bindingPoint = 0;
    for (U32 i = 0; i < numUniforms; i++)
    {
       GLint size;
@@ -847,7 +846,7 @@ void GFXGLShader::_getShaderConstants(GLuint program, GFXGLConstBufferLayout* bu
 
       desc.name = String((char*)uniformName);
       // Remove array brackets from the name
-      desc.name = desc.name.substr(0, desc.name.find('['));
+      //desc.name = desc.name.substr(0, desc.name.find('['));
 
       //remove the ubo block name
       if (desc.name.startsWith(GFX_GL_UBO_NAME))
@@ -928,9 +927,15 @@ void GFXGLShader::_getShaderConstants(GLuint program, GFXGLConstBufferLayout* bu
       if (isSampler)
       {
          GLint location = glGetUniformLocation(program, uniformName);
+         AssertFatal(location != -1, avar("glGetUniformLocation failed to get location for uniform %s", uniformName));
+
+         //unfortunately we are stuck at opengl 4.1, we can't use layout qualifiers for the sampler, so we use the ordered sampler names instead
+         GLint bindingPoint = mSamplerNamesOrdered.find_next(desc.name);
+         AssertFatal(bindingPoint != -1, avar("Could not find sampler '%s' bind point", desc.name.c_str()));
+
          glProgramUniform1i(program, location, bindingPoint);
          desc.arraySize = bindingPoint; //we store the binding point in here
-         bindingPoint++;
+         //bindingPoint++;
          samplerDescriptions.push_back(desc);
       }
       else

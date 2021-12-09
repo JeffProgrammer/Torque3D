@@ -517,13 +517,13 @@ Var* ShaderFeatureHLSL::getNormalMapTex()
    {
       normalMap = new Var;
       normalMap->setType("SamplerState");
-      normalMap->setName("bumpMap");
+      normalMap->setName("sampler_bumpMap");
       normalMap->uniform = true;
       normalMap->sampler = true;
       normalMap->constNum = Var::getTexUnitNum();
 
       Var* normalMapTex = new Var;
-      normalMapTex->setName("bumpMapTex");
+      normalMapTex->setName("bumpMap");
       normalMapTex->setType("Texture2D");
       normalMapTex->uniform = true;
       normalMapTex->texture = true;
@@ -957,7 +957,7 @@ void DiffuseMapFeatHLSL::processPix(   Vector<ShaderComponent*> &componentList,
    // create texture var
    Var *diffuseMap = new Var;
    diffuseMap->setType( "SamplerState" );
-   diffuseMap->setName( "diffuseMapTex" );
+   diffuseMap->setName( "sampler_diffuseMapT" );
    diffuseMap->uniform = true;
    diffuseMap->sampler = true;
    diffuseMap->constNum = Var::getTexUnitNum();     // used as texture unit num here
@@ -1142,13 +1142,13 @@ void OverlayTexFeatHLSL::processPix(   Vector<ShaderComponent*> &componentList,
    // create texture var
    Var *diffuseMap = new Var;
    diffuseMap->setType( "SamplerState" );
-   diffuseMap->setName( "overlayMap" );
+   diffuseMap->setName( "sampler_overlayMap" );
    diffuseMap->uniform = true;
    diffuseMap->sampler = true;
    diffuseMap->constNum = Var::getTexUnitNum();     // used as texture unit num here
 
    Var* diffuseMapTex = new Var;
-   diffuseMapTex->setName("overlayMapTex");
+   diffuseMapTex->setName("overlayMap");
    diffuseMapTex->setType("Texture2D");
    diffuseMapTex->uniform = true;
    diffuseMapTex->texture = true;
@@ -1323,13 +1323,13 @@ void LightmapFeatHLSL::processPix(  Vector<ShaderComponent*> &componentList,
    // create texture var
    Var *lightMap = new Var;
    lightMap->setType( "SamplerState" );
-   lightMap->setName( "lightMap" );
+   lightMap->setName( "sampler_lightMap" );
    lightMap->uniform = true;
    lightMap->sampler = true;
    lightMap->constNum = Var::getTexUnitNum();     // used as texture unit num here
 
    Var *lightMapTex = new Var;
-   lightMapTex->setName("lightMapTex");
+   lightMapTex->setName("lightMap");
    lightMapTex->setType("Texture2D");
    lightMapTex->uniform = true;
    lightMapTex->texture = true;
@@ -1457,13 +1457,13 @@ void TonemapFeatHLSL::processPix(  Vector<ShaderComponent*> &componentList,
    // create texture var
    Var *toneMap = new Var;
    toneMap->setType( "SamplerState" );
-   toneMap->setName( "toneMap" );
+   toneMap->setName( "sampler_toneMap" );
    toneMap->uniform = true;
    toneMap->sampler = true;
    toneMap->constNum = Var::getTexUnitNum();     // used as texture unit num here
 
    Var *toneMapTex = new Var;
-   toneMapTex->setName("toneMapTex");
+   toneMapTex->setName("toneMap");
    toneMapTex->setType("Texture2D");
    toneMapTex->uniform = true;
    toneMapTex->texture = true;
@@ -1701,13 +1701,13 @@ void DetailFeatHLSL::processPix( Vector<ShaderComponent*> &componentList,
    // create texture var
    Var *detailMap = new Var;
    detailMap->setType( "SamplerState" );
-   detailMap->setName( "detailMap" );
+   detailMap->setName( "sampler_detailMap" );
    detailMap->uniform = true;
    detailMap->sampler = true;
    detailMap->constNum = Var::getTexUnitNum();     // used as texture unit num here
 
    Var* detailMapTex = new Var;
-   detailMapTex->setName("detailMapTex");
+   detailMapTex->setName("detailMap");
    detailMapTex->setType("Texture2D");
    detailMapTex->uniform = true;
    detailMapTex->texture = true;
@@ -1927,13 +1927,13 @@ void ReflectCubeFeatHLSL::processPix(  Vector<ShaderComponent*> &componentList,
          // create texture var
          Var *newMap = new Var;
          newMap->setType( "SamplerState" );
-         newMap->setName( "glossMap" );
+         newMap->setName( "sampler_glossMap" );
          newMap->uniform = true;
          newMap->sampler = true;
          newMap->constNum = Var::getTexUnitNum();     // used as texture unit num here
 
          Var* glowMapTex = new Var;
-         glowMapTex->setName("glowMapTex");
+         glowMapTex->setName("glowMap");
          glowMapTex->setType("Texture2D");
          glowMapTex->uniform = true;
          glowMapTex->texture = true;
@@ -1970,13 +1970,13 @@ void ReflectCubeFeatHLSL::processPix(  Vector<ShaderComponent*> &componentList,
    // create cubemap var
    Var *cubeMap = new Var;
    cubeMap->setType( "SamplerState" );
-   cubeMap->setName( "cubeMap" );
+   cubeMap->setName( "sampler_cubeMap" );
    cubeMap->uniform = true;
    cubeMap->sampler = true;
    cubeMap->constNum = Var::getTexUnitNum();     // used as texture unit num here
 
    Var* cubeMapTex = new Var;
-   cubeMapTex->setName("cubeMapTex");
+   cubeMapTex->setName("cubeMap");
    cubeMapTex->setType("TextureCube");  // cubeMapTex->setType("TextureCube");
    cubeMapTex->uniform = true;
    cubeMapTex->texture = true;

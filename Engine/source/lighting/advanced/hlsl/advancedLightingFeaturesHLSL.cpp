@@ -118,13 +118,13 @@ void DeferredRTLightingFeatHLSL::processPix( Vector<ShaderComponent*> &component
    // create texture var
    Var *lightInfoBuffer = new Var;
    lightInfoBuffer->setType( "SamplerState" );
-   lightInfoBuffer->setName( "lightInfoBuffer" );
+   lightInfoBuffer->setName( "sampler_lightInfoBuffer" );
    lightInfoBuffer->uniform = true;
    lightInfoBuffer->sampler = true;
    lightInfoBuffer->constNum = Var::getTexUnitNum();     // used as texture unit num here
 
    Var* lightBufferTex =  new Var;
-   lightBufferTex->setName("lightInfoBufferTex");
+   lightBufferTex->setName("lightInfoBuffer");
    lightBufferTex->setType("Texture2D");
    lightBufferTex->uniform = true;
    lightBufferTex->texture = true;
@@ -275,13 +275,13 @@ void DeferredBumpFeatHLSL::processPix( Vector<ShaderComponent*> &componentList,
       {
          bumpMap = new Var;
          bumpMap->setType( "SamplerState" );
-         bumpMap->setName( "detailBumpMap" );
+         bumpMap->setName( "sampler_detailBumpMap" );
          bumpMap->uniform = true;
          bumpMap->sampler = true;
          bumpMap->constNum = Var::getTexUnitNum();
 
          Var* detailNormalTex = new Var;
-         detailNormalTex->setName("detailBumpMapTex");
+         detailNormalTex->setName("detailBumpMap");
          detailNormalTex->setType("Texture2D");
          detailNormalTex->uniform = true;
          detailNormalTex->texture = true;
@@ -349,7 +349,7 @@ void DeferredBumpFeatHLSL::processPix( Vector<ShaderComponent*> &componentList,
             {
                bumpMap = new Var;
                bumpMap->setType( "sampler2D" );
-               bumpMap->setName( "detailBumpMap" );
+               bumpMap->setName( "sampler_detailBumpMap" );
                bumpMap->uniform = true;
                bumpMap->sampler = true;
                bumpMap->constNum = Var::getTexUnitNum();
@@ -360,7 +360,7 @@ void DeferredBumpFeatHLSL::processPix( Vector<ShaderComponent*> &componentList,
             {
                bumpMap->setType("SamplerState");
                bumpMapTex = new Var;
-               bumpMapTex->setName("detailBumpMapTex");
+               bumpMapTex->setName("detailBumpMap");
                bumpMapTex->setType("Texture2D");
                bumpMapTex->uniform = true;
                bumpMapTex->texture = true;
@@ -568,13 +568,13 @@ void DeferredMinnaertHLSL::processPix( Vector<ShaderComponent*> &componentList,
    // create texture var
    Var *deferredBuffer = new Var;
    deferredBuffer->setType( "SamplerState" );
-   deferredBuffer->setName( "deferredBuffer" );
+   deferredBuffer->setName( "sampler_deferredBuffer" );
    deferredBuffer->uniform = true;
    deferredBuffer->sampler = true;
    deferredBuffer->constNum = Var::getTexUnitNum();     // used as texture unit num here
 
    Var* deferredTex = new Var;
-   deferredTex->setName("deferredTex");
+   deferredTex->setName("deferredBuffer");
    deferredTex->setType("Texture2D");
    deferredTex->uniform = true;
    deferredTex->texture = true;

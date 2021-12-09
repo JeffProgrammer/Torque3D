@@ -553,7 +553,8 @@ void RenderProbeMgr::_update4ProbeConsts(const SceneData &sgData,
       shaderConsts->setSafe(probeShaderConsts->mProbePositionSC, probePositionAlignedArray);
       shaderConsts->setSafe(probeShaderConsts->mProbeRefPosSC, probeRefPositionAlignedArray);
 
-      if(probeShaderConsts->isValid())
+      //this type has no set safe
+      if(probeShaderConsts->mWorldToObjArraySC->isValid())
          shaderConsts->set(probeShaderConsts->mWorldToObjArraySC, probeSet.probeWorldToObjArray.address(), probeSet.effectiveProbeCount, GFXSCT_Float4x4);
 
       shaderConsts->setSafe(probeShaderConsts->mRefScaleSC, refScaleAlignedArray);
