@@ -72,7 +72,7 @@ void BumpFeatHLSL::processPix(   Vector<ShaderComponent*> &componentList,
    LangElement *texOp = NULL;
 
    //if it's D3D11 let's create the texture object
-   Var* bumpMapTex = (Var*)LangElement::find("bumpMapTex");
+   Var* bumpMapTex = (Var*)LangElement::find("bumpMap");
 
    // Handle atlased textures
    // http://www.infinity-universe.com/Infinity/index.php?option=com_content&task=view&id=65&Itemid=47
@@ -341,7 +341,7 @@ void ParallaxFeatHLSL::processPix(  Vector<ShaderComponent*> &componentList,
    // Get the rest of our inputs.
    Var *parallaxInfo = _getUniformVar( "parallaxInfo", "float", cspPotentialPrimitive );
    Var *normalMap = getNormalMapTex();
-   Var *bumpMapTexture = (Var*)LangElement::find("bumpMapTex");
+   Var *bumpMapTexture = (Var*)LangElement::find("bumpMap");
 
    // Call the library function to do the rest.
    if (fd.features.hasFeature(MFT_IsBC3nm, getProcessIndex()))

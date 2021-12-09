@@ -257,7 +257,7 @@ void DeferredBumpFeatHLSL::processPix( Vector<ShaderComponent*> &componentList,
       Var *bumpMap = getNormalMapTex();
       Var *texCoord = getInTexCoord("texCoord", "float2", componentList);
 
-      Var *bumpMapTex = (Var*)LangElement::find("bumpMapTex");
+      Var *bumpMapTex = (Var*)LangElement::find("bumpMap");
       LangElement *texOp = new GenOp("@.Sample(@, @)", bumpMapTex, bumpMap, texCoord);
 
       // create bump normal
@@ -339,7 +339,7 @@ void DeferredBumpFeatHLSL::processPix( Vector<ShaderComponent*> &componentList,
          bumpSample->setName("bumpSample");
          LangElement *bumpSampleDecl = new DecOp(bumpSample);
 
-         Var *bumpMapTex = (Var *)LangElement::find("bumpMapTex");
+         Var *bumpMapTex = (Var *)LangElement::find("bumpMap");
          output = new GenOp("   @ = @.Sample(@, @);\r\n", bumpSampleDecl, bumpMapTex, bumpMap, texCoord);
 
          if ( fd.features.hasFeature( MFT_DetailNormalMap ) )
@@ -403,7 +403,7 @@ void DeferredBumpFeatHLSL::processPix( Vector<ShaderComponent*> &componentList,
          Var *texCoord = getInTexCoord( "texCoord", "float2", componentList );
 
          Var *bumpMap = getNormalMapTex();
-         Var *bumpMapTex = (Var *)LangElement::find("bumpMapTex");
+         Var *bumpMapTex = (Var *)LangElement::find("bumpMap");
 
          bumpSample = new Var;
          bumpSample->setType("float4");
