@@ -1418,27 +1418,32 @@ String GFXD3D11Device::_createTempShaderInternal(const GFXVertexFormat *vertexFo
 
       if (element.isSemantic(GFXSemantic::POSITION))
       {
-         semantic = "POSITION";
+         semantic = GFXSemantic::POSITION;
          semanticOut = "SV_Position";
       }
       else if (element.isSemantic(GFXSemantic::NORMAL))
       {
-         semantic = "NORMAL";
+         semantic = GFXSemantic::NORMAL;
          semanticOut = semantic;
       }
       else if (element.isSemantic(GFXSemantic::COLOR))
       {
-         semantic = "COLOR";
+         semantic = GFXSemantic::COLOR;
          semanticOut = semantic;
       }
       else if (element.isSemantic(GFXSemantic::TANGENT))
       {
-         semantic = "TANGENT";
+         semantic = GFXSemantic::TANGENT;
+         semanticOut = semantic;
+      }
+      else if (element.isSemantic(GFXSemantic::TANGENTW))
+      {
+         semantic = GFXSemantic::TANGENTW;
          semanticOut = semantic;
       }
       else if (element.isSemantic(GFXSemantic::BINORMAL))
       {
-         semantic = "BINORMAL";
+         semantic = GFXSemantic::BINORMAL;
          semanticOut = semantic;
       }
       else if (element.isSemantic(GFXSemantic::BLENDINDICES))
@@ -1593,29 +1598,31 @@ GFXVertexDecl* GFXD3D11Device::allocVertexDecl( const GFXVertexFormat *vertexFor
       vd[i].SemanticIndex = 0;
 
       if (element.isSemantic(GFXSemantic::POSITION))
-         vd[i].SemanticName = "POSITION";
+         vd[i].SemanticName = GFXSemantic::POSITION;
       else if (element.isSemantic(GFXSemantic::NORMAL))
-         vd[i].SemanticName = "NORMAL";
+         vd[i].SemanticName = GFXSemantic::NORMAL;
       else if (element.isSemantic(GFXSemantic::COLOR))
-         vd[i].SemanticName = "COLOR";
+         vd[i].SemanticName = GFXSemantic::COLOR;
       else if (element.isSemantic(GFXSemantic::TANGENT))
-         vd[i].SemanticName = "TANGENT";
+         vd[i].SemanticName = GFXSemantic::TANGENT;
+      else if (element.isSemantic(GFXSemantic::TANGENTW))
+         vd[i].SemanticName = GFXSemantic::TANGENTW;
       else if (element.isSemantic(GFXSemantic::BINORMAL))
-         vd[i].SemanticName = "BINORMAL";
+         vd[i].SemanticName = GFXSemantic::BINORMAL;
       else if (element.isSemantic(GFXSemantic::BLENDWEIGHT))
       {
-         vd[i].SemanticName = "BLENDWEIGHT";
+         vd[i].SemanticName = GFXSemantic::BLENDWEIGHT;
          vd[i].SemanticIndex = element.getSemanticIndex();
       }
       else if (element.isSemantic(GFXSemantic::BLENDINDICES))
       {
-         vd[i].SemanticName = "BLENDINDICES";
+         vd[i].SemanticName = GFXSemantic::BLENDINDICES;
          vd[i].SemanticIndex = element.getSemanticIndex();
       }
       else
       {
           //Anything that falls thru to here will be a texture coord.
-         vd[i].SemanticName = "TEXCOORD";
+         vd[i].SemanticName = GFXSemantic::TEXCOORD;
          vd[i].SemanticIndex = element.getSemanticIndex();
       }
 

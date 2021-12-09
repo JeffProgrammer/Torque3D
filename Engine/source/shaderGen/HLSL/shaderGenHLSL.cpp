@@ -112,8 +112,14 @@ const char* ShaderGenComponentFactoryHLSL::typeToString( GFXDeclType type )
       case GFXDeclType_Color:
          return "float4";
       
-	  case GFXDeclType_UByte4:
-         return "uint4";
+      case GFXDeclType_UByte4:
+      {
+         //opengl has trouble with these ubyte format when used as vertex attributes due to it converting them to float values, we use float4 type for them
+         if (GFX->getAdapterType() == OpenGL)
+            return "float4";
+         else
+            return "uint4";
+      }
    }
 }
 
