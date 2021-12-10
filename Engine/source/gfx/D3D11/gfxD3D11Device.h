@@ -49,10 +49,6 @@ class D3D11OculusTexture;
 
 class GFXD3D11Device : public GFXDevice
 {
-public:
-   typedef Map<U32, ID3D11SamplerState*> SamplerMap;
-private:
-
    friend class GFXResource;
    friend class GFXD3D11PrimitiveBuffer;
    friend class GFXD3D11VertexBuffer;
@@ -61,6 +57,126 @@ private:
    friend class GFXD3D11WindowTarget;
    friend class OculusVRHMDDevice;
    friend class D3D11OculusTexture;
+
+public:
+   /// Constructor
+   /// @param   d3d   Direct3D object to instantiate this device with
+   /// @param   index   Adapter index since D3D can use multiple graphics adapters
+   GFXD3D11Device(U32 index);
+   virtual ~GFXD3D11Device();
+
+   static GFXDevice* createInstance(U32 adapterIndex);
+
+   static void enumerateAdapters(Vector<GFXAdapter*>& adapterList);
+
+   ID3D11DepthStencilView* getDepthStencilView() { return mDeviceDepthStencilView; }
+   ID3D11RenderTargetView* getRenderTargetView() { return mDeviceBackBufferView; }
+   ID3D11Texture2D* getBackBufferTexture() { return mDeviceBackbuffer; }
+
+   // Activate/deactivate
+   // {
+   virtual void init(const GFXVideoMode& mode, PlatformWindow* window = NULL);
+
+   virtual void preDestroy() { GFXDevice::preDestroy(); if (mTextureManager) mTextureManager->kill(); }
+
+   GFXAdapterType getAdapterType() { return Direct3D11; }
+
+   U32 getAdaterIndex() const { return mAdapterIndex; }
+
+   virtual GFXCubemap* createCubemap();
+   virtual GFXCubemapArray* createCubemapArray();
+   virtual GFXTextureArray* createTextureArray();
+
+   const String& getShaderModelStr() { return mShaderModelStr; }
+   virtual void setShader(GFXShader* shader, bool force = false);
+   virtual U32  getNumSamplers() const { return 16; }
+   virtual U32  getNumRenderTargets() const { return 8; }
+   // }
+
+   // Copy methods
+   // {
+   virtual void copyResource(GFXTextureObject* pDst, GFXCubemap* pSrc, const U32 face);
+   // }
+
+   // Misc rendering control
+   // {
+   virtual void clear(U32 flags, const LinearColorF& color, F32 z, U32 stencil);
+   virtual void clearColorAttachment(const U32 attachment, const LinearColorF& color);
+
+   virtual bool beginSceneInternal();
+   virtual void endSceneInternal();
+
+   virtual void setClipRect(const RectI& rect);
+   virtual const RectI& getClipRect() const { return mClipRect; }
+
+   // }
+
+   /// @name Render Targets
+   /// @{
+   virtual void _updateRenderTargets();
+   /// @}
+
+   // Vertex/Index buffer management
+   // {
+   virtual GFXVertexBuffer* allocVertexBuffer(U32 numVerts,
+      const GFXVertexFormat* vertexFormat,
+      U32 vertSize,
+      GFXBufferType bufferType,
+      void* data = NULL);
+
+   virtual GFXPrimitiveBuffer* allocPrimitiveBuffer(U32 numIndices,
+      U32 numPrimitives,
+      GFXBufferType bufferType,
+      void* data = NULL);
+
+   virtual GFXVertexDecl* allocVertexDecl(const GFXVertexFormat* vertexFormat);
+   virtual void setVertexDecl(const GFXVertexDecl* decl);
+
+   virtual void setVertexStream(U32 stream, GFXVertexBuffer* buffer);
+   virtual void setVertexStreamFrequency(U32 stream, U32 frequency);
+   // }
+
+   virtual U32 getMaxDynamicVerts() { return GFX_MAX_DYNAMIC_VERTS; }
+   virtual U32 getMaxDynamicIndices() { return GFX_MAX_DYNAMIC_INDICES; }
+
+   inline U32 primCountToIndexCount(GFXPrimitiveType primType, U32 primitiveCount);
+
+   // Rendering
+   // {
+   virtual void drawPrimitive(GFXPrimitiveType primType, U32 vertexStart, U32 primitiveCount);
+   // }
+
+   ID3D11DeviceContext* getDeviceContext() { return mD3DDeviceContext; }
+   ID3D11Device* getDevice() { return mD3DDevice; }
+
+   /// Reset
+   void beginReset();
+   void endReset(GFXD3D11WindowTarget* windowTarget);
+
+   virtual void setupGenericShaders(GenericShaderType type = GSColor);
+
+   inline virtual F32 getFillConventionOffset() const { return 0.0f; }
+   virtual void doParanoidStateCheck() {};
+
+   GFXFence* createFence();
+
+   GFXOcclusionQuery* createOcclusionQuery();
+
+   // Default multisample parameters
+   DXGI_SAMPLE_DESC getMultisampleType() const { return mMultisampleDesc; }
+
+   // Get feature level this gfx device supports
+   D3D_FEATURE_LEVEL getFeatureLevel() const { return mFeatureLevel; }
+   // Shader Model targers
+   const String& getVertexShaderTarget() const { return mVertexShaderTarget; }
+   const String& getPixelShaderTarget() const { return mPixelShaderTarget; }
+
+   typedef Map<U32, ID3D11SamplerState*> SamplerMap;
+   // grab the sampler map
+   const SamplerMap& getSamplersMap() const { return mSamplersMap; }
+   SamplerMap& getSamplersMap() { return mSamplersMap; }
+
+private:
 
    virtual GFXFormat selectSupportedFormat(GFXTextureProfile *profile,
    const Vector<GFXFormat> &formats, bool texture, bool mustblend, bool mustfilter);
@@ -195,129 +311,6 @@ protected:
    String _createTempShaderInternal(const GFXVertexFormat *vertexFormat);
    // Supress any debug layer messages we don't want to see
    void _suppressDebugMessages();
-   
-public:
-
-   static GFXDevice *createInstance( U32 adapterIndex );
-
-   static void enumerateAdapters( Vector<GFXAdapter*> &adapterList );
-
-   ID3D11DepthStencilView* getDepthStencilView() { return mDeviceDepthStencilView; }
-   ID3D11RenderTargetView* getRenderTargetView() { return mDeviceBackBufferView; }
-   ID3D11Texture2D* getBackBufferTexture() { return mDeviceBackbuffer; }
-
-   /// Constructor
-   /// @param   d3d   Direct3D object to instantiate this device with
-   /// @param   index   Adapter index since D3D can use multiple graphics adapters
-   GFXD3D11Device( U32 index );
-   virtual ~GFXD3D11Device();
-
-   // Activate/deactivate
-   // {
-   virtual void init( const GFXVideoMode &mode, PlatformWindow *window = NULL );
-
-   virtual void preDestroy() { GFXDevice::preDestroy(); if(mTextureManager) mTextureManager->kill(); }
-
-   GFXAdapterType getAdapterType(){ return Direct3D11; }
-
-   U32 getAdaterIndex() const { return mAdapterIndex; }
-
-   virtual GFXCubemap *createCubemap();
-   virtual GFXCubemapArray *createCubemapArray();
-   virtual GFXTextureArray* createTextureArray();
-
-   const String& getShaderModelStr() { return mShaderModelStr; }
-   virtual void setShader(GFXShader *shader, bool force = false);
-   virtual U32  getNumSamplers() const { return 16; }
-   virtual U32  getNumRenderTargets() const { return 8; }
-   // }
-
-   // Copy methods
-   // {
-   virtual void copyResource(GFXTextureObject *pDst, GFXCubemap *pSrc, const U32 face);
-   // }
-
-   // Misc rendering control
-   // {
-   virtual void clear( U32 flags, const LinearColorF& color, F32 z, U32 stencil );
-   virtual void clearColorAttachment(const U32 attachment, const LinearColorF& color);
-
-   virtual bool beginSceneInternal();
-   virtual void endSceneInternal();
-
-   virtual void setClipRect( const RectI &rect );
-   virtual const RectI& getClipRect() const { return mClipRect; }
-
-   // }   
-
-
-   
-   /// @name Render Targets
-   /// @{
-   virtual void _updateRenderTargets();
-   /// @}
-
-   // Vertex/Index buffer management
-   // {
-   virtual GFXVertexBuffer* allocVertexBuffer(  U32 numVerts, 
-                                                const GFXVertexFormat *vertexFormat,
-                                                U32 vertSize,
-                                                GFXBufferType bufferType,
-                                                void* data = NULL);
-
-   virtual GFXPrimitiveBuffer *allocPrimitiveBuffer(  U32 numIndices, 
-                                                      U32 numPrimitives, 
-                                                      GFXBufferType bufferType,
-                                                      void* data = NULL);
-
-   virtual GFXVertexDecl* allocVertexDecl( const GFXVertexFormat *vertexFormat );
-   virtual void setVertexDecl( const GFXVertexDecl *decl );
-
-   virtual void setVertexStream( U32 stream, GFXVertexBuffer *buffer );
-   virtual void setVertexStreamFrequency( U32 stream, U32 frequency );
-   // }
-
-   virtual U32 getMaxDynamicVerts() { return GFX_MAX_DYNAMIC_VERTS; }
-   virtual U32 getMaxDynamicIndices() { return GFX_MAX_DYNAMIC_INDICES; }
-
-   inline U32 primCountToIndexCount(GFXPrimitiveType primType, U32 primitiveCount);
-
-   // Rendering
-   // {
-   virtual void drawPrimitive( GFXPrimitiveType primType, U32 vertexStart, U32 primitiveCount );
-   // }
-
-   ID3D11DeviceContext* getDeviceContext(){ return mD3DDeviceContext; }
-   ID3D11Device* getDevice(){ return mD3DDevice; }
-   //IDXGISwapChain* getSwapChain() { return mSwapChain; }
-
-   /// Reset
-   //void reset( DXGI_SWAP_CHAIN_DESC &d3dpp );
-   void beginReset();
-   void endReset(GFXD3D11WindowTarget* windowTarget);
-
-   virtual void setupGenericShaders( GenericShaderType type  = GSColor );
-
-   inline virtual F32 getFillConventionOffset() const { return 0.0f; }
-   virtual void doParanoidStateCheck() {};
-
-   GFXFence *createFence();
-
-   GFXOcclusionQuery* createOcclusionQuery();   
-
-   // Default multisample parameters
-   DXGI_SAMPLE_DESC getMultisampleType() const { return mMultisampleDesc; }
-
-   // Get feature level this gfx device supports
-   D3D_FEATURE_LEVEL getFeatureLevel() const { return mFeatureLevel; }
-   // Shader Model targers
-   const String &getVertexShaderTarget() const { return mVertexShaderTarget; }
-   const String &getPixelShaderTarget() const { return mPixelShaderTarget; }
-
-   // grab the sampler map
-   const SamplerMap &getSamplersMap() const { return mSamplersMap; }
-   SamplerMap &getSamplersMap(){ return mSamplersMap; }
-   const char* interpretDebugResult(long result);
 };
 
 #endif
