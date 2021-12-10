@@ -1395,7 +1395,7 @@ GFXVertexBuffer * GFXD3D11Device::allocVertexBuffer(U32 numVerts, const GFXVerte
    return res;
 }
 
-String GFXD3D11Device::_createTempShaderInternal(const GFXVertexFormat *vertexFormat)
+String GFXD3D11Device::_createTempShaderInternal(const GFXVertexFormat* vertexFormat)
 {
    U32 elemCount = vertexFormat->getElementCount();
    //Input data
@@ -1411,39 +1411,34 @@ String GFXD3D11Device::_createTempShaderInternal(const GFXVertexFormat *vertexFo
 
    for (U32 i = 0; i < elemCount; i++)
    {
-      const GFXVertexElement &element = vertexFormat->getElement(i);
+      const GFXVertexElement& element = vertexFormat->getElement(i);
       String semantic = element.getSemantic();
       String semanticOut = semantic;
       String type;
 
       if (element.isSemantic(GFXSemantic::POSITION))
       {
-         semantic = GFXSemantic::POSITION;
+         semantic = "POSITION";
          semanticOut = "SV_Position";
       }
       else if (element.isSemantic(GFXSemantic::NORMAL))
       {
-         semantic = GFXSemantic::NORMAL;
+         semantic = "NORMAL";
          semanticOut = semantic;
       }
       else if (element.isSemantic(GFXSemantic::COLOR))
       {
-         semantic = GFXSemantic::COLOR;
+         semantic = "COLOR";
          semanticOut = semantic;
       }
       else if (element.isSemantic(GFXSemantic::TANGENT))
       {
-         semantic = GFXSemantic::TANGENT;
-         semanticOut = semantic;
-      }
-      else if (element.isSemantic(GFXSemantic::TANGENTW))
-      {
-         semantic = GFXSemantic::TANGENTW;
+         semantic = "TANGENT";
          semanticOut = semantic;
       }
       else if (element.isSemantic(GFXSemantic::BINORMAL))
       {
-         semantic = GFXSemantic::BINORMAL;
+         semantic = "BINORMAL";
          semanticOut = semantic;
       }
       else if (element.isSemantic(GFXSemantic::BLENDINDICES))
@@ -1522,28 +1517,28 @@ String GFXD3D11Device::_createTempShaderInternal(const GFXVertexFormat *vertexFo
    return String(finalData.data());
 }
 
-GFXVertexDecl* GFXD3D11Device::allocVertexDecl( const GFXVertexFormat *vertexFormat )
+GFXVertexDecl* GFXD3D11Device::allocVertexDecl(const GFXVertexFormat* vertexFormat)
 {
-   PROFILE_SCOPE( GFXD3D11Device_allocVertexDecl );
+   PROFILE_SCOPE(GFXD3D11Device_allocVertexDecl);
 
    // First check the map... you shouldn't allocate VBs very often
    // if you want performance.  The map lookup should never become
    // a performance bottleneck.
-   D3D11VertexDecl *decl = mVertexDecls[vertexFormat->getDescription()];
-   if ( decl )
+   D3D11VertexDecl* decl = mVertexDecls[vertexFormat->getDescription()];
+   if (decl)
       return decl;
 
    U32 elemCount = vertexFormat->getElementCount();
- 
+
    ID3DBlob* code = NULL;
-  
+
    // We have to generate a temporary shader here for now since the input layout creation
    // expects a shader to be already compiled to verify the vertex layout structure. The problem
    // is that most of the time the regular shaders are compiled AFTER allocVertexDecl is called.
-   if(!decl)
+   if (!decl)
    {
       //TODO: Perhaps save/cache the ID3DBlob for later use on identical vertex formats,save creating/compiling the temp shader everytime
-      String shaderData = _createTempShaderInternal(vertexFormat);     
+      String shaderData = _createTempShaderInternal(vertexFormat);
 
 #ifdef TORQUE_DEBUG
       U32 flags = D3DCOMPILE_DEBUG | D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_WARNINGS_ARE_ERRORS;
@@ -1551,11 +1546,11 @@ GFXVertexDecl* GFXD3D11Device::allocVertexDecl( const GFXVertexFormat *vertexFor
       U32 flags = D3DCOMPILE_ENABLE_STRICTNESS;
 #endif
 
-      ID3DBlob *errorBlob = NULL;
+      ID3DBlob* errorBlob = NULL;
       HRESULT hr = D3DCompile(shaderData.c_str(), shaderData.length(), NULL, NULL, NULL, "main", "vs_5_0", flags, 0, &code, &errorBlob);
       StringBuilder error;
 
-      if(errorBlob)
+      if (errorBlob)
       {
          error.append((char*)errorBlob->GetBufferPointer(), errorBlob->GetBufferSize());
          AssertFatal(hr, error.data());
@@ -1563,18 +1558,18 @@ GFXVertexDecl* GFXD3D11Device::allocVertexDecl( const GFXVertexFormat *vertexFor
 
       SAFE_RELEASE(errorBlob);
    }
-   
+
    AssertFatal(code, "D3D11Device::allocVertexDecl - compiled vert shader code missing!");
 
    // Setup the declaration struct.
-   
+
    U32 stream;
-   D3D11_INPUT_ELEMENT_DESC *vd = new D3D11_INPUT_ELEMENT_DESC[ elemCount];
+   D3D11_INPUT_ELEMENT_DESC* vd = new D3D11_INPUT_ELEMENT_DESC[elemCount];
 
    S32 elemIndex = 0;
    for (S32 i = 0; i < elemCount; i++, elemIndex++)
    {
-      const GFXVertexElement &element = vertexFormat->getElement(elemIndex);
+      const GFXVertexElement& element = vertexFormat->getElement(elemIndex);
 
       stream = element.getStreamIndex();
 
@@ -1598,45 +1593,43 @@ GFXVertexDecl* GFXD3D11Device::allocVertexDecl( const GFXVertexFormat *vertexFor
       vd[i].SemanticIndex = 0;
 
       if (element.isSemantic(GFXSemantic::POSITION))
-         vd[i].SemanticName = GFXSemantic::POSITION;
+         vd[i].SemanticName = "POSITION";
       else if (element.isSemantic(GFXSemantic::NORMAL))
-         vd[i].SemanticName = GFXSemantic::NORMAL;
+         vd[i].SemanticName = "NORMAL";
       else if (element.isSemantic(GFXSemantic::COLOR))
-         vd[i].SemanticName = GFXSemantic::COLOR;
+         vd[i].SemanticName = "COLOR";
       else if (element.isSemantic(GFXSemantic::TANGENT))
-         vd[i].SemanticName = GFXSemantic::TANGENT;
-      else if (element.isSemantic(GFXSemantic::TANGENTW))
-         vd[i].SemanticName = GFXSemantic::TANGENTW;
+         vd[i].SemanticName = "TANGENT";
       else if (element.isSemantic(GFXSemantic::BINORMAL))
-         vd[i].SemanticName = GFXSemantic::BINORMAL;
+         vd[i].SemanticName = "BINORMAL";
       else if (element.isSemantic(GFXSemantic::BLENDWEIGHT))
       {
-         vd[i].SemanticName = GFXSemantic::BLENDWEIGHT;
+         vd[i].SemanticName = "BLENDWEIGHT";
          vd[i].SemanticIndex = element.getSemanticIndex();
       }
       else if (element.isSemantic(GFXSemantic::BLENDINDICES))
       {
-         vd[i].SemanticName = GFXSemantic::BLENDINDICES;
+         vd[i].SemanticName = "BLENDINDICES";
          vd[i].SemanticIndex = element.getSemanticIndex();
       }
       else
       {
-          //Anything that falls thru to here will be a texture coord.
-         vd[i].SemanticName = GFXSemantic::TEXCOORD;
+         //Anything that falls thru to here will be a texture coord.
+         vd[i].SemanticName = "TEXCOORD";
          vd[i].SemanticIndex = element.getSemanticIndex();
       }
 
    }
 
    decl = new D3D11VertexDecl();
-   HRESULT hr = mD3DDevice->CreateInputLayout(vd, elemCount,code->GetBufferPointer(), code->GetBufferSize(), &decl->decl);
-   
+   HRESULT hr = mD3DDevice->CreateInputLayout(vd, elemCount, code->GetBufferPointer(), code->GetBufferSize(), &decl->decl);
+
    if (FAILED(hr))
    {
       AssertFatal(false, "GFXD3D11Device::allocVertexDecl - Failed to create vertex input layout!");
    }
 
-   delete [] vd;
+   delete[] vd;
    SAFE_RELEASE(code);
 
    // Store it in the cache.

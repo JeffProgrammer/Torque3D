@@ -544,25 +544,43 @@ Var* ShaderFeatureHLSL::getObjTrans(   Vector<ShaderComponent*> &componentList,
    if ( useInstancing )
    {
       ShaderConnector *vertStruct = dynamic_cast<ShaderConnector *>( componentList[C_VERT_STRUCT] );
-      Var *instObjTrans = vertStruct->getElement( RT_TEXCOORD, 4, 4 );
-      instObjTrans->setStructName( "IN" );
-      instObjTrans->setName( "inst_objectTrans" );
-      instObjTrans->attribute = true;
-      instObjTrans->location = GFXAttributeLocation::TexCoord4;
+      Var *instObjTrans0 = vertStruct->getElement( RT_TEXCOORD, 1);
+      instObjTrans0->setStructName( "IN" );
+      instObjTrans0->setName( "inst_objectTrans0" );
+      instObjTrans0->attribute = true;
+      instObjTrans0->location = GFXAttributeLocation::TexCoord4;
 
-      mInstancingFormat->addElement( "objTrans", GFXDeclType_Float4, instObjTrans->constNum+0 );
-      mInstancingFormat->addElement( "objTrans", GFXDeclType_Float4, instObjTrans->constNum+1 );
-      mInstancingFormat->addElement( "objTrans", GFXDeclType_Float4, instObjTrans->constNum+2 );
-      mInstancingFormat->addElement( "objTrans", GFXDeclType_Float4, instObjTrans->constNum+3 );
+      Var* instObjTrans1 = vertStruct->getElement(RT_TEXCOORD, 1);
+      instObjTrans1->setStructName("IN");
+      instObjTrans1->setName("inst_objectTrans1");
+      instObjTrans1->attribute = true;
+      instObjTrans1->location = GFXAttributeLocation::TexCoord5;
+
+      Var* instObjTrans2 = vertStruct->getElement(RT_TEXCOORD, 1);
+      instObjTrans2->setStructName("IN");
+      instObjTrans2->setName("inst_objectTrans2");
+      instObjTrans2->attribute = true;
+      instObjTrans2->location = GFXAttributeLocation::TexCoord6;
+
+      Var* instObjTrans3 = vertStruct->getElement(RT_TEXCOORD, 1);
+      instObjTrans3->setStructName("IN");
+      instObjTrans3->setName("inst_objectTrans3");
+      instObjTrans3->attribute = true;
+      instObjTrans3->location = GFXAttributeLocation::TexCoord7;
+
+      mInstancingFormat->addElement( "objTrans", GFXDeclType_Float4, instObjTrans0->constNum+0 );
+      mInstancingFormat->addElement( "objTrans", GFXDeclType_Float4, instObjTrans0->constNum+1 );
+      mInstancingFormat->addElement( "objTrans", GFXDeclType_Float4, instObjTrans0->constNum+2 );
+      mInstancingFormat->addElement( "objTrans", GFXDeclType_Float4, instObjTrans0->constNum+3 );
 
       objTrans = new Var;
       objTrans->setType( "float4x4" );
       objTrans->setName( "objTrans" );
-      meta->addStatement( new GenOp( "   @ = { // Instancing!\r\n", new DecOp( objTrans ), instObjTrans ) );
-      meta->addStatement( new GenOp( "      @[0],\r\n", instObjTrans ) );
-      meta->addStatement( new GenOp( "      @[1],\r\n", instObjTrans ) );
-      meta->addStatement( new GenOp( "      @[2],\r\n",instObjTrans ) );
-      meta->addStatement( new GenOp( "      @[3] };\r\n", instObjTrans ) );
+      meta->addStatement( new GenOp( "   @ = { // Instancing!\r\n", new DecOp( objTrans ), instObjTrans0 ) );
+      meta->addStatement( new GenOp( "      @,\r\n", instObjTrans0 ) );
+      meta->addStatement( new GenOp( "      @,\r\n", instObjTrans1 ) );
+      meta->addStatement( new GenOp( "      @,\r\n",instObjTrans2 ) );
+      meta->addStatement( new GenOp( "      @ };\r\n", instObjTrans3 ) );
    }
    else
    {
