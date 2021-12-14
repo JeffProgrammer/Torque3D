@@ -927,7 +927,7 @@ void GFXGLShader::_getShaderConstants(GLuint program, GFXGLConstBufferLayout* bu
       if (isSampler)
       {
          GLint location = glGetUniformLocation(program, uniformName);
-         AssertFatal(location != -1, avar("glGetUniformLocation failed to get location for uniform %s", uniformName));
+         AssertFatal(location != -1, avar("glGetUniformLocation failed to get location for uniform %s", (char*)uniformName));
 
          //unfortunately we are stuck at opengl 4.1, we can't use layout qualifiers for the sampler, so we use the ordered sampler names instead
          GLint bindingPoint = mSamplerNamesOrdered.find_next(desc.name);
