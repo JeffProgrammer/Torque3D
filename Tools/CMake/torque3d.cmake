@@ -22,6 +22,8 @@
 
 project(${TORQUE_APP_NAME})
 
+set(TORQUE_LIBS_FOLDER_NAME "Libs" CACHE INTERNAL "The solution folder name to place all libs under")
+
 if(UNIX)
     if(NOT CXX_FLAG32)
         set(CXX_FLAG32 "")
@@ -78,7 +80,8 @@ if(WIN32)
     set(ALSOFT_INSTALL_HRTF_DATA OFF CACHE BOOL "Install HRTF definition files" FORCE)
     set(ALSOFT_INSTALL_AMBDEC_PRESETS OFF CACHE BOOL "Install AmbDec presets" FORCE)
     set(ALSOFT_EMBED_HRTF_DATA OFF CACHE BOOL "Embed the HRTF data (increases library footprint)" FORCE)
-    
+    set(ALSOFT_INSTALL_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(ALSOFT_INSTALL_UTILS OFF CACHE BOOL "" FORCE)
     add_subdirectory( ${libDir}/openal-soft ${CMAKE_CURRENT_BINARY_DIR}/openal-soft)
 endif()
 
