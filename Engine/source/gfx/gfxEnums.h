@@ -110,8 +110,8 @@ enum GFXTextureFilterType
 
 enum GFXFillMode 
 {
-   GFXFill_FIRST = 1,
-   GFXFillPoint = 1,
+   GFXFill_FIRST = 0,
+   GFXFillPoint = 0,
    GFXFillWireframe,
    GFXFillSolid,
    GFXFill_COUNT
@@ -130,7 +130,7 @@ enum GFXFormat
    GFXFormatUndefined = 0,
 
    // 8 bit texture formats...
-   GFXFormatA8 = 0,// first in group...
+   GFXFormatA8,// first in group...
    GFXFormatL8,
    GFXFormatA4L4,
 

@@ -49,7 +49,7 @@ GFXD3D11StateBlock::GFXD3D11StateBlock(const GFXStateBlockDesc& desc)
    mColorMask |= (mDesc.colorWriteAlpha ? D3D11_COLOR_WRITE_ENABLE_ALPHA : 0);
 
    mBlendState = NULL;
-   for (U32 i = 0; i < 16; i++)
+   for (U32 i = 0; i < GFX_TEXTURE_STAGE_COUNT; i++)
    {
       mSamplerStates[i] = NULL;
    }
