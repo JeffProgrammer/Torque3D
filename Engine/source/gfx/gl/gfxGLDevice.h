@@ -151,7 +151,7 @@ public:
    virtual void setupGenericShaders( GenericShaderType type = GSColor );
    
    ///
-   bool supportsAnisotropic() const { return mSupportsAnisotropic; }
+   bool supportsAnisotropic() const { return mCapabilities.anisotropicFiltering; }
 
    GFXGLStateCache* getOpenglCache() { return mOpenglStateCache; }
 
@@ -234,9 +234,7 @@ private:
    MatrixF m_mCurrentView;
 
    void* mContext;
-   void* mPixelFormat;
-   
-   bool mSupportsAnisotropic;   
+   void* mPixelFormat; 
 
    U32 mNumVertexStream;
    

@@ -241,9 +241,8 @@ GFXGLDevice::GFXGLDevice(U32 adapterIndex) :
       mActiveTextureType[i] = GL_ZERO;
 
    mNumVertexStream = 2;
-   mSupportsAnisotropic = false;
 
-   for(int i = 0; i < GS_COUNT; ++i)
+   for(U32 i = 0; i < GS_COUNT; ++i)
       mModelViewProjSC[i] = NULL;
 
    mOpenglStateCache = new GFXGLStateCache;
@@ -255,7 +254,7 @@ GFXGLDevice::~GFXGLDevice()
 {
    mCurrentStateBlock = NULL;
 
-   for(int i = 0; i < VERTEX_STREAM_COUNT; ++i)      
+   for(U32 i = 0; i < VERTEX_STREAM_COUNT; ++i)      
       mCurrentVB[i] = NULL;
    mCurrentPB = NULL;
    
