@@ -892,6 +892,9 @@ void GFXGLShader::_getShaderConstants(GLuint program, GFXGLConstBufferLayout* bu
       case GL_FLOAT_MAT3:
          desc.constType = GFXSCT_Float3x3;
          break;
+      case GL_FLOAT_MAT3x4:
+         desc.constType = GFXSCT_Float3x4;
+         break;
       case GL_FLOAT_MAT4:
          desc.constType = GFXSCT_Float4x4;
          break;
@@ -940,18 +943,58 @@ void GFXGLShader::_getShaderConstants(GLuint program, GFXGLConstBufferLayout* bu
       }
       else
       {
-         GLuint index;
-         GLint offset;
+         GLuint uniformIndex;
+         GLint uniformOffset;
+         GLint uniformStride;
+         GLint uniformSize;
+         GLint uniformMatrixStride;
+
          //get the index of this uniform name
-         glGetUniformIndices(program, 1, &uniformName, &index);
+         glGetUniformIndices(program, 1, &uniformName, &uniformIndex);
+         //get the size
+         glGetActiveUniformsiv(program, 1, &uniformIndex, GL_UNIFORM_SIZE, &uniformSize);
          //get the offset
-         glGetActiveUniformsiv(program, 1, &index, GL_UNIFORM_OFFSET, &offset);
+         glGetActiveUniformsiv(program, 1, &uniformIndex, GL_UNIFORM_OFFSET, &uniformOffset);
+         //get the stride
+         glGetActiveUniformsiv(program, 1, &uniformIndex, GL_UNIFORM_ARRAY_STRIDE, &uniformStride);
+         //get the matrix stride
+         glGetActiveUniformsiv(program, 1, &uniformIndex, GL_UNIFORM_MATRIX_STRIDE, &uniformMatrixStride);
+
          // get the alignment value
          U32 alignBytes = getAlignmentValue(desc.constType);
-         //get the size of this uniform
-         U32 varSize = getConstantSize(desc.constType) * desc.arraySize;
+
+         //work out the uniform size
+         if (uniformStride > 0)
+         {
+            uniformSize = uniformSize * uniformStride;
+         }
+         else if (uniformMatrixStride > 0)
+         {
+            switch (desc.constType)
+            {
+            case GFXSCT_Float2x2:
+               uniformSize = 2 * uniformMatrixStride;
+               break;
+            case GFXSCT_Float3x3:
+            case GFXSCT_Float3x4:
+               uniformSize = 3 * uniformMatrixStride;
+               break;
+            case GFXSCT_Float4x3:
+            case GFXSCT_Float4x4:            
+               uniformSize = 4 * uniformMatrixStride;
+               break;
+            default:
+               AssertFatal(false, "GFXGLShader::_getShaderConstants: unsupported matrix array type");
+               break;
+            }
+         }
+         else
+         {
+            uniformSize = getConstantSize(desc.constType);
+         }
+
          //add to the buffer layout
-         bufferLayout->addParameter(desc.name, desc.constType, offset, varSize, desc.arraySize, alignBytes);
+         bufferLayout->addParameter(desc.name, desc.constType, uniformOffset, uniformSize, desc.arraySize, alignBytes);
       }
 
       mShaderConsts.push_back(desc);
