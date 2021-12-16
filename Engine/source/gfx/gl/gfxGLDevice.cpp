@@ -752,55 +752,55 @@ void GFXGLDevice::setTextureArrayInternal(U32 textureUnit, const GFXGLTextureArr
    }
 }
 
-void GFXGLDevice::setClipRect( const RectI &inRect )
+void GFXGLDevice::setClipRect(const RectI& inRect)
 {
    AssertFatal(mCurrentRT.isValid(), "GFXGLDevice::setClipRect - must have a render target set to do any rendering operations!");
 
-   // We transform the incoming rect by the view 
-   // matrix first, so that it can be used to pan
-   // and scale the clip rect.
-   //
-   // This is currently used to take tiled screenshots.
-   Point3F pos(inRect.point.x, inRect.point.y, 0.0f);
-   Point3F extent(inRect.extent.x, inRect.extent.y, 0.0f);
-   getViewMatrix().mulP(pos);
-   getViewMatrix().mulV(extent);
-   RectI rect(pos.x, pos.y, extent.x, extent.y);
-
    // Clip the rect against the renderable size.
    Point2I size = mCurrentRT->getSize();
-
    RectI maxRect(Point2I(0, 0), size);
-   rect.intersect(maxRect);
+   mClip = inRect;
+   mClip.intersect(maxRect);
 
-   mClip = rect;
+   // Create projection matrix.  See http://www.opengl.org/documentation/specs/man_pages/hardcopy/GL/html/gl/ortho.html
+   const F32 left = mClip.point.x;
+   const F32 right = mClip.point.x + mClip.extent.x;
+   const F32 bottom = mClip.extent.y;
+   const F32 top = 0.0f;
+   const F32 nearPlane = 0.0f;
+   const F32 farPlane = 1.0f;
 
-   F32 l = F32(mClip.point.x);
-   F32 r = F32(mClip.point.x + mClip.extent.x);
-   F32 b = F32(mClip.point.y + mClip.extent.y);
-   F32 t = F32(mClip.point.y);
+   const F32 tx = -(right + left) / (right - left);
+   const F32 ty = -(top + bottom) / (top - bottom);
+   const F32 tz = -(farPlane + nearPlane) / (farPlane - nearPlane);
 
-   // Set up projection matrix, 
    static Point4F pt;
-   pt.set(2.0f / (r - l), 0.0f, 0.0f, 0.0f);
-   mTempMatrix.setColumn(0, pt);
+   pt.set(2.0f / (right - left), 0.0f, 0.0f, 0.0f);
+   mProjectionMatrix.setColumn(0, pt);
 
-   pt.set(0.0f, 2.0f / (t - b), 0.0f, 0.0f);
-   mTempMatrix.setColumn(1, pt);
+   pt.set(0.0f, 2.0f / (top - bottom), 0.0f, 0.0f);
+   mProjectionMatrix.setColumn(1, pt);
 
-   pt.set(0.0f, 0.0f, 1.0f, 0.0f);
-   mTempMatrix.setColumn(2, pt);
+   pt.set(0.0f, 0.0f, -2.0f / (farPlane - nearPlane), 0.0f);
+   mProjectionMatrix.setColumn(2, pt);
 
-   pt.set((l + r) / (l - r), (t + b) / (b - t), 1.0f, 1.0f);
-   mTempMatrix.setColumn(3, pt);
+   pt.set(tx, ty, tz, 1.0f);
+   mProjectionMatrix.setColumn(3, pt);
 
-   setProjectionMatrix(mTempMatrix);
+   // Translate projection matrix.
+   static MatrixF translate(true);
+   pt.set(0.0f, -mClip.point.y, 0.0f, 1.0f);
+   translate.setColumn(3, pt);
 
-   // Set up world/view matrix
-   mTempMatrix.identity();
+   mProjectionMatrix *= translate;
+
+   MatrixF mTempMatrix(true);
+   setViewMatrix(mTempMatrix);
    setWorldMatrix(mTempMatrix);
 
-   setViewport(mClip);
+   // Set the viewport to the clip rect
+   RectI viewport(mClip.point.x, mClip.point.y, mClip.extent.x, mClip.extent.y);
+   setViewport(viewport);
 }
 
 /// Creates a state block object based on the desc passed in.  This object
