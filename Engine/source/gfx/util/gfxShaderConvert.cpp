@@ -223,7 +223,7 @@ public:
             return nullptr; //this will try again in includeSystem function
          }
       }
-      const char* d = (char*)pData;
+
       IncludeResult* pResult = new IncludeResult(path.getFullPath().c_str(), (char*)pData, dataSize, nullptr);
       mInlcudeResults.push_back(pResult);
       return pResult;
@@ -354,7 +354,7 @@ bool GFXShaderConvert::convert(const GFXShaderConvertOptions& options, GFXShader
    {      
       output.language = GFXShaderLanguageSPIRV;
       //copy the std::vector to the t3d vector
-      output.srcUint.setSize(spirv.size());
+      output.srcUint.setSize((U32)spirv.size());
       dMemcpy(output.srcUint.address(), spirv.data(), spirv.size() * sizeof(U32));
       return true;
    }
@@ -363,8 +363,8 @@ bool GFXShaderConvert::convert(const GFXShaderConvertOptions& options, GFXShader
       //spirv_cross for spirv->glsl
       spirv_cross::CompilerGLSL compiler(spirv);
 
+      //Compiler options
       spirv_cross::CompilerGLSL::Options glslOptions = {};
-
       glslOptions.vertex.flip_vert_y = true;
       glslOptions.separate_shader_objects = true;
       glslOptions.emit_uniform_buffer_as_plain_uniforms = false;
@@ -376,6 +376,7 @@ bool GFXShaderConvert::convert(const GFXShaderConvertOptions& options, GFXShader
       //set the options
       compiler.set_common_options(glslOptions);
 
+      //compile to glsl
       std::string glslSrc = compiler.compile();
 
       if (glslSrc.empty())
@@ -384,7 +385,9 @@ bool GFXShaderConvert::convert(const GFXShaderConvertOptions& options, GFXShader
          return false;
       }
 
+      //set output language
       output.language = GFXShaderLanguageGLSL;
+      //copy the source string
       output.srcString = glslSrc.c_str();
 
       return true;
