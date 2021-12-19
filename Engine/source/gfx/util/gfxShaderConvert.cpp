@@ -29,6 +29,7 @@
 #include "glslang/Public/ShaderLang.h"
 #include "glslang/SPIRV/GlslangToSpv.h"
 #include "spirv_glsl.hpp"
+#include "spirv_msl.hpp"
 
 //Use the module system to init/finalize the glslang process
 MODULE_BEGIN(GFX_GLSLANG)
@@ -356,6 +357,35 @@ bool GFXShaderConvert::convert(const GFXShaderConvertOptions& options, GFXShader
       //copy the std::vector to the t3d vector
       output.srcUint.setSize((U32)spirv.size());
       dMemcpy(output.srcUint.address(), spirv.data(), spirv.size() * sizeof(U32));
+      return true;
+   }
+   else if (options.targetLang == GFXShaderLanguageMSL)
+   {
+      //spirv_cross for spirv->msl
+      spirv_cross::CompilerMSL compiler(spirv);
+
+      //Compiler options
+      spirv_cross::CompilerMSL::Options mslOptions = {};
+      mslOptions.platform = spirv_cross::CompilerMSL::Options::macOS;
+      mslOptions.vertex_index_type = spirv_cross::CompilerMSL::Options::IndexType::UInt16;//only support 16bit indices in t3d
+
+      //set the options
+      compiler.set_msl_options(mslOptions);
+
+      //compile to msl
+      std::string mslSrc = compiler.compile();
+
+      if (mslSrc.empty())
+      {
+         Con::errorf("GFXShaderConvert::convert: Failed to generate MSL from SPIR-V for shader: %s", options.filePath.getFullPath().c_str());
+         return false;
+      }
+
+      //set output language
+      output.language = GFXShaderLanguageMSL;
+      //copy the source string
+      output.srcString = mslSrc.c_str();
+
       return true;
    }
    else if (options.targetLang == GFXShaderLanguageGLSL)

@@ -41,6 +41,7 @@ enum GFXShaderLanguage
    GFXShaderLanguageNone,
    GFXShaderLanguageHLSL,
    GFXShaderLanguageGLSL,
+   GFXShaderLanguageMSL,
    GFXShaderLanguageSPIRV
 };
 
