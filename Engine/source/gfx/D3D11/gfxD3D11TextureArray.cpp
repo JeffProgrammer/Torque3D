@@ -72,7 +72,7 @@ void GFXD3D11TextureArray::init()
 void GFXD3D11TextureArray::_setTexture(const GFXTexHandle& texture, U32 slot)
 {
    GFXD3D11TextureObject *texObj = dynamic_cast<GFXD3D11TextureObject*>(texture.getPointer());
-   ID3D11Texture2D* tex2d = texObj->get2DTex();
+   ID3D11Texture2D* tex2d = (ID3D11Texture2D*)texObj->getResource();
    D3D11_TEXTURE2D_DESC desc;
    tex2d->GetDesc(&desc);
    // for each mipmap level...

@@ -35,6 +35,7 @@ protected:
    DXGI_MAPPED_RECT mLockRect;
    D3D11_BOX mLockBox;
    bool mLocked;
+   bool mAutoGenMips;
 
    U32 mLockedSubresource;
    ID3D11Resource *mD3DTexture;
@@ -52,9 +53,8 @@ public:
    ~GFXD3D11TextureObject();
 
    ID3D11Resource*      getResource(){ return mD3DTexture; }
-   ID3D11Texture2D*     get2DTex(){ return (ID3D11Texture2D*) mD3DTexture; }
+   ID3D11Texture1D**    get1DTexPtr(){ return (ID3D11Texture1D**) &mD3DTexture; }
    ID3D11Texture2D**    get2DTexPtr(){ return (ID3D11Texture2D**) &mD3DTexture; }
-   ID3D11Texture3D*		get3DTex(){ return (ID3D11Texture3D*) mD3DTexture; }
    ID3D11Texture3D**	get3DTexPtr(){ return (ID3D11Texture3D**) &mD3DTexture; }
    
    ID3D11ShaderResourceView* getSRView();
@@ -67,6 +67,9 @@ public:
   
 
    void release();
+
+   bool autoGenMips() const { return mAutoGenMips; }
+   void setAutoGenMips(bool val) { mAutoGenMips = val; }
 
    bool isManaged; //setting to true tells this texture not to be released from being zombify
 

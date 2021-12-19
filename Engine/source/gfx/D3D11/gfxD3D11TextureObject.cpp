@@ -44,7 +44,7 @@ GFXD3D11TextureObject::GFXD3D11TextureObject( GFXDevice * d, GFXTextureProfile *
 
    mD3DTexture = NULL;
    mLocked = false;
-
+   mAutoGenMips = false;
    mD3DSurface = NULL;
    dMemset(&mLockRect, 0, sizeof(mLockRect));
    dMemset(&mLockBox, 0, sizeof(mLockBox));

@@ -34,7 +34,7 @@ class GFXD3D11TextureTarget : public GFXTextureTarget
    friend class GFXD3D11Device;
 
    // Array of target surfaces, this is given to us by attachTexture
-   ID3D11Texture2D* mTargets[MaxRenderSlotId];
+   ID3D11Resource* mTargets[MaxRenderSlotId];
 
    // Array of shader resource views
    ID3D11ShaderResourceView* mTargetSRViews[MaxRenderSlotId];

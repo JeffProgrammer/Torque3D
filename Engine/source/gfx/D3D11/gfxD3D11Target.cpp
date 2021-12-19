@@ -92,6 +92,8 @@ void GFXD3D11TextureTarget::attachTexture( RenderSlot slot, GFXTextureObject *te
       return;
    }
 
+   GFXD3D11TextureObject* d3dtex = static_cast<GFXD3D11TextureObject*>(tex);
+
    // TODO: Mip map generation currently only supported on dynamic cubemaps
    mTargetSRViews[slot] = NULL;
 
@@ -106,18 +108,16 @@ void GFXD3D11TextureTarget::attachTexture( RenderSlot slot, GFXTextureObject *te
    else
    {
       // Cast the texture object to D3D...
-      AssertFatal(static_cast<GFXD3D11TextureObject*>(tex), "GFXD3D11TextureTarget::attachTexture - invalid texture object.");
-
-      GFXD3D11TextureObject *d3dto = static_cast<GFXD3D11TextureObject*>(tex);
+      AssertFatal(static_cast<GFXD3D11TextureObject*>(tex), "GFXD3D11TextureTarget::attachTexture - invalid texture object.");     
 
       // Grab the surface level.
       if( slot == DepthStencil )
       {       
-         mTargets[slot] = d3dto->getSurface();
+         mTargets[slot] = d3dtex->getSurface();
          if ( mTargets[slot] )
             mTargets[slot]->AddRef();
 
-         mTargetViews[slot] = d3dto->getDSView();
+         mTargetViews[slot] = d3dtex->getDSView();
          if( mTargetViews[slot])
             mTargetViews[slot]->AddRef();         
 
@@ -127,24 +127,24 @@ void GFXD3D11TextureTarget::attachTexture( RenderSlot slot, GFXTextureObject *te
          // getSurface will almost always return NULL. It will only return non-NULL
          // if the surface that it needs to render to is different than the mip level
          // in the actual texture. This will happen with MSAA.
-         if( d3dto->getSurface() == NULL )
+         if(d3dtex->getSurface() == NULL )
          {
             
-            mTargets[slot] = d3dto->get2DTex();
+            mTargets[slot] = d3dtex->getResource();
             mTargets[slot]->AddRef();
-            mTargetViews[slot] = d3dto->getRTView();
+            mTargetViews[slot] = d3dtex->getRTView();
             mTargetViews[slot]->AddRef();         
          } 
          else 
          {
-            mTargets[slot] = d3dto->getSurface();
+            mTargets[slot] = d3dtex->getSurface();
             mTargets[slot]->AddRef();
             mTargetViews[slot]->AddRef();
-            // Only assign resolve target if d3dto has a surface to give us.
+            // Only assign resolve target if d3dtex has a surface to give us.
             //
             // That usually means there is an MSAA target involved, which is why
             // the resolve is needed to get the data out of the target.
-            mResolveTargets[slot] = d3dto;
+            mResolveTargets[slot] = d3dtex;
 
             if ( tex && slot == Color0 )
             {
@@ -156,15 +156,30 @@ void GFXD3D11TextureTarget::attachTexture( RenderSlot slot, GFXTextureObject *te
 
       // Update surface size
       if(slot == Color0)
-      {
-         ID3D11Texture2D *surface = mTargets[Color0];
-         if ( surface )
+      {         
+         if (mTargets[Color0])
          {
-            D3D11_TEXTURE2D_DESC sd;
-            surface->GetDesc(&sd);
-            mTargetSize = Point2I(sd.Width, sd.Height);
+            const S32 width = tex->getSize().x;
+            const S32 height = tex->getSize().y;
+            const bool is1D = ((height == 1 || width == 1) && (height != width));
 
-            S32 format = sd.Format;
+            S32 format = 0;
+            if (is1D)
+            {
+               ID3D11Texture1D* surface = (ID3D11Texture1D*)mTargets[Color0];
+               D3D11_TEXTURE1D_DESC sd;
+               surface->GetDesc(&sd);
+               format = sd.Format;
+               mTargetSize = Point2I(sd.Width, 1);
+            }
+            else
+            {
+               ID3D11Texture2D* surface = (ID3D11Texture2D*)mTargets[Color0];
+               D3D11_TEXTURE2D_DESC sd;
+               surface->GetDesc(&sd);
+               format = sd.Format;
+               mTargetSize = Point2I(sd.Width, sd.Height);
+            }
 
             if (format == DXGI_FORMAT_R8G8B8A8_TYPELESS || format == DXGI_FORMAT_B8G8R8A8_TYPELESS)
             {
@@ -172,7 +187,7 @@ void GFXD3D11TextureTarget::attachTexture( RenderSlot slot, GFXTextureObject *te
                return;
             }
 
-            GFXREVERSE_LOOKUP( GFXD3D11TextureFormat, GFXFormat, format );
+            GFXREVERSE_LOOKUP(GFXD3D11TextureFormat, GFXFormat, format);
             mTargetFormat = (GFXFormat)format;
          }
       }
@@ -225,7 +240,7 @@ void GFXD3D11TextureTarget::attachTexture( RenderSlot slot, GFXCubemap *tex, U32
    // Update surface size
    if(slot == Color0)
    {
-      ID3D11Texture2D *surface = mTargets[Color0];
+      ID3D11Texture2D *surface = (ID3D11Texture2D*)mTargets[Color0];
       if ( surface )
       {
          D3D11_TEXTURE2D_DESC sd;
@@ -287,9 +302,7 @@ void GFXD3D11TextureTarget::resolve()
       // data from the rendertarget into the texture.
       if (mResolveTargets[i])
       {
-         D3D11_TEXTURE2D_DESC desc;
-         mTargets[i]->GetDesc(&desc);
-         D3D11DEVICECONTEXT->CopySubresourceRegion(mResolveTargets[i]->get2DTex(), 0, 0, 0, 0, mTargets[i], 0, NULL);
+         D3D11DEVICECONTEXT->CopySubresourceRegion(mResolveTargets[i]->getResource(), 0, 0, 0, 0, mTargets[i], 0, NULL);
       }
    }
 }
@@ -301,9 +314,7 @@ void GFXD3D11TextureTarget::resolveTo( GFXTextureObject *tex )
    if ( mTargets[Color0] == NULL )
       return;
 
-   D3D11_TEXTURE2D_DESC desc;
-   mTargets[Color0]->GetDesc(&desc);
-   D3D11DEVICECONTEXT->CopySubresourceRegion(((GFXD3D11TextureObject*)(tex))->get2DTex(), 0, 0, 0, 0, mTargets[Color0], 0, NULL);
+   D3D11DEVICECONTEXT->CopySubresourceRegion(((GFXD3D11TextureObject*)(tex))->getResource(), 0, 0, 0, 0, mTargets[Color0], 0, NULL);
       
 }
 
@@ -584,7 +595,7 @@ void GFXD3D11WindowTarget::resolveTo(GFXTextureObject *tex)
    GFXDEBUGEVENT_SCOPE(GFXPCD3D11WindowTarget_resolveTo, ColorI::RED);
 
    D3D11_TEXTURE2D_DESC desc;
-   ID3D11Texture2D* surf = ((GFXD3D11TextureObject*)(tex))->get2DTex();
+   ID3D11Texture2D* surf = (ID3D11Texture2D*)((GFXD3D11TextureObject*)(tex))->getResource();
    surf->GetDesc(&desc);
    D3D11DEVICECONTEXT->ResolveSubresource(surf, 0, mBackBuffer, 0, desc.Format);
 }

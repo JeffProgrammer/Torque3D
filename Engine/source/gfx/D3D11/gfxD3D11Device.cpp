@@ -789,7 +789,7 @@ void GFXD3D11Device::copyResource(GFXTextureObject *pDst, GFXCubemap *pSrc, cons
    {
       const U32 srcSubResource = D3D11CalcSubresource(mip, face, mipLevels);
       const U32 dstSubResource = D3D11CalcSubresource(mip, 0, mipLevels);
-      mD3DDeviceContext->CopySubresourceRegion(pD3DDst->get2DTex(), dstSubResource, 0, 0, 0, pD3DSrc->get2DTex(), srcSubResource, NULL);
+      mD3DDeviceContext->CopySubresourceRegion(pD3DDst->getResource(), dstSubResource, 0, 0, 0, pD3DSrc->get2DTex(), srcSubResource, NULL);
    }
 }
 

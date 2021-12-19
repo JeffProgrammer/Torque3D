@@ -24,8 +24,7 @@
 #define TORQUE_SHADERMODEL_H
 
 // Sampler uniforms
-//1D is emulated to a 2D for now
-#define TORQUE_UNIFORM_SAMPLER1D(tex,regist) uniform Texture2D tex : register(t##regist); uniform SamplerState sampler_##tex : register(s##regist)
+#define TORQUE_UNIFORM_SAMPLER1D(tex,regist) uniform Texture1D tex : register(t##regist); uniform SamplerState sampler_##tex : register(s##regist)
 #define TORQUE_UNIFORM_SAMPLER2D(tex,regist) uniform Texture2D tex : register(t##regist); uniform SamplerState sampler_##tex : register(s##regist)
 #define TORQUE_UNIFORM_SAMPLER2DCMP(tex,regist) uniform Texture2D tex : register(t##regist); uniform SamplerComparisonState sampler_##tex : register(s##regist)
 #define TORQUE_UNIFORM_SAMPLER3D(tex,regist) uniform Texture3D tex : register(t##regist); uniform SamplerState sampler_##tex : register(s##regist)
@@ -48,6 +47,9 @@
 #define TORQUE_TEX2DGATHER(tex,coords,compare,offset) tex.GatherCmp(sampler_##tex,coords,compare,offset)
 
 //helper if you want to pass sampler/texture in a function
+//1D
+#define TORQUE_SAMPLER1D(tex) Texture1D tex, SamplerState sampler_##tex
+#define TORQUE_SAMPLER1D_MAKEARG(tex) tex, sampler_##tex
 //2D
 #define TORQUE_SAMPLER2D(tex) Texture2D tex, SamplerState sampler_##tex
 #define TORQUE_SAMPLER2DARRAY(tex) Texture2DArray tex, SamplerState sampler_##tex

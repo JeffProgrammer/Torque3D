@@ -116,7 +116,7 @@ void GFXD3D11Cubemap::initStatic(GFXTexHandle *faces)
       for (U32 currentMip = 0; currentMip < mMipMapLevels; currentMip++)
       {
          U32 subResource = D3D11CalcSubresource(currentMip, i, mMipMapLevels);
-         D3D11DEVICECONTEXT->CopySubresourceRegion(mTexture, subResource, 0, 0, 0, texObj->get2DTex(), currentMip, NULL);
+         D3D11DEVICECONTEXT->CopySubresourceRegion(mTexture, subResource, 0, 0, 0, texObj->getResource(), currentMip, NULL);
       }
    }
    
