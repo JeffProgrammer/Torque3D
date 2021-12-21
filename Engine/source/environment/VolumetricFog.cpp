@@ -518,7 +518,7 @@ bool VolumetricFog::UpdateBuffers(U32 dl, bool force)
    if (mIsPBDirty || mPB.isNull() || dl != mCurDetailLevel || force)
    {
       #ifdef TORQUE_DEBUG
-      mPB.set(GFX, det_size[dl].indices->size(), det_size[dl].piArray->size(), GFXBufferTypeDynamic, avar("%s() - VolFogPrimBuffer (line %d)", __FUNCTION__, __LINE__));
+      mPB.set(GFX, det_size[dl].indices->size(), det_size[dl].piArray->size(), GFXBufferTypeDynamic, NULL, avar("%s() - VolFogPrimBuffer (line %d)", __FUNCTION__, __LINE__));
       #else
       mPB.set(GFX, det_size[dl].indices->size(), det_size[dl].piArray->size(), GFXBufferTypeDynamic);
       #endif

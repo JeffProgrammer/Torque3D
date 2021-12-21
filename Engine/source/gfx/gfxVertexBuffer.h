@@ -103,7 +103,8 @@ protected:
                U32 numVerts, 
                const GFXVertexFormat *vertexFormat, 
                U32 vertexSize,
-               GFXBufferType type );
+               GFXBufferType type,
+               void* pInitialData = NULL);
 
    void* lock(U32 vertexStart, U32 vertexEnd)
    {
@@ -138,18 +139,20 @@ public:
 
    GFXVertexBufferHandle(  GFXDevice *theDevice, 
                            U32 numVerts, 
-                           GFXBufferType type = GFXBufferTypeVolatile )
+                           GFXBufferType type = GFXBufferTypeVolatile,
+                           T* pInitialData = NULL)
    {
-      set( theDevice, numVerts, type );
+      set( theDevice, numVerts, type, pInitialData );
    }
 
    ~GFXVertexBufferHandle() {}
 
    void set(   GFXDevice *theDevice, 
                U32 numVerts,
-               GFXBufferType type = GFXBufferTypeVolatile )
+               GFXBufferType type = GFXBufferTypeVolatile,
+               T* pInitialData = NULL)
    {
-      Parent::set( theDevice, numVerts, getGFXVertexFormat<T>(), sizeof(T), type );
+      Parent::set( theDevice, numVerts, getGFXVertexFormat<T>(), sizeof(T), type, pInitialData );
    }
 
    T *lock(U32 vertexStart = 0, U32 vertexEnd = 0) ///< locks the vertex buffer range, and returns a pointer to the beginning of the vertex array
@@ -225,9 +228,10 @@ public:
                U32 vertSize, 
                const GFXVertexFormat *vertexFormat, 
                U32 numVerts, 
-               GFXBufferType type )
+               GFXBufferType type,
+               void* pInitialData = NULL)
    {
-      Parent::set( theDevice, numVerts, vertexFormat, vertSize, type );
+      Parent::set( theDevice, numVerts, vertexFormat, vertSize, type, pInitialData);
    }
 
    U8* lock( U32 vertexStart = 0, U32 vertexEnd = 0 )

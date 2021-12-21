@@ -31,9 +31,10 @@ void GFXVertexBufferHandleBase::set(   GFXDevice *theDevice,
                                        U32 numVerts, 
                                        const GFXVertexFormat *vertexFormat,
                                        U32 vertexSize, 
-                                       GFXBufferType type )
+                                       GFXBufferType type,
+                                       void* pInitialData)
 {
-   StrongRefPtr<GFXVertexBuffer>::operator=( theDevice->allocVertexBuffer( numVerts, vertexFormat, vertexSize, type ) );
+   StrongRefPtr<GFXVertexBuffer>::operator=( theDevice->allocVertexBuffer( numVerts, vertexFormat, vertexSize, type, pInitialData ) );
 }
 
 const String GFXVertexBuffer::describeSelf() const

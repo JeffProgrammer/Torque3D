@@ -39,7 +39,6 @@ void GFXD3D11PrimitiveBuffer::lock(U32 indexStart, U32 indexEnd, void **indexPtr
 
 	switch(mBufferType)
 	{
-   case GFXBufferTypeImmutable:
 	case GFXBufferTypeStatic:
 	case GFXBufferTypeDynamic:
 		flags = D3D11_MAP_WRITE_DISCARD;
@@ -79,7 +78,7 @@ void GFXD3D11PrimitiveBuffer::lock(U32 indexStart, U32 indexEnd, void **indexPtr
 	mIndexStart = indexStart;
    mIndexEnd = indexEnd;
 	
-   if (mBufferType == GFXBufferTypeStatic || mBufferType == GFXBufferTypeImmutable)
+   if (mBufferType == GFXBufferTypeStatic)
    {
       U32 sizeToLock = (indexEnd - indexStart) * sizeof(U16);
 		*indexPtr = new U8[sizeToLock];
@@ -147,7 +146,7 @@ void GFXD3D11PrimitiveBuffer::unlock()
     
    const U32 totalSize = this->mIndexCount * sizeof(U16);
 	  
-   if (mBufferType == GFXBufferTypeStatic || mBufferType == GFXBufferTypeImmutable)
+   if (mBufferType == GFXBufferTypeStatic)
    {
       //set up the update region of the buffer
       D3D11_BOX box;
@@ -183,7 +182,7 @@ GFXD3D11PrimitiveBuffer::~GFXD3D11PrimitiveBuffer()
 
 void GFXD3D11PrimitiveBuffer::zombify()
 {
-   if (mBufferType == GFXBufferTypeStatic || mBufferType == GFXBufferTypeImmutable)
+   if (mBufferType == GFXBufferTypeStatic)
       return;
             
    AssertFatal(!mLocked, "GFXD3D11PrimitiveBuffer::zombify - Cannot zombify a locked buffer!");

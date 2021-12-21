@@ -45,7 +45,6 @@ void GFXGLEnumTranslate::init()
    GFXGLBufferType[GFXBufferTypeStatic] = GL_STATIC_DRAW;
    GFXGLBufferType[GFXBufferTypeDynamic] = GL_DYNAMIC_DRAW;
    GFXGLBufferType[GFXBufferTypeVolatile] = GL_STREAM_DRAW;
-   GFXGLBufferType[GFXBufferTypeImmutable] = GL_STATIC_DRAW;
 
    // Primitives
    GFXGLPrimType[GFXPointList] = GL_POINTS;

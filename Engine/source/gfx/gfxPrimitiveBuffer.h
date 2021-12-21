@@ -133,19 +133,17 @@ class GFXPrimitiveBufferHandle : public StrongRefPtr<GFXPrimitiveBuffer>
    typedef StrongRefPtr<GFXPrimitiveBuffer> Parent;
 public:
    enum Constants {
-      MaxIndexCount = 65535,
+      MaxIndexCount = U16_MAX,
    };
    GFXPrimitiveBufferHandle() {};
 
-   GFXPrimitiveBufferHandle(GFXDevice *theDevice, U32 indexCount, U32 primitiveCount, GFXBufferType bufferType, String desc = String::EmptyString )
+   GFXPrimitiveBufferHandle(GFXDevice *theDevice, U32 indexCount, U32 primitiveCount, GFXBufferType bufferType, void* pInitialData = NULL, String desc = String::EmptyString )
    {
-      set(theDevice, indexCount, primitiveCount, bufferType, desc);
+      set(theDevice, indexCount, primitiveCount, bufferType, pInitialData, desc);
    }
 
-   void set(GFXDevice *theDevice, U32 indexCount, U32 primitiveCount, GFXBufferType bufferType, String desc = String::EmptyString );
+   void set(GFXDevice *theDevice, U32 indexCount, U32 primitiveCount, GFXBufferType bufferType, void* pInitialData = NULL, String desc = String::EmptyString );
    
-   void immutable(GFXDevice *theDevice, U32 indexCount, U32 primitiveCount, void* data, String desc = String::EmptyString );
-
    void lock(U16 **indexBuffer, GFXPrimitive **primitiveBuffer = NULL, U32 indexStart = 0, U32 indexEnd = 0)
    {
       if(indexEnd == 0)

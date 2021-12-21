@@ -341,7 +341,7 @@ void RenderParticleMgr::_initGFXResources()
    U16 prims [] = {
       0, 1, 2, 3,
    };
-   mScreenQuadPrimBuff.immutable(GFX, 4, 2, prims);
+   mScreenQuadPrimBuff.set(GFX, 4, 2, GFXBufferTypeStatic, prims);
 
    mScreenQuadVertBuff.set(GFX, 4, GFXBufferTypeStatic);
    CompositeQuadVert *verts = mScreenQuadVertBuff.lock();

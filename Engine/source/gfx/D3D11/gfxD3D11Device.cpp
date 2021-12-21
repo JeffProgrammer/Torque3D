@@ -1255,14 +1255,11 @@ GFXPrimitiveBuffer * GFXD3D11Device::allocPrimitiveBuffer(U32 numIndices, U32 nu
    //    - dynamic buffers are write many, use many
    //    - volatile buffers are write once, use once
    // You may never read from a buffer.
-   //TODO: enable proper support for D3D11_USAGE_IMMUTABLE
    switch(bufferType)
    {
-   case GFXBufferTypeImmutable:
    case GFXBufferTypeStatic:
-      usage = D3D11_USAGE_DEFAULT; //D3D11_USAGE_IMMUTABLE;
+      usage = D3D11_USAGE_DEFAULT;
       break;
-
    case GFXBufferTypeDynamic:
    case GFXBufferTypeVolatile:
      usage = D3D11_USAGE_DYNAMIC;
@@ -1334,14 +1331,11 @@ GFXVertexBuffer * GFXD3D11Device::allocVertexBuffer(U32 numVerts, const GFXVerte
    //    - dynamic buffers are write many, use many
    //    - volatile buffers are write once, use once
    // You may never read from a buffer.
-   //TODO: enable proper support for D3D11_USAGE_IMMUTABLE
    switch(bufferType)
    {
-   case GFXBufferTypeImmutable:
    case GFXBufferTypeStatic:
       usage = D3D11_USAGE_DEFAULT;
       break;
-
    case GFXBufferTypeDynamic:
    case GFXBufferTypeVolatile:
      usage = D3D11_USAGE_DYNAMIC;

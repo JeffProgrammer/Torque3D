@@ -71,22 +71,9 @@ const String GFXPrimitiveBuffer::describeSelf() const
 //-----------------------------------------------------------------------------
 // Set
 //-----------------------------------------------------------------------------
-void GFXPrimitiveBufferHandle::set(GFXDevice *theDevice, U32 indexCount, U32 primitiveCount, GFXBufferType bufferType, String desc)
+void GFXPrimitiveBufferHandle::set(GFXDevice *theDevice, U32 indexCount, U32 primitiveCount, GFXBufferType bufferType, void* pInitialData, String desc)
 {
-   StrongRefPtr<GFXPrimitiveBuffer>::operator=( theDevice->allocPrimitiveBuffer(indexCount, primitiveCount, bufferType) );
-
-#ifdef TORQUE_DEBUG
-   if( desc.isNotEmpty() )
-      getPointer()->mDebugCreationPath = desc;
-#endif
-}
-
-//-----------------------------------------------------------------------------
-// immutable
-//-----------------------------------------------------------------------------
-void GFXPrimitiveBufferHandle::immutable(GFXDevice *theDevice, U32 indexCount, U32 primitiveCount, void* data, String desc)
-{
-   StrongRefPtr<GFXPrimitiveBuffer>::operator=( theDevice->allocPrimitiveBuffer(indexCount, primitiveCount, GFXBufferTypeImmutable, data) );
+   StrongRefPtr<GFXPrimitiveBuffer>::operator=( theDevice->allocPrimitiveBuffer(indexCount, primitiveCount, bufferType, pInitialData) );
 
 #ifdef TORQUE_DEBUG
    if( desc.isNotEmpty() )
