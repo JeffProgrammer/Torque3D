@@ -92,97 +92,53 @@ void GFXD3D11VertexBuffer::lock(U32 vertexStart, U32 vertexEnd, void **vertexPtr
    // uncomment it for debugging purpose. called many times per frame... spammy! 
    //Con::printf("%x: Locking %s range (%d, %d)", this, (mBufferType == GFXBufferTypeVolatile ? "volatile" : "static"), lockedVertexStart, lockedVertexEnd);
 
-   U32 sizeToLock = (vertexEnd - vertexStart) * mVertexSize;
    if(mBufferType == GFXBufferTypeStatic)
-   {	   
-	   *vertexPtr = new U8[sizeToLock];
-	   mLockedBuffer = *vertexPtr;
+   {
+      U32 sizeToLock = (vertexEnd - vertexStart) * mVertexSize;
+      mFrameAllocator.lock(sizeToLock);
+      lockedVertexPtr = (void*)mFrameAllocator.getlockedPtr();
+      *vertexPtr = lockedVertexPtr;
    }
    else
    {
-		D3D11_MAPPED_SUBRESOURCE pVertexData;
-		ZeroMemory(&pVertexData, sizeof(D3D11_MAPPED_SUBRESOURCE));
+      D3D11_MAPPED_SUBRESOURCE pVertexData;
+      ZeroMemory(&pVertexData, sizeof(D3D11_MAPPED_SUBRESOURCE));
 
-		HRESULT hr = D3D11DEVICECONTEXT->Map(vb, 0, flags, 0, &pVertexData);
+      HRESULT hr = D3D11DEVICECONTEXT->Map(vb, 0, flags, 0, &pVertexData);
 
-		if(FAILED(hr)) 
-		{
-			AssertFatal(false, "Unable to lock vertex buffer.");
-		}
+      if(FAILED(hr)) 
+      {
+	      AssertFatal(false, "Unable to lock vertex buffer.");
+      }
 
-		*vertexPtr = (U8*)pVertexData.pData + (vertexStart * mVertexSize);
+      *vertexPtr = (U8*)pVertexData.pData + (vertexStart * mVertexSize);
    }
-   
-  
-
-   #ifdef TORQUE_DEBUG
-   
-      // Allocate a debug buffer large enough for the lock
-      // plus space for over and under run guard strings.
-      const U32 guardSize = sizeof( _VBGuardString );
-      mDebugGuardBuffer = new U8[sizeToLock+(guardSize*2)];
-
-      // Setup the guard strings.
-      dMemcpy( mDebugGuardBuffer, _VBGuardString, guardSize ); 
-      dMemcpy( mDebugGuardBuffer + sizeToLock + guardSize, _VBGuardString, guardSize ); 
-
-      // Store the real lock pointer and return our debug pointer.
-      mLockedBuffer = *vertexPtr;
-      *vertexPtr = mDebugGuardBuffer + guardSize;
-
-   #endif // TORQUE_DEBUG
 }
 
 void GFXD3D11VertexBuffer::unlock()
 {
    PROFILE_SCOPE(GFXD3D11VertexBuffer_unlock);
    
-   #ifdef TORQUE_DEBUG
-   
-      if ( mDebugGuardBuffer )
-      {
-         const U32 guardSize = sizeof( _VBGuardString );
-		   const U32 sizeLocked = (lockedVertexEnd - lockedVertexStart) * mVertexSize;
-
-		   // First check the guard areas for overwrites.
-		   AssertFatal(dMemcmp( mDebugGuardBuffer, _VBGuardString, guardSize) == 0,
-		   "GFXD3D11VertexBuffer::unlock - Caught lock memory underrun!" );
-		   AssertFatal(dMemcmp( mDebugGuardBuffer + sizeLocked + guardSize, _VBGuardString, guardSize) == 0,
-		   "GFXD3D11VertexBuffer::unlock - Caught lock memory overrun!" );
-                        
-		   // Copy the debug content down to the real VB.
-		   dMemcpy(mLockedBuffer, mDebugGuardBuffer + guardSize, sizeLocked);
-
-		   // Cleanup.
-		   delete [] mDebugGuardBuffer;
-		   mDebugGuardBuffer = NULL;
-		   //mLockedBuffer = NULL;
-      }
-
-   #endif // TORQUE_DEBUG
-
    if(mBufferType == GFXBufferTypeStatic)
    {
-		const U32 sizeLocked = (lockedVertexEnd - lockedVertexStart) * mVertexSize;
-		//set up the update region of the buffer
-		D3D11_BOX box;
-		box.back  = 1;
-		box.front = 0;
-		box.top = 0;
-		box.bottom = 1;
-		box.left = lockedVertexStart * mVertexSize;
-		box.right = lockedVertexEnd * mVertexSize;
-		//update the real vb buffer
-		D3D11DEVICECONTEXT->UpdateSubresource(vb, 0, &box,mLockedBuffer,sizeLocked, 0);
-		//clean up the old buffer
-		delete[] mLockedBuffer;
-		mLockedBuffer = NULL;
+      const U32 sizeLocked = (lockedVertexEnd - lockedVertexStart) * mVertexSize;
+      //set up the update region of the buffer
+      D3D11_BOX box;
+      box.back  = 1;
+      box.front = 0;
+      box.top = 0;
+      box.bottom = 1;
+      box.left = lockedVertexStart * mVertexSize;
+      box.right = lockedVertexEnd * mVertexSize;
+      //update the real vb buffer
+      D3D11DEVICECONTEXT->UpdateSubresource(vb, 0, &box, mFrameAllocator.getlockedPtr(), sizeLocked, 0);
+
+      mFrameAllocator.unlock();
    }
    else
    {	 
       D3D11DEVICECONTEXT->Unmap(vb,0);
-   }
-   
+   }   
 
    mIsFirstLock = false;
 
@@ -190,6 +146,7 @@ void GFXD3D11VertexBuffer::unlock()
    //Con::printf("%x: Unlocking %s range (%d, %d)", this, (mBufferType == GFXBufferTypeVolatile ? "volatile" : "static"), lockedVertexStart, lockedVertexEnd);
 
    lockedVertexEnd = lockedVertexStart = 0;
+   lockedVertexPtr = NULL;
 
    if(mVolatileBuffer.isValid())
    {
@@ -214,19 +171,19 @@ void GFXD3D11VertexBuffer::resurrect()
    // Static buffers are managed by D3D11 so we don't deal with them.
    if(mBufferType == GFXBufferTypeDynamic)
    {
-		D3D11_BUFFER_DESC desc;
-		desc.ByteWidth = mVertexSize * mNumVerts;
-		desc.Usage = D3D11_USAGE_DYNAMIC;
-		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		desc.MiscFlags = 0;
-		desc.StructureByteStride = 0;
+      D3D11_BUFFER_DESC desc;
+      desc.ByteWidth = mVertexSize * mNumVerts;
+      desc.Usage = D3D11_USAGE_DYNAMIC;
+      desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+      desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+      desc.MiscFlags = 0;
+      desc.StructureByteStride = 0;
 
-		HRESULT hr = D3D11DEVICE->CreateBuffer(&desc, NULL, &vb);
+      HRESULT hr = D3D11DEVICE->CreateBuffer(&desc, NULL, &vb);
 
       if(FAILED(hr)) 
       {
-		   AssertFatal(false, "GFXD3D11VertexBuffer::resurrect - Failed to allocate VB");
+         AssertFatal(false, "GFXD3D11VertexBuffer::resurrect - Failed to allocate VB");
       }
    }
 }

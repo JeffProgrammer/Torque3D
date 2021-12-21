@@ -24,6 +24,7 @@
 #define _GFXD3D11PRIMITIVEBUFFER_H_
 
 #include "gfx/gfxPrimitiveBuffer.h"
+#include "gfx/util/gfxFrameAllocator.h"
 
 class GFXD3D11PrimitiveBuffer : public GFXPrimitiveBuffer
 {
@@ -34,13 +35,6 @@ public:
    U32 mIndexStart;
    U32 mIndexEnd;
 
-#ifdef TORQUE_DEBUG
-   #define _PBGuardString "GFX_PRIMTIVE_BUFFER_GUARD_STRING"
-   U8 *mDebugGuardBuffer;   
-   U32 mLockedSize;
-#endif TORQUE_DEBUG
-
-   void *mLockedBuffer;
    bool mLocked;
    bool mIsFirstLock;
 
@@ -59,6 +53,9 @@ public:
    // GFXResource interface
    virtual void zombify();
    virtual void resurrect();
+
+private:
+   GFXFrameAllocator mFrameAllocator;
 };
 
 inline GFXD3D11PrimitiveBuffer::GFXD3D11PrimitiveBuffer(   GFXDevice *device, 
@@ -71,13 +68,8 @@ inline GFXD3D11PrimitiveBuffer::GFXD3D11PrimitiveBuffer(   GFXDevice *device,
    ib             = NULL;
    mIsFirstLock   = true;
    mLocked = false;
-#ifdef TORQUE_DEBUG
-   mDebugGuardBuffer = NULL;
-   mLockedSize = 0;
-#endif
    mIndexStart = 0;
    mIndexEnd = 0;
-   mLockedBuffer = NULL;
 }
 
 #endif

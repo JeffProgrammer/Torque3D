@@ -27,7 +27,7 @@
 #include "gfx/gfxVertexBuffer.h"
 #endif
 #include "gfx/gl/tGL/tGL.h"
-#include "gfx/gl/util/glFrameAllocatorLockableHelper.h"
+#include "gfx/util/gfxFrameAllocator.h"
 
 /// This is a vertex buffer which uses GL_ARB_vertex_buffer_object.
 class GFXGLVertexBuffer : public GFXVertexBuffer 
@@ -67,7 +67,7 @@ private:
 	U32 mBufferVertexOffset;
    U8* mZombieCache;
 
-   FrameAllocatorLockableHelper mFrameAllocator;
+   GFXFrameAllocator mFrameAllocator;
 };
 
 #endif

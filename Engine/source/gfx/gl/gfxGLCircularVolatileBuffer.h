@@ -283,7 +283,7 @@ protected:
    U32 mCurrectUsedRangeStart;
 
    GLOrderedFenceRangeManager mLockManager;
-   FrameAllocatorLockableHelper mFrameAllocator;
+   GFXFrameAllocator mFrameAllocator;
 
    struct UsedRange
    {

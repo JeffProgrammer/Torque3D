@@ -24,7 +24,7 @@
 #define _GFXGLPRIMITIVEBUFFER_H_
 
 #include "gfx/gfxPrimitiveBuffer.h"
-#include "gfx/gl/util/glFrameAllocatorLockableHelper.h"
+#include "gfx/util/gfxFrameAllocator.h"
 
 /// This is a primitive buffer (index buffer to GL users) which uses VBOs.
 class GFXGLPrimitiveBuffer : public GFXPrimitiveBuffer
@@ -52,7 +52,7 @@ private:
 
    U32 lockedIndexEnd, lockedIndexStart;
 
-   FrameAllocatorLockableHelper mFrameAllocator;
+   GFXFrameAllocator mFrameAllocator;
 };
 
 #endif

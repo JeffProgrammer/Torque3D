@@ -24,6 +24,7 @@
 #define _GFXD3D_VERTEXBUFFER_H_
 
 #include "gfx/D3D11/gfxD3D11Device.h"
+#include "gfx/util/gfxFrameAllocator.h"
 #include "core/util/safeDelete.h"
 
 class GFXD3D11VertexBuffer : public GFXVertexBuffer
@@ -31,13 +32,6 @@ class GFXD3D11VertexBuffer : public GFXVertexBuffer
 public:
    ID3D11Buffer *vb;
    StrongRefPtr<GFXD3D11VertexBuffer> mVolatileBuffer;
-   void *mLockedBuffer;
-#ifdef TORQUE_DEBUG
-   #define _VBGuardString "GFX_VERTEX_BUFFER_GUARD_STRING"
-   U8 *mDebugGuardBuffer;
-   
-#endif TORQUE_DEBUG
-
    bool mIsFirstLock;
    bool mClearAtFrameEnd;
 
@@ -56,6 +50,9 @@ public:
    // GFXResource interface
    virtual void zombify();
    virtual void resurrect();
+
+private:
+   GFXFrameAllocator mFrameAllocator;
 };
 
 //-----------------------------------------------------------------------------
@@ -68,11 +65,6 @@ inline GFXD3D11VertexBuffer::GFXD3D11VertexBuffer() : GFXVertexBuffer(0,0,0,0,(G
    mIsFirstLock = true;
    lockedVertexEnd = lockedVertexStart = 0;
    mClearAtFrameEnd = false;
-   mLockedBuffer = NULL;
-
-#ifdef TORQUE_DEBUG
-   mDebugGuardBuffer = NULL;
-#endif
 }
 
 inline GFXD3D11VertexBuffer::GFXD3D11VertexBuffer(   GFXDevice *device, 
@@ -86,10 +78,6 @@ inline GFXD3D11VertexBuffer::GFXD3D11VertexBuffer(   GFXDevice *device,
    mIsFirstLock = true;
    mClearAtFrameEnd = false;
    lockedVertexEnd = lockedVertexStart = 0;
-   mLockedBuffer = NULL;
-#ifdef TORQUE_DEBUG
-   mDebugGuardBuffer = NULL;   
-#endif
 }
 
 #endif // _GFXD3D_VERTEXBUFFER_H_
