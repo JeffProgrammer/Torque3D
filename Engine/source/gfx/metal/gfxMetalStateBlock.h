@@ -23,7 +23,6 @@
 #ifndef _GFXMETALSTATEBLOCK_H_
 #define _GFXMETALSTATEBLOCK_H_
 
-#include "gfx/Metal/gfxMetalDevice.h"
 #include "gfx/gfxStateBlock.h"
 
 namespace DictHash

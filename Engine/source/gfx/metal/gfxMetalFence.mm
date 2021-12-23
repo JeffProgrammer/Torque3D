@@ -20,12 +20,12 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "gfx/Metal/gfxMetalDevice.h"
-#include "gfx/Metal/gfxMetalFence.h"
+#include "gfx/metal/gfxMetalDevice.h"
+#include "gfx/metal/gfxMetalFence.h"
 
 GFXMetalFence::~GFXMetalFence()
 {
-   SAFE_RELEASE(mQuery);
+
 }
 
 void GFXMetalFence::issue()

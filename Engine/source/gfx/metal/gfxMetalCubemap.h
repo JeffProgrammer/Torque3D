@@ -48,7 +48,7 @@ public:
    virtual void zombify();
    virtual void resurrect();
 
-   virtual bool isInitialized() { return mTexture ? true : false; }
+   virtual bool isInitialized() { false; }
 private:
    friend class GFXMetalTextureTarget;
    friend class GFXMetalDevice;

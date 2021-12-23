@@ -23,6 +23,8 @@
 #ifndef _GFXMETALVERTEXDECL_
 #define _GFXMETALVERTEXDECL_
 
+#include "gfx/gfxVertexFormat.h"
+
 class GFXMetalVertexDecl : public GFXVertexDecl
 {
 public:

@@ -34,6 +34,9 @@ protected:
    GFXTexHandle mStagingTex;
    bool mLocked;
    bool mAutoGenMips;
+   
+   GFXLockedRect mLockBox;
+   GFXLockedRect mLockRect;
 
    U32 mLockedSubresource;
 public:

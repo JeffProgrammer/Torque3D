@@ -203,8 +203,8 @@ GFXMetalShaderConstBuffer::GFXMetalShaderConstBuffer( GFXMetalShader* shader,
    // this virtual method during activation.
    mShader = shader;
 
-   mConstantBufferV = NULL;
-   mConstantBufferP = NULL;
+   //mConstantBufferV = NULL;
+   //mConstantBufferP = NULL;
 
    //Mandatory
    mVertexConstBufferLayout = vertexLayout;
@@ -219,8 +219,8 @@ GFXMetalShaderConstBuffer::GFXMetalShaderConstBuffer( GFXMetalShader* shader,
 GFXMetalShaderConstBuffer::~GFXMetalShaderConstBuffer()
 {   
    // release constant buffers
-   SAFE_RELEASE(mConstantBufferP);
-   SAFE_RELEASE(mConstantBufferV);
+   //SAFE_RELEASE(mConstantBufferP);
+   //SAFE_RELEASE(mConstantBufferV);
    SAFE_DELETE(mVertexConstBuffer);
    SAFE_DELETE(mPixelConstBuffer);
 
@@ -486,8 +486,8 @@ void GFXMetalShaderConstBuffer::onShaderReload( GFXMetalShader *shader )
 {
    AssertFatal( shader == mShader, "GFXMetalShaderConstBuffer::onShaderReload is hosed!" );
 
-   SAFE_RELEASE(mConstantBufferP);
-   SAFE_RELEASE(mConstantBufferV);
+   //SAFE_RELEASE(mConstantBufferP);
+   //SAFE_RELEASE(mConstantBufferV);
 
    SAFE_DELETE( mVertexConstBuffer );
    SAFE_DELETE( mPixelConstBuffer );
@@ -551,12 +551,12 @@ bool GFXMetalShader::_init()
    // memset(&d3dMacros[macroCount - 1], 0, sizeof(D3D_SHADER_MACRO));
 
    if ( !mVertexConstBufferLayout )
-      mVertexConstBufferLayout = new GFXD3D11ConstBufferLayout();
+      mVertexConstBufferLayout = new GFXMetalConstBufferLayout();
    else
       mVertexConstBufferLayout->clear();
 
    if ( !mPixelConstBufferLayout )
-      mPixelConstBufferLayout = new GFXD3D11ConstBufferLayout();
+      mPixelConstBufferLayout = new GFXMetalConstBufferLayout();
    else
       mPixelConstBufferLayout->clear(); 
 
@@ -564,15 +564,15 @@ bool GFXMetalShader::_init()
    mSamplerDescriptions.clear();
    mShaderConsts.clear();
 
-   String vertTarget = D3D11->getVertexShaderTarget();
-   String pixTarget = D3D11->getPixelShaderTarget();
+   String vertTarget;// = D3D11->getVertexShaderTarget();
+   String pixTarget;// = D3D11->getPixelShaderTarget();
 
 
-   if (!mVertexFile.isEmpty() && !_compileShader( mVertexFile, vertTarget, d3dMacros, mVertexConstBufferLayout, mSamplerDescriptions ) )
-      return false;
-
-   if (!mPixelFile.isEmpty() && !_compileShader( mPixelFile, pixTarget, d3dMacros, mPixelConstBufferLayout, mSamplerDescriptions ) )
-      return false;
+//   if (!mVertexFile.isEmpty() && !_compileShader( mVertexFile, vertTarget, d3dMacros, mVertexConstBufferLayout, mSamplerDescriptions ) )
+//      return false;
+//
+//   if (!mPixelFile.isEmpty() && !_compileShader( mPixelFile, pixTarget, d3dMacros, mPixelConstBufferLayout, mSamplerDescriptions ) )
+//      return false;
 
    // Existing handles are resored to an uninitialized state.
    // Those that are found when parsing the layout parameters
@@ -606,93 +606,93 @@ bool GFXMetalShader::_compileShader( const Torque::Path &filePath,
    return true;
 }
 
-bool GFXMetalShader::_convertShaderVariable(const D3D11_SHADER_TYPE_DESC &typeDesc, GFXShaderConstDesc &desc)
-{
-   switch (typeDesc.Type)
-   {
-   case D3D_SVT_INT:
-   {
-      switch (typeDesc.Class)
-      {
-      case D3D_SVC_SCALAR:
-         desc.constType = GFXSCT_Int;
-         break;
-      case D3D_SVC_VECTOR:
-      {
-         switch (typeDesc.Columns)
-         {
-         case 1:
-            desc.constType = GFXSCT_Int;
-            break;
-         case 2:
-            desc.constType = GFXSCT_Int2;
-            break;
-         case 3:
-            desc.constType = GFXSCT_Int3;
-            break;
-         case 4:
-            desc.constType = GFXSCT_Int4;
-            break;
-         }
-      }
-      break;
-      }
-      break;
-   }   
-   case D3D_SVT_FLOAT:
-   {
-      switch (typeDesc.Class)
-      {
-      case D3D_SVC_SCALAR:
-         desc.constType = GFXSCT_Float;
-         break;
-      case D3D_SVC_VECTOR:
-      {
-         switch (typeDesc.Columns)
-         {
-         case 1:
-            desc.constType = GFXSCT_Float;
-            break;
-         case 2:
-            desc.constType = GFXSCT_Float2;
-            break;
-         case 3:
-            desc.constType = GFXSCT_Float3;
-            break;
-         case 4:
-            desc.constType = GFXSCT_Float4;
-            break;
-         }
-      }
-      break;
-      case D3D_SVC_MATRIX_ROWS:
-      case D3D_SVC_MATRIX_COLUMNS:
-      {
-         switch (typeDesc.Rows)
-         {
-         case 3:
-            desc.constType = typeDesc.Columns == 4 ? GFXSCT_Float3x4 : GFXSCT_Float3x3;
-            break;
-         case 4:
-            desc.constType = typeDesc.Columns == 3 ? GFXSCT_Float4x3 : GFXSCT_Float4x4;
-            break;
-         }
-      }
-      break;
-      case D3D_SVC_OBJECT:
-      case D3D_SVC_STRUCT:
-         return false;
-      }
-   }
-   break;
-
-   default:
-      AssertFatal(false, "Unknown shader constant class enum");
-      break;
-   }
-
-   return true;
-}
+//bool GFXMetalShader::_convertShaderVariable(const D3D11_SHADER_TYPE_DESC &typeDesc, GFXShaderConstDesc &desc)
+//{
+//   switch (typeDesc.Type)
+//   {
+//   case D3D_SVT_INT:
+//   {
+//      switch (typeDesc.Class)
+//      {
+//      case D3D_SVC_SCALAR:
+//         desc.constType = GFXSCT_Int;
+//         break;
+//      case D3D_SVC_VECTOR:
+//      {
+//         switch (typeDesc.Columns)
+//         {
+//         case 1:
+//            desc.constType = GFXSCT_Int;
+//            break;
+//         case 2:
+//            desc.constType = GFXSCT_Int2;
+//            break;
+//         case 3:
+//            desc.constType = GFXSCT_Int3;
+//            break;
+//         case 4:
+//            desc.constType = GFXSCT_Int4;
+//            break;
+//         }
+//      }
+//      break;
+//      }
+//      break;
+//   }
+//   case D3D_SVT_FLOAT:
+//   {
+//      switch (typeDesc.Class)
+//      {
+//      case D3D_SVC_SCALAR:
+//         desc.constType = GFXSCT_Float;
+//         break;
+//      case D3D_SVC_VECTOR:
+//      {
+//         switch (typeDesc.Columns)
+//         {
+//         case 1:
+//            desc.constType = GFXSCT_Float;
+//            break;
+//         case 2:
+//            desc.constType = GFXSCT_Float2;
+//            break;
+//         case 3:
+//            desc.constType = GFXSCT_Float3;
+//            break;
+//         case 4:
+//            desc.constType = GFXSCT_Float4;
+//            break;
+//         }
+//      }
+//      break;
+//      case D3D_SVC_MATRIX_ROWS:
+//      case D3D_SVC_MATRIX_COLUMNS:
+//      {
+//         switch (typeDesc.Rows)
+//         {
+//         case 3:
+//            desc.constType = typeDesc.Columns == 4 ? GFXSCT_Float3x4 : GFXSCT_Float3x3;
+//            break;
+//         case 4:
+//            desc.constType = typeDesc.Columns == 3 ? GFXSCT_Float4x3 : GFXSCT_Float4x4;
+//            break;
+//         }
+//      }
+//      break;
+//      case D3D_SVC_OBJECT:
+//      case D3D_SVC_STRUCT:
+//         return false;
+//      }
+//   }
+//   break;
+//
+//   default:
+//      AssertFatal(false, "Unknown shader constant class enum");
+//      break;
+//   }
+//
+//   return true;
+//}
 
 
 void GFXMetalShader::_buildShaderConstantHandles(GenericConstBufferLayout* layout, bool vertexConst)

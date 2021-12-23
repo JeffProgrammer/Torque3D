@@ -33,7 +33,7 @@ class GFXMetalTextureManager : public GFXTextureManager
 public:
    GFXMetalTextureManager();
    virtual ~GFXMetalTextureManager();
-   void createResourceView(U32 height, U32 width, U32 depth, DXGI_FORMAT format, U32 numMipLevels,U32 usageFlags, GFXTextureObject *inTex);
+   //void createResourceView(U32 height, U32 width, U32 depth, DXGI_FORMAT format, U32 numMipLevels,U32 usageFlags, GFXTextureObject *inTex);
 protected:
 
    // GFXTextureManager
@@ -56,7 +56,7 @@ protected:
 private:
    U32 mCurTexSet[GFX_TEXTURE_STAGE_COUNT];
 
-   void _innerCreateTexture(GFXD3D11TextureObject *obj, U32 height, U32 width, U32 depth, GFXFormat format, GFXTextureProfile *profile, U32 numMipLevels, bool forceMips = false, S32 antialiasLevel = 0);
+   void _innerCreateTexture(GFXMetalTextureObject *obj, U32 height, U32 width, U32 depth, GFXFormat format, GFXTextureProfile *profile, U32 numMipLevels, bool forceMips = false, S32 antialiasLevel = 0);
 };
 
 #endif

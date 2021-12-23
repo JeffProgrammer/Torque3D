@@ -20,9 +20,11 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
+#include "gfx/metal/gfxMetalTextureManager.h"
+
 GFXMetalTextureManager::GFXMetalTextureManager()
 {
-   ZeroMemory(mCurTexSet, sizeof(mCurTexSet));
+   dMemset(mCurTexSet, 0, sizeof(mCurTexSet));
 }
 
 GFXMetalTextureManager::~GFXMetalTextureManager()
@@ -32,7 +34,7 @@ GFXMetalTextureManager::~GFXMetalTextureManager()
    SAFE_DELETE_ARRAY( mHashTable );
 }
 
-void GFXMetalTextureManager::_innerCreateTexture( GFXD3D11TextureObject *retTex, 
+void GFXMetalTextureManager::_innerCreateTexture( GFXMetalTextureObject *retTex, 
                                                U32 height, 
                                                U32 width, 
                                                U32 depth,
@@ -67,16 +69,16 @@ GFXTextureObject *GFXMetalTextureManager::_createTextureObject( U32 height,
                                                                S32 antialiasLevel,
                                                                GFXTextureObject *inTex )
 {
-   GFXD3D11TextureObject *retTex;
+   GFXMetalTextureObject *retTex;
    if ( inTex )
    {
-      AssertFatal(static_cast<GFXD3D11TextureObject*>( inTex ), "GFXMetalTextureManager::_createTexture() - Bad inTex type!");
-      retTex = static_cast<GFXD3D11TextureObject*>( inTex );
+      AssertFatal(static_cast<GFXMetalTextureObject*>( inTex ), "GFXMetalTextureManager::_createTexture() - Bad inTex type!");
+      retTex = static_cast<GFXMetalTextureObject*>( inTex );
       retTex->release();
    }      
    else
    {
-      retTex = new GFXD3D11TextureObject(GFX, profile);
+      retTex = new GFXMetalTextureObject(GFX, profile);
       retTex->registerResourceWithDevice(GFX);
    }
 
@@ -104,7 +106,7 @@ bool GFXMetalTextureManager::_refreshTexture(GFXTextureObject *texture)
 
 bool GFXMetalTextureManager::_freeTexture(GFXTextureObject *texture, bool zombify)
 {
-   AssertFatal(dynamic_cast<GFXD3D11TextureObject *>(texture),"Not an actual d3d texture object!");
+   AssertFatal(dynamic_cast<GFXMetalTextureObject *>(texture),"Not an actual metal texture object!");
    return true;
 }
 
@@ -115,7 +117,7 @@ bool GFXMetalTextureManager::_loadTexture(GFXTextureObject *aTexture, DDSFile *d
    return true;
 }
 
-void GFXMetalTextureManager::createResourceView(U32 height, U32 width, U32 depth, DXGI_FORMAT format, U32 numMipLevels,U32 usageFlags, GFXTextureObject *inTex)
-{
-
-}
+//void GFXMetalTextureManager::createResourceView(U32 height, U32 width, U32 depth, DXGI_FORMAT format, U32 numMipLevels,U32 usageFlags, GFXTextureObject *inTex)
+//{
+//
+//}

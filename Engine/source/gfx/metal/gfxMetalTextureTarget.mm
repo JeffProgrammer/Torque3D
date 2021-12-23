@@ -21,7 +21,7 @@
 //-----------------------------------------------------------------------------
 
 #include "platform/platform.h"
-#include "gfx/metal/gfxMetalTarget.h"
+#include "gfx/metal/gfxMetalTextureTarget.h"
 #include "gfx/metal/gfxMetalCubemap.h"
 #include "gfx/metal/gfxMetalEnumTranslate.h"
 #include "gfx/gfxDebugEvent.h"
@@ -84,7 +84,7 @@ void GFXMetalTextureTarget::attachTexture( RenderSlot slot, GFXCubemap *tex, U32
    invalidateState();
 
    // Cast the texture object to D3D...
-   AssertFatal(!tex || static_cast<GFXD3D11Cubemap*>(tex), "GFXMetalTextureTarget::attachTexture - invalid cubemap object.");
+   AssertFatal(!tex || static_cast<GFXMetalCubemap*>(tex), "GFXMetalTextureTarget::attachTexture - invalid cubemap object.");
 
    if(slot == Color0)
    {
@@ -104,7 +104,7 @@ void GFXMetalTextureTarget::activate()
 {
    GFXDEBUGEVENT_SCOPE( GFXPCD3D11TextureTarget_activate, ColorI::RED );
 
-   AssertFatal( mTargets[GFXTextureTarget::Color0], "GFXMetalTextureTarget::activate() - You can never have a NULL primary render target!" );
+   //AssertFatal( mTargets[GFXTextureTarget::Color0], "GFXMetalTextureTarget::activate() - You can never have a NULL primary render target!" );
   
    // Clear the state indicator.
    stateApplied();
@@ -124,9 +124,6 @@ void GFXMetalTextureTarget::resolve()
 void GFXMetalTextureTarget::resolveTo( GFXTextureObject *tex )
 {
    GFXDEBUGEVENT_SCOPE( GFXPCMetalTextureTarget_resolveTo, ColorI::RED );
-
-   if ( mTargets[Color0] == NULL )
-      return;
 }
 
 void GFXMetalTextureTarget::zombify()

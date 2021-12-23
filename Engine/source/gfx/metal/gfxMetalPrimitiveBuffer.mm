@@ -39,7 +39,7 @@ GFXMetalPrimitiveBuffer::~GFXMetalPrimitiveBuffer()
 
 void GFXMetalPrimitiveBuffer::prepare()
 {
-	D3D11->_setPrimitiveBuffer(this);
+
 }
 
 void GFXMetalPrimitiveBuffer::lock(U32 indexStart, U32 indexEnd, void **indexPtr)

@@ -21,6 +21,7 @@
 //-----------------------------------------------------------------------------
 
 #include "gfx/metal/gfxMetalTextureObject.h"
+#include "gfx/metal/gfxMetalTextureManager.h"
 #include "platform/profiler.h"
 #include "console/console.h"
 
@@ -35,10 +36,10 @@ GFXMetalTextureObject::GFXMetalTextureObject( GFXDevice * d, GFXTextureProfile *
    Con::printf("+ texMake %d %x", mTexCount, this);
 #endif
 
-   mD3DTexture = NULL;
+   //mD3DTexture = NULL;
    mLocked = false;
    mAutoGenMips = false;
-   mD3DSurface = NULL;
+   //mD3DSurface = NULL;
    dMemset(&mLockRect, 0, sizeof(mLockRect));
    dMemset(&mLockBox, 0, sizeof(mLockBox));
    mLockedSubresource = 0;
@@ -60,7 +61,7 @@ GFXLockedRect *GFXMetalTextureObject::lock(U32 mipLevel /*= 0*/, RectI *inRect /
 
    const U32 width = mTextureSize.x >> mipLevel;
    const U32 height = mTextureSize.y >> mipLevel;
-   const U32 depth = is3D ? mTextureSize.z >> mipLevel : 1;
+   const U32 depth = 1; // is3D ? mTextureSize.z >> mipLevel : 1;
 
    //calculate locked box region and offset
    if (inRect)
@@ -68,29 +69,29 @@ GFXLockedRect *GFXMetalTextureObject::lock(U32 mipLevel /*= 0*/, RectI *inRect /
       if ((inRect->point.x + inRect->extent.x > width) || (inRect->point.y + inRect->extent.y > height))
          AssertFatal(false, "GFXMetalTextureObject::lock - Rectangle too big!");
 
-      mLockBox.top = inRect->point.y;
-      mLockBox.left = inRect->point.x;
-      mLockBox.bottom = inRect->point.y + inRect->extent.y;
-      mLockBox.right = inRect->point.x + inRect->extent.x;
-      mLockBox.back = depth;
-      mLockBox.front = 0;
+      //mLockBox.top = inRect->point.y;
+      //mLockBox.left = inRect->point.x;
+      //mLockBox.bottom = inRect->point.y + inRect->extent.y;
+      //mLockBox.right = inRect->point.x + inRect->extent.x;
+      //mLockBox.back = depth;
+      //mLockBox.front = 0;
 
       //calculate offset
-      offset = inRect->point.x * getFormatByteSize() + inRect->point.y * mapInfo.RowPitch;
+      //offset = inRect->point.x * getFormatByteSize() + inRect->point.y * mapInfo.RowPitch;
    }
    else
    {
-      mLockBox.top = 0;
-      mLockBox.left = 0;
-      mLockBox.bottom = height;
-      mLockBox.right = width;
-      mLockBox.back = depth;
-      mLockBox.front = 0;
+//      mLockBox.top = 0;
+//      mLockBox.left = 0;
+//      mLockBox.bottom = height;
+//      mLockBox.right = width;
+//      mLockBox.back = depth;
+//      mLockBox.front = 0;
    }
 
    mLocked = true;
-   mLockRect.pBits = static_cast<U8*>(mapInfo.pData) + offset;
-   mLockRect.Pitch = mapInfo.RowPitch;
+   //mLockRect.pBits = static_cast<U8*>(mapInfo.pData) + offset;
+   //mLockRect.Pitch = mapInfo.RowPitch;
 
    return (GFXLockedRect*)&mLockRect;
 }
@@ -128,7 +129,7 @@ void GFXMetalTextureObject::resurrect()
    if(isManaged)
       return;
 
-   static_cast<GFXD3D11TextureManager*>(TEXMGR)->refreshTexture(this);
+   static_cast<GFXMetalTextureManager*>(TEXMGR)->refreshTexture(this);
 }
 
 bool GFXMetalTextureObject::copyToBmp(GBitmap* bmp)

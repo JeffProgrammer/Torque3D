@@ -243,7 +243,7 @@ GFXAdapter* GFXInit::chooseAdapter(GFXAdapterType type, S32 outputDeviceIndex)
 const char* GFXInit::getAdapterNameFromType(GFXAdapterType type)
 {
    // must match GFXAdapterType order
-   static const char* _names[] = { "OpenGL", "D3D11", "NullDevice" };
+   static const char* _names[] = { "OpenGL", "D3D11", "Metal", "NullDevice" };
    
    if( type < 0 || type >= GFXAdapterType_Count )
    {

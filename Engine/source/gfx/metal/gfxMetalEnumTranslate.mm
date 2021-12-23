@@ -20,6 +20,7 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
+#include "console/console.h"
 #include "gfx/metal/gfxMetalEnumTranslate.h"
 
 void GFXMetalEnumTranslate::init()

@@ -32,7 +32,7 @@ class GFXMetalFence : public GFXFence
 private:
 
 public:
-   GFXMetalFence( GFXDevice *device ) : GFXFence( device ), mQuery( NULL ) {};
+   GFXMetalFence( GFXDevice *device ) : GFXFence( device ) {};
    virtual ~GFXMetalFence();
 
    virtual void issue();

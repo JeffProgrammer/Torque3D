@@ -21,8 +21,8 @@
 //-----------------------------------------------------------------------------
 
 #include "gfx/gfxDevice.h"
-#include "gfx/Metal/gfxMetalStateBlock.h"
-#include "gfx/Metal/gfxMetalEnumTranslate.h"
+#include "gfx/metal/gfxMetalStateBlock.h"
+#include "gfx/metal/gfxMetalEnumTranslate.h"
 #include "core/crc.h"
 
 namespace DictHash

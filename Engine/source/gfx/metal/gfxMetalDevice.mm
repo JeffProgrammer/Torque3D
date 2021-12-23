@@ -21,7 +21,7 @@
 //-----------------------------------------------------------------------------
 
 #include "platform/platform.h"
-#include "gfx/metal/GFXMetalDevice.h"
+#include "gfx/metal/gfxMetalDevice.h"
 
 #include "gfx/metal/gfxMetalTextureArray.h"
 #include "platform/platformGL.h"
@@ -44,7 +44,6 @@
 #include "console/console.h"
 #include "gfx/metal/gfxMetalOcclusionQuery.h"
 #include "materials/shaderData.h"
-#include "gfx/metal/gfxMetalStateCache.h"
 #include "gfx/metal/gfxMetalVertexDecl.h"
 #include "shaderGen/shaderGen.h"
 
@@ -92,8 +91,7 @@ GFXMetalDevice::GFXMetalDevice(U32 adapterIndex) :
    mMaxFFTextures(2),
    mMaxTRColors(1),
    mClip(0, 0, 0, 0),
-   mWindowRT(NULL),
-   mUseGlMap(true)
+   mWindowRT(NULL)
 {
    for(int i = 0; i < VERTEX_STREAM_COUNT; ++i)
    {
@@ -102,7 +100,7 @@ GFXMetalDevice::GFXMetalDevice(U32 adapterIndex) :
    }
 
    // Initiailize capabilities to false.
-   memset(&mCapabilities, 0, sizeof(GLCapabilities));
+   memset(&mCapabilities, 0, sizeof(Capabilities));
 
    GFXMetalEnumTranslate::init();
 
@@ -113,17 +111,14 @@ GFXMetalDevice::GFXMetalDevice(U32 adapterIndex) :
    mDeviceSwizzle24 = &Swizzles::rgb;
 
    mTextureManager = new GFXMetalTextureManager();
-   gScreenShot = new ScreenShotGL();
 
-   for(U32 i = 0; i < GFX_TEXTURE_STAGE_COUNT; i++)
-      mActiveTextureType[i] = GL_ZERO;
+   //for(U32 i = 0; i < GFX_TEXTURE_STAGE_COUNT; i++)
+      //mActiveTextureType[i] = GL_ZERO;
 
    mNumVertexStream = 2;
 
    for(U32 i = 0; i < GS_COUNT; ++i)
       mModelViewProjSC[i] = NULL;
-
-   mOpenglStateCache = new GFXMetalStateCache;
 
    mCurrentConstBuffer = NULL;
 }
@@ -167,22 +162,20 @@ GFXMetalDevice::~GFXMetalDevice()
    }
       
    if( mCardProfiler )
+   {
       SAFE_DELETE( mCardProfiler );
-
-   SAFE_DELETE( gScreenShot );
-
-   SAFE_DELETE( mOpenglStateCache );
+   }
 }
 
 void GFXMetalDevice::zombify()
 {
    mTextureManager->zombify();
 
-   for(int i = 0; i < VERTEX_STREAM_COUNT; ++i)   
-      if(mCurrentVB[i])
-         mCurrentVB[i]->finish();
-   if(mCurrentPB)
-         mCurrentPB->finish();
+   //for(int i = 0; i < VERTEX_STREAM_COUNT; ++i)
+   //   if(mCurrentVB[i])
+   //      mCurrentVB[i]->finish();
+   //if(mCurrentPB)
+   //      mCurrentPB->finish();
    
    //mVolatileVBs.clear();
    //mVolatilePBs.clear();
@@ -299,7 +292,7 @@ void GFXMetalDevice::setVertexStream( U32 stream, GFXVertexBuffer *buffer )
       // Reset the state the old VB required, then set the state the new VB requires.
       if( mCurrentVB[stream] )
       {     
-         mCurrentVB[stream]->finish();
+         //mCurrentVB[stream]->finish();
       }
 
       mCurrentVB[stream] = static_cast<GFXMetalVertexBuffer*>( buffer );
@@ -348,6 +341,11 @@ GFXTextureArray* GFXMetalDevice::createTextureArray()
    return textureArray;
 }
 
+bool GFXMetalDevice::beginSceneInternal()
+{
+   return true;
+}
+
 void GFXMetalDevice::endSceneInternal() 
 {
    // nothing to do for opengl
@@ -363,7 +361,7 @@ void GFXMetalDevice::copyResource(GFXTextureObject* pDst, GFXCubemap* pSrc, cons
    GFXMetalCubemap* pGLSrc = static_cast<GFXMetalCubemap*>(pSrc);
 
    const GFXFormat format = pGLSrc->getFormat();
-   const bool isCompressed = ImageUtil::isCompressedFormat(format);
+   const bool isCompressed = false; //ImageUtil::isCompressedFormat(format);
    const U32 mipLevels = pGLSrc->getMipMapLevels();
    const U32 texSize = pGLSrc->getSize();
 
@@ -381,7 +379,7 @@ void GFXMetalDevice::clear(U32 flags, const LinearColorF& color, F32 z, U32 sten
 
 void GFXMetalDevice::clearColorAttachment(const U32 attachment, const LinearColorF& color)
 {
-   const GLfloat clearColor[4] = { color.red, color.green, color.blue, color.alpha };
+   const F32 clearColor[4] = { color.red, color.green, color.blue, color.alpha };
 }
 
 GFXVertexDecl* GFXMetalDevice::allocVertexDecl( const GFXVertexFormat *vertexFormat ) 
@@ -394,13 +392,13 @@ GFXVertexDecl* GFXMetalDevice::allocVertexDecl( const GFXVertexFormat *vertexFor
       return &itr->value;
 
    GFXMetalVertexDecl &decl = declMap[(void*)vertexFormat->getDescription().c_str()];   
-   decl.init(vertexFormat);
+   //decl.init(vertexFormat);
    return &decl;
 }
 
 void GFXMetalDevice::setVertexDecl( const GFXVertexDecl *decl )
 {
-   static_cast<const GFXMetalVertexDecl*>(decl)->prepareVertexFormat();
+   //static_cast<const GFXMetalVertexDecl*>(decl)->prepareVertexFormat();
 }
 
 inline void GFXMetalDevice::preDrawPrimitive()
@@ -422,12 +420,12 @@ inline void GFXMetalDevice::preDrawPrimitive()
       {
          if(mCurrentVB[i])
          {
-            mCurrentVB[i]->prepare(i, mCurrentVB_Divisor[i]);    // GL_ARB_vertex_attrib_binding  
-            decl->prepareBuffer_old( i, mCurrentVB[i]->mBuffer, mCurrentVB_Divisor[i] ); // old vertex buffer/format
+            //mCurrentVB[i]->prepare(i, mCurrentVB_Divisor[i]);    // GL_ARB_vertex_attrib_binding
+            //decl->prepareBuffer_old( i, mCurrentVB[i]->mBuffer, mCurrentVB_Divisor[i] ); // old vertex buffer/format
          }
       }
 
-      decl->updateActiveVertexAttrib( GFXMetal->getOpenglCache()->getCacheVertexAttribActive() );         
+      //decl->updateActiveVertexAttrib( GFXMetal->getOpenglCache()->getCacheVertexAttribActive() );
    }   
 
    mNeedUpdateVertexAttrib = false;
@@ -443,9 +441,6 @@ void GFXMetalDevice::drawPrimitive( GFXPrimitiveType primType, U32 vertexStart, 
 {
    preDrawPrimitive();
   
-   if(mCurrentVB[0])
-      vertexStart += mCurrentVB[0]->mBufferVertexOffset;
-
    if(mDrawInstancesCount)
    {
 
@@ -467,10 +462,6 @@ void GFXMetalDevice::drawIndexedPrimitive(   GFXPrimitiveType primType,
 {
    preDrawPrimitive();
 
-   U16* buf = (U16*)static_cast<GFXMetalPrimitiveBuffer*>(mCurrentPrimitiveBuffer.getPointer())->getBuffer() + startIndex + mCurrentPrimitiveBuffer->mVolatileStart;
-
-   const U32 baseVertex = mCurrentVB[0]->mBufferVertexOffset + startVertex;
-
    if(mDrawInstancesCount)
    {
 
@@ -485,74 +476,27 @@ void GFXMetalDevice::drawIndexedPrimitive(   GFXPrimitiveType primType,
 
 void GFXMetalDevice::setPB(GFXMetalPrimitiveBuffer* pb)
 {
-   if(mCurrentPB)
-      mCurrentPB->finish();
    mCurrentPB = pb;
 }
 
 void GFXMetalDevice::setTextureInternal(U32 textureUnit, const GFXTextureObject*texture)
 {
-   GFXMetalTextureObject *tex = static_cast<GFXMetalTextureObject*>(const_cast<GFXTextureObject*>(texture));
-   if (tex)
-   {
-      mActiveTextureType[textureUnit] = tex->getBinding();
-      tex->bind(textureUnit);
-   } 
-   else if(mActiveTextureType[textureUnit] != GL_ZERO)
-   {
-      //glActiveTexture(GL_TEXTURE0 + textureUnit);
-      //glBindTexture(mActiveTextureType[textureUnit], 0);
-      //getOpenglCache()->setCacheBindedTex(textureUnit, mActiveTextureType[textureUnit], 0);
-      mActiveTextureType[textureUnit] = GL_ZERO;
-   }
+
 }
 
 void GFXMetalDevice::setCubemapInternal(U32 textureUnit, const GFXMetalCubemap* texture)
 {
-   if(texture)
-   {
-      mActiveTextureType[textureUnit] = GL_TEXTURE_CUBE_MAP;
-      texture->bind(textureUnit);
-   }
-   else if(mActiveTextureType[textureUnit] != GL_ZERO)
-   {
-      //glActiveTexture(GL_TEXTURE0 + textureUnit);
-      //glBindTexture(mActiveTextureType[textureUnit], 0);
-      //getOpenglCache()->setCacheBindedTex(textureUnit, mActiveTextureType[textureUnit], 0);
-      mActiveTextureType[textureUnit] = GL_ZERO;
-   }
+
 }
 
 void GFXMetalDevice::setCubemapArrayInternal(U32 textureUnit, const GFXMetalCubemapArray* texture)
 {
-   if (texture)
-   {
-      mActiveTextureType[textureUnit] = GL_TEXTURE_CUBE_MAP_ARRAY;
-      texture->bind(textureUnit);
-   }
-   else if (mActiveTextureType[textureUnit] != GL_ZERO)
-   {
-      //glActiveTexture(GL_TEXTURE0 + textureUnit);
-      //glBindTexture(mActiveTextureType[textureUnit], 0);
-      //getOpenglCache()->setCacheBindedTex(textureUnit, mActiveTextureType[textureUnit], 0);
-      mActiveTextureType[textureUnit] = GL_ZERO;
-   }
+
 }
 
 void GFXMetalDevice::setTextureArrayInternal(U32 textureUnit, const GFXMetalTextureArray* texture)
 {
-   if (texture)
-   {
-      mActiveTextureType[textureUnit] = GL_TEXTURE_2D_ARRAY;
-      texture->bind(textureUnit);
-   }
-   else if (mActiveTextureType[textureUnit] != GL_ZERO)
-   {
-      //glActiveTexture(GL_TEXTURE0 + textureUnit);
-      //glBindTexture(mActiveTextureType[textureUnit], 0);
-      //getOpenglCache()->setCacheBindedTex(textureUnit, mActiveTextureType[textureUnit], 0);
-      mActiveTextureType[textureUnit] = GL_ZERO;
-   }
+
 }
 
 void GFXMetalDevice::setClipRect(const RectI& inRect)
@@ -637,12 +581,13 @@ GFXTextureTarget * GFXMetalDevice::allocRenderToTextureTarget(bool genMips)
 
 GFXFence * GFXMetalDevice::createFence()
 {
-   GFXFence* fence = _createPlatformSpecificFence();
-   if(!fence)
-      fence = new GFXGeneralFence( this );
+   //GFXFence* fence = _createPlatformSpecificFence();
+   //if(!fence)
+      //fence = new GFXGeneralFence( this );
       
-   fence->registerResourceWithDevice(this);
-   return fence;
+   //fence->registerResourceWithDevice(this);
+   //return fence;
+   return NULL;
 }
 
 GFXOcclusionQuery* GFXMetalDevice::createOcclusionQuery()
@@ -709,7 +654,7 @@ void GFXMetalDevice::setupGenericShaders( GenericShaderType type )
 
 GFXShader* GFXMetalDevice::createShader()
 {
-   GFXMetalShader* shader = new GFXMetalShader(this);
+   GFXMetalShader* shader = new GFXMetalShader();
    shader->registerResourceWithDevice( this );
    return shader;
 }
@@ -722,7 +667,7 @@ void GFXMetalDevice::setShader(GFXShader *shader, bool force)
    if ( shader )
    {
       GFXMetalShader *glShader = static_cast<GFXMetalShader*>( shader );
-      glShader->bindProgramPipeline();
+      //glShader->bindProgramPipeline();
       mCurrentShader = shader;
    }
    else
@@ -755,8 +700,8 @@ U32 GFXMetalDevice::getNumSamplers() const
 
 GFXTextureObject* GFXMetalDevice::getDefaultDepthTex() const 
 {
-   if(mWindowRT && mWindowRT->getPointer())
-      return static_cast<GFXMetalWindowTarget*>( mWindowRT->getPointer() )->mBackBufferDepthTex.getPointer();
+   //if(mWindowRT && mWindowRT->getPointer())
+      //return static_cast<GFXMetalWindowTarget*>( mWindowRT->getPointer() )->mBackBufferDepthTex.getPointer();
 
    return NULL;
 }
@@ -785,8 +730,8 @@ void GFXMetalDevice::_updateRenderTargets()
       GFXMetalTextureTarget *tex = dynamic_cast<GFXMetalTextureTarget*>( mCurrentRT.getPointer() );
       if ( tex )
       {
-         tex->applyState();
-         tex->makeActive();
+         //tex->applyState();
+         //tex->makeActive();
       }
       else
       {
@@ -794,13 +739,13 @@ void GFXMetalDevice::_updateRenderTargets()
          AssertFatal( win != NULL, 
                      "GFXMetalDevice::_updateRenderTargets() - invalid target subclass passed!" );
          
-         win->makeActive();
+         //win->makeActive();
          
-         if( win->mContext != static_cast<GFXMetalDevice*>(GFX)->mContext )
-         {
-            mRTDirty = false;
-            GFX->updateStates(true);
-         }
+         //if( win->mContext != static_cast<GFXMetalDevice*>(GFX)->mContext )
+         //{
+         //   mRTDirty = false;
+         //   GFX->updateStates(true);
+         //}
       }
       
       mRTDirty = false;
@@ -823,13 +768,18 @@ GFXFormat GFXMetalDevice::selectSupportedFormat(   GFXTextureProfile* profile,
       // Single channel textures are not supported by FBOs.
       if(profile->testFlag(GFXTextureProfile::RenderTarget) && (formats[i] == GFXFormatA8 || formats[i] == GFXFormatL8 || formats[i] == GFXFormatL16))
          continue;
-      if(GFXMetalTextureInternalFormat[formats[i]] == GL_ZERO)
-         continue;
+      //if(GFXMetalTextureInternalFormat[formats[i]] == GL_ZERO)
+      //   continue;
       
       return formats[i];
    }
    
    return GFXFormatR8G8B8A8;
+}
+
+U32 GFXMetalDevice::getTotalVideoMemory()
+{
+   return 0;
 }
 
 //
@@ -846,8 +796,8 @@ public:
 
 static GFXMetalRegisterDevice pGLRegisterDevice;
 
-DefineEngineFunction(cycleResources, void, (),, "")
-{
-   static_cast<GFXMetalDevice*>(GFX)->zombify();
-   static_cast<GFXMetalDevice*>(GFX)->resurrect();
-}
+//DefineEngineFunction(cycleResources, void, (),, "")
+//{
+//   static_cast<GFXMetalDevice*>(GFX)->zombify();
+//   static_cast<GFXMetalDevice*>(GFX)->resurrect();
+//}

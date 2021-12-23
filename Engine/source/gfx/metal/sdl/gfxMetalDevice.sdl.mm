@@ -19,3 +19,39 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
+
+#include "gfx/metal/gfxMetalDevice.h"
+#include "gfx/metal/gfxMetalWindowTarget.h"
+
+void GFXMetalDevice::enumerateAdapters(Vector<GFXAdapter *> &adapterList)
+{
+   
+}
+
+void GFXMetalDevice::enumerateVideoModes()
+{
+   
+}
+
+void GFXMetalDevice::init(const GFXVideoMode &mode, PlatformWindow *window)
+{
+   
+}
+
+GFXWindowTarget *GFXMetalDevice::allocWindowTarget( PlatformWindow *window )
+{
+   GFXMetalWindowTarget* ggwt = new GFXMetalWindowTarget();
+
+   //first window
+   if (!mContext)
+   {
+      init(window->getVideoMode(), window);
+      ggwt->mSecondaryWindow = false;
+   }
+   else
+      ggwt->mSecondaryWindow = true;
+
+   ggwt->registerResourceWithDevice(this);
+
+   return ggwt;
+}

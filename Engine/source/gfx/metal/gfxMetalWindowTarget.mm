@@ -21,17 +21,16 @@
 //-----------------------------------------------------------------------------
 
 #include "platform/platform.h"
-#include "gfx/metal/gfxMetalTarget.h"
+#include "gfx/metal/gfxMetalWindowTarget.h"
 #include "gfx/metal/gfxMetalCubemap.h"
 #include "gfx/metal/gfxMetalEnumTranslate.h"
 #include "gfx/gfxDebugEvent.h"
 #include "gfx/gfxStringEnumTranslate.h"
-#include "windowManager/win32/win32Window.h"
 
 GFXMetalWindowTarget::GFXMetalWindowTarget()
 {
    mWindow = NULL;
-   mBackBuffer = NULL;
+   //mBackBuffer = NULL;
    mSecondaryWindow = false;
 }
 
@@ -44,8 +43,7 @@ void GFXMetalWindowTarget::initPresentationParams()
 {
    // Get some video mode related info.
    const GFXVideoMode& vm = mWindow->getVideoMode();
-   HWND hwnd = (HWND)mWindow->getSystemWindow(PlatformWindow::WindowSystem_Windows);
-
+ 
    // Do some validation...
    if (vm.fullScreen && mSecondaryWindow)
    {
@@ -60,8 +58,8 @@ const Point2I GFXMetalWindowTarget::getSize()
 
 GFXFormat GFXMetalWindowTarget::getFormat()
 { 
-   S32 format = mPresentationParams.BufferDesc.Format;
-   GFXREVERSE_LOOKUP( GFXD3D11TextureFormat, GFXFormat, format );
+   S32 format = 0;// mPresentationParams.BufferDesc.Format;
+   //GFXREVERSE_LOOKUP( GFXD3D11TextureFormat, GFXFormat, format );
    return (GFXFormat)format;
 }
 
@@ -87,7 +85,7 @@ void GFXMetalWindowTarget::resetMode()
 
 void GFXMetalWindowTarget::zombify()
 {
-   SAFE_RELEASE(mBackBuffer);
+   //SAFE_RELEASE(mBackBuffer);
 }
 
 void GFXMetalWindowTarget::resurrect()
@@ -107,9 +105,9 @@ void GFXMetalWindowTarget::activate()
    // Update our video mode here, too.
    GFXVideoMode vm;
    vm = mWindow->getVideoMode();
-   vm.resolution.x = pp.BufferDesc.Width;
-   vm.resolution.y = pp.BufferDesc.Height;
-   vm.fullScreen = !pp.Windowed;
+   vm.resolution.x = 0;//pp.BufferDesc.Width;
+   vm.resolution.y = 0;//pp.BufferDesc.Height;
+   vm.fullScreen = false; //!pp.Windowed;
    mSize = vm.resolution;
 }
 

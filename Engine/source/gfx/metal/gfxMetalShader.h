@@ -241,7 +241,7 @@ protected:
                                 GenericConstBufferLayout *bufferLayout, 
                                 Vector<GFXShaderConstDesc> &samplerDescriptions );
 
-   bool _convertShaderVariable(const D3D11_SHADER_TYPE_DESC &typeDesc, GFXShaderConstDesc &desc);
+   //bool _convertShaderVariable(const D3D11_SHADER_TYPE_DESC &typeDesc, GFXShaderConstDesc &desc);
   
    // This is used in both cases
    void _buildShaderConstantHandles(GenericConstBufferLayout *layout, bool vertexConst);

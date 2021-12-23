@@ -24,6 +24,16 @@
 #include "gfx/metal/gfxMetalDevice.h"
 #include "gfx/metal/gfxMetalEnumTranslate.h"
 
+GFXMetalCardProfiler::GFXMetalCardProfiler()
+{
+   
+}
+
+GFXMetalCardProfiler::~GFXMetalCardProfiler()
+{
+   
+}
+
 void GFXMetalCardProfiler::init()
 {
    mRendererString = "Metal";
@@ -48,5 +58,6 @@ bool GFXMetalCardProfiler::_queryFormat(const GFXFormat fmt, const GFXTexturePro
    // testing of every format for every purpose.  And by testing, I mean sitting
    // down and doing it by hand, because there is no OpenGL API to check these
    // things.
-   return GFXGLTextureInternalFormat[fmt] != GL_ZERO;
+   //return GFXGLTextureInternalFormat[fmt] != GL_ZERO;
+   return false;
 }

@@ -72,9 +72,9 @@ public:
    virtual void deactivate() { }
    virtual GFXAdapterType getAdapterType() { return OpenGL; }
 
-   virtual void enterDebugEvent(const ColorI& color, const char *name);
-   virtual void leaveDebugEvent();
-   virtual void setDebugMarker(const ColorI& color, const char *name);
+   virtual void enterDebugEvent(const ColorI& color, const char *name) {}
+   virtual void leaveDebugEvent() {}
+   virtual void setDebugMarker(const ColorI& color, const char *name) {}
 
    virtual void enumerateVideoModes();
 
@@ -253,8 +253,6 @@ private:
    void vsyncCallback(); ///< Vsync callback
    
    void initGLState(); ///< Guaranteed to be called after all extensions have been loaded, use to init card profiler, shader version, max samplers, etc.
-   
-   GFXFence* _createPlatformSpecificFence(); ///< If our platform (e.g. OS X) supports a fence extenstion (e.g. GL_APPLE_fence) this will create one, otherwise returns NULL
    
    void setPB(GFXMetalPrimitiveBuffer* pb); ///< Sets mCurrentPB
 

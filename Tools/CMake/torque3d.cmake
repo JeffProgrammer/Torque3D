@@ -158,6 +158,12 @@ if(WIN32)
 	addDef(TORQUE_D3D11)
 endif()
 
+if(APPLE)
+    option(TORQUE_METAL "Allow Metal render" ON)
+
+    addDef(TORQUE_METAL)
+endif()
+
 option(TORQUE_DEDICATED "Torque dedicated" OFF)
 mark_as_advanced(TORQUE_DEDICATED)
 
@@ -600,6 +606,11 @@ endif()
 if(APPLE)
     addPath("${srcDir}/platformMac")
     addPath("${srcDir}/platformPOSIX")
+
+    if (TORQUE_METAL)
+        addPath("${srcDir}/gfx/metal")
+        addPath("${srcDir}/gfx/metal/sdl")
+    endif()
 endif()
 
 if (UNIX AND NOT APPLE)
@@ -757,6 +768,13 @@ if (APPLE)
   addFramework("Carbon")
   addFramework("AudioToolbox")
   addLib("iconv")
+
+  if (TORQUE_METAL)
+     addFramework("Metal")
+     addFramework("Foundation")
+     addFramework("QuartzCore")
+     addFramework("IOSurface")
+  endif()
 endif()
 
 #detect Architecture
@@ -773,7 +791,14 @@ if (APPLE AND NOT IOS)
       set(DEPLOYMENT_TARGET_APPLE "11.0")
     else()
       set(ARCHITECTURE_STRING_APPLE "x86_64")
-      set(DEPLOYMENT_TARGET_APPLE "10.9")
+
+      # For now, support OpenGL back to 10.9 as that's when GL 4.1 was added
+      # When Metal is required, remove OpenGL fallback version
+      if (TORQUE_METAL)
+        set(DEPLOYMENT_TARGET_APPLE "10.13")
+      else()
+        set(DEPLOYMENT_TARGET_APPLE "10.9")
+      endif()
     endif()
   endif()
 

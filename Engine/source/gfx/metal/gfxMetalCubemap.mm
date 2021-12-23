@@ -26,7 +26,8 @@
 #include "gfx/metal/gfxMetalEnumTranslate.h"
 #include "gfx/bitmap/imageUtils.h"
 
-GFXMetalCubemap::GFXMetalCubemap() : mTexture(NULL), mSRView(NULL), mDSView(NULL), mTexSize(0)
+GFXMetalCubemap::GFXMetalCubemap()
+   : mTexSize(0)
 {
 	mDynamic = false;
    mAutoGenMips = false;
@@ -108,7 +109,7 @@ void GFXMetalCubemap::resurrect()
 // Cubemap Array
 //-----------------------------------------------------------------------------
 
-GFXMetalCubemapArray::GFXMetalCubemapArray() : mTexture(NULL), mSRView(NULL)
+GFXMetalCubemapArray::GFXMetalCubemapArray()
 {
 }
 

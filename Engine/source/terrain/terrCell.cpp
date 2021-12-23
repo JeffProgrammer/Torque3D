@@ -81,7 +81,7 @@ void TerrCell::createPrimBuffer( GFXPrimitiveBufferHandle *primBuffer )
 {
    PROFILE_SCOPE( TerrCell_AllocPrimBuffer );
 
-   primBuffer->set( GFX, smPBSize, 1, GFXBufferTypeStatic, "TerrCell" );
+   primBuffer->set( GFX, smPBSize, 1, GFXBufferTypeStatic, NULL, "TerrCell" );
    
    // We don't use the primitive for normal clipmap
    // rendering, but it is used for the shadow pass.
@@ -618,7 +618,7 @@ void TerrCell::_updatePrimitiveBuffer()
    // from mEmptyVertexList.size() as that can include vertices on the edges that
    // are really considered part of another cell's squares.  So we take a slightly
    // larger buffer over running through the calculation.
-   mPrimBuffer.set( GFX, smPBSize, 1, GFXBufferTypeStatic, "TerrCell" );
+   mPrimBuffer.set( GFX, smPBSize, 1, GFXBufferTypeStatic, NULL, "TerrCell" );
 
    GFXPrimitive *prim = mPrimBuffer.getPointer()->mPrimitiveArray;
    prim->type = GFXTriangleList;
