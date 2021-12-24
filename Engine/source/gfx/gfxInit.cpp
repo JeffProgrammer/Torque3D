@@ -77,6 +77,9 @@ inline static void _GFXInitReportAdapters(Vector<GFXAdapter*> &adapters)
       case Direct3D11:
          Con::printf("   Direct 3D (version 11.x) device found");
          break;
+      case Metal:
+         Con::printf("   Metal device found");
+         break;
       default :
          Con::printf("   Unknown device found");
          break;

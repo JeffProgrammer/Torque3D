@@ -23,19 +23,68 @@
 #include "gfx/metal/gfxMetalDevice.h"
 #include "gfx/metal/gfxMetalWindowTarget.h"
 
+static inline void EnumerateVideoModes(Vector<GFXVideoMode>& outModes)
+{
+   int count = SDL_GetNumDisplayModes( 0 );
+   if( count < 0)
+   {
+      AssertFatal(0, "");
+      return;
+   }
+   
+   SDL_DisplayMode mode;
+   for(int i = 0; i < count; ++i)
+   {
+      SDL_GetDisplayMode( 0, i, &mode);
+      GFXVideoMode outMode;
+      outMode.resolution.set( mode.w, mode.h );
+      outMode.refreshRate = mode.refresh_rate;
+
+      // BBP = 32 for some reason the engine knows it should be 32, but then we
+      // add some extra code to break what the engine knows.
+      //outMode.bitDepth = SDL_BYTESPERPIXEL( mode.format );     // sets bitdepths to 4
+      //outMode.bitDepth = SDL_BITSPERPIXEL(mode.format);        // sets bitdepth to 24
+      
+      // hardcoded magic numbers ftw
+      // This value is hardcoded in DX, probably to avoid the shenanigans going on here
+      outMode.bitDepth = 32;
+
+      outMode.wideScreen = (mode.w / mode.h) > (4 / 3);
+      outMode.fullScreen = true;
+      
+      outModes.push_back( outMode );
+   }
+}
+
 void GFXMetalDevice::enumerateAdapters(Vector<GFXAdapter *> &adapterList)
 {
+   AssertFatal( SDL_WasInit(SDL_INIT_VIDEO), "");
    
+   GFXAdapter *adapter = new GFXAdapter;
+   adapter->mIndex = 0;
+   
+   adapter->mType = Metal;
+   adapter->mShaderModel = 5.0f;
+   adapter->mCreateDeviceInstanceDelegate = mCreateDeviceInstance;
+   
+   EnumerateVideoModes(adapter->mAvailableModes);
+   adapterList.push_back(adapter);
 }
 
 void GFXMetalDevice::enumerateVideoModes()
 {
-   
+   mVideoModes.clear();
+   EnumerateVideoModes(mVideoModes);
 }
 
 void GFXMetalDevice::init(const GFXVideoMode &mode, PlatformWindow *window)
 {
+   //PlatformWindowSDL* sdlWindow = dynamic_cast<PlatformWindowSDL*>(window);
    
+   mProjectionMatrix.identity();
+   
+   mInitialized = true;
+   deviceInited();
 }
 
 GFXWindowTarget *GFXMetalDevice::allocWindowTarget( PlatformWindow *window )
