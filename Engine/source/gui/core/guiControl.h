@@ -66,7 +66,7 @@ DECLARE_SCOPE( GuiAPI );
 /// @return  Returns true if the tooltip was rendered.
 ///
 /// @see GuiControl::mRenderTooltipDelegate
-typedef Delegate<bool( const Point2I &hoverPos, const Point2I &cursorPos, const char *tipText )> RenderTooltipDelegate; 
+typedef TDelegate<bool( const Point2I &hoverPos, const Point2I &cursorPos, const char *tipText )> RenderTooltipDelegate; 
 
 /// @defgroup gui_group Gui System
 /// The GUI system in Torque provides a powerful way of creating

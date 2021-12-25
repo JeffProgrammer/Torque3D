@@ -292,7 +292,7 @@ template <class T>
 class ResourceRegisterLoadSignal
 {
 public:
-   ResourceRegisterLoadSignal( Delegate<bool(const Torque::Path &, void **)> func )
+   ResourceRegisterLoadSignal( TDelegate<bool(const Torque::Path &, void **)> func )
    {
       Resource<T>::getLoadSignal().notify( func );
    }
@@ -303,7 +303,7 @@ class ResourceRegisterPostLoadSignal
 {
    public:
    
-      ResourceRegisterPostLoadSignal( Delegate< void( Resource< T >& ) > func )
+      ResourceRegisterPostLoadSignal( TDelegate< void( Resource< T >& ) > func )
       {
          Resource< T >::getPostLoadSignal().notify( func );
       }
@@ -314,7 +314,7 @@ class ResourceRegisterUnloadSignal
 {
    public:
    
-      ResourceRegisterUnloadSignal( Delegate< void( const Torque::Path&, T* ) > func )
+      ResourceRegisterUnloadSignal( TDelegate< void( const Torque::Path&, T* ) > func )
       {
          Resource< T >::getUnloadSignal().notify( func );
       }

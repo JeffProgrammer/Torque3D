@@ -67,7 +67,7 @@ public:
    static void requestShutdown(S32 status = 0);
 
 
-   static void notifyInit(Delegate<bool()> del, F32 order = PROCESS_DEFAULT_ORDER) 
+   static void notifyInit(TDelegate<bool()> del, F32 order = PROCESS_DEFAULT_ORDER)
    {
       get()._signalInit.notify(del,order);
    }
@@ -79,7 +79,7 @@ public:
    }
 
 
-   static void notifyCommandLine(Delegate<void(S32, const char **)> del, F32 order = PROCESS_DEFAULT_ORDER) 
+   static void notifyCommandLine(TDelegate<void(S32, const char **)> del, F32 order = PROCESS_DEFAULT_ORDER)
    {
       get()._signalCommandLine.notify(del,order);
    }
@@ -91,7 +91,7 @@ public:
    }
 
 
-   static void notify(Delegate<void()> del, F32 order = PROCESS_DEFAULT_ORDER) 
+   static void notify(TDelegate<void()> del, F32 order = PROCESS_DEFAULT_ORDER)
    {
       get()._signalProcess.notify(del,order);
    }
@@ -114,7 +114,7 @@ public:
    }
 
  
-   static void remove(Delegate<void()> del) 
+   static void remove(TDelegate<void()> del)
    {
       get()._signalProcess.remove(del);
    }
@@ -132,7 +132,7 @@ public:
    }
 
 
-   static void notifyShutdown(Delegate<bool(void)> del, F32 order = PROCESS_DEFAULT_ORDER) 
+   static void notifyShutdown(TDelegate<bool(void)> del, F32 order = PROCESS_DEFAULT_ORDER) 
    {
       get()._signalShutdown.notify(del,order);
    }

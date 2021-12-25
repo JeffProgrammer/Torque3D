@@ -52,7 +52,7 @@ enum ReflectMode
    ReflectAlways        
 };
 
-typedef Delegate<bool(bool)> ReflectDelegate;     
+typedef TDelegate<bool(bool)> ReflectDelegate;     
 class SceneObject;
 
 struct Reflector

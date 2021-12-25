@@ -54,7 +54,7 @@ class PhysicsPlayer;
 class PhysicsCollision;
 
 
-typedef Delegate<PhysicsObject*( const SceneObject *)> CreatePhysicsObjectFn; 
+typedef TDelegate<PhysicsObject*( const SceneObject *)> CreatePhysicsObjectFn; 
 typedef Map<StringNoCase, CreatePhysicsObjectFn> CreateFnMap;
 
 

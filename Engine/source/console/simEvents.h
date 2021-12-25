@@ -149,7 +149,7 @@ class SimDelegateEvent : public SimEvent
 public:
 
    U32 *mEventId;
-   Delegate<void()> mCallback;
+   TDelegate<void()> mCallback;
 
    void process( SimObject* )
    {

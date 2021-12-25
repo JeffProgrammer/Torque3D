@@ -100,7 +100,7 @@ template< typename Signature >
 class SignalSlot
 {
 public:
-   typedef Delegate< Signature > DelegateSig;
+   typedef TDelegate< Signature > DelegateSig;
    typedef SignalBaseT< Signature > SignalSig;
 
    SignalSlot() : mSignal(NULL)
@@ -170,7 +170,7 @@ template<typename Signature> class SignalBaseT : public SignalBase
 public:
 
    /// The delegate signature for this signal.
-   typedef Delegate<Signature> DelegateSig;
+   typedef TDelegate<Signature> DelegateSig;
 
    SignalBaseT() {}
 

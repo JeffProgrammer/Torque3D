@@ -129,7 +129,7 @@ public:
    virtual ~ShaderGen();
 
    /// Parameter 1 is the ShaderGen instance to initialize.
-   typedef Delegate<void (ShaderGen*)> ShaderGenInitDelegate;
+   typedef TDelegate<void (ShaderGen*)> ShaderGenInitDelegate;
 
    /// Register an initialization delegate for adapterType.  This should setPrinter/ComponentFactory/etc, and register
    /// shader features.

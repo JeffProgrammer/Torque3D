@@ -655,7 +655,7 @@ void TerrainBlock::updateGrid( const Point2I &minPt, const Point2I &maxPt, bool 
          // Delay the update by a few milliseconds so 
          // that we're not rebuilding during an active
          // editing operation.
-         mPhysicsRep->queueCallback( 500, Delegate<void()>( this, &TerrainBlock::_updatePhysics ) );
+         mPhysicsRep->queueCallback( 500, TDelegate<void()>( this, &TerrainBlock::_updatePhysics ) );
       }
 
       return;
@@ -674,7 +674,7 @@ void TerrainBlock::updateGrid( const Point2I &minPt, const Point2I &maxPt, bool 
       // Delay the update by a few milliseconds so 
       // that we're not rebuilding during an active
       // editing operation.
-      mPhysicsRep->queueCallback( 500, Delegate<void()>( this, &TerrainBlock::_updatePhysics ) );
+      mPhysicsRep->queueCallback( 500, TDelegate<void()>( this, &TerrainBlock::_updatePhysics ) );
    }
 
    // Signal again here for any server side observers.

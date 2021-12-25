@@ -321,7 +321,7 @@ struct ObjectRenderInst : public RenderInst
    /// @param overrideMat  An alternative material to use during rendering... usually
    ///                     used for special renders like shadows.  If the object doesn't
    ///                     support override materials it shouldn't render at all.
-   Delegate<void( ObjectRenderInst *ri, 
+   TDelegate<void( ObjectRenderInst *ri, 
                   SceneRenderState *state, 
                   BaseMatInstance *overrideMat )> renderDelegate;
 

@@ -59,7 +59,7 @@ class SceneRenderState
 
       /// The delegate used for material overrides.
       /// @see getOverrideMaterial
-      typedef Delegate< BaseMatInstance*( BaseMatInstance* ) > MatDelegate;
+      typedef TDelegate< BaseMatInstance*( BaseMatInstance* ) > MatDelegate;
 
    protected:
 

@@ -215,7 +215,7 @@ class FileSystem;
 class FileSystemChangeNotifier
 {
 public:
-   typedef Delegate<void(const Path &)> ChangeDelegate;
+   typedef TDelegate<void(const Path &)> ChangeDelegate;
    typedef  Signal<void(const Path &)> ChangeSignal;
 
 public:

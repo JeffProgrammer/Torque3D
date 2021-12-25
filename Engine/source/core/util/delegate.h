@@ -27,7 +27,7 @@
 
 /// @def Delegate
 /// The macro which abstracts the details of the delegate implementation.
-#define Delegate fastdelegate::FastDelegate
+#define TDelegate fastdelegate::FastDelegate
 
 /// @typedef DelegateMemento
 /// An opaque structure which can hold an arbitary delegate.

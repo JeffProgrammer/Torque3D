@@ -44,7 +44,7 @@ struct GFXAdapterLUID
 struct GFXAdapter 
 {
 public:
-   typedef Delegate<GFXDevice* (U32 adapterIndex)> CreateDeviceInstanceDelegate;     
+   typedef TDelegate<GFXDevice* (U32 adapterIndex)> CreateDeviceInstanceDelegate;     
 
    enum
    {

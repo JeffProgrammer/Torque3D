@@ -38,7 +38,7 @@ PhysicsObject::~PhysicsObject()
       Sim::cancelEvent( mQueuedEvent );
 }
 
-void PhysicsObject::queueCallback( U32 ms, Delegate<void()> callback )
+void PhysicsObject::queueCallback( U32 ms, TDelegate<void()> callback )
 {
    // Cancel any existing event we may have pending.
    if ( mQueuedEvent != InvalidEventId )

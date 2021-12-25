@@ -668,7 +668,7 @@ namespace Con
    /// The delegate signature for the variable assignment notifications.
    ///
    /// @see addVariableNotify, removeVariableNotify
-   typedef Delegate<void()> NotifyDelegate;
+   typedef TDelegate<void()> NotifyDelegate;
 
    /// Add a console variable that references the value of a variable in C++ code.
    ///

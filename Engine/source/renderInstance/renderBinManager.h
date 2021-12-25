@@ -40,7 +40,7 @@ class SceneRenderState;
 
 /// This delegate is used in derived RenderBinManager classes
 /// to allow material instances to be overriden.
-typedef Delegate<BaseMatInstance*(BaseMatInstance*)> MaterialOverrideDelegate;
+typedef TDelegate<BaseMatInstance*(BaseMatInstance*)> MaterialOverrideDelegate;
 
 
 /// The RenderBinManager manages and renders lists of MainSortElem, which
