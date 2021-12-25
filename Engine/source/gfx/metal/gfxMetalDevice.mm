@@ -55,10 +55,9 @@ GFXDevice *GFXMetalDevice::createInstance( U32 adapterIndex )
 }
 
 void GFXMetalDevice::initGLState()
-{  
-   // We don't currently need to sync device state with a known good place because we are
-   // going to set everything in GFXMetalStateBlock, but if we change our GFXMetalStateBlock strategy, this may
-   // need to happen.
+{
+   mDevice = mSwapChain.device;
+   mCommandQueue = [mDevice newCommandQueue];
    
    // Deal with the card profiler here when we know we have a valid context.
    mCardProfiler = new GFXMetalCardProfiler();
@@ -66,15 +65,15 @@ void GFXMetalDevice::initGLState()
 
    mShaderModel = 5.0f;
 
-
    //install vsync callback
+   mSwapChain.displaySyncEnabled = smDisableVSync ? false : true;
    Con::NotifyDelegate clbk(this, &GFXMetalDevice::vsyncCallback);
    Con::addVariableNotify("$pref::Video::disableVerticalSync", clbk);
 }
 
 void GFXMetalDevice::vsyncCallback()
 {
-
+   mSwapChain.displaySyncEnabled = smDisableVSync ? false : true;
 }
 
 GFXMetalDevice::GFXMetalDevice(U32 adapterIndex) :

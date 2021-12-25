@@ -22,6 +22,8 @@
 
 #include "gfx/metal/gfxMetalDevice.h"
 #include "gfx/metal/gfxMetalWindowTarget.h"
+#include "windowManager/sdl/sdlWindow.h"
+#include <SDL.h>
 
 static inline void EnumerateVideoModes(Vector<GFXVideoMode>& outModes)
 {
@@ -79,12 +81,23 @@ void GFXMetalDevice::enumerateVideoModes()
 
 void GFXMetalDevice::init(const GFXVideoMode &mode, PlatformWindow *window)
 {
-   //PlatformWindowSDL* sdlWindow = dynamic_cast<PlatformWindowSDL*>(window);
+   PlatformWindowSDL* sdlWindow = dynamic_cast<PlatformWindowSDL*>(window);
+   AssertFatal(sdlWindow, "window is not an SDL window for metal");
+   
+   mContext = SDL_CreateRenderer(sdlWindow->getSDLWindow(), -1, 0);
+   mSwapChain = (__bridge CAMetalLayer*)SDL_RenderGetMetalLayer(static_cast<SDL_Renderer*>(mContext));
+   
+   initGLState();
    
    mProjectionMatrix.identity();
    
    mInitialized = true;
    deviceInited();
+}
+
+void GFXMetalDevice::destroyPlatform()
+{
+   SDL_DestroyRenderer(static_cast<SDL_Renderer*>(mContext));
 }
 
 GFXWindowTarget *GFXMetalDevice::allocWindowTarget( PlatformWindow *window )

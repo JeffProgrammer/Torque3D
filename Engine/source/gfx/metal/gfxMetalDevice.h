@@ -33,6 +33,9 @@
 #include "gfx/gfxResource.h"
 #include "gfx/metal/gfxMetalStateBlock.h"
 
+#import <Metal/Metal.h>
+#import <QuartzCore/CAMetalLayer.h>
+
 class GFXMetalTextureArray;
 class GFXMetalVertexBuffer;
 class GFXMetalPrimitiveBuffer;
@@ -67,6 +70,7 @@ public:
    static GFXDevice *createInstance( U32 adapterIndex );
 
    virtual void init( const GFXVideoMode &mode, PlatformWindow *window = NULL );
+   void destroyPlatform();
 
    virtual void activate() { }
    virtual void deactivate() { }
@@ -207,6 +211,13 @@ private:
    friend class GFXMetalWindowTarget;
    friend class GFXMetalPrimitiveBuffer;
    friend class GFXMetalVertexBuffer;
+   
+   void* mContext;
+   CAMetalLayer* mSwapChain;
+   id<MTLDevice> mDevice;
+   id<MTLCommandQueue> mCommandQueue;
+   id<MTLCommandBuffer> mCommandBuffer;
+   id<MTLRenderCommandEncoder> mRenderEncoder;
 
    static GFXAdapter::CreateDeviceInstanceDelegate mCreateDeviceInstance;
 
@@ -227,7 +238,6 @@ private:
    MatrixF m_mCurrentWorld;
    MatrixF m_mCurrentView;
 
-   void* mContext;
    void* mPixelFormat; 
 
    U32 mNumVertexStream;

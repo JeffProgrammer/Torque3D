@@ -308,8 +308,8 @@ GFXAdapter *GFXInit::getBestAdapterChoice()
    //
    // If D3D is unavailable, we're not on windows, so GL is de facto the
    // best choice!
-   F32 highestSMDX = 0.f, highestSMGL = 0.f;
-   GFXAdapter *foundAdapterGL = NULL, *foundAdapter11 = NULL;
+   F32 highestSMDX = 0.f, highestSMGL = 0.f, highestSMMTL;
+   GFXAdapter *foundAdapterGL = NULL, *foundAdapter11 = NULL, *foundAdapterMTL;
 
    for (S32 i = 0; i<smAdapters.size(); i++)
    {
@@ -330,18 +330,28 @@ GFXAdapter *GFXInit::getBestAdapterChoice()
             foundAdapterGL = currAdapter;
          }
          break;
-
+      case Metal:
+         if (currAdapter->mShaderModel > highestSMMTL)
+         {
+            highestSMMTL = currAdapter->mShaderModel;
+            foundAdapterMTL = currAdapter;
+         }
+         break;
       default:
          break;
       }
    }
 
-   // Return best found in order DX11, GL
+   // Return best found in order DX11, Metal, GL
    if (foundAdapter11)
       return foundAdapter11;
 
    if (foundAdapterGL)
       return foundAdapterGL;
+   
+   // TODO: move Metal above OpenGL once it is functional
+   if (foundAdapterMTL)
+      return foundAdapterMTL;
 
    // Uh oh - we didn't find anything. Grab whatever we can that's not Null...
    for(S32 i=0; i<smAdapters.size(); i++)
