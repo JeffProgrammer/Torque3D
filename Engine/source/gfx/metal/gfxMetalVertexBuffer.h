@@ -27,6 +27,8 @@
 #include "gfx/gfxVertexBuffer.h"
 #endif
 
+#include "gfx/metal/gfxMetalBuffer.h"
+
 class GFXMetalVertexBuffer : public GFXVertexBuffer
 {
 public:
@@ -35,7 +37,8 @@ public:
                         U32 numVerts, 
                         const GFXVertexFormat *vertexFormat,
                         U32 vertexSize, 
-                        GFXBufferType bufferType );
+                        GFXBufferType bufferType,
+                        void *data);
    virtual ~GFXMetalVertexBuffer();
 
    void lock(U32 vertexStart, U32 vertexEnd, void **vertexPtr);
@@ -45,6 +48,9 @@ public:
    // GFXResource interface
    virtual void zombify();
    virtual void resurrect();
+   
+private:
+   GFXMetalBuffer *mBuffer;
 };
 
 #endif

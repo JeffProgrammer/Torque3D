@@ -160,6 +160,8 @@ public:
    const U32 getNumVertexStreams() const { return mNumVertexStream; }
 
    const char* interpretDebugResult(long result) { return "Not Implemented"; };
+   
+   inline id<MTLDevice> getDevice() { return mDevice; }
 protected:   
    /// Called by GFXDevice to create a device specific stateblock
    virtual GFXStateBlockRef createStateBlockInternal(const GFXStateBlockDesc& desc);
@@ -199,7 +201,7 @@ protected:
    virtual void setVertexDecl( const GFXVertexDecl *decl );
 
    virtual void setVertexStream( U32 stream, GFXVertexBuffer *buffer );
-   virtual void setVertexStreamFrequency( U32 stream, U32 frequency );   
+   virtual void setVertexStreamFrequency( U32 stream, U32 frequency );
 
 private:
    typedef GFXDevice Parent;

@@ -215,7 +215,7 @@ GFXVertexBuffer* GFXMetalDevice::findVolatileVBO(U32 numVerts, const GFXVertexFo
 
    // No existing VB, so create one
    PROFILE_SCOPE(GFXMetalDevice_createVBPool);
-   StrongRefPtr<GFXMetalVertexBuffer> buf(new GFXMetalVertexBuffer(GFX, numVerts, vertexFormat, vertSize, GFXBufferTypeVolatile));
+   StrongRefPtr<GFXMetalVertexBuffer> buf(new GFXMetalVertexBuffer(GFX, numVerts, vertexFormat, vertSize, GFXBufferTypeVolatile, NULL));
    buf->registerResourceWithDevice(this);
    mVolatileVBs.push_back(buf);
    return buf.getPointer();
@@ -244,16 +244,8 @@ GFXVertexBuffer *GFXMetalDevice::allocVertexBuffer(   U32 numVerts,
    if(bufferType == GFXBufferTypeVolatile)
       return findVolatileVBO(numVerts, vertexFormat, vertSize);
          
-   GFXMetalVertexBuffer* buf = new GFXMetalVertexBuffer( GFX, numVerts, vertexFormat, vertSize, bufferType );
-   buf->registerResourceWithDevice(this);   
-
-   if(data)
-   {
-      void* dest;
-      buf->lock(0, numVerts, &dest);
-      dMemcpy(dest, data, vertSize * numVerts);
-      buf->unlock();
-   }
+   GFXMetalVertexBuffer* buf = new GFXMetalVertexBuffer( GFX, numVerts, vertexFormat, vertSize, bufferType, data );
+   buf->registerResourceWithDevice(this);
 
    return buf;
 }

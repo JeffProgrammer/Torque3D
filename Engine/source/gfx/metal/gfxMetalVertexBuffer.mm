@@ -23,9 +23,11 @@
 #include "platform/platform.h"
 #include "gfx/metal/gfxMetalVertexBuffer.h"
 #include "console/console.h"
+#include "gfx/metal/gfxMetalDevice.h"
 
 GFXMetalVertexBuffer::GFXMetalVertexBuffer()
-   : GFXVertexBuffer(0,0,0,0,(GFXBufferType)0)
+   : GFXVertexBuffer(0,0,0,0,(GFXBufferType)0),
+     mBuffer(NULL)
 {
 }
 
@@ -33,13 +35,31 @@ GFXMetalVertexBuffer::GFXMetalVertexBuffer(GFXDevice *device,
                                            U32 numVerts, 
                                            const GFXVertexFormat *vertexFormat, 
                                            U32 vertexSize, 
-                                           GFXBufferType bufferType )
-   : GFXVertexBuffer( device, numVerts, vertexFormat, vertexSize, bufferType )
+                                           GFXBufferType bufferType,
+                                           void* data)
+   : GFXVertexBuffer( device, numVerts, vertexFormat, vertexSize, bufferType ),
+     mBuffer(NULL)
 {
+   if (mBufferType != GFXBufferTypeVolatile)
+   {
+      mBuffer = new GFXMetalBuffer();
+      mBuffer->alloc(sizeof(GFXVertexFormat) * numVerts, mBufferType, data);
+   }
+   else
+   {
+      
+   }
 }
 
 GFXMetalVertexBuffer::~GFXMetalVertexBuffer() 
 {
+   // Volatile buffers are in a pool, we don't own them
+   if (mBuffer && mBufferType != GFXBufferTypeVolatile)
+   {
+      mBuffer->free();
+      delete mBuffer;
+   }
+   mBuffer = NULL;
 }
 
 void GFXMetalVertexBuffer::lock(U32 vertexStart, U32 vertexEnd, void **vertexPtr)
