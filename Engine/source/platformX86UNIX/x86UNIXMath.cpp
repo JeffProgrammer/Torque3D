@@ -30,10 +30,6 @@ extern void mInstallLibrary_C();
 extern void mInstallLibrary_ASM();
 
 
-extern void mInstall_AMD_Math();
-extern void mInstall_Library_SSE();
-
-
 //--------------------------------------
 DefineEngineStringlyVariadicFunction( mathInit, void, 1, 10, "( ... )"
                                      "@brief Install the math library with specified extensions.\n\n"
@@ -108,18 +104,12 @@ void Math::init(U32 properties)
    if (properties & CPU_PROP_MMX)
    {
       Con::printf("   Installing MMX extensions");
-      if (properties & CPU_PROP_3DNOW)
-      {
-         Con::printf("   Installing 3DNow extensions");
-         mInstall_AMD_Math();
-      }
    }
 
 #if !defined(__MWERKS__) || (__MWERKS__ >= 0x2400)
    if (properties & CPU_PROP_SSE)
    {
       Con::printf("   Installing SSE extensions");
-      mInstall_Library_SSE();
    }
 #endif //mwerks>2.4
 

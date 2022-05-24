@@ -29,8 +29,6 @@
 
 extern void mInstallLibrary_C();
 extern void mInstallLibrary_ASM();
-extern void mInstall_AMD_Math();
-extern void mInstall_Library_SSE();
 
 //--------------------------------------
 DefineEngineStringlyVariadicFunction( mathInit, void, 1, 10, "( ... )"
@@ -40,7 +38,6 @@ DefineEngineStringlyVariadicFunction( mathInit, void, 1, 10, "( ... )"
                 "    - 'C' Enable the C math routines. C routines are always enabled.\n\n"
                 "    - 'FPU' Enable floating point unit routines.\n\n"
                 "    - 'MMX' Enable MMX math routines.\n\n"
-                "    - 'SSE' Enable SSE math routines.\n\n"
 				"@ingroup Math")
 
 
@@ -111,7 +108,6 @@ void Math::init(U32 properties)
    if (properties & CPU_PROP_SSE)
    {
       Con::printf("   Installing SSE extensions");
-      mInstall_Library_SSE();
    }
 
    Con::printf(" ");

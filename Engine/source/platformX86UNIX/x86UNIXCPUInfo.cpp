@@ -37,6 +37,8 @@
 #include <unistd.h>
 
 Platform::SystemInfo_struct Platform::SystemInfo;
+extern void SetProcessorInfo(Platform::SystemInfo_struct::Processor& pInfo,
+   char* vendor, U32 processor, U32 properties, U32 properties2); // platform/platformCPU.cc
 
 static inline void rtrim(std::string &s)
 {
@@ -178,7 +180,7 @@ void getCPUInformation()
         baseFrequencyStream.close();
     }
 
-    SetProcessoInfo(Platform::SystemInfo.processor, vendorString.c_str(), brandString.c_str());
+    SetProcessorInfo(Platform::SystemInfo.processor, vendorString.c_str(), brandString.c_str());
 }
 
 void Processor::init() 

@@ -28,7 +28,6 @@
 
 extern void mInstallLibrary_C();
 extern void mInstallLibrary_Vec();
-extern void mInstall_Library_SSE();
 
 static MRandomLCG sgPlatRandom;
 
@@ -103,14 +102,6 @@ void Math::init(U32 properties)
    Con::printf("   Installing Standard C extensions");
    mInstallLibrary_C();   
 
-   #ifdef TORQUE_CPU_X86
-   if( properties & CPU_PROP_SSE )
-   {
-      Con::printf( "   Installing SSE extensions" );
-      mInstall_Library_SSE();
-   }
-   #endif
-   
    Con::printf(" ");
 }   
 
