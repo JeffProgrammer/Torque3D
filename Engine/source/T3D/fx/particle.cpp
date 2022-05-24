@@ -122,8 +122,8 @@ ParticleData::ParticleData()
    animTexFramesString = NULL;  // string of animation frame indices
    animTexUVs = NULL;           // array of tile vertex UVs
 
-   INIT_ASSET(Texture);
-   INIT_ASSET(TextureExt);
+   INIT_IMAGEASSET(Texture);
+   INIT_IMAGEASSET(TextureExt);
 
    constrain_pos = false;
    start_angle = 0.0f;
@@ -293,7 +293,7 @@ void ParticleData::packData(BitStream* stream)
       stream->writeFloat( times[i], 8);
    }
 
-   //PACKDATA_ASSET(Texture);
+   //PACKDATA_IMAGEASSET(Texture);
 
    for (i = 0; i < 4; i++)
       mathWrite(*stream, texCoords[i]);
@@ -307,7 +307,7 @@ void ParticleData::packData(BitStream* stream)
       stream->writeInt(framesPerSec, 8);
    }
 
-   //PACKDATA_ASSET(TextureExt);
+   //PACKDATA_IMAGEASSET(TextureExt);
 
    stream->writeFlag(constrain_pos);
    stream->writeFloat(start_angle/360.0f, 11);
@@ -378,7 +378,7 @@ void ParticleData::unpackData(BitStream* stream)
       times[i] = stream->readFloat(8);
    }
 
-   //UNPACKDATA_ASSET(Texture);
+   //UNPACKDATA_IMAGEASSET(Texture);
 
    for (i = 0; i < 4; i++)
       mathRead(*stream, &texCoords[i]);
@@ -391,7 +391,7 @@ void ParticleData::unpackData(BitStream* stream)
      framesPerSec = stream->readInt(8);
    }
 
-   //UNPACKDATA_ASSET(Texture);
+   //UNPACKDATA_IMAGEASSET(Texture);
 
    constrain_pos = stream->readFlag();
    start_angle = 360.0f*stream->readFloat(11);
@@ -763,12 +763,12 @@ ParticleData::ParticleData(const ParticleData& other, bool temp_clone) : SimData
   animTexFramesString = other.animTexFramesString;
   animTexFrames = other.animTexFrames; // -- parsed from animTexFramesString
 
-  CLONE_ASSET(Texture);
+  CLONE_IMAGEASSET(Texture);
   
   spinBias = other.spinBias;
   randomizeSpinDir = other.randomizeSpinDir;
 
-  CLONE_ASSET(TextureExt);
+  CLONE_IMAGEASSET(TextureExt);
 
   constrain_pos = other.constrain_pos;
   start_angle = other.start_angle;
@@ -804,4 +804,4 @@ void ParticleData::onPerformSubstitutions()
   reload(errorBuffer);
 }
 
-DEF_ASSET_BINDS(ParticleData, Texture);
+DEF_IMAGEASSET_BINDS(ParticleData, Texture);

@@ -87,7 +87,7 @@ DefineEngineMethod( GuiChunkedBitmapCtrl, setBitmap, void, (const char* filename
 
 GuiChunkedBitmapCtrl::GuiChunkedBitmapCtrl()
 {
-   INIT_ASSET(Bitmap);
+   INIT_IMAGEASSET(Bitmap);
 
    mUseVariable = false;
    mTile = false;

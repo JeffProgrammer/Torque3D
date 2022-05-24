@@ -15,7 +15,7 @@
 #include <modules/stdErrPlugin.h>
 
 daeErrorHandler *daeErrorHandler::_instance = NULL;
-std::unique_ptr<daeErrorHandler> daeErrorHandler::_defaultInstance(new stdErrPlugin);
+std::auto_ptr<daeErrorHandler> daeErrorHandler::_defaultInstance(new stdErrPlugin);
 
 daeErrorHandler::daeErrorHandler() {
 }

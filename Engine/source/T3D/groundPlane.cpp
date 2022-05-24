@@ -87,7 +87,7 @@ GroundPlane::GroundPlane()
    mConvexList = new Convex;
    mTypeMask |= TerrainLikeObjectType;
 
-   INIT_ASSET(Material);
+   INIT_MATERIALASSET(Material);
 }
 
 GroundPlane::~GroundPlane()
@@ -199,7 +199,7 @@ U32 GroundPlane::packUpdate( NetConnection* connection, U32 mask, BitStream* str
    stream->write( mScaleU );
    stream->write( mScaleV );
 
-   PACK_ASSET(connection, Material);
+   PACK_MATERIALASSET(connection, Material);
 
    return retMask;
 }
@@ -212,7 +212,7 @@ void GroundPlane::unpackUpdate( NetConnection* connection, BitStream* stream )
    stream->read( &mScaleU );
    stream->read( &mScaleV );
 
-   UNPACK_ASSET(connection, Material);
+   UNPACK_MATERIALASSET(connection, Material);
 
    // If we're added then something possibly changed in 
    // the editor... do an update of the material and the

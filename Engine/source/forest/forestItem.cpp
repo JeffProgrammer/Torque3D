@@ -53,7 +53,7 @@ ForestItemData::ForestItemData()
       mTightnessCoefficient( 0.4f ),
       mDampingCoefficient( 0.7f )      
 {
-   INIT_ASSET(Shape);
+   INIT_SHAPEASSET(Shape);
 }
 
 void ForestItemData::initPersistFields()
@@ -164,7 +164,7 @@ void ForestItemData::packData(BitStream* stream)
 
    stream->write( localName );
 
-   PACKDATA_ASSET(Shape);
+   PACKDATA_SHAPEASSET(Shape);
    
    stream->writeFlag( mCollidable );
 
@@ -190,7 +190,9 @@ void ForestItemData::unpackData(BitStream* stream)
    stream->read( &localName );
    setInternalName( localName );
 
-   UNPACKDATA_ASSET(Shape);
+   char readBuffer[1024];
+
+   UNPACKDATA_SHAPEASSET(Shape);
    
    mCollidable = stream->readFlag();
 

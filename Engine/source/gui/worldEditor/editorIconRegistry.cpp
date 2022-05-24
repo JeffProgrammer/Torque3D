@@ -25,7 +25,7 @@
 
 #include "console/engineAPI.h"
 #include "console/simBase.h"
-#include "gui/core/guiTypes.h"
+
 
 EditorIconRegistry gEditorIcons;
 
@@ -60,7 +60,7 @@ void EditorIconRegistry::loadFromPath( const String &path, bool overwrite )
    String defaultIconFile = path + "default";
 
    mDefaultIcon.set( defaultIconFile,
-                     &GFXDefaultGUIProfile,
+                     &GFXTexturePersistentSRGBProfile,
                      avar("%s() - mIcons[] (line %d)", 
                      __FUNCTION__, __LINE__) );
 }
@@ -68,7 +68,7 @@ void EditorIconRegistry::loadFromPath( const String &path, bool overwrite )
 void EditorIconRegistry::add( const String &className, const String &imageFile, bool overwrite )
 {
    // First see if we can load the image.
-   GFXTexHandle icon(   imageFile, &GFXDefaultGUIProfile,
+   GFXTexHandle icon(   imageFile, &GFXTexturePersistentSRGBProfile,
                         avar("%s() - mIcons[] (line %d)", __FUNCTION__, __LINE__) );
    if ( icon.isNull() )
       return;

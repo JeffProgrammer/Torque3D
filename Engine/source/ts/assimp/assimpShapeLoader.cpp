@@ -177,12 +177,11 @@ void AssimpShapeLoader::enumerateScene()
 
       // Setup default units for shape format
       String importFormat;
-
-      String fileExt = String::ToLower(shapePath.getExtension());
-      const aiImporterDesc* importerDescription = aiGetImporterDesc(fileExt.c_str());
-      if (importerDescription && StringTable->insert(importerDescription->mName) == StringTable->insert("Autodesk FBX Importer"))
+      if (getMetaString("SourceAsset_Format", importFormat))
       {
-         ColladaUtils::getOptions().formatScaleFactor = 0.01f;
+         // FBX uses cm as standard unit, so convert to meters
+         if (importFormat.equal("Autodesk FBX Importer", String::NoCase))
+            ColladaUtils::getOptions().formatScaleFactor = 0.01f;
       }
 
       // Set import options (if they are not set to override)
@@ -426,7 +425,6 @@ bool AssimpShapeLoader::fillGuiTreeView(const char* sourceShapePath, GuiTreeView
 
 void AssimpShapeLoader::updateMaterialsScript(const Torque::Path &path)
 {
-   return;
    Torque::Path scriptPath(path);
    scriptPath.setFileName("materials");
    scriptPath.setExtension(TORQUE_SCRIPT_EXTENSION);

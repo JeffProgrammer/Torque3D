@@ -471,7 +471,6 @@ static bool sReadTGA(Stream &stream, GBitmap *bitmap)
 
    default:
        //Con::errorf( "Unknown image type" );
-      delete[] colormap;
       return false;
    }
 

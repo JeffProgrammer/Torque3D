@@ -105,7 +105,7 @@ class SFXEmitter : public SceneObject
       BitSet32 mDirty;
 
       DECLARE_SOUNDASSET(SFXEmitter, Sound);
-      DECLARE_ASSET_NET_SETGET(SFXEmitter, Sound, DirtyUpdateMask);
+      DECLARE_SOUNDASSET_NET_SETGET(SFXEmitter, Sound, DirtyUpdateMask);
 
       /// The sound source for the emitter.
       SFXSource *mSource;

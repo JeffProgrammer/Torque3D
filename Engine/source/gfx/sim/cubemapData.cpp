@@ -44,10 +44,10 @@ CubemapData::CubemapData()
 
    for (U32 i = 0; i < 6; i++)
    {
-      INIT_IMAGEASSET_ARRAY(CubeMapFace, GFXStaticTextureSRGBProfile, i);
+      INIT_IMAGEASSET_ARRAY(CubeMapFace, i);
    }
 
-   INIT_ASSET(CubeMap);
+   INIT_IMAGEASSET(CubeMap);
 }
 
 CubemapData::~CubemapData()
@@ -135,7 +135,7 @@ void CubemapData::createMap()
        if( initSuccess )
        {
            mCubemap = GFX->createCubemap();
-           if (!mCubeMapFace || mCubeMapFace->isNull())
+           if (mCubeMapFace == NULL || mCubeMapFace->isNull())
               return;
            mCubemap->initStatic(mCubeMapFace);
        }

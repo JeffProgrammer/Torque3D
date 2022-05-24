@@ -508,7 +508,7 @@ PostEffect::PostEffect()
 
    for (U32 i = 0; i < NumTextures; i++)
    {
-      INIT_IMAGEASSET_ARRAY(Texture, PostFxTextureProfile, i);
+      INIT_IMAGEASSET_ARRAY(Texture, i);
    }
 }
 
@@ -602,19 +602,9 @@ bool PostEffect::onAdd()
    scriptPath.setExtension( String::EmptyString );
 
    // Find additional textures
-   for (S32 i = 0; i < NumTextures; i++)
+   for( S32 i = 0; i < NumTextures; i++ )
    {
       mTextureType[i] = NormalTextureType;
-      String texFilename = getTexture(i);
-
-      // Skip empty stages or ones with variable or target names.
-      if (texFilename.isEmpty() ||
-         texFilename[0] == '$' ||
-         texFilename[0] == '#')
-         continue;
-
-      mTextureProfile[i] = (mTexSRGB[i]) ? &PostFxTextureSRGBProfile : &PostFxTextureProfile;
-      _setTexture(texFilename, i);
    }
 
    // Is the target a named target?
@@ -1122,7 +1112,7 @@ void PostEffect::_setupConstants( const SceneRenderState *state )
 
 void PostEffect::_setupTexture( U32 stage, GFXTexHandle &inputTex, const RectI *inTexViewport )
 {
-   const String &texFilename = getTexture( stage );
+   const String &texFilename = mTextureName[ stage ];
 
    GFXTexHandle theTex;
    NamedTexTarget *namedTarget = NULL;
@@ -1635,8 +1625,12 @@ void PostEffect::setTexture( U32 index, const String &texFilePath )
 			texFilePath[0] == '#' )
 		return;
 
-    mTextureProfile[index] = (mTexSRGB[index])? &PostFxTextureSRGBProfile : &PostFxTextureProfile;
-    _setTexture(texFilePath, index);
+    GFXTextureProfile* profile = &PostFxTextureProfile;
+    if (mTexSRGB[index])
+       profile = &PostFxTextureSRGBProfile;
+
+    // Try to load the texture.
+    mTexture[index].set( texFilePath, profile, avar( "%s() - (line %d)", __FUNCTION__, __LINE__ ) );
 
     mTextureType[index] = NormalTextureType;
 }
@@ -1644,7 +1638,7 @@ void PostEffect::setTexture( U32 index, const String &texFilePath )
 void PostEffect::setTexture(U32 index, const GFXTexHandle& texHandle)
 {
    // Set the new texture name.
-   mTextureName[index] = StringTable->EmptyString();
+   mTextureName[index] = "";
    mTexture[index].free();
 
    // Skip empty stages or ones with variable or target names.

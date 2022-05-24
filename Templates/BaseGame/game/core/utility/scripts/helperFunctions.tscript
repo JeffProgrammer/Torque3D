@@ -643,13 +643,3 @@ function populateAllFonts(%font)
    populateFontCacheRange(%font,32,0,65535);
    populateFontCacheRange(%font,36,0,65535);
 }
-
-//------------------------------------------------------------------------------
-function playSoundAsset(%soundAssetId)
-{
-   %assetDef = AssetDatabase.acquireAsset(%soundAssetId);
-   if(isObject(%assetDef))
-      %assetDef.playSound();
-   
-   AssetDatabase.releaseAsset(%soundAssetId);
-}

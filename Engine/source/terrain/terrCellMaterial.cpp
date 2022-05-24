@@ -615,6 +615,8 @@ bool TerrainCellMaterial::_initShader(bool deferredMat,
    mOrmTexArrayConst = mShader->getShaderConstHandle("$ormMapSampler");
    if (mOrmTexArrayConst->isValid())
    {
+      GFXTextureProfile* profile = &GFXStaticTextureProfile;
+
       const S32 sampler = mOrmTexArrayConst->getSamplerRegister();
 
       desc.samplers[sampler] = GFXSamplerStateDesc::getWrapLinear();

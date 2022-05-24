@@ -59,7 +59,7 @@ ConsoleDocClass( GuiMissionAreaCtrl,
 
 GuiMissionAreaCtrl::GuiMissionAreaCtrl()
 {
-   INIT_ASSET(HandleBitmap);
+   INIT_IMAGEASSET(HandleBitmap);
 
    mHandleTextureSize = Point2I::Zero;
    mHandleTextureHalfSize = Point2F::Zero;

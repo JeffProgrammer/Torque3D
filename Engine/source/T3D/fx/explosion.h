@@ -42,7 +42,6 @@
 #endif
 
 #include "T3D/assets/ShapeAsset.h"
-#include "T3D/assets/SoundAsset.h"
 
 class ParticleEmitter;
 class ParticleEmitterData;
@@ -70,9 +69,7 @@ class ExplosionData : public GameBaseData {
    S32 particleDensity;
    F32 particleRadius;
 
-   DECLARE_SOUNDASSET(ExplosionData, Sound);
-   DECLARE_ASSET_SETGET(ExplosionData, Sound);
-
+   SFXTrack*        soundProfile;
    ParticleEmitterData* particleEmitter;
    S32                  particleEmitterId;
 
@@ -80,7 +77,7 @@ class ExplosionData : public GameBaseData {
    F32                  playSpeed;
 
    DECLARE_SHAPEASSET(ExplosionData, ExplosionShape, onShapeChanged);
-   DECLARE_ASSET_SETGET(ExplosionData, ExplosionShape);
+   DECLARE_SHAPEASSET_SETGET(ExplosionData, ExplosionShape);
 
    S32               explosionAnimation;
 

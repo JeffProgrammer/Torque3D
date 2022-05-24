@@ -109,7 +109,7 @@ SFXEmitter::SFXEmitter()
    mLocalProfile.mFilename = StringTable->EmptyString();
    mLocalProfile._registerSignals();
 
-   INIT_ASSET(Sound);
+   INIT_SOUNDASSET(Sound);
 
    mObjBox.minExtents.set( -1.f, -1.f, -1.f );
    mObjBox.maxExtents.set( 1.f, 1.f, 1.f );
@@ -290,7 +290,7 @@ U32 SFXEmitter::packUpdate( NetConnection *con, U32 mask, BitStream *stream )
       stream->writeAffineTransform( mObjToWorld );
 
    // track
-   PACK_ASSET(con, Sound);
+   PACK_SOUNDASSET(con, Sound);
    //if (stream->writeFlag(mDirty.test(Track)))
    //   sfxWrite( stream, mTrack );
 
@@ -401,7 +401,7 @@ void SFXEmitter::unpackUpdate( NetConnection *conn, BitStream *stream )
    }
 
    // track
-   UNPACK_ASSET(conn, Sound);
+   UNPACK_SOUNDASSET(conn, Sound);
    /*if (_readDirtyFlag(stream, Track))
    {
       String errorStr;

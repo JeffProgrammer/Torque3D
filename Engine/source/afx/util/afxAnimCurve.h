@@ -56,7 +56,7 @@ class afxAnimCurve
 
 	public:
 		afxAnimCurve();
-		virtual ~afxAnimCurve();
+		~afxAnimCurve();
 
 		void    addKey( Point2F &v );
 		void    addKey( F32 time, F32 value );

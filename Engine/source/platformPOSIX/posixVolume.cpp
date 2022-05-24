@@ -42,7 +42,7 @@
 
 
 //#define DEBUG_SPEW
-extern bool ResolvePathCaseInsensitive(char* pathName, S32 pathNameSize, bool requiredAbsolute);
+
 
 namespace Torque
 {
@@ -153,35 +153,17 @@ FileNodeRef PosixFileSystem::resolve(const Path& path)
 {
    String file = buildFileName(_volume,path);
    struct stat info;
-
-#ifdef TORQUE_POSIX_PATH_CASE_INSENSITIVE
-   // Resolve the case sensitive filepath
-   String::SizeType fileLength = file.length();
-   UTF8* caseSensitivePath = new UTF8[fileLength + 1];
-   dMemcpy(caseSensitivePath, file.c_str(), fileLength);
-   caseSensitivePath[fileLength] = 0x00;
-   ResolvePathCaseInsensitive(caseSensitivePath, fileLength, false);
-   String caseSensitiveFile(caseSensitivePath);
-#else
-   String caseSensitiveFile = file;
-#endif
-
-   FileNodeRef result = 0;
-   if (stat(caseSensitiveFile.c_str(),&info) == 0)
+   if (stat(file.c_str(),&info) == 0)
    {
       // Construct the appropriate object
       if (S_ISREG(info.st_mode))
-         result = new PosixFile(path,caseSensitiveFile);
+         return new PosixFile(path,file);
          
       if (S_ISDIR(info.st_mode))
-         result = new PosixDirectory(path,caseSensitiveFile);
+         return new PosixDirectory(path,file);
    }
-
-#ifdef TORQUE_POSIX_PATH_CASE_INSENSITIVE
-   delete[] caseSensitivePath;
-#endif
-
-   return result;
+   
+   return 0;
 }
 
 FileNodeRef PosixFileSystem::create(const Path& path, FileNode::Mode mode)
@@ -196,7 +178,7 @@ FileNodeRef PosixFileSystem::create(const Path& path, FileNode::Mode mode)
    {
       String file = buildFileName(_volume,path);
       
-      if (mkdir(file.c_str(),S_IRWXU | S_IRWXG | S_IRWXO) == 0)
+      if (mkdir(file.c_str(),S_IRWXU | S_IRWXG | S_IRWXO))
          return new PosixDirectory(path,file);
    }
    

@@ -20,9 +20,9 @@
 // IN THE SOFTWARE.
 //-----------------------------------------------------------------------------
 
-#include "../../../rendering/shaders/gl/hlslCompat.glsl"
+#include "../../../gl/hlslCompat.glsl"
 #include "shadergen:/autogenConditioners.h"
-#include "../../../rendering/shaders/postFX/gl/postFx.glsl"
+#include "../../gl/postFx.glsl"
 
 uniform sampler2D backBuffer;   // The original backbuffer.
 uniform sampler2D deferredTex;   // The pre-pass depth and normals.

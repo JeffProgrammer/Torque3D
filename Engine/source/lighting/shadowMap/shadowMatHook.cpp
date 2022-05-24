@@ -186,8 +186,10 @@ void ShadowMaterialHook::_overrideFeatures(  ProcessedMaterial *mat,
          type == MFT_TexAnim ||
          type == MFT_DiffuseMap ||
          type == MFT_IsTranslucent ||
+         type == MFT_Visibility ||
          type == MFT_UseInstancing ||
-         type == MFT_EyeSpaceDepthOut)
+         type == MFT_EyeSpaceDepthOut ||
+         type == MFT_DeferredConditioner)
             newFeatures.addFeature(type);
       else if (type.getGroup() == MFG_PreTransform ||
             type.getGroup() == MFG_Transform ||

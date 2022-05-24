@@ -238,12 +238,10 @@ void LightningStrikeEvent::process(NetConnection*)
 //
 LightningData::LightningData()
 {
-   INIT_ASSET(StrikeSound);
+   strikeSound = NULL;
 
    for (S32 i = 0; i < MaxThunders; i++)
-   {
-      INIT_ASSET_ARRAY(ThunderSound, i);
-   }
+      thunderSounds[i] = NULL;
 
    for (S32 i = 0; i < MaxTextures; i++)
    {
@@ -262,11 +260,12 @@ LightningData::~LightningData()
 //--------------------------------------------------------------------------
 void LightningData::initPersistFields()
 {
-
-   INITPERSISTFIELD_SOUNDASSET(StrikeSound, LightningData, "Sound to play when lightning STRIKES!");
-
-   INITPERSISTFIELD_SOUNDASSET_ARRAY(ThunderSound, MaxThunders, LightningData, "Sounds for thunder.");
-
+   addField( "strikeSound", TYPEID< SFXTrack >(), Offset(strikeSound, LightningData),
+      "Sound profile to play when a lightning strike occurs." );
+   addField( "thunderSounds", TYPEID< SFXTrack >(), Offset(thunderSounds, LightningData), MaxThunders,
+      "@brief List of thunder sound effects to play.\n\n"
+      "A random one of these sounds will be played shortly after each strike "
+      "occurs." );
    addField( "strikeTextures", TypeString, Offset(strikeTextureNames, LightningData), MaxTextures,
       "List of textures to use to render lightning strikes." );
 
@@ -291,32 +290,27 @@ bool LightningData::preload(bool server, String &errorStr)
 
    //dQsort(thunderSounds, MaxThunders, sizeof(SFXTrack*), cmpSounds);
 
-   
+   for (S32 i = 0; i < MaxThunders; i++) {
+	   if (thunderSounds[i]!= NULL) numThunders++;
+   }
+
    if (server == false) 
    {
-      for (S32 i = 0; i < MaxThunders; i++)
-      {
-         _setThunderSound(getThunderSound(i), i);
-         if (isThunderSoundValid(i) && !getThunderSoundProfile(i))
-         {
-               Con::errorf(ConsoleLogEntry::General, "LightningData::preload: Cant get an sfxProfile for thunder.");
-
-         }
-
+      String sfxErrorStr;
+      for (U32 i = 0; i < MaxThunders; i++) {
+         if( !sfxResolve( &thunderSounds[ i ], sfxErrorStr ) )
+            Con::errorf(ConsoleLogEntry::General, "LightningData::preload: Invalid packet: %s", sfxErrorStr.c_str());
       }
 
-      _setStrikeSound(getStrikeSound());
-      if (isStrikeSoundValid() && !getStrikeSoundProfile())
-      {
-            Con::errorf(ConsoleLogEntry::General, "LightningData::preload: can't get sfxProfile from strike sound.");
-      }
+      if( !sfxResolve( &strikeSound, sfxErrorStr ) )
+         Con::errorf(ConsoleLogEntry::General, "LightningData::preload: Invalid packet: %s", sfxErrorStr.c_str());
 
       mNumStrikeTextures = 0;
-      for (U32 k = 0; k < MaxTextures; k++) 
+      for (U32 i = 0; i < MaxTextures; i++) 
       {
-         if (strikeTextureNames[k][0])
+         if (strikeTextureNames[i][0])
          {
-            strikeTextures[k] = GFXTexHandle(strikeTextureNames[k], &GFXStaticTextureProfile, avar("%s() - strikeTextures[%d] (line %d)", __FUNCTION__, k, __LINE__));
+            strikeTextures[i] = GFXTexHandle(strikeTextureNames[i], &GFXStaticTextureProfile, avar("%s() - strikeTextures[%d] (line %d)", __FUNCTION__, i, __LINE__));
             mNumStrikeTextures++;
          }
       }
@@ -335,7 +329,8 @@ void LightningData::packData(BitStream* stream)
    U32 i;
    for (i = 0; i < MaxThunders; i++)
    {
-      PACKDATA_ASSET_ARRAY(ThunderSound, i);
+      if (stream->writeFlag(thunderSounds[i]))
+         sfxWrite(stream, thunderSounds[i]);
    }
 
    stream->writeInt(mNumStrikeTextures, 4);
@@ -343,7 +338,7 @@ void LightningData::packData(BitStream* stream)
    for (i = 0; i < MaxTextures; i++)
       stream->writeString(strikeTextureNames[i]);
 
-   PACKDATA_ASSET(StrikeSound);
+   sfxWrite( stream, strikeSound );
 }
 
 void LightningData::unpackData(BitStream* stream)
@@ -353,7 +348,10 @@ void LightningData::unpackData(BitStream* stream)
    U32 i;
    for (i = 0; i < MaxThunders; i++)
    {
-      UNPACKDATA_ASSET_ARRAY(ThunderSound, i);
+      if (stream->readFlag())
+         sfxRead(stream, &thunderSounds[i]);
+      else
+         thunderSounds[i] = NULL;
    }
 
    mNumStrikeTextures = stream->readInt(4);
@@ -361,7 +359,7 @@ void LightningData::unpackData(BitStream* stream)
    for (i = 0; i < MaxTextures; i++)
       strikeTextureNames[i] = stream->readSTString();
 
-   UNPACKDATA_ASSET(StrikeSound);
+   sfxRead( stream, &strikeSound );
 }
 
 
@@ -586,7 +584,7 @@ void Lightning::scheduleThunder(Strike* newStrike)
          if (t <= 0.03f) {
             // If it's really close, just play it...
             U32 thunder = sgLightningRand.randI(0, mDataBlock->numThunders - 1);
-            SFX->playOnce(mDataBlock->getThunderSoundProfile(thunder));
+            SFX->playOnce(mDataBlock->thunderSounds[thunder]);
          } else {
             Thunder* pThunder = new Thunder;
             pThunder->tRemaining = t;
@@ -653,7 +651,7 @@ void Lightning::advanceTime(F32 dt)
 
          // Play the sound...
          U32 thunder = sgLightningRand.randI(0, mDataBlock->numThunders - 1);
-         SFX->playOnce(mDataBlock->getThunderSoundProfile(thunder));
+         SFX->playOnce(mDataBlock->thunderSounds[thunder]);
       } else {
          pThunderWalker = &((*pThunderWalker)->next);
       }
@@ -737,9 +735,9 @@ void Lightning::processEvent(LightningStrikeEvent* pEvent)
       MatrixF trans(true);
       trans.setPosition( strikePoint );
 
-      if (mDataBlock->getStrikeSoundProfile())
+      if (mDataBlock->strikeSound)
       {
-         SFX->playOnce(mDataBlock->getStrikeSoundProfile(), &trans );
+         SFX->playOnce(mDataBlock->strikeSound, &trans );
       }
 
 }

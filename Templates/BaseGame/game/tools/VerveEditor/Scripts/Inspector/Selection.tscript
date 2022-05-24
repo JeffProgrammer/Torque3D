@@ -114,8 +114,7 @@ function VEditorSelectable::OnRightMouseUp( %this, %position, %modifiers, %click
     VerveEditor::SetSelection( %this );
     
     // Repaint.
-    if($Verve::UseSeparateWindow)
-      VerveEditorWindow.Repaint();
+    VerveEditorWindow.Repaint();
     
     if ( %this.Proxy.isMethod( "DisplayContextMenu" ) )
     {

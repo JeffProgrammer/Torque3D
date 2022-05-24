@@ -325,21 +325,14 @@ TEST(Maths, RotationF_Calculations)
 };
 #endif
 
-DefineEngineFunction(AddRotation, RotationF, (RotationF a, RotationF b, const char* returnType), ("Euler"),
+DefineEngineFunction(AddRotation, RotationF, (RotationF a, RotationF b), ,
    "Adds two rotations together.\n"
    "@param a Rotation one."
    "@param b Rotation two."
    "@returns v sum of both rotations."
    "@ingroup Math")
 {
-   RotationF ret;
-   RotationF sum = a + b;
-   if (String(returnType) == String("Euler"))
-      ret.set(sum.asEulerF());
-   else
-      ret.set(sum.asAxisAngle());
-
-   return ret;
+   return a + b;
 }
  
 DefineEngineFunction(SubtractRotation, RotationF, (RotationF a, RotationF b), ,

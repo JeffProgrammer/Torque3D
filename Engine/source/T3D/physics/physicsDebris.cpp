@@ -74,7 +74,7 @@ PhysicsDebrisData::PhysicsDebrisData()
    lifetime = 5.0f;
    lifetimeVariance = 0.0f;
 
-   INIT_ASSET(Shape);
+   INIT_SHAPEASSET(Shape);
 }
 
 bool PhysicsDebrisData::onAdd()
@@ -215,7 +215,7 @@ void PhysicsDebrisData::packData(BitStream* stream)
    stream->write( waterDampingScale );
    stream->write( buoyancyDensity );
 
-   PACKDATA_ASSET(Shape);
+   PACKDATA_SHAPEASSET(Shape);
 }
 
 void PhysicsDebrisData::unpackData(BitStream* stream)
@@ -236,7 +236,7 @@ void PhysicsDebrisData::unpackData(BitStream* stream)
    stream->read( &waterDampingScale );
    stream->read( &buoyancyDensity );
 
-   UNPACKDATA_ASSET(Shape);
+   UNPACKDATA_SHAPEASSET(Shape);
 }
 
 DefineEngineMethod( PhysicsDebrisData, preload, void, (), , 

@@ -74,16 +74,16 @@ IMPLEMENT_CALLBACK( ProximityMineData, onExplode, void, ( ProximityMine* obj, Po
 ProximityMineData::ProximityMineData()
  : armingDelay( 0 ),
    armingSequence( -1 ),
+   armingSound( NULL ),
    triggerRadius( 5.0f ),
    triggerSpeed( 1.0f ),
    autoTriggerDelay( 0 ),
    triggerOnOwner( false ),
    triggerDelay( 0 ),
    triggerSequence( -1 ),
+   triggerSound( NULL ),
    explosionOffset( 0.05f )
 {
-   INIT_ASSET(ArmSound);
-   INIT_ASSET(TriggerSound);
 }
 
 void ProximityMineData::initPersistFields()
@@ -91,9 +91,9 @@ void ProximityMineData::initPersistFields()
    addGroup( "Arming" );
    addField( "armingDelay", TypeF32, Offset(armingDelay, ProximityMineData), 
       "Delay (in seconds) from when the mine is placed to when it becomes active." );
-
-   INITPERSISTFIELD_SOUNDASSET(ArmSound, ProximityMineData, "Arming sound for this proximity mine.");
-
+   addField( "armingSound", TypeSFXTrackName, Offset(armingSound, ProximityMineData),
+      "Sound to play when the mine is armed (starts at the same time as "
+      "the <i>armed</i> sequence if defined)." );
    endGroup( "Arming" );
 
    addGroup( "Triggering" );
@@ -111,9 +111,9 @@ void ProximityMineData::initPersistFields()
       "Speed above which moving objects within the trigger radius will trigger the mine" );
    addField( "triggerDelay", TypeF32, Offset(triggerDelay, ProximityMineData),
       "Delay (in seconds) from when the mine is triggered until it explodes." );
-
-   INITPERSISTFIELD_SOUNDASSET(TriggerSound, ProximityMineData, "Arming sound for this proximity mine.");
-
+   addField( "triggerSound", TypeSFXTrackName, Offset(triggerSound, ProximityMineData),
+      "Sound to play when the mine is triggered (starts at the same time as "
+      "the <i>triggered</i> sequence if defined)." );
    endGroup( "Triggering" );
 
    addGroup( "Explosion" );
@@ -135,10 +135,12 @@ bool ProximityMineData::preload( bool server, String& errorStr )
 
    if ( !server )
    {
-      if( !getArmSound() )
-         Con::errorf( ConsoleLogEntry::General, "ProximityMineData::preload: Invalid arming sound." );
-      if( !getTriggerSound() )
-         Con::errorf( ConsoleLogEntry::General, "ProximityMineData::preload: Invalid trigger sound." );
+      // Resolve sounds
+      String sfxErrorStr;
+      if( !sfxResolve( &armingSound, sfxErrorStr ) )
+         Con::errorf( ConsoleLogEntry::General, "ProximityMineData::preload: Invalid packet: %s", sfxErrorStr.c_str() );
+      if( !sfxResolve( &triggerSound, sfxErrorStr ) )
+         Con::errorf( ConsoleLogEntry::General, "ProximityMineData::preload: Invalid packet: %s", sfxErrorStr.c_str() );
    }
 
    if ( mShape )
@@ -156,14 +158,14 @@ void ProximityMineData::packData( BitStream* stream )
    Parent::packData( stream );
 
    stream->write( armingDelay );
-   PACKDATA_ASSET(ArmSound);
+   sfxWrite( stream, armingSound );
 
    stream->write( autoTriggerDelay );
    stream->writeFlag( triggerOnOwner );
    stream->write( triggerRadius );
    stream->write( triggerSpeed );
    stream->write( triggerDelay );
-   PACKDATA_ASSET(TriggerSound);
+   sfxWrite( stream, triggerSound );
 }
 
 void ProximityMineData::unpackData( BitStream* stream )
@@ -171,14 +173,14 @@ void ProximityMineData::unpackData( BitStream* stream )
    Parent::unpackData(stream);
 
    stream->read( &armingDelay );
-   UNPACKDATA_ASSET(ArmSound);
+   sfxRead( stream, &armingSound );
 
    stream->read( &autoTriggerDelay );
    triggerOnOwner = stream->readFlag();
    stream->read( &triggerRadius );
    stream->read( &triggerSpeed );
    stream->read( &triggerDelay );
-   UNPACKDATA_ASSET(TriggerSound);
+   sfxRead( stream, &triggerSound );
 }
 
 //----------------------------------------------------------------------------
@@ -426,8 +428,8 @@ void ProximityMine::processTick( const Move* move )
                   mAnimThread = mShapeInstance->addThread();
                   mShapeInstance->setSequence( mAnimThread, mDataBlock->armingSequence, 0.0f );
                }
-               if ( mDataBlock->getArmSound() )
-                  SFX->playOnce( mDataBlock->getArmSoundAsset()->getSfxProfile(), &getRenderTransform() );
+               if ( mDataBlock->armingSound )
+                  SFX->playOnce( mDataBlock->armingSound, &getRenderTransform() );
             }
             break;
 
@@ -467,8 +469,8 @@ void ProximityMine::processTick( const Move* move )
                   mAnimThread = mShapeInstance->addThread();
                   mShapeInstance->setSequence( mAnimThread, mDataBlock->triggerSequence, 0.0f );
                }
-               if ( mDataBlock->getTriggerSound() )
-                  SFX->playOnce( mDataBlock->getTriggerSoundAsset()->getSfxProfile(), &getRenderTransform() );
+               if ( mDataBlock->triggerSound )
+                  SFX->playOnce( mDataBlock->triggerSound, &getRenderTransform() );
 
                if ( isServerObject() )
                   mDataBlock->onTriggered_callback( this, sql.mList[0] );

@@ -53,26 +53,25 @@ function ESettingsWindow::onWake( %this )
 
 function ESettingsWindow::hideDialog( %this )
 {
-   Canvas.popDialog(EditorSettingsWindow);
+   %this.setVisible(false);
 }
 
 function ESettingsWindow::ToggleVisibility()
 {
-   if(ESettingsWindow.isAwake())
+   if ( ESettingsWindow.visible )
    {
-      Canvas.popDialog(EditorSettingsWindow);
+      ESettingsWindow.setVisible(false);
    }
    else
    {
-      Canvas.pushDialog(EditorSettingsWindow); 
-      
+      ESettingsWindow.setVisible(true);
       ESettingsWindow.selectWindow();
       ESettingsWindow.setCollapseGroup(false);
       
       ESettingsWindowList.clear();
+   }
    
    ESettingsWindowList.setSelectedById( 1 );
-}
 }
 
 function ESettingsWindow::toggleProjectSettings(%this)
@@ -529,7 +528,7 @@ function ESettingsWindow::getAssetEditingSettings(%this)
    }
    
    SettingsInspector.startGroup("Assets Importing");
-   SettingsInspector.addField("Edit Import Configs", "Edit Asset Import Configs", "button", "Open Asset Import Config Editor", "", "Canvas.pushDialog(AssetImportConfigEditor);");
+   SettingsInspector.addField("Edit Asset Configs", "Edit Asset Import Configs", "button", "Open Asset Import Config Editor", "", "Canvas.pushDialog(AssetImportConfigEditor);");
    SettingsInspector.addSettingsField("Assets/AssetImporDefaultConfig", "Default Asset Import Config", "list", "", %formattedConfigList); 
    SettingsInspector.addSettingsField("Assets/AutoImport", "Automatically Import using default config", "bool", "If on, the asset importing process" @
                                                                                                                         "will attempt to automatically import any inbound assets"@

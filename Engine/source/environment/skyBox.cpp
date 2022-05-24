@@ -56,7 +56,7 @@ SkyBox::SkyBox()
    mTypeMask |= EnvironmentObjectType | StaticObjectType;
    mNetFlags.set(Ghostable | ScopeAlways);
 
-   INIT_ASSET(Material);
+   INIT_MATERIALASSET(Material);
    mMatInstance = NULL;
 
    mIsVBDirty = false;
@@ -139,7 +139,7 @@ U32 SkyBox::packUpdate( NetConnection *conn, U32 mask, BitStream *stream )
 {
    U32 retMask = Parent::packUpdate( conn, mask, stream );
 
-   PACK_ASSET(conn, Material);
+   PACK_MATERIALASSET(conn, Material);
 
    stream->writeFlag( mDrawBottom );
    stream->write( mFogBandHeight );
@@ -152,7 +152,7 @@ void SkyBox::unpackUpdate( NetConnection *conn, BitStream *stream )
    Parent::unpackUpdate( conn, stream );
 
    StringTableEntry oldMatName = getMaterial();
-   UNPACK_ASSET(conn, Material);
+   UNPACK_MATERIALASSET(conn, Material);
    if (oldMatName != getMaterial())
    {
       _updateMaterial();

@@ -195,7 +195,7 @@ private:
 	daeRawRefCache rawRefCache;
 	daeSidRefCache sidRefCache;
 
-	std::unique_ptr<charEncoding> localCharEncoding;
+	std::auto_ptr<charEncoding> localCharEncoding;
 	static charEncoding globalCharEncoding;
 };
 

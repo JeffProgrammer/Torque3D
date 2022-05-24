@@ -176,3 +176,8 @@ Torque::FS::FileSystemRef Platform::FS::createNativeFS( const String &volume )
 {
    return new MacFileSystem( volume );
 }
+
+bool Torque::FS::VerifyWriteAccess(const Torque::Path &path)
+{
+   return true;
+}

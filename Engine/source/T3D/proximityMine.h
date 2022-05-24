@@ -27,8 +27,6 @@
    #include "T3D/item.h"
 #endif
 
-#include "T3D/assets/SoundAsset.h"
-
 class ExplosionData;
 class SFXTrack;
 class ProximityMine;
@@ -45,8 +43,7 @@ struct ProximityMineData: public ItemData
 public:
    F32               armingDelay;
    S32               armingSequence;
-   DECLARE_SOUNDASSET(ProximityMineData, ArmSound);
-   DECLARE_ASSET_SETGET(ProximityMineData, ArmSound);
+   SFXTrack*         armingSound;
 
    F32               autoTriggerDelay;
    bool              triggerOnOwner;
@@ -54,8 +51,7 @@ public:
    F32               triggerSpeed;
    F32               triggerDelay;
    S32               triggerSequence;
-   DECLARE_SOUNDASSET(ProximityMineData, TriggerSound);
-   DECLARE_ASSET_SETGET(ProximityMineData, TriggerSound);
+   SFXTrack*         triggerSound;
 
    F32               explosionOffset;
 

@@ -35,13 +35,6 @@
 #include "console/simBase.h"
 
 extern FuncVars gEvalFuncVars;
-extern FuncVars gGlobalScopeFuncVars;
-extern FuncVars *gFuncVars;
-
-namespace Con
-{
-extern bool scriptWarningsAsAsserts;
-};
 
 namespace Compiler
 {
@@ -131,24 +124,12 @@ namespace Compiler
       getFunctionStringTable().reset();
       getIdentTable().reset();
       getFunctionVariableMappingTable().reset();
-      gGlobalScopeFuncVars.clear();
-      gFuncVars = gIsEvalCompile ? &gEvalFuncVars : &gGlobalScopeFuncVars;
+      gEvalFuncVars.clear();
    }
 
    void *consoleAlloc(U32 size) { return gConsoleAllocator.alloc(size); }
    void consoleAllocReset() { gConsoleAllocator.freeBlocks(); }
 
-   void scriptErrorHandler(const char* str)
-   {
-      if (Con::scriptWarningsAsAsserts)
-      {
-         AssertISV(false, str);
-      }
-      else
-      {
-         Con::warnf(ConsoleLogEntry::Type::Script, "%s", str);
-      }
-   }
 }
 
 //-------------------------------------------------------------------------
@@ -160,11 +141,7 @@ S32 FuncVars::assign(StringTableEntry var, TypeReq currentType, S32 lineNumber, 
    std::unordered_map<StringTableEntry, Var>::iterator found = vars.find(var);
    if (found != vars.end())
    {
-      if (found->second.isConstant)
-      {
-         const char* str = avar("Script Warning: Reassigning variable %s when it is a constant. File: %s Line : %d", var, CodeBlock::smCurrentParser->getCurrentFile(), lineNumber);
-         scriptErrorHandler(str);
-      }
+      AssertISV(!found->second.isConstant, avar("Reassigning variable %s when it is a constant. File: %s Line : %d", var, CodeBlock::smCurrentParser->getCurrentFile(), lineNumber));
       return found->second.reg;
    }
 
@@ -178,15 +155,7 @@ S32 FuncVars::assign(StringTableEntry var, TypeReq currentType, S32 lineNumber, 
 S32 FuncVars::lookup(StringTableEntry var, S32 lineNumber)
 {
    std::unordered_map<StringTableEntry, Var>::iterator found = vars.find(var);
-   
-   if (found == vars.end())
-   {
-      const char* str = avar("Script Warning: Variable %s referenced before used when compiling script. File: %s Line: %d", var, CodeBlock::smCurrentParser->getCurrentFile(), lineNumber);
-      scriptErrorHandler(str);
-      
-      return assign(var, TypeReqString, lineNumber, false);
-   }
-   
+   AssertISV(found != vars.end(), avar("Variable %s referenced before used when compiling script. File: %s Line: %d", var, CodeBlock::smCurrentParser->getCurrentFile(), lineNumber));
    return found->second.reg;
 }
 
@@ -194,15 +163,7 @@ TypeReq FuncVars::lookupType(StringTableEntry var, S32 lineNumber)
 {
    std::unordered_map<StringTableEntry, Var>::iterator found = vars.find(var);
 
-   if (found == vars.end())
-   {
-      const char* str = avar("Script Warning: Variable %s referenced before used when compiling script. File: %s Line: %d", var, CodeBlock::smCurrentParser->getCurrentFile(), lineNumber);
-      scriptErrorHandler(str);
-      
-      assign(var, TypeReqString, lineNumber, false);
-      return vars.find(var)->second.currentType;
-   }
-   
+   AssertISV(found != vars.end(), avar("Variable %s referenced before used when compiling script. File: %s Line: %d", var, CodeBlock::smCurrentParser->getCurrentFile(), lineNumber));
    return found->second.currentType;
 }
 

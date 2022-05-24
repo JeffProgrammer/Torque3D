@@ -81,7 +81,6 @@ public:
 class afxXM_WaveInterp
 {
 public:
-  virtual ~afxXM_WaveInterp() { }
   virtual void interpolate(F32 t, afxXM_Params& params)=0;
   virtual void pulse()=0;
 
@@ -251,7 +250,7 @@ protected:
 
 public:
   /*C*/                 afxXM_WaveBase(afxXM_WaveBaseData*, afxEffectWrapper*, afxXM_WaveInterp*);
-  /*D*/                 virtual ~afxXM_WaveBase();
+  /*D*/                 ~afxXM_WaveBase();
 
   virtual void          updateParams(F32 dt, F32 elapsed, afxXM_Params& params);
 };

@@ -173,5 +173,6 @@ private:
 #define assetText(x,suff) #x#suff
 #define macroText(x) #x
 #define assetDoc(x,suff) "@brief "#x" "#suff
+
 #endif // _ASSET_BASE_H_
 

@@ -90,7 +90,7 @@ Sun::Sun()
    mCoronaUseLightColor = true;
    mCoronaMatInst = NULL;
 
-   INIT_ASSET(CoronaMaterial);
+   INIT_MATERIALASSET(CoronaMaterial);
 
    mMatrixSet = reinterpret_cast<MatrixSet *>(dMalloc_aligned(sizeof(MatrixSet), 16));
    constructInPlace(mMatrixSet);
@@ -240,7 +240,7 @@ U32 Sun::packUpdate(NetConnection *conn, U32 mask, BitStream *stream )
 
       stream->writeFlag( mCoronaEnabled );
 
-      PACK_ASSET(conn, CoronaMaterial);
+      PACK_MATERIALASSET(conn, CoronaMaterial);
 
       stream->write( mCoronaScale );
       stream->write( mCoronaTint );
@@ -286,7 +286,7 @@ void Sun::unpackUpdate( NetConnection *conn, BitStream *stream )
 
       mCoronaEnabled = stream->readFlag();
 
-      UNPACK_ASSET(conn, CoronaMaterial);
+      UNPACK_MATERIALASSET(conn, CoronaMaterial);
 
       stream->read( &mCoronaScale );
       stream->read( &mCoronaTint );

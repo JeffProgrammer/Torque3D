@@ -75,7 +75,7 @@ ConsoleDocClass( WheeledVehicleTire,
 
 WheeledVehicleTire::WheeledVehicleTire()
 {
-   INIT_ASSET(Shape);
+   INIT_SHAPEASSET(Shape);
 
    staticFriction = 1;
    kineticFriction = 0.5f;
@@ -177,7 +177,7 @@ void WheeledVehicleTire::packData(BitStream* stream)
 {
    Parent::packData(stream);
 
-   PACKDATA_ASSET(Shape);
+   PACKDATA_SHAPEASSET(Shape);
 
    stream->write(mass);
    stream->write(staticFriction);
@@ -196,7 +196,7 @@ void WheeledVehicleTire::unpackData(BitStream* stream)
 {
    Parent::unpackData(stream);
 
-   UNPACKDATA_ASSET(Shape);
+   UNPACKDATA_SHAPEASSET(Shape);
 
    stream->read(&mass);
    stream->read(&staticFriction);
@@ -289,17 +289,6 @@ ConsoleDocClass( WheeledVehicleData,
    "@ingroup Vehicles\n"
 );
 
-typedef WheeledVehicleData::Sounds wheelSoundsEnum;
-DefineEnumType(wheelSoundsEnum);
-
-ImplementEnumType(wheelSoundsEnum, "enum types.\n"
-   "@ingroup WheeledVehicleData\n\n")
-   {WheeledVehicleData::JetSound,          "JetSound", "..." },
-   {WheeledVehicleData::EngineSound,       "EngineSound", "..." },
-   {WheeledVehicleData::SquealSound,       "SquealSound", "..." },
-   {WheeledVehicleData::WheelImpactSound,  "WheelImpactSound", "..." },
-EndImplementEnumType;
-
 WheeledVehicleData::WheeledVehicleData()
 {
    tireEmitter = 0;
@@ -312,7 +301,7 @@ WheeledVehicleData::WheeledVehicleData()
    wheelCount = 0;
    dMemset(&wheel, 0, sizeof(wheel));
    for (S32 i = 0; i < MaxSounds; i++)
-      INIT_ASSET_ARRAY(WheeledVehicleSounds, i);
+      sound[i] = 0;
 }
 
 
@@ -346,9 +335,10 @@ bool WheeledVehicleData::preload(bool server, String &errorStr)
    if (!server) {
       for (S32 i = 0; i < MaxSounds; i++)
       {
-         if (getWheeledVehicleSounds(i) != StringTable->EmptyString())
+         if (!sfxResolve(&sound[i], errorStr))
          {
-            _setWheeledVehicleSounds(getWheeledVehicleSounds(i), i);
+            delete si;
+            return false;
          }
       }
 
@@ -448,7 +438,16 @@ bool WheeledVehicleData::mirrorWheel(Wheel* we)
 
 void WheeledVehicleData::initPersistFields()
 {
-   INITPERSISTFIELD_SOUNDASSET_ENUMED(WheeledVehicleSounds, wheelSoundsEnum, MaxSounds, WheeledVehicleData, "Sounds related to wheeled vehicle.");
+   addField( "jetSound", TYPEID< SFXTrack >(), Offset(sound[JetSound], WheeledVehicleData),
+      "Looping sound played when the vehicle is jetting." );
+   addField( "engineSound", TYPEID< SFXTrack >(), Offset(sound[EngineSound], WheeledVehicleData),
+      "@brief Looping engine sound.\n\n"
+      "The pitch is dynamically adjusted based on the current engine RPM" );
+   addField("squealSound", TYPEID< SFXTrack >(), Offset(sound[SquealSound], WheeledVehicleData),
+      "@brief Looping sound played while any of the wheels is slipping.\n\n"
+      "The volume is dynamically adjusted based on how much the wheels are slipping." );
+   addField("WheelImpactSound", TYPEID< SFXTrack >(), Offset(sound[WheelImpactSound], WheeledVehicleData),
+      "Sound played when the wheels impact the ground.\nCurrently unused." );
 
    addField("tireEmitter",TYPEID< ParticleEmitterData >(), Offset(tireEmitter, WheeledVehicleData),
       "ParticleEmitterData datablock used to generate particles from each wheel "
@@ -482,9 +481,7 @@ void WheeledVehicleData::packData(BitStream* stream)
          tireEmitter->getId(),DataBlockObjectIdFirst,DataBlockObjectIdLast);
 
    for (S32 i = 0; i < MaxSounds; i++)
-   {
-      PACKDATA_ASSET_ARRAY(WheeledVehicleSounds, i);
-   }
+      sfxWrite( stream, sound[ i ] );
 
    stream->write(maxWheelSpeed);
    stream->write(engineTorque);
@@ -501,9 +498,7 @@ void WheeledVehicleData::unpackData(BitStream* stream)
          DataBlockObjectIdLast): 0;
 
    for (S32 i = 0; i < MaxSounds; i++)
-   {
-      UNPACKDATA_ASSET_ARRAY(WheeledVehicleSounds, i);
-   }
+      sfxRead( stream, &sound[ i ] );
 
    stream->read(&maxWheelSpeed);
    stream->read(&engineTorque);
@@ -565,6 +560,8 @@ bool WheeledVehicle::onAdd()
       return false;
 
    addToScene();
+   if (isServerObject())
+      scriptOnAdd();
    return true;
 }
 
@@ -586,6 +583,7 @@ void WheeledVehicle::onRemove()
    SFX_DELETE( mSquealSound );
 
    //
+   scriptOnRemove();
    removeFromScene();
    Parent::onRemove();
 }
@@ -685,14 +683,14 @@ bool WheeledVehicle::onNewDataBlock(GameBaseData* dptr, bool reload)
       SFX_DELETE( mSquealSound );
       SFX_DELETE( mJetSound );
 
-      if ( mDataBlock->getWheeledVehicleSounds(WheeledVehicleData::EngineSound) )
-         mEngineSound = SFX->createSource( mDataBlock->getWheeledVehicleSound(WheeledVehicleData::EngineSound), &getTransform() );
+      if ( mDataBlock->sound[WheeledVehicleData::EngineSound] )
+         mEngineSound = SFX->createSource( mDataBlock->sound[WheeledVehicleData::EngineSound], &getTransform() );
 
-      if ( mDataBlock->getWheeledVehicleSounds(WheeledVehicleData::SquealSound) )
-         mSquealSound = SFX->createSource( mDataBlock->getWheeledVehicleSound(WheeledVehicleData::SquealSound), &getTransform() );
+      if ( mDataBlock->sound[WheeledVehicleData::SquealSound] )
+         mSquealSound = SFX->createSource( mDataBlock->sound[WheeledVehicleData::SquealSound], &getTransform() );
 
-      if ( mDataBlock->getWheeledVehicleSounds(WheeledVehicleData::JetSound) )
-         mJetSound = SFX->createSource( mDataBlock->getWheeledVehicleSound(WheeledVehicleData::JetSound), &getTransform() );
+      if ( mDataBlock->sound[WheeledVehicleData::JetSound] )
+         mJetSound = SFX->createSource( mDataBlock->sound[WheeledVehicleData::JetSound], &getTransform() );
    }
 
    scriptOnNewDataBlock();

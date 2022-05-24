@@ -1,8 +1,0 @@
-<ImageAsset
-    canSave="true"
-    canSaveDynamicFields="true"
-    AssetName="larger_image"
-    imageFile="@assetFile=larger.png"
-    UseMips="true"
-    isHDRImage="false"
-    imageType="Albedo" />

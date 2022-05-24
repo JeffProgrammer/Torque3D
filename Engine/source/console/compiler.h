@@ -275,8 +275,6 @@ namespace Compiler
    void *consoleAlloc(U32 size);
    void consoleAllocReset();
 
-   void scriptErrorHandler(const char* str);
-
    extern bool gSyntaxError;
    extern bool gIsEvalCompile;
 };

@@ -409,15 +409,6 @@ public:
    /// </summary>
    bool SoundsCompressed;
 
-   /// When importing an image, this indicates if it should automatically add a standard suffix onto the name
-   /// </summary>
-   bool AlwaysAddSoundSuffix;
-
-   /// <summary>
-   /// If AlwaysAddSoundSuffix is on, this is the suffix to be added
-   /// </summary>
-   String AddedSoundSuffix;
-
 public:
    AssetImportConfig();
    virtual ~AssetImportConfig();
@@ -646,8 +637,6 @@ class AssetImporter : public SimObject
    /// only used for passing up the result of an import action for a script-side handled type
    /// </summary>
    String finalImportedAssetPath;
-
-   bool mDumpLogs;
 
 public:
    AssetImporter();
@@ -905,15 +894,9 @@ public:
    /// </summary>
    AssetImportConfig* getImportConfig() { return activeImportConfig; }
 
-   void setImportConfig(AssetImportConfig* importConfig)
-   {
-      if (importConfig != nullptr)
-      {
-         dSprintf(importLogBuffer, sizeof(importLogBuffer), "Loading import config: %s!", importConfig->getName());
-         activityLog.push_back(importLogBuffer);
-
+   void setImportConfig(AssetImportConfig* importConfig) {
+      if(importConfig != nullptr)
          activeImportConfig = importConfig;
-      }
    }
 
    /// <summary>
@@ -948,30 +931,16 @@ public:
       return imagePath;
    }
 
+   static inline const char* makeFullPath(const String& path)
+   {
+      char qualifiedFilePath[2048];
+
+      Platform::makeFullPathName(path.c_str(), qualifiedFilePath, sizeof(qualifiedFilePath));
+
+      return qualifiedFilePath;
+   }
+
    //
    void setTargetModuleId(const String& moduleId) { targetModuleId = moduleId; }
    const String& getTargetModuleId() { return targetModuleId; }
-
-   String getFolderPrefixedName(AssetImportObject* assetItem)
-   {
-      String renamedAssetName = assetItem->assetName;
-      S32 dirIndex = assetItem->filePath.getDirectoryCount() - 1;
-      while (dirIndex > -1)
-      {
-         renamedAssetName = assetItem->assetName;
-         String owningFolder = assetItem->filePath.getDirectory(dirIndex);
-
-         renamedAssetName = owningFolder + "_" + renamedAssetName;
-
-         if (AssetDatabase.isDeclaredAsset(renamedAssetName))
-         {
-            dirIndex--;
-            continue;
-         }
-
-         break;
-      }
-
-      return renamedAssetName;
-   }
 };

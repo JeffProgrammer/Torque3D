@@ -287,7 +287,7 @@ DecalRoad::DecalRoad()
    mTypeMask |= StaticObjectType | StaticShapeObjectType;
    mNetFlags.set(Ghostable);
 
-   INIT_ASSET(Material);
+   INIT_MATERIALASSET(Material);
 
    mMaterialInst = nullptr;
 }
@@ -320,7 +320,7 @@ void DecalRoad::initPersistFields()
 
    addGroup( "Internal" );
 
-      addProtectedField( "node", TypeString, 0, &addNodeFromField, &emptyStringProtectedGetFn,
+      addProtectedField( "node", TypeString, NULL, &addNodeFromField, &emptyStringProtectedGetFn, 
          "Do not modify, for internal use." );
 
    endGroup( "Internal" );
@@ -491,7 +491,7 @@ U32 DecalRoad::packUpdate(NetConnection * con, U32 mask, BitStream * stream)
    if ( stream->writeFlag( mask & DecalRoadMask ) )
    {
       // Write Texture Name.
-      PACK_ASSET(con, Material);
+      PACK_MATERIALASSET(con, Material);
 
       stream->write( mBreakAngle );      
 
@@ -580,7 +580,7 @@ void DecalRoad::unpackUpdate( NetConnection *con, BitStream *stream )
    // DecalRoadMask
    if ( stream->readFlag() )
    {
-      UNPACK_ASSET(con, Material);
+      UNPACK_MATERIALASSET(con, Material);
 
       if (isProperlyAdded())
          _initMaterial();

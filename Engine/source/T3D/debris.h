@@ -84,7 +84,7 @@ struct DebrisData : public GameBaseData
    bool     ignoreWater;
 
    DECLARE_SHAPEASSET(DebrisData, Shape, onShapeChanged);
-   DECLARE_ASSET_SETGET(DebrisData, Shape);
+   DECLARE_SHAPEASSET_SETGET(DebrisData, Shape);
 
    StringTableEntry  textureName;
 

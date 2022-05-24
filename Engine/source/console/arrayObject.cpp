@@ -103,8 +103,7 @@ S32 QSORT_CALLBACK ArrayObject::_keyFunctionCompare( const void* a, const void* 
    ArrayObject::Element* ea = ( ArrayObject::Element* )( a );
    ArrayObject::Element* eb = ( ArrayObject::Element* )( b );
    
-   ConsoleValue cValue = Con::executef((const char*)smCompareFunction, ea->key, eb->key);
-   S32 result = cValue.getInt();
+   S32 result = dAtoi(Con::executef((const char*)smCompareFunction, ea->key, eb->key));
    S32 res = result < 0 ? -1 : ( result > 0 ? 1 : 0 );
    return ( smDecreasing ? -res : res );
 }
@@ -114,8 +113,7 @@ S32 QSORT_CALLBACK ArrayObject::_valueFunctionCompare( const void* a, const void
    ArrayObject::Element* ea = ( ArrayObject::Element* )( a );
    ArrayObject::Element* eb = ( ArrayObject::Element* )( b );
    
-   ConsoleValue cValue = Con::executef( (const char*)smCompareFunction, ea->value, eb->value );
-   S32 result = cValue.getInt();
+   S32 result = dAtoi( Con::executef( (const char*)smCompareFunction, ea->value, eb->value ) );
    S32 res = result < 0 ? -1 : ( result > 0 ? 1 : 0 );
    return ( smDecreasing ? -res : res );
 }
@@ -125,7 +123,7 @@ S32 QSORT_CALLBACK ArrayObject::_valueFunctionCompare( const void* a, const void
 
 ArrayObject::ArrayObject()
    : mCaseSensitive( false ),
-     mCurrentIndex( 0 )
+     mCurrentIndex( NULL )
 {
 }
 
@@ -137,7 +135,7 @@ void ArrayObject::initPersistFields()
       "Makes the keys and values case-sensitive.\n"
       "By default, comparison of key and value strings will be case-insensitive." );
 
-   addProtectedField( "key", TypeCaseString, 0, &_addKeyFromField, &emptyStringProtectedGetFn,
+   addProtectedField( "key", TypeCaseString, NULL, &_addKeyFromField, &emptyStringProtectedGetFn, 
       "Helper field which allows you to add new key['keyname'] = value pairs." );
 
    Parent::initPersistFields();

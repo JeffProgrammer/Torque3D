@@ -99,7 +99,7 @@ LevelInfo::LevelInfo()
 
    mAdvancedLightmapSupport = true;
 
-   INIT_ASSET(AccuTexture);
+   INIT_IMAGEASSET(AccuTexture);
 
    // Register with the light manager activation signal, and we need to do it first
    // so the advanced light bin manager can be instructed about MRT lightmaps
@@ -215,7 +215,7 @@ U32 LevelInfo::packUpdate(NetConnection *conn, U32 mask, BitStream *stream)
    sfxWrite( stream, mSoundAmbience );
    stream->writeInt( mSoundDistanceModel, 1 );
 
-   PACK_ASSET(conn, AccuTexture);
+   PACK_IMAGEASSET(conn, AccuTexture);
 
    return retMask;
 }
@@ -262,7 +262,7 @@ void LevelInfo::unpackUpdate(NetConnection *conn, BitStream *stream)
       SFX->setDistanceModel( mSoundDistanceModel );
    }
 
-   UNPACK_ASSET(conn, AccuTexture);
+   UNPACK_IMAGEASSET(conn, AccuTexture);
    setLevelAccuTexture(getAccuTexture());
 }
 

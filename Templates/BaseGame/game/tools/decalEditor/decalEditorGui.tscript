@@ -326,40 +326,51 @@ function DecalInspector::removeDirty()
 
 function DecalEditorGui::updateDecalPreview( %this, %material )
 {
-   %previewImage = "";
-   
    if( isObject( %material ) )
    {
-      %previewImage = %material.getDiffuseMap(0);
+      DecalPreviewWindow-->decalPreview.setBitmap( %material.getDiffuseMap(0) );
    }
    else
    {
       if(AssetDatabase.isDeclaredAsset(%material))
       {
-         %previewImage = %material;
+         %assetDef = AssetDatabase.acquireAsset(%material);
+         %difMap = %assetDef.materialDefinitionName.getDiffuseMap(0);
+         AssetDatabase.acquireAsset(%material);
+         
+         if(%difMap !$= "" && %difMap !$= "Core_Rendering:missingTexture")
+         {
+            DecalPreviewWindow-->decalPreview.setBitmap( %difMap );
+            return;
          }
       }
-   
-   DecalPreviewWindow-->decalPreview.setBitmap( getAssetPreviewImage(%previewImage) );
+      DecalPreviewWindow-->decalPreview.setBitmap("ToolsModule:unknownImage_image");
    }
+}
 
 function DecalEditorGui::updateInstancePreview( %this, %material )
 {
-   %previewImage = "";
-   
    if( isObject( %material ) )
    {
-      %previewImage = %material.getDiffuseMap(0);
+      DecalPreviewWindow-->instancePreview.setBitmap( %material.getDiffuseMap(0) );      
    }
    else
    {
       if(AssetDatabase.isDeclaredAsset(%material))
       {
-         %previewImage = %material;
+         %assetDef = AssetDatabase.acquireAsset(%material);
+         %difMap = %assetDef.materialDefinitionName.getDiffuseMap(0);
+         AssetDatabase.acquireAsset(%material);
+         
+         if(%difMap !$= "" && %difMap !$= "Core_Rendering:missingTexture")
+         {
+            DecalPreviewWindow-->instancePreview.setBitmap( %difMap );
+            return;
          }
       }
       
-   DecalPreviewWindow-->instancePreview.setBitmap( getAssetPreviewImage(%previewImage) ); 
+      DecalPreviewWindow-->instancePreview.setBitmap("ToolsModule:unknownImage_image");   
+}
 }
 
 function DecalEditorGui::rebuildInstanceTree( %this )

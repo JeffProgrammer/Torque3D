@@ -438,8 +438,7 @@ void GuiRiverEditorCtrl::_process3DMouseDown( const Gui3DMouseEvent& event )
          return;
       }
 
-      ConsoleValue cValue = Con::executef( this, "createRiver" );
-      const char* res = cValue.getString();
+      const char *res = Con::executef( this, "createRiver" );
 
       River *newRiver;
       if ( !Sim::findObject( res, newRiver ) )
@@ -1472,7 +1471,7 @@ DefineEngineMethod( GuiRiverEditorCtrl, getSelectedRiver, S32, (), , "" )
 {
    River *river = object->getSelectedRiver();
    if ( !river )
-      return 0;
+      return NULL;
 
    return river->getId();
 }

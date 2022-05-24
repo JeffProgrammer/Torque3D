@@ -1584,8 +1584,7 @@ bool TSShape::addSequence(const Torque::Path& path, const String& fromSeq,
          offset = srcShape->groundTranslations.size() - 1;
       }
 
-      const Point3F pointValueToCopy = srcShape->groundTranslations[offset];
-      groundTranslations.push_back(pointValueToCopy);
+      groundTranslations.push_back(srcShape->groundTranslations[offset]);
 
       S32 offset2 = groundBase + i;
       if (offset2 >= srcShape->groundRotations.size())
@@ -1594,8 +1593,7 @@ bool TSShape::addSequence(const Torque::Path& path, const String& fromSeq,
          offset2 = srcShape->groundRotations.size() - 1;
       }
 
-      const Quat16 quatValueToCopy = srcShape->groundRotations[offset2];
-      groundRotations.push_back(quatValueToCopy);
+      groundRotations.push_back(srcShape->groundRotations[offset2]);
    }
 
    // Add triggers

@@ -44,7 +44,7 @@ struct WheeledVehicleTire: public SimDataBlock
    typedef SimDataBlock Parent;
 
    DECLARE_SHAPEASSET(WheeledVehicleTire, Shape, onShapeChanged);
-   DECLARE_ASSET_SETGET(WheeledVehicleTire, Shape);
+   DECLARE_SHAPEASSET_SETGET(WheeledVehicleTire, Shape);
 
    // Physical properties
    F32 mass;                  // Mass of the whole wheel
@@ -118,17 +118,7 @@ struct WheeledVehicleData: public VehicleData
       WheelImpactSound,
       MaxSounds,
    };
-
-   DECLARE_SOUNDASSET_ARRAY(WheeledVehicleData, WheeledVehicleSounds, Sounds::MaxSounds);
-
-   SFXProfile* getWheeledVehicleSound(U32 id)
-   {
-      if (mWheeledVehicleSoundsAsset[id] != NULL)
-         return mWheeledVehicleSoundsAsset[id]->getSfxProfile();
-
-      return NULL;
-   }
-
+   SFXTrack* sound[MaxSounds];
 
    ParticleEmitterData* tireEmitter;
 

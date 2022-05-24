@@ -603,6 +603,8 @@ GuiControl* GuiInspectorTypeShapeAssetPtr::constructEditControl()
       mInspector->getInspectObject()->getIdString(), mCaption);
    mBrowseButton->setField("Command", szBuffer);
 
+   const char* id = mInspector->getInspectObject()->getIdString();
+
    setDataField(StringTable->insert("targetObject"), NULL, mInspector->getInspectObject()->getIdString());
 
    // Create "Open in ShapeEditor" button

@@ -44,7 +44,6 @@
 #include "lighting/lightInfo.h"
 #endif
 
-#include "T3D/assets/SoundAsset.h"
 #include "T3D/assets/ShapeAsset.h"
 
 class ExplosionData;
@@ -72,7 +71,7 @@ protected:
 
 public:
    DECLARE_SHAPEASSET(ProjectileData, ProjectileShape, onShapeChanged);
-   DECLARE_ASSET_SETGET(ProjectileData, ProjectileShape);
+   DECLARE_SHAPEASSET_SETGET(ProjectileData, ProjectileShape);
 
    /// Set to true if it is a billboard and want it to always face the viewer, false otherwise
    bool faceViewer;
@@ -116,8 +115,7 @@ public:
    DecalData *decal;                   // (impact) Decal Datablock
    S32 decalId;                        // (impact) Decal ID
 
-   DECLARE_SOUNDASSET(ProjectileData, ProjectileSound);
-   DECLARE_ASSET_SETGET(ProjectileData, ProjectileSound);
+   SFXTrack* sound;                    // Projectile Sound
    
    LightDescription *lightDesc;
    S32 lightDescId;   

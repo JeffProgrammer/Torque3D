@@ -127,13 +127,13 @@ ConsoleDocClass( PrecipitationData,
 //----------------------------------------------------------
 PrecipitationData::PrecipitationData()
 {
-   INIT_ASSET(Sound);
+   INIT_SOUNDASSET(Sound);
 
-   INIT_ASSET(Drop);
+   INIT_IMAGEASSET(Drop);
 
    mDropShaderName   = StringTable->EmptyString();
 
-   INIT_ASSET(Splash);
+   INIT_IMAGEASSET(Splash);
 
    mSplashShaderName = StringTable->EmptyString();
 
@@ -188,16 +188,9 @@ bool PrecipitationData::preload( bool server, String &errorStr )
 {
    if( Parent::preload( server, errorStr) == false)
       return false;
-   if (!server)
-   {
-      if (getSound() != StringTable->EmptyString())
-      {
-         _setSound(getSound());
 
-         if (!getSoundProfile())
-            Con::errorf(ConsoleLogEntry::General, "SplashData::preload: Cant get an sfxProfile for splash.");
-      }
-   }
+   if (!server && !getSFXProfile())
+      return false;
 
    return true;
 }
@@ -206,13 +199,13 @@ void PrecipitationData::packData(BitStream* stream)
 {
    Parent::packData(stream);
 
-   PACKDATA_ASSET(Sound);
+   PACKDATA_SOUNDASSET(Sound);
 
-   PACKDATA_ASSET(Drop);
+   PACKDATA_IMAGEASSET(Drop);
 
    stream->writeString(mDropShaderName);
 
-   PACKDATA_ASSET(Splash);
+   PACKDATA_IMAGEASSET(Splash);
 
    stream->writeString(mSplashShaderName);
    stream->write(mDropsPerSide);
@@ -223,13 +216,13 @@ void PrecipitationData::unpackData(BitStream* stream)
 {
    Parent::unpackData(stream);
 
-   UNPACKDATA_ASSET(Sound);
+   UNPACKDATA_SOUNDASSET(Sound);
 
-   UNPACKDATA_ASSET(Drop);
+   UNPACKDATA_IMAGEASSET(Drop);
 
    mDropShaderName = stream->readSTString();
 
-   UNPACKDATA_ASSET(Splash);
+   UNPACKDATA_IMAGEASSET(Splash);
 
    mSplashShaderName = stream->readSTString();
    stream->read(&mDropsPerSide);
@@ -604,9 +597,9 @@ bool Precipitation::onNewDataBlock( GameBaseData *dptr, bool reload )
    {
       SFX_DELETE( mAmbientSound );
 
-      if ( mDataBlock->getSoundProfile())
+      if ( mDataBlock->getSFXProfile())
       {
-         mAmbientSound = SFX->createSource(mDataBlock->getSoundProfile(), &getTransform() );
+         mAmbientSound = SFX->createSource(mDataBlock->getSFXProfile(), &getTransform() );
          if ( mAmbientSound )
             mAmbientSound->play();
       }
@@ -1003,7 +996,7 @@ void Precipitation::initRenderObjects()
    // entire or a partially filled vb.
    mRainIB.set(GFX, mMaxVBDrops * 6, 0, GFXBufferTypeStatic);
    U16 *idxBuff;
-   mRainIB.lock(&idxBuff, NULL, 0, 0);
+   mRainIB.lock(&idxBuff, NULL, NULL, NULL);
    for( U32 i=0; i < mMaxVBDrops; i++ )
    {
       //

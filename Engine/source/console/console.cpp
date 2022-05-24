@@ -274,7 +274,6 @@ static Vector< String > sInstantGroupStack( __FILE__, __LINE__ );
 static DataChunker consoleLogChunker;
 static Vector<ConsoleLogEntry> consoleLog(__FILE__, __LINE__);
 static bool consoleLogLocked;
-bool scriptWarningsAsAsserts = true;
 static bool logBufferEnabled=true;
 static S32 printLevel = 10;
 static FileStream consoleLogFile;
@@ -354,7 +353,7 @@ void init()
    ConsoleConstructor::setup();
 
    // Set up the parser(s)
-   CON_ADD_PARSER(CMD, (char*)TORQUE_SCRIPT_EXTENSION, true);   // TorqueScript
+   CON_ADD_PARSER(CMD, TORQUE_SCRIPT_EXTENSION,   true);   // TorqueScript
 
    // Setup the console types.
    ConsoleBaseType::initialize();
@@ -378,7 +377,6 @@ void init()
    addVariable("Con::objectCopyFailures", TypeS32, &gObjectCopyFailures, "If greater than zero then it counts the number of object creation "
       "failures based on a missing copy object and does not report an error..\n"
       "@ingroup Console\n");
-   addVariable("Con::scriptWarningsAsAsserts", TypeBool, &scriptWarningsAsAsserts, "If true, script warnings (outside of syntax errors) will be treated as fatal asserts.");
 
    // Current script file name and root
    addVariable( "Con::File", TypeString, &gCurrentFile, "The currently executing script file.\n"
@@ -487,13 +485,6 @@ U32 tabComplete(char* inputBuffer, U32 cursorPos, U32 maxResultLength, bool forw
       }
       completionBaseStart = p;
       completionBaseLen = cursorPos - p;
-
-      // Bail if we end up at start of string
-      if (p == 0)
-      {
-          return cursorPos;
-      }
-
       // Is this function being invoked on an object?
       if (inputBuffer[p - 1] == '.') 
       {
@@ -868,6 +859,12 @@ void setVariable(const char *name, const char *value)
       name = prependDollar(name);
       gEvalState.globalVars.setVariable(StringTable->insert(name), value);
    }
+}
+
+void setLocalVariable(const char *name, const char *value)
+{
+   name = prependPercent(name);
+   gEvalState.getCurrentFrame().setVariable(StringTable->insert(name), value);
 }
 
 void setBoolVariable(const char *varName, bool value)
@@ -1628,9 +1625,9 @@ static ConsoleValue _internalExecute(SimObject *object, S32 argc, ConsoleValue a
       ICallMethod *com = dynamic_cast<ICallMethod *>(object);
       if(com)
       {
-         ConsoleStackFrameSaver saver;
-         saver.save();
+         gCallStack.pushFrame(0);
          com->callMethodArgList(argc, argv, false);
+         gCallStack.popFrame();
       }
    }
 

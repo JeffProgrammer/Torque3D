@@ -67,10 +67,8 @@ ConsoleDocClass( Splash,
 //--------------------------------------------------------------------------
 SplashData::SplashData()
 {
-   //soundProfile      = NULL;
-   //soundProfileId    = 0;
-
-   INIT_ASSET(Sound);
+   soundProfile      = NULL;
+   soundProfileId    = 0;
 
    scale.set(1, 1, 1);
 
@@ -97,9 +95,7 @@ SplashData::SplashData()
 
    U32 i;
    for (i = 0; i < NUM_TEX; i++)
-   {
-      INIT_IMAGEASSET_ARRAY(Texture, GFXStaticTextureSRGBProfile, i);
-   }
+      INIT_IMAGEASSET_ARRAY(Texture, i);
 
    for( i=0; i<NUM_TIME_KEYS; i++ )
       times[i] = 1.0;
@@ -116,8 +112,7 @@ SplashData::SplashData()
 //--------------------------------------------------------------------------
    void SplashData::initPersistFields()
 {
-   INITPERSISTFIELD_SOUNDASSET(Sound, SplashData, "Sound to play when splash, splashes.");
-
+   addField("soundProfile",      TYPEID< SFXProfile >(),       Offset(soundProfile,       SplashData), "SFXProfile effect to play.\n");
    addField("scale",             TypePoint3F,                  Offset(scale,              SplashData), "The scale of this splashing effect, defined as the F32 points X, Y, Z.\n");
    addField("emitter",           TYPEID< ParticleEmitterData >(),   Offset(emitterList,        SplashData), NUM_EMITTERS, "List of particle emitters to create at the point of this Splash effect.\n");
    addField("delayMS",           TypeS32,                      Offset(delayMS,            SplashData), "Time to delay, in milliseconds, before actually starting this effect.\n");
@@ -163,8 +158,6 @@ void SplashData::packData(BitStream* stream)
 {
    Parent::packData(stream);
 
-   PACKDATA_ASSET(Sound);
-
    mathWrite(*stream, scale);
    stream->write(delayMS);
    stream->write(delayVariance);
@@ -208,7 +201,7 @@ void SplashData::packData(BitStream* stream)
 
    for( i=0; i<NUM_TEX; i++ )
    {
-      PACKDATA_ASSET_ARRAY(Texture, i);
+      PACKDATA_IMAGEASSET_ARRAY(Texture, i);
    }
 }
 
@@ -218,8 +211,6 @@ void SplashData::packData(BitStream* stream)
 void SplashData::unpackData(BitStream* stream)
 {
    Parent::unpackData(stream);
-
-   UNPACKDATA_ASSET(Sound);
 
    mathRead(*stream, &scale);
    stream->read(&delayMS);
@@ -264,7 +255,7 @@ void SplashData::unpackData(BitStream* stream)
 
    for( i=0; i<NUM_TEX; i++ )
    {
-      UNPACKDATA_ASSET_ARRAY(Texture, i);
+      UNPACKDATA_IMAGEASSET_ARRAY(Texture, i);
    }
 }
 
@@ -278,15 +269,6 @@ bool SplashData::preload(bool server, String &errorStr)
 
    if (!server)
    {
-
-      if (getSound() != StringTable->EmptyString())
-      {
-         _setSound(getSound());
-
-         if(!getSoundProfile())
-            Con::errorf(ConsoleLogEntry::General, "SplashData::preload: Cant get an sfxProfile for splash.");
-      }
-
       S32 i;
       for( i=0; i<NUM_EMITTERS; i++ )
       {
@@ -684,14 +666,6 @@ void Splash::updateRing( SplashRing& ring, F32 dt )
 void Splash::spawnExplosion()
 {
    if( !mDataBlock->explosion ) return;
-
-   /// could just play the explosion one, but explosion could be weapon specific,
-   /// splash sound could be liquid specific. food for thought.
-   SFXProfile* sound_prof = mDataBlock->getSoundProfile();
-   if (sound_prof)
-   {
-      SFX->playOnce(sound_prof, &getTransform());
-   }
 
    Explosion* pExplosion = new Explosion;
    pExplosion->onNewDataBlock(mDataBlock->explosion, false);

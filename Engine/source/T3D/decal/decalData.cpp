@@ -76,7 +76,7 @@ ConsoleDocClass( DecalData,
 DecalData::DecalData()
 {
    size = 5;
-   INIT_ASSET(Material);
+   INIT_MATERIALASSET(Material);
 
    lifeSpan = 5000;
    fadeTime = 1000;
@@ -258,7 +258,7 @@ void DecalData::packData( BitStream *stream )
    stream->write( lookupName );
    stream->write( size );
 
-   PACKDATA_ASSET(Material);
+   PACKDATA_MATERIALASSET(Material);
 
    stream->write( lifeSpan );
    stream->write( fadeTime );
@@ -287,7 +287,7 @@ void DecalData::unpackData( BitStream *stream )
    assignName(lookupName);
    stream->read( &size );
 
-   UNPACKDATA_ASSET(Material);
+   UNPACKDATA_MATERIALASSET(Material);
    
    _updateMaterial();
    stream->read( &lifeSpan );

@@ -397,8 +397,7 @@ bool ModuleManager::loadModuleGroup( const char* pModuleGroup )
         if ( pLoadReadyModuleDefinition->getModuleScriptFilePath() != StringTable->EmptyString() )
         {
             // Yes, so execute the script file.
-            ConsoleValue cValue = Con::executef("exec", pLoadReadyModuleDefinition->getModuleScriptFilePath());
-            const bool scriptFileExecuted = cValue.getBool();
+            const bool scriptFileExecuted = dAtob( Con::executef("exec", pLoadReadyModuleDefinition->getModuleScriptFilePath() ) );
 
             // Did we execute the script file?
             if ( scriptFileExecuted )
@@ -785,8 +784,7 @@ bool ModuleManager::loadModuleExplicit( const char* pModuleId, const U32 version
         if ( pLoadReadyModuleDefinition->getModuleScriptFilePath() != StringTable->EmptyString() )
         {
             // Yes, so execute the script file.
-            ConsoleValue cValue = Con::executef("exec", pLoadReadyModuleDefinition->getModuleScriptFilePath());
-            const bool scriptFileExecuted = cValue.getBool();
+            const bool scriptFileExecuted = dAtob( Con::executef("exec", pLoadReadyModuleDefinition->getModuleScriptFilePath() ) );
 
             // Did we execute the script file?
             if ( !scriptFileExecuted )

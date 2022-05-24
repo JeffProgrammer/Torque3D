@@ -102,6 +102,8 @@ void GuiRenderTargetVizCtrl::onRender(Point2I      offset,
 
       camObject = dynamic_cast<Camera*>(camObject->getClientObject());
 
+      bool servObj = camObject->isServerObject();
+
       if (camObject)
       {
          GFXTexHandle targ = camObject->getCameraRenderTarget();

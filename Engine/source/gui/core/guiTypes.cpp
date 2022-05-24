@@ -68,7 +68,7 @@ GFX_ImplementTextureProfile(GFXGuiCursorProfile,
 GFX_ImplementTextureProfile(GFXDefaultGUIProfile,
                             GFXTextureProfile::DiffuseMap, 
                             GFXTextureProfile::PreserveSize |
-                            GFXTextureProfile::Static | GFXTextureProfile::KeepBitmap | GFXTextureProfile::SRGB |
+                            GFXTextureProfile::Static | GFXTextureProfile::SRGB |
                             GFXTextureProfile::NoPadding, 
                             GFXTextureProfile::NONE);
 
@@ -79,7 +79,7 @@ GuiCursor::GuiCursor()
    mRenderOffset.set(0.0f,0.0f);
    mExtent.set(1,1);
 
-   INIT_ASSET(Bitmap);
+   INIT_IMAGEASSET(Bitmap);
 }
 
 GuiCursor::~GuiCursor()
@@ -324,7 +324,7 @@ GuiControlProfile::GuiControlProfile(void) :
    mMouseOverSelected = false;
    
    // bitmap members
-   INIT_ASSET(Bitmap);
+   INIT_IMAGEASSET(Bitmap);
    mUseBitmapArray = false;
 
    mChildrenProfileName = NULL;

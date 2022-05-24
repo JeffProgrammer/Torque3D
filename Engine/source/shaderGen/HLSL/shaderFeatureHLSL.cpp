@@ -879,10 +879,12 @@ Var* ShaderFeatureHLSL::getSurface(Vector<ShaderComponent*>& componentList, Mult
       meta->addStatement(new GenOp("  @;\r\n\n", new DecOp(normal)));
 
       Var* wsNormal = (Var*)LangElement::find("wsNormal");
+
       if (!fd.features[MFT_NormalMap])
       {
          if (!wsNormal)
             wsNormal = getInWorldNormal(componentList);
+
          meta->addStatement(new GenOp("  @ = normalize( @ );\r\n\n", normal, wsNormal));
       }
       else
@@ -892,14 +894,6 @@ Var* ShaderFeatureHLSL::getSurface(Vector<ShaderComponent*>& componentList, Mult
    }
 
    Var* wsEyePos = (Var*)LangElement::find("eyePosWorld");
-
-   if (!wsEyePos)
-   {
-      wsEyePos = new Var("eyePosWorld", "float3");
-      wsEyePos->uniform = true;
-      wsEyePos->constSortPos = cspPass;
-   }
-
    Var* wsPosition = getInWsPosition(componentList);
    Var* wsView = getWsView(wsPosition, meta);
 
@@ -2144,6 +2138,8 @@ RTLightingFeatHLSL::RTLightingFeatHLSL()
 void RTLightingFeatHLSL::processVert(  Vector<ShaderComponent*> &componentList, 
                                        const MaterialFeatureData &fd )
 {
+   if (fd.features[MFT_ImposterVert]) return;
+
    MultiLine *meta = new MultiLine;   
 
    ShaderConnector *connectComp = dynamic_cast<ShaderConnector *>( componentList[C_CONNECTOR] );
@@ -2182,14 +2178,11 @@ void RTLightingFeatHLSL::processVert(  Vector<ShaderComponent*> &componentList,
       return;
    }
 
-   addOutWsPosition( componentList, fd.features[MFT_UseInstancing], meta );
-   getOutWorldToTangent(componentList, meta, fd);
-   output = meta;
-
-
    // Find the incoming vertex normal.
    Var *inNormal = (Var*)LangElement::find( "normal" );   
 
+   // Skip out on realtime lighting if we don't have a normal
+   // or we're doing some sort of baked lighting.
    if (  !inNormal || 
          fd.features[MFT_LightMap] || 
          fd.features[MFT_ToneMap] || 
@@ -2198,6 +2191,7 @@ void RTLightingFeatHLSL::processVert(  Vector<ShaderComponent*> &componentList,
 
    // If there isn't a normal map then we need to pass
    // the world space normal to the pixel shader ourselves.
+   //Temporarily disabled while we figure out how to better handle normals without a normal map
    if ( !fd.features[MFT_NormalMap] )
    {
       Var *outNormal = connectComp->getElement( RT_TEXCOORD );
@@ -2211,6 +2205,11 @@ void RTLightingFeatHLSL::processVert(  Vector<ShaderComponent*> &componentList,
       // Transform the normal to world space.
       meta->addStatement( new GenOp( "   @ = mul( @, float4( normalize( @ ), 0.0 ) ).xyz;\r\n", outNormal, objTrans, inNormal ) );
    }
+
+   addOutWsPosition( componentList, fd.features[MFT_UseInstancing], meta );
+   getOutWorldToTangent(componentList, meta, fd);
+
+   output = meta;
 }
 
 void RTLightingFeatHLSL::processPix(   Vector<ShaderComponent*> &componentList, 
@@ -2230,9 +2229,10 @@ void RTLightingFeatHLSL::processPix(   Vector<ShaderComponent*> &componentList,
    MultiLine *meta = new MultiLine;
 
    // Now the wsPosition and wsView.
-   Var *wsPosition = getInWsPosition( componentList );
    Var* worldToTangent = getInWorldToTangent(componentList);
-   Var* wsNormal = getInWorldNormal(componentList);   
+   Var* wsNormal = getInWorldNormal(componentList);
+   Var *wsPosition = getInWsPosition( componentList );
+   
    Var *wsView = getWsView( wsPosition, meta );
    
    // Look for a light mask generated from a previous
@@ -2262,7 +2262,7 @@ void RTLightingFeatHLSL::processPix(   Vector<ShaderComponent*> &componentList,
    inLightSpotDir->arraySize = 4;
    inLightSpotDir->constSortPos = cspPotentialPrimitive;
 
-   Var * lightSpotParams = new Var( "inlightSpotParams", "float2" );
+   Var * lightSpotParams = new Var( "lightSpotParams", "float2" );
    lightSpotParams->uniform = true;
    lightSpotParams->arraySize = 4;
    lightSpotParams->constSortPos = cspPotentialPrimitive;
@@ -2686,7 +2686,7 @@ void FoliageFeatureHLSL::processVert( Vector<ShaderComponent*> &componentList,
    tangent->setType( "float3" );
    tangent->setName( "T" );
    LangElement *tangentDec = new DecOp( tangent );
-   meta->addStatement( new GenOp( "   @ = float3(1.0,0,0);\n", tangentDec ) );         
+   meta->addStatement( new GenOp( "   @;\n", tangentDec ) );         
 
    // We add a float foliageFade to the OUT structure.
    ShaderConnector *connectComp = dynamic_cast<ShaderConnector *>( componentList[C_CONNECTOR] );
@@ -3054,7 +3054,7 @@ void ReflectionProbeFeatHLSL::processPix(Vector<ShaderComponent*> &componentList
    //Reflection Probe WIP
    U32 MAX_FORWARD_PROBES = 4;
 
-   Var *numProbes = new Var("inNumProbes", "int");
+   Var *numProbes = new Var("numProbes", "int");
    numProbes->uniform = true;
    numProbes->constSortPos = cspPotentialPrimitive;
 
@@ -3062,7 +3062,7 @@ void ReflectionProbeFeatHLSL::processPix(Vector<ShaderComponent*> &componentList
    cubeMips->uniform = true;
    cubeMips->constSortPos = cspPotentialPrimitive;
 
-   Var * skylightCubemapIdx = new Var("inSkylightCubemapIdx", "float");
+   Var * skylightCubemapIdx = new Var("skylightCubemapIdx", "float");
    skylightCubemapIdx->uniform = true;
    skylightCubemapIdx->constSortPos = cspPotentialPrimitive;
 
@@ -3081,12 +3081,12 @@ void ReflectionProbeFeatHLSL::processPix(Vector<ShaderComponent*> &componentList
    refScaleArray->uniform = true;
    refScaleArray->constSortPos = cspPotentialPrimitive;
 
-   Var *probeConfigData = new Var("inProbeConfigData", "float4");
+   Var *probeConfigData = new Var("probeConfigData", "float4");
    probeConfigData->arraySize = MAX_FORWARD_PROBES;
    probeConfigData->uniform = true;
    probeConfigData->constSortPos = cspPotentialPrimitive;
 
-   Var *worldToObjArray = new Var("inWorldToObjArray", "float4x4");
+   Var *worldToObjArray = new Var("worldToObjArray", "float4x4");
    worldToObjArray->arraySize = MAX_FORWARD_PROBES;
    worldToObjArray->uniform = true;
    worldToObjArray->constSortPos = cspPotentialPrimitive;
@@ -3101,22 +3101,22 @@ void ReflectionProbeFeatHLSL::processPix(Vector<ShaderComponent*> &componentList
    BRDFTextureTex->texture = true;
    BRDFTextureTex->constNum = BRDFTexture->constNum;
 
-   Var *specularCubemapAR = new Var("inSpecularCubemapAR", "SamplerState");
+   Var *specularCubemapAR = new Var("specularCubemapAR", "SamplerState");
    specularCubemapAR->uniform = true;
    specularCubemapAR->sampler = true;
    specularCubemapAR->constNum = Var::getTexUnitNum();     // used as texture unit num here
 
-   Var *specularCubemapARTex = new Var("texture_inSpecularCubemapAR", "TextureCubeArray");
+   Var *specularCubemapARTex = new Var("texture_specularCubemapAR", "TextureCubeArray");
    specularCubemapARTex->uniform = true;
    specularCubemapARTex->texture = true;
    specularCubemapARTex->constNum = specularCubemapAR->constNum;
 
-   Var *irradianceCubemapAR = new Var("inIrradianceCubemapAR", "SamplerState");
+   Var *irradianceCubemapAR = new Var("irradianceCubemapAR", "SamplerState");
    irradianceCubemapAR->uniform = true;
    irradianceCubemapAR->sampler = true;
    irradianceCubemapAR->constNum = Var::getTexUnitNum();     // used as texture unit num here
 
-   Var *irradianceCubemapARTex = new Var("texture_inIrradianceCubemapAR", "TextureCubeArray");
+   Var *irradianceCubemapARTex = new Var("texture_irradianceCubemapAR", "TextureCubeArray");
    irradianceCubemapARTex->uniform = true;
    irradianceCubemapARTex->texture = true;
    irradianceCubemapARTex->constNum = irradianceCubemapAR->constNum;
@@ -3171,9 +3171,9 @@ void ReflectionProbeFeatHLSL::setTexData(Material::StageData &stageDat,
       passData.mSamplerNames[texIndex] = "BRDFTexture";
       passData.mTexType[texIndex++] = Material::Standard;
       // assuming here that it is a scenegraph cubemap
-      passData.mSamplerNames[texIndex] = "inSpecularCubemapAR";
+      passData.mSamplerNames[texIndex] = "specularCubemapAR";
       passData.mTexType[texIndex++] = Material::SGCube;
-      passData.mSamplerNames[texIndex] = "inIrradianceCubemapAR";
+      passData.mSamplerNames[texIndex] = "irradianceCubemapAR";
       passData.mTexType[texIndex++] = Material::SGCube;
    }
 }

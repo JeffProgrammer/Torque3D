@@ -57,16 +57,11 @@ namespace Compiler
 using namespace Compiler;
 
 FuncVars gEvalFuncVars;
-FuncVars gGlobalScopeFuncVars;
 FuncVars* gFuncVars = NULL;
 
 inline FuncVars* getFuncVars(S32 lineNumber)
 {
-   if (gFuncVars == &gGlobalScopeFuncVars)
-   {
-      const char* str = avar("Attemping to use local variable in global scope. File: %s Line: %d", CodeBlock::smCurrentParser->getCurrentFile(), lineNumber);
-      scriptErrorHandler(str);
-   }
+   AssertISV(gFuncVars, avar("Attemping to use local variable in global scope. File: %s Line: %d", CodeBlock::smCurrentParser->getCurrentFile(), lineNumber));
    return gFuncVars;
 }
 
@@ -79,7 +74,7 @@ void StmtNode::addBreakLine(CodeStream& code)
 
 //------------------------------------------------------------
 
-StmtNode::StmtNode() : dbgLineNumber(0)
+StmtNode::StmtNode()
 {
    next = NULL;
    dbgFileName = CodeBlock::smCurrentParser->getCurrentFile();
@@ -89,12 +84,12 @@ void StmtNode::setPackage(StringTableEntry)
 {
 }
 
-void StmtNode::append(StmtNode* appended)
+void StmtNode::append(StmtNode* next)
 {
    StmtNode* walk = this;
    while (walk->next)
       walk = walk->next;
-   walk->next = appended;
+   walk->next = next;
 }
 
 
@@ -1557,7 +1552,8 @@ U32 FunctionDeclStmtNode::compileStmt(CodeStream& codeStream, U32 ip)
       tbl->add(fnName, nameSpace, varName);
    }
 
-   gFuncVars = gIsEvalCompile ? &gEvalFuncVars : &gGlobalScopeFuncVars;
+   // In eval mode, global func vars are allowed.
+   gFuncVars = gIsEvalCompile ? &gEvalFuncVars : NULL;
 
    return ip;
 }

@@ -124,7 +124,7 @@ GuiProgressBitmapCtrl::GuiProgressBitmapCtrl()
      mNumberOfBitmaps(0),
      mDim(0)
 {
-   INIT_ASSET(Bitmap);
+   INIT_IMAGEASSET(Bitmap);
 }
 
 //-----------------------------------------------------------------------------

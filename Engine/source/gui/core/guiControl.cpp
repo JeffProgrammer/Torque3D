@@ -843,11 +843,7 @@ bool GuiControl::onWake()
 
    //increment the profile
    mProfile->incLoadCount();
-
-   if (mTooltipProfile)
-   {
-       mTooltipProfile->incLoadCount();
-   }
+   mTooltipProfile->incLoadCount();
 
    // Only invoke script callbacks if we have a namespace in which to do so
    // This will suppress warnings
@@ -873,11 +869,7 @@ void GuiControl::onSleep()
 
    //decrement the profile reference
    mProfile->decLoadCount();
-
-   if (mTooltipProfile)
-   {
-       mTooltipProfile->decLoadCount();
-   }
+   mTooltipProfile->decLoadCount();
 
    // Set Flag
    mAwake = false;
@@ -2906,7 +2898,7 @@ static ConsoleDocFragment _sGuiControlSetExtent2(
    "GuiControl", // The class to place the method in; use NULL for functions.
    "void setExtent( Point2I p );" ); // The definition string.
 
-DefineEngineMethod( GuiControl, setExtent, void, ( const char* extOrX, const char* y ), ("", nullAsType<const char*>()),
+DefineEngineMethod( GuiControl, setExtent, void, ( const char* extOrX, const char* y ), (""),
    "( Point2I p | int x, int y ) Set the width and height of the control.\n\n"
    "@hide" )
 {

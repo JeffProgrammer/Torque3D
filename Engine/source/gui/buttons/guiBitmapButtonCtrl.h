@@ -119,7 +119,7 @@ class GuiBitmapButtonCtrl : public GuiButtonCtrl
       BitmapMode mBitmapMode;
 
       DECLARE_IMAGEASSET(GuiBitmapButtonCtrl, Bitmap, onBitmapChange, GFXDefaultGUIProfile);
-      DECLARE_ASSET_SETGET(GuiBitmapButtonCtrl, Bitmap);
+      DECLARE_IMAGEASSET_SETGET(GuiBitmapButtonCtrl, Bitmap);
       
       /// alpha masking
       bool mMasked;

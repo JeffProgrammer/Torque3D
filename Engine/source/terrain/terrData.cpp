@@ -992,6 +992,8 @@ void TerrainBlock::addMaterial( const String &name, U32 insertAt )
       mFile->mMaterials.push_back( mat );
       mFile->_initMaterialInstMapping();
 
+      bool isSrv = isServerObject();
+
       //now we update our asset
       if (mTerrainAsset)
       {
@@ -1416,7 +1418,7 @@ void TerrainBlock::unpackUpdate(NetConnection* con, BitStream *stream)
 
       char buffer[256];
       stream->readString(buffer);
-      setTerrainAsset(StringTable->insert(buffer));
+      bool validAsset = setTerrainAsset(StringTable->insert(buffer));
    }
    if (baseTexSizeChanged && isProperlyAdded())
       _updateBaseTexture(NONE);

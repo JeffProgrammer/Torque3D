@@ -13,7 +13,7 @@ public:
 
    ~GFXGLTextureArray() { Release(); };
 
-   void init() override;
+   void init();
 
    void setToTexUnit(U32 tuNum) override;
 

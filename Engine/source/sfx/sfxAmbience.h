@@ -33,9 +33,6 @@
    #include "core/util/tSignal.h"
 #endif
 
-#ifndef SOUND_ASSET_H
-#include "T3D/assets/SoundAsset.h"
-#endif
 
 class SFXEnvironment;
 class SFXTrack;
@@ -66,8 +63,7 @@ class SFXAmbience : public SimDataBlock
       F32 mRolloffFactor;
    
       /// Sound track to play when inside the ambient space.
-      DECLARE_SOUNDASSET(SFXAmbience, SoundTrack);
-      DECLARE_ASSET_SETGET(SFXAmbience, SoundTrack);
+      SFXTrack* mSoundTrack;
 
       /// Reverb environment to apply when inside the ambient space.
       SFXEnvironment* mEnvironment;
@@ -93,7 +89,10 @@ class SFXAmbience : public SimDataBlock
             
       /// Return the reverb environment of the ambient space.
       SFXEnvironment* getEnvironment() const { return mEnvironment; }
-            
+      
+      /// Return the ambient soundtrack of this ambient space.
+      SFXTrack* getSoundTrack() const { return mSoundTrack; }
+      
       /// Return the given state bound to this ambient space.
       SFXState* getState( U32 i ) const
       {

@@ -85,9 +85,9 @@ function ImportAssetWindow::onWake(%this)
    %this.importer.targetPath = AssetImportTargetAddress.getText();
    %this.importer.targetModuleId = AssetImportTargetModule.getText();
    
-   %this.refresh();
+   ImportActivityLog.empty();
    
-   toggleImportWindowVizBtn.setStateOn(EditorSettings.value("Assets/AutoImport"));
+   %this.refresh();
 }
 
 //
@@ -471,7 +471,9 @@ function ImportAssetWindow::doRefresh(%this)
    ImportAssetWindow.importer.processImportingAssets();
    //%this.processImportAssets();
    
-   ImportAssetWindow.hasImportIssues = ImportAssetWindow.importer.hasImportIssues();
+   //ImportAssetWindow.hasImportIssues = %this.validateAssets();
+   
+   ImportAssetWindow.importer.validateImportingAssets();
    
    AssetImportCtrl-->NewAssetsTree.clear();
    AssetImportCtrl-->NewAssetsTree.insertItem(0, "Importing Assets");
@@ -517,8 +519,7 @@ function ImportAssetWindow::doRefresh(%this)
    if(ImportAssetWindow.importConfigsList.count() != 0 
       && EditorSettings.value("Assets/AssetImporDefaultConfig") !$= "" 
       && EditorSettings.value("Assets/AutoImport", false) == true
-      && ImportAssetWindow.hasImportIssues() == false
-      && AssetBrowser.isAssetReImport == false
+      && ImportAssetWindow.hasImportIssues == false
       && ImportAssetWindow.allowAutoImport)
    {
       AssetImportCtrl.setHidden(true);
@@ -721,7 +722,11 @@ function NewAssetsPanelInputs::onRightMouseDown(%this)
 //
 function ImportAssetWindow::removeImportingAsset(%this)
 {
+   ImportActivityLog.add("Removing Asset from Import");
+   
    %this.importer.deleteImportingAsset(ImportAssetActions.assetItem);
+   
+   //ImportAssetWindow.refresh();
 }
 
 function ImportAssetWindow::addNewImportingAsset(%this, %filterType)
@@ -919,9 +924,9 @@ function ImportAssetWindow::toggleLogWindow()
    }
       
    ImportLogTextList.clear();
-   for(%i=0; %i < ImportAssetWindow.importer.getActivityLogLineCount(); %i++)
+   for(%i=0; %i < ImportActivityLog.count(); %i++)
    {
-      ImportLogTextList.addRow(%i,ImportAssetWindow.importer.getActivityLogLine(%i));
+      ImportLogTextList.addRow(%i, ImportActivityLog.getKey(%i));
    }
 }
 //
@@ -945,14 +950,5 @@ function ImportAssetModuleList::refresh(%this)
       %moduleName = getWord(%moduleList, %i);
       %this.add(%moduleName.ModuleId, %i);  
    }
-}
-//
-
-//
-function toggleImportWindowViz()
-{
-   %value = EditorSettings.value("Assets/AutoImport");
-   EditorSettings.setValue("Assets/AutoImport", !%value);
-  
 }
 //

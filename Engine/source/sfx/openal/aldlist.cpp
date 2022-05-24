@@ -55,20 +55,9 @@ ALDeviceList::ALDeviceList( const OPENALFNTABLE &oalft )
    defaultDeviceIndex = 0;
 
    // grab function pointers for 1.0-API functions, and if successful proceed to enumerate all devices
-   const bool enumerationExtensionPresent = ALFunction.alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT");
-   const bool enumerateAllExtensionPresent = ALFunction.alcIsExtensionPresent(NULL, "ALC_ENUMERATE_ALL_EXT");
-   if (enumerateAllExtensionPresent || enumerationExtensionPresent) {
-      if (enumerateAllExtensionPresent)
-      {
-          devices = (char *)ALFunction.alcGetString(NULL, ALC_ALL_DEVICES_SPECIFIER);
-          defaultDeviceName = (char *)ALFunction.alcGetString(NULL, ALC_DEFAULT_ALL_DEVICES_SPECIFIER);
-      }
-      else
-      {
-          devices = (char *)ALFunction.alcGetString(NULL, ALC_DEVICE_SPECIFIER);
-          defaultDeviceName = (char *)ALFunction.alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
-      }
-
+   if (ALFunction.alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT")) {
+      devices = (char *)ALFunction.alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+      defaultDeviceName = (char *)ALFunction.alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
       index = 0;
       // go through device list (each device terminated with a single NULL, list terminated with double NULL)
       while (*devices != 0) {
@@ -81,7 +70,7 @@ ALDeviceList::ALDeviceList( const OPENALFNTABLE &oalft )
             if (context) {
                ALFunction.alcMakeContextCurrent(context);
                // if new actual device name isn't already in the list, then add it...
-               actualDeviceName = devices;
+               actualDeviceName = ALFunction.alcGetString(device, ALC_DEVICE_SPECIFIER);
                bool bNewName = true;
                for (int i = 0; i < GetNumDevices(); i++) {
                   if (String::compare(GetDeviceName(i), actualDeviceName) == 0) {

@@ -27,8 +27,8 @@ TORQUE_UNIFORM_SAMPLER2D(ssaoMask, 6);
 uniform float4 rtParams6;
 #endif
 
-uniform float4    probePosArray[MAX_PROBES];
-uniform float4    refPosArray[MAX_PROBES];
+uniform float4    inProbePosArray[MAX_PROBES];
+uniform float4    inRefPosArray[MAX_PROBES];
 uniform float4x4  worldToObjArray[MAX_PROBES];
 uniform float4    refScaleArray[MAX_PROBES];
 uniform float4    probeConfigData[MAX_PROBES];   //r,g,b/mode,radius,atten
@@ -86,7 +86,7 @@ float4 main(PFXVertToPix IN) : SV_TARGET
          }
          else if (probeConfigData[i].r == 1) //sphere
          {
-            contribution[i] = defineSphereSpaceInfluence(surface.P, probePosArray[i].xyz, probeConfigData[i].g);
+            contribution[i] = defineSphereSpaceInfluence(surface.P, inProbePosArray[i].xyz, probeConfigData[i].g);
             if (contribution[i]>0.0)
                probehits++;
          }
@@ -171,7 +171,7 @@ float4 main(PFXVertToPix IN) : SV_TARGET
       if (contrib > 0.0f)
       {
          int cubemapIdx = probeConfigData[i].a;
-         float3 dir = boxProject(surface.P, surface.R, worldToObjArray[i], refScaleArray[i].xyz, refPosArray[i].xyz);
+         float3 dir = boxProject(surface.P, surface.R, worldToObjArray[i], refScaleArray[i].xyz, inRefPosArray[i].xyz);
 
          irradiance += TORQUE_TEXCUBEARRAYLOD(irradianceCubemapAR, dir, cubemapIdx, 0).xyz * contrib;
          specular += TORQUE_TEXCUBEARRAYLOD(specularCubemapAR, dir, cubemapIdx, lod).xyz * contrib;
@@ -197,7 +197,8 @@ float4 main(PFXVertToPix IN) : SV_TARGET
    float3 kD = 1.0f - F;
    kD *= 1.0f - surface.metalness;
 
-   float2 envBRDF = TORQUE_TEX2DLOD(BRDFTexture, float4(surface.NdotV, surface.roughness,0,0)).rg;
+   float dfgNdotV = max( surface.NdotV , 0.0009765625f ); //0.5f/512.0f (512 is size of dfg/brdf lookup tex)
+   float2 envBRDF = TORQUE_TEX2DLOD(BRDFTexture, float4(dfgNdotV, surface.roughness,0,0)).rg;
    specular *= F * envBRDF.x + surface.f90 * envBRDF.y;
    irradiance *= kD * surface.baseColor.rgb;
 

@@ -118,8 +118,7 @@ S32 QSORT_CALLBACK SimObjectList::_callbackSort( const void *a, const void *b )
    static char idB[64];
    dSprintf( idB, sizeof( idB ), "%d", objB->getId() );
 
-   ConsoleValue cValue = Con::executef( (const char*)smSortScriptCallbackFn, idA, idB );
-   return cValue.getInt();
+   return dAtoi( Con::executef( (const char*)smSortScriptCallbackFn, idA, idB ) );
 }
 
 void SimObjectList::scriptSort( const String &scriptCallback )

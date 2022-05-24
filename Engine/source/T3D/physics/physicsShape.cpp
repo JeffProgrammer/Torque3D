@@ -78,7 +78,7 @@ PhysicsShapeData::PhysicsShapeData()
       buoyancyDensity( 0.0f ),
       simType( SimType_ClientServer )      
 {
-   INIT_ASSET(Shape);
+   INIT_SHAPEASSET(Shape);
 }
 
 PhysicsShapeData::~PhysicsShapeData()
@@ -180,7 +180,7 @@ void PhysicsShapeData::packData( BitStream *stream )
 { 
    Parent::packData( stream );
 
-   PACKDATA_ASSET(Shape);
+   PACKDATA_SHAPEASSET(Shape);
 
    stream->write( mass );
    stream->write( dynamicFriction );
@@ -204,7 +204,7 @@ void PhysicsShapeData::unpackData( BitStream *stream )
 {
    Parent::unpackData(stream);
 
-   UNPACKDATA_ASSET(Shape);
+   UNPACKDATA_SHAPEASSET(Shape);
 
    stream->read( &mass );
    stream->read( &dynamicFriction );

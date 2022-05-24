@@ -230,16 +230,14 @@ ExplosionData::ExplosionData()
 
    faceViewer   = false;
 
-   INIT_ASSET(Sound);
-
-   //soundProfile      = NULL;
+   soundProfile      = NULL;
    particleEmitter   = NULL;
    particleEmitterId = 0;
 
    explosionScale.set(1.0f, 1.0f, 1.0f);
    playSpeed = 1.0f;
 
-   INIT_ASSET(ExplosionShape);
+   INIT_SHAPEASSET(ExplosionShape);
 
    explosionAnimation = -1;
 
@@ -310,12 +308,12 @@ ExplosionData::ExplosionData(const ExplosionData& other, bool temp_clone) : Game
    faceViewer = other.faceViewer;
    particleDensity = other.particleDensity;
    particleRadius = other.particleRadius;
-   CLONE_ASSET(Sound);
+   soundProfile = other.soundProfile;
    particleEmitter = other.particleEmitter;
    particleEmitterId = other.particleEmitterId; // -- for pack/unpack of particleEmitter ptr 
    explosionScale = other.explosionScale;
    playSpeed = other.playSpeed;
-   CLONE_ASSET(ExplosionShape);
+   CLONE_SHAPEASSET(ExplosionShape);
    explosionAnimation = other.explosionAnimation; // -- from explosionShape sequence "ambient"
    dMemcpy( emitterList, other.emitterList, sizeof( emitterList ) );
    dMemcpy( emitterIDList, other.emitterIDList, sizeof( emitterIDList ) ); // -- for pack/unpack of emitterList ptrs
@@ -360,6 +358,12 @@ ExplosionData::~ExplosionData()
    if (!isTempClone())
       return;
 
+   if (soundProfile && soundProfile->isTempClone())
+   {
+      delete soundProfile;
+      soundProfile = 0;
+   }
+
    // particleEmitter, emitterList[*], debrisList[*], explosionList[*] will delete themselves
 
 #ifdef TRACK_EXPLOSION_DATA_CLONES
@@ -395,9 +399,8 @@ void ExplosionData::initPersistFields()
       "of the explosion." );
    addField( "playSpeed", TypeF32, Offset(playSpeed, ExplosionData),
       "Time scale at which to play the explosionShape <i>ambient</i> sequence." );
-
-   INITPERSISTFIELD_SOUNDASSET(Sound, ExplosionData, "Sound to play when this explosion explodes.");
-
+   addField( "soundProfile", TYPEID< SFXTrack >(), Offset(soundProfile, ExplosionData),
+      "Non-looping sound effect that will be played at the start of the explosion." );
    addField( "faceViewer", TypeBool, Offset(faceViewer, ExplosionData),
       "Controls whether the visual effects of the explosion always face the camera." );
 
@@ -520,6 +523,7 @@ void ExplosionData::initPersistFields()
    onlyKeepClearSubstitutions("debris"); // subs resolving to "~~", or "~0" are OK
    onlyKeepClearSubstitutions("emitter");
    onlyKeepClearSubstitutions("particleEmitter");
+   onlyKeepClearSubstitutions("soundProfile");
    onlyKeepClearSubstitutions("subExplosion");
    Parent::initPersistFields();
 }
@@ -650,10 +654,9 @@ void ExplosionData::packData(BitStream* stream)
 {
    Parent::packData(stream);
 
-   PACKDATA_ASSET(ExplosionShape);
+   PACKDATA_SHAPEASSET(ExplosionShape);
 
-   PACKDATA_ASSET(Sound);
-
+   sfxWrite( stream, soundProfile );
    if (stream->writeFlag(particleEmitter))
       stream->writeRangedU32(particleEmitter->getId(),DataBlockObjectIdFirst,DataBlockObjectIdLast);
 
@@ -754,9 +757,9 @@ void ExplosionData::unpackData(BitStream* stream)
 {
 	Parent::unpackData(stream);
 
-   UNPACKDATA_ASSET(ExplosionShape);
+   UNPACKDATA_SHAPEASSET(ExplosionShape);
 
-   UNPACKDATA_ASSET(Sound);
+   sfxRead( stream, &soundProfile );
 
    if (stream->readFlag())
       particleEmitterId = stream->readRangedU32(DataBlockObjectIdFirst, DataBlockObjectIdLast);
@@ -858,21 +861,12 @@ bool ExplosionData::preload(bool server, String &errorStr)
 {
    if (Parent::preload(server, errorStr) == false)
       return false;
-
-   if (!server && !getSoundProfile())
-      return false;
-
+      
    if( !server )
    {
-
-      if (getSound() != StringTable->EmptyString())
-      {
-         _setSound(getSound());
-
-         if (!getSoundProfile())
-            Con::errorf(ConsoleLogEntry::General, "SplashData::preload: Cant get an sfxProfile for splash.");
-      }
-
+      String sfxErrorStr;
+      if( !sfxResolve( &soundProfile, sfxErrorStr ) )
+         Con::errorf(ConsoleLogEntry::General, "Error, unable to load sound profile for explosion datablock: %s", sfxErrorStr.c_str());
       if (!particleEmitter && particleEmitterId != 0)
          if (Sim::findObject(particleEmitterId, particleEmitter) == false)
             Con::errorf(ConsoleLogEntry::General, "Error, unable to load particle emitter for explosion datablock");
@@ -1390,7 +1384,7 @@ bool Explosion::explode()
       resetWorldBox();
    }
 
-   SFXProfile* sound_prof = mDataBlock->getSoundProfile();
+   SFXProfile* sound_prof = dynamic_cast<SFXProfile*>(mDataBlock->soundProfile);
    if (sound_prof)
    {
       soundProfile_clone = sound_prof->cloneAndPerformSubstitutions(ss_object, ss_index);

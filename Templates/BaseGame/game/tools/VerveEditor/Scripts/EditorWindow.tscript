@@ -50,9 +50,8 @@ function VerveEditorWindow::Open()
     {
        %editorWindow = new guiWindowCtrl(VerveEditorWindow)
        {
-          Profile = "ToolsGuiWindowProfile";
          position = "0 0";
-         extent = "1024 788";
+         extent = "1024 768";
          minExtent = "8 2";
          horizSizing = "right";
          vertSizing = "bottom";
@@ -63,23 +62,20 @@ function VerveEditorWindow::Open()
 
 function VerveEditorWindow::UpdateWindowTitle( %this )
 {
-   %fileName = fileName( $VerveEditor::Controller.FileName );
-   if ( %fileName $= "" )
-   {
-      %fileName = "Untitled.vsf";
-   }
-
-   if ( VerveEditor::IsDirty() )
-   {
-      // Signify Unsaved Work.
-      %fileName = %fileName @ "*";
-   }
+    %fileName = fileName( $VerveEditor::Controller.FileName );
+    if ( %fileName $= "" )
+    {
+        %fileName = "Untitled.vsf";
+    }
     
-   // Set Title.
-   if($Verve::UseSeparateWindow)
-      %this.setWindowTitle( %fileName SPC "- Verve"  );
-   else
-      %this.text = %fileName SPC "- Verve";
+    if ( VerveEditor::IsDirty() )
+    {
+        // Signify Unsaved Work.
+        %fileName = %fileName @ "*";
+    }
+    
+    // Set Title.
+    %this.setWindowTitle( %fileName SPC "- Verve"  );
 }
 
 function VerveEditorWindow::onGainFocus( %this )

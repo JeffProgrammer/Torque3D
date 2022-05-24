@@ -54,7 +54,7 @@ ConsoleDocClass( afxModelData,
 
 afxModelData::afxModelData()
 {
-   INIT_ASSET(Shape);
+   INIT_SHAPEASSET(Shape);
   sequence = ST_NULLSTRING;
   seq_rate = 1.0f;
   seq_offset = 0.0f;
@@ -84,7 +84,7 @@ afxModelData::afxModelData()
 
 afxModelData::afxModelData(const afxModelData& other, bool temp_clone) : GameBaseData(other, temp_clone)
 {
-   CLONE_ASSET(Shape);
+   CLONE_SHAPEASSET(Shape);
   sequence = other.sequence;
   seq_rate = other.seq_rate;
   seq_offset = other.seq_offset;
@@ -253,7 +253,7 @@ void afxModelData::packData(BitStream* stream)
 {
   Parent::packData(stream);
 
-  PACKDATA_ASSET(Shape);
+  PACKDATA_SHAPEASSET(Shape);
   stream->writeString(sequence);
   stream->write(seq_rate);  
   stream->write(seq_offset);
@@ -285,7 +285,7 @@ void afxModelData::unpackData(BitStream* stream)
 {
   Parent::unpackData(stream);
 
-  UNPACKDATA_ASSET(Shape);
+  UNPACKDATA_SHAPEASSET(Shape);
   sequence = stream->readSTString();
   stream->read(&seq_rate);
   stream->read(&seq_offset);

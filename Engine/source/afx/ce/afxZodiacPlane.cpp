@@ -51,7 +51,7 @@ ConsoleDocClass( afxZodiacPlaneData,
 
 afxZodiacPlaneData::afxZodiacPlaneData()
 {
-   INIT_ASSET(Texture);
+   INIT_IMAGEASSET(Texture);
 
   radius_xy = 1;
   start_ang = 0;
@@ -71,7 +71,7 @@ afxZodiacPlaneData::afxZodiacPlaneData()
 afxZodiacPlaneData::afxZodiacPlaneData(const afxZodiacPlaneData& other, bool temp_clone)
   : GameBaseData(other, temp_clone)
 {
-   CLONE_ASSET(Texture);
+   CLONE_IMAGEASSET(Texture);
 
   radius_xy = other.radius_xy;
   start_ang = other.start_ang;
@@ -165,7 +165,7 @@ void afxZodiacPlaneData::packData(BitStream* stream)
 
   merge_zflags();
 
-  PACKDATA_ASSET(Texture);
+  PACKDATA_IMAGEASSET(Texture);
 
   stream->write(radius_xy);
   stream->write(start_ang);
@@ -184,7 +184,7 @@ void afxZodiacPlaneData::unpackData(BitStream* stream)
 {
   Parent::unpackData(stream);
 
-  UNPACKDATA_ASSET(Texture);
+  UNPACKDATA_IMAGEASSET(Texture);
 
   stream->read(&radius_xy);
   stream->read(&start_ang);

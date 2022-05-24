@@ -46,6 +46,7 @@ namespace IBLUtilities
       }
 
       GFXShaderConstBufferRef irrConsts = irrShader->allocConstBuffer();
+      GFXShaderConstHandle* irrEnvMapSC = irrShader->getShaderConstHandle("$environmentMap");
       GFXShaderConstHandle* irrFaceSC = irrShader->getShaderConstHandle("$face");
 
       GFXStateBlockDesc desc;
@@ -131,6 +132,7 @@ namespace IBLUtilities
       }
 
       GFXShaderConstBufferRef prefilterConsts = prefilterShader->allocConstBuffer();
+      GFXShaderConstHandle* prefilterEnvMapSC = prefilterShader->getShaderConstHandle("$environmentMap");
       GFXShaderConstHandle* prefilterFaceSC = prefilterShader->getShaderConstHandle("$face");
       GFXShaderConstHandle* prefilterRoughnessSC = prefilterShader->getShaderConstHandle("$roughness");
       GFXShaderConstHandle* prefilterMipSizeSC = prefilterShader->getShaderConstHandle("$mipSize");

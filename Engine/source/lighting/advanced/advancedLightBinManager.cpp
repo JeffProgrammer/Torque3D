@@ -323,6 +323,8 @@ void AdvancedLightBinManager::_scoreLights(const MatrixF& cameraTrans)
          {
             if (dist > smLightFadeStart)
             {
+               F32 brightness = light.lightInfo->getBrightness();
+
                float fadeOutAmt = (dist - smLightFadeStart) / (smLightFadeEnd - smLightFadeStart);
                fadeOutAmt = 1 - fadeOutAmt;
 

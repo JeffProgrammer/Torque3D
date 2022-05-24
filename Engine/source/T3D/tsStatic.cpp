@@ -54,7 +54,6 @@
 #include "materials/materialFeatureTypes.h"
 #include "console/engineAPI.h"
 #include "T3D/accumulationVolume.h"
-#include "math/mTransform.h"
 
 #include "gui/editor/inspector/group.h"
 #include "console/typeValidators.h"
@@ -150,7 +149,7 @@ TSStatic::TSStatic()
    mAnimOffset = 0.0f;
    mAnimSpeed = 1.0f;
 
-   INIT_ASSET(Shape);
+   INIT_SHAPEASSET(Shape);
 }
 
 TSStatic::~TSStatic()
@@ -959,7 +958,7 @@ U32 TSStatic::packUpdate(NetConnection* con, U32 mask, BitStream* stream)
 
    if (stream->writeFlag(mask & AdvancedStaticOptionsMask))
    {
-      PACK_ASSET(con, Shape);
+      PACK_SHAPEASSET(con, Shape);
 
       stream->write((U32)mDecalType);
 
@@ -1074,7 +1073,7 @@ void TSStatic::unpackUpdate(NetConnection* con, BitStream* stream)
 
    if (stream->readFlag()) // AdvancedStaticOptionsMask
    {
-      UNPACK_ASSET(con, Shape);
+      UNPACK_SHAPEASSET(con, Shape);
 
       stream->read((U32*)&mDecalType);
 
@@ -1864,31 +1863,3 @@ void TSStatic::setSelectionFlags(U8 flags)
    }
 }
 
-void TSStatic::getNodeTransform(const char *nodeName, const MatrixF &xfm, MatrixF *outMat)
-{
-
-    S32 nodeIDx = getShapeResource()->findNode(nodeName);
-
-    MatrixF mountTransform = mShapeInstance->mNodeTransforms[nodeIDx];
-    mountTransform.mul(xfm);
-    const Point3F &scale = getScale();
-    // The position of the mount point needs to be scaled.
-    Point3F position = mountTransform.getPosition();
-    position.convolve(scale);
-    mountTransform.setPosition(position);
-    // Also we would like the object to be scaled to the model.
-    outMat->mul(mObjToWorld, mountTransform);
-    return;
-}
-
-
-DefineEngineMethod(TSStatic, getNodeTransform, TransformF, (const char *nodeName), ,
-   "@brief Get the world transform of the specified mount slot.\n\n"
-
-   "@param slot Image slot to query\n"
-   "@return the mount transform\n\n")
-{
-   MatrixF xf(true);
-   object->getNodeTransform(nodeName, MatrixF::Identity, &xf);
-   return xf;
-}
