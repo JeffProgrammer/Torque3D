@@ -38,7 +38,7 @@
 
 Platform::SystemInfo_struct Platform::SystemInfo;
 extern void SetProcessorInfo(Platform::SystemInfo_struct::Processor& pInfo,
-   char* vendor, U32 processor, U32 properties, U32 properties2); // platform/platformCPU.cc
+   const char* vendor, const char* brand); // platform/platformCPU.cc
 
 static inline void rtrim(std::string &s)
 {
@@ -52,8 +52,8 @@ static inline void ltrim(std::string &s)
 
 void getCPUInformation()
 {
-    String vendorString;
-    String brandString;
+    std::string vendorString;
+    std::string brandString;
 
     std::ifstream cpuInfo("/proc/cpuinfo");
 
@@ -113,17 +113,12 @@ void getCPUInformation()
 
                 if (std::find(flags.begin(), flags.end(), "ssse3") != flags.end())
                 {
-                    Platform::SystemInfo.processor.properties |= CPU_PROP_SSE3ex;
+                    Platform::SystemInfo.processor.properties |= CPU_PROP_SSE3;
                 }
 
                 if (std::find(flags.begin(), flags.end(), "sse") != flags.end())
                 {
                     Platform::SystemInfo.processor.properties |= CPU_PROP_SSE;
-                }
-
-                if (std::find(flags.begin(), flags.end(), "avx") != flags.end())
-                {
-                    Platform::SystemInfo.processor.properties |= CPU_PROP_AVX;
                 }
 
                 if (std::find(flags.begin(), flags.end(), "sse2") != flags.end())
@@ -145,11 +140,6 @@ void getCPUInformation()
                 {
                     Platform::SystemInfo.processor.properties |= CPU_PROP_MMX;
                 }
-
-                if (std::find(flags.begin(), flags.end(), "neon") != flags.end())
-                {
-                    Platform::SystemInfo.processor.properties |= CPU_PROP_NEON;
-                }
             }
         }
 
@@ -164,6 +154,8 @@ void getCPUInformation()
     Platform::SystemInfo.processor.numPhysicalProcessors = physicalCoreCount;
     Platform::SystemInfo.processor.isHyperThreaded = logicalCoreCount != physicalCoreCount;
     Platform::SystemInfo.processor.isMultiCore = physicalCoreCount != 1;
+    Platform::SystemInfo.processor.numLogicalProcessors = logicalCoreCount;
+    Platform::SystemInfo.processor.numPhysicalProcessors = physicalCoreCount;
     if (Platform::SystemInfo.processor.isMultiCore)
     {
         Platform::SystemInfo.processor.properties |= CPU_PROP_MP;
@@ -215,17 +207,10 @@ void Processor::init()
         Con::printf("      SSE2 detected" );
     if (Platform::SystemInfo.processor.properties & CPU_PROP_SSE3)
         Con::printf("      SSE3 detected" );
-    if (Platform::SystemInfo.processor.properties & CPU_PROP_SSE3ex)
-        Con::printf("      SSE3ex detected ");
     if (Platform::SystemInfo.processor.properties & CPU_PROP_SSE4_1)
         Con::printf("      SSE4.1 detected" );
     if (Platform::SystemInfo.processor.properties & CPU_PROP_SSE4_2)
         Con::printf("      SSE4.2 detected" );
-    if (Platform::SystemInfo.processor.properties & CPU_PROP_AVX)
-        Con::printf("      AVX detected");
-    if (Platform::SystemInfo.processor.properties & CPU_PROP_NEON)
-        Con::printf("      NEON detected");
-
     if (Platform::SystemInfo.processor.properties & CPU_PROP_MP)
         Con::printf("   MultiCore CPU detected [%i cores, %i logical]", Platform::SystemInfo.processor.numPhysicalProcessors, Platform::SystemInfo.processor.numLogicalProcessors);
 
@@ -236,9 +221,19 @@ namespace CPUInfo
 {
     EConfig CPUCount(U32& TotAvailLogical, U32& TotAvailCore, U32& PhysicalNum)
     {
-        PhysicalNum = TotAvailCore = 0;
-        TotAvailLogical = (int)sysconf(_SC_NPROCESSORS_ONLN);
+        if (Platform::SystemInfo.processor.isHyperThreaded && Platform::SystemInfo.processor.numPhysicalProcessors == 1)
+        {
+            return CONFIG_SingleCoreHTEnabled;
+        }
+        else if (!Platform::SystemInfo.processor.isHyperThreaded && Platform::SystemInfo.processor.numPhysicalProcessors > 1)
+        {
+            return CONFIG_MultiCoreAndHTNotCapable;
+        }
+        else if (!Platform::SystemInfo.processor.isHyperThreaded && Platform::SystemInfo.processor.numPhysicalProcessors == 1)
+        {
+            return CONFIG_SingleCoreAndHTNotCapable;   
+        }
 
-       return CONFIG_SingleCoreHTDisabled;
+        return CONFIG_MultiCoreAndHTEnabled;
     }
-}; // namespace CPUInfo 
+}; // namespace CPUInfo

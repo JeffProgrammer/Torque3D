@@ -84,6 +84,9 @@ enum ProcessorType
    CPU_Cyrix_GXm,          ///< Media GX w/ MMX
    CPU_Cyrix_Unknown,
 
+   // Apple
+   CPU_Apple_Unknown,
+
    // PowerPC
    CPU_PowerPC_Unknown,
    CPU_PowerPC_601,

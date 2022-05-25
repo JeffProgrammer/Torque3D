@@ -64,10 +64,6 @@ DefineEngineStringlyVariadicFunction( mathInit, void, 1, 10, "( ... )"
          properties |= CPU_PROP_MMX;
          continue;
       }
-      if (dStricmp(*argv, "3DNOW") == 0) {
-         properties |= CPU_PROP_3DNOW;
-         continue;
-      }
       if (dStricmp(*argv, "SSE") == 0) {
          properties |= CPU_PROP_SSE;
          continue;
