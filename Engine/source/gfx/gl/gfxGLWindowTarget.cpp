@@ -59,10 +59,12 @@ void GFXGLWindowTarget::resetMode()
       AssertFatal(false, "GFXGLWindowTarget::resetMode - Cannot go fullscreen with secondary window!");
    }
 
+   GFX->beginReset();
+
    _teardownCurrentMode();
    _setupNewMode();
 
-   GFX->beginReset();
+   mWindow->setSuppressReset(false);
 }
 
 void GFXGLWindowTarget::_onAppSignal(WindowId wnd, S32 event)
