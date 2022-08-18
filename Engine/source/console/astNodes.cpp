@@ -85,6 +85,11 @@ StmtNode::StmtNode() : dbgLineNumber(0)
    dbgFileName = CodeBlock::smCurrentParser->getCurrentFile();
 }
 
+String StmtNode::tojs(StringBuilder& code)
+{
+   return "";
+}
+
 void StmtNode::setPackage(StringTableEntry)
 {
 }

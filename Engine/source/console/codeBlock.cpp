@@ -687,6 +687,18 @@ ConsoleValue CodeBlock::compileExec(StringTableEntry fileName, const char *inStr
    {
       dumpInstructions();
    }
+
+   if (Con::getBoolVariable("$Debug::ToJs"))
+   {
+      gStatementList = NULL;
+      smCurrentParser->setScanBuffer(string, fileName);
+      smCurrentParser->restart(NULL);
+      smCurrentParser->parse();
+
+      StringBuilder code;
+      const String& str = transpileBlock(gStatementList, code);
+      Con::printf(str);
+   }
 #endif
 
    if (lineBreakPairCount && fileName)
