@@ -85,7 +85,7 @@ StmtNode::StmtNode() : dbgLineNumber(0)
    dbgFileName = CodeBlock::smCurrentParser->getCurrentFile();
 }
 
-String StmtNode::tojs(StringBuilder& code)
+String StmtNode::tojs(S32 indentSpaces)
 {
    return "";
 }

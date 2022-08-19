@@ -173,7 +173,7 @@ namespace Compiler
    F64 consoleStringToNumber(const char *str, StringTableEntry file = 0, U32 line = 0);
 
    U32 compileBlock(StmtNode *block, CodeStream &codeStream, U32 ip);
-   String transpileBlock(StmtNode* block, StringBuilder& code);
+   String transpileBlock(StmtNode* block, S32 indentSpaces);
 
    //------------------------------------------------------------
 

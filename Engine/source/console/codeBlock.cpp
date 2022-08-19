@@ -695,8 +695,7 @@ ConsoleValue CodeBlock::compileExec(StringTableEntry fileName, const char *inStr
       smCurrentParser->restart(NULL);
       smCurrentParser->parse();
 
-      StringBuilder code;
-      const String& str = transpileBlock(gStatementList, code);
+      const String& str = transpileBlock(gStatementList, 0);
       Con::printf(str);
    }
 #endif

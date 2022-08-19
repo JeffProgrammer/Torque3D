@@ -22,60 +22,80 @@
 
 #include "platform/platform.h"
 #include "console/console.h"
+
 #include "console/ast.h"
+
+template< typename T >
+struct Token
+{
+   T value;
+   S32 lineNumber;
+};
+#include "console/cmdgram.h"
 
 namespace Compiler
 {
-   String transpileBlock(StmtNode* block, StringBuilder& code)
+   String transpileBlock(StmtNode* block, S32 indentSpaces)
    {
       String str;
       for (StmtNode* walk = block; walk; walk = walk->getNext())
       {
-         str += walk->tojs(code) + "\n";
+         str += walk->tojs(indentSpaces) + "\n";
       }
       return str;
    }
 }
 
-String BreakStmtNode::tojs(StringBuilder& code)
+String BreakStmtNode::tojs(S32 indentSpaces)
 {
    return "";
 }
 
-String ContinueStmtNode::tojs(StringBuilder& code)
+String ContinueStmtNode::tojs(S32 indentSpaces)
 {
    return "";
 }
 
-String ExprNode::tojs(StringBuilder& code)
+String ExprNode::tojs(S32 indentSpaces)
 {
-   return tojs(code) + ";";
+   return tojs(indentSpaces) + ";";
 }
 
-String ReturnStmtNode::tojs(StringBuilder& code)
+String ReturnStmtNode::tojs(S32 indentSpaces)
 {
-   return "return " + expr->tojs(code) + ";";
+   return "return " + expr->tojs(0) + ";";
 }
 
-String IfStmtNode::tojs(StringBuilder& code)
+String IfStmtNode::tojs(S32 indentSpaces)
+{
+   const String& testExprStr = testExpr->tojs(indentSpaces);
+   const String& ifStr = ifBlock->tojs(indentSpaces);
+
+   String str = "if (" + testExprStr + ") {\n" + ifStr + "\n}";
+
+   if (elseBlock)
+   {
+      const String& elseStr = elseBlock->tojs(indentSpaces);
+      str += " else {\n" + elseStr + "\n}";
+   }
+
+   return str;
+}
+
+String LoopStmtNode::tojs(S32 indentSpaces)
 {
    return "";
 }
 
-String LoopStmtNode::tojs(StringBuilder& code)
+String IterStmtNode::tojs(S32 indentSpaces)
 {
    return "";
 }
 
-String IterStmtNode::tojs(StringBuilder& code)
+String FloatBinaryExprNode::tojs(S32 indentSpaces)
 {
-   return "";
-}
-
-String FloatBinaryExprNode::tojs(StringBuilder& code)
-{
-   const String& rightExpr = right->tojs(code);
-   const String& leftExpr = left->tojs(code);
+   const String& rightExpr = right->tojs(indentSpaces);
+   const String& leftExpr = left->tojs(indentSpaces);
 
    String operation = "";
    switch (op)
@@ -96,49 +116,108 @@ String FloatBinaryExprNode::tojs(StringBuilder& code)
    return leftExpr + " " + operation + " " + rightExpr;
 }
 
-String ConditionalExprNode::tojs(StringBuilder& code)
+String ConditionalExprNode::tojs(S32 indentSpaces)
 {
-   const String& testExprStr = testExpr->tojs(code);
-   const String& trueExprStr = trueExpr->tojs(code);
-   const String& falseExprStr = falseExpr->tojs(code);
+   const String& testExprStr = testExpr->tojs(indentSpaces);
+   const String& trueExprStr = trueExpr->tojs(indentSpaces);
+   const String& falseExprStr = falseExpr->tojs(indentSpaces);
 
    return "(" + testExprStr + ") ? " + trueExprStr + " : " + falseExprStr;
 }
 
-String IntBinaryExprNode::tojs(StringBuilder& code)
+String IntBinaryExprNode::tojs(S32 indentSpaces)
+{
+   const String& rightExpr = right->tojs(indentSpaces);
+   const String& leftExpr = left->tojs(indentSpaces);
+
+   // Note: JS supports short circuit evaluation automatically, no need to generate complex code...
+
+   String operation = "";
+   switch (op)
+   {
+   case '^':
+      operation = "^";
+      break;
+   case '%':
+      operation = "%";
+      break;
+   case '&':
+      operation = "&";
+      break;
+   case '|':
+      operation = "|";
+      break;
+   case '<':
+      operation = "<";
+      break;
+   case '>':
+      operation = ">";
+      break;
+   case opGE:
+      operation = ">=";
+      break;
+   case opLE:
+      operation = "<=";
+      break;
+   case opEQ:
+      operation = "==";
+      break;
+   case opNE:
+      operation = "!=";
+      break;
+   case opOR:
+      operation = "||";
+      break;
+   case opAND:
+      operation = "&&";
+      break;
+   case opSHR:
+      operation = ">>";
+      break;
+   case opSHL:
+      operation = "<<";
+      break;
+   default:
+      AssertISV(false, "Invalid operation");
+   }
+
+   return leftExpr + " " + operation + " " + rightExpr;
+}
+
+String StreqExprNode::tojs(S32 indentSpaces)
+{
+   const String& leftExpr = left->tojs(indentSpaces);
+   const String& rightExpr = right->tojs(indentSpaces);
+
+   String operation = !eq ? "!=" : "==";
+
+   return leftExpr + " " + operation + " " + rightExpr;
+}
+
+String StrcatExprNode::tojs(S32 indentSpaces)
 {
    return "";
 }
 
-String StreqExprNode::tojs(StringBuilder& code)
+String CommaCatExprNode::tojs(S32 indentSpaces)
 {
    return "";
 }
 
-String StrcatExprNode::tojs(StringBuilder& code)
+String IntUnaryExprNode::tojs(S32 indentSpaces)
 {
    return "";
 }
 
-String CommaCatExprNode::tojs(StringBuilder& code)
+String FloatUnaryExprNode::tojs(S32 indentSpaces)
 {
    return "";
 }
 
-String IntUnaryExprNode::tojs(StringBuilder& code)
-{
-   return "";
-}
-
-String FloatUnaryExprNode::tojs(StringBuilder& code)
-{
-   return "";
-}
-
-String VarNode::tojs(StringBuilder& code)
+String VarNode::tojs(S32 indentSpaces)
 {
    const String& name = String::ToString(varName[0] == '$' ? varName : varName + 1);
-   const String& arrayStr = arrayIndex ? arrayIndex->tojs(code) : "";
+   const String& arrayStr = arrayIndex ? arrayIndex->tojs(indentSpaces) : "";
 
    if (varName[0] == '$')
    {
@@ -158,31 +237,31 @@ String VarNode::tojs(StringBuilder& code)
    return name;
 }
 
-String IntNode::tojs(StringBuilder& code)
+String IntNode::tojs(S32 indentSpaces)
 {
    return String::ToString(value);
 }
 
-String FloatNode::tojs(StringBuilder& code)
+String FloatNode::tojs(S32 indentSpaces)
 {
    return String::ToString(value);
 }
 
-String StrConstNode::tojs(StringBuilder& code)
+String StrConstNode::tojs(S32 indentSpaces)
 {
    return "\'" + String::ToString(str) + "\'";
 }
 
-String ConstantNode::tojs(StringBuilder& code)
+String ConstantNode::tojs(S32 indentSpaces)
 {
    return String::ToString(value);
 }
 
-String AssignExprNode::tojs(StringBuilder& code)
+String AssignExprNode::tojs(S32 indentSpaces)
 {
-   const String& exprStr = expr->tojs(code);
+   const String& exprStr = expr->tojs(indentSpaces);
    const String& name = String::ToString(varName[0] == '$' ? varName : varName + 1);
-   const String& arrayStr = arrayIndex ? arrayIndex->tojs(code) : "";
+   const String& arrayStr = arrayIndex ? arrayIndex->tojs(indentSpaces) : "";
 
    if (varName[0] == '$')
    {
@@ -202,27 +281,27 @@ String AssignExprNode::tojs(StringBuilder& code)
    return "let " + name + " = " + exprStr + ";";
 }
 
-String AssignOpExprNode::tojs(StringBuilder& code)
+String AssignOpExprNode::tojs(S32 indentSpaces)
 {
    return "";
 }
 
-String TTagSetStmtNode::tojs(StringBuilder& code)
+String TTagSetStmtNode::tojs(S32 indentSpaces)
 {
    return "";
 }
 
-String TTagDerefNode::tojs(StringBuilder& code)
+String TTagDerefNode::tojs(S32 indentSpaces)
 {
    return "";
 }
 
-String TTagExprNode::tojs(StringBuilder& code)
+String TTagExprNode::tojs(S32 indentSpaces)
 {
    return "";
 }
 
-String FuncCallExprNode::tojs(StringBuilder& code)
+String FuncCallExprNode::tojs(S32 indentSpaces)
 {
    String str = String::ToString(funcName) + "(";
 
@@ -235,7 +314,7 @@ String FuncCallExprNode::tojs(StringBuilder& code)
       }
       first = false;
 
-      str += walk->tojs(code);
+      str += walk->tojs(indentSpaces);
    }
 
    str += ")";
@@ -243,37 +322,37 @@ String FuncCallExprNode::tojs(StringBuilder& code)
    return str;
 }
 
-String AssertCallExprNode::tojs(StringBuilder& code)
+String AssertCallExprNode::tojs(S32 indentSpaces)
 {
    return "";
 }
 
-String SlotAccessNode::tojs(StringBuilder& code)
+String SlotAccessNode::tojs(S32 indentSpaces)
 {
    return "";
 }
 
-String InternalSlotAccessNode::tojs(StringBuilder& code)
+String InternalSlotAccessNode::tojs(S32 indentSpaces)
 {
    return "";
 }
 
-String SlotAssignNode::tojs(StringBuilder& code)
+String SlotAssignNode::tojs(S32 indentSpaces)
 {
    return "";
 }
 
-String SlotAssignOpNode::tojs(StringBuilder& code)
+String SlotAssignOpNode::tojs(S32 indentSpaces)
 {
    return "";
 }
 
-String ObjectDeclNode::tojs(StringBuilder& code)
+String ObjectDeclNode::tojs(S32 indentSpaces)
 {
    return "";
 }
 
-String FunctionDeclStmtNode::tojs(StringBuilder& code)
+String FunctionDeclStmtNode::tojs(S32 indentSpaces)
 {
    String funcName = String::ToString(fnName);
    String str = "function " + funcName +"(";
@@ -292,7 +371,7 @@ String FunctionDeclStmtNode::tojs(StringBuilder& code)
 
    str += ") {\n";
 
-   str += Compiler::transpileBlock(stmts, code);
+   str += Compiler::transpileBlock(stmts, indentSpaces);
 
    str += "}\n";
 
