@@ -35,9 +35,11 @@ GLenum GFXGLTextureFormat[GFXFormat_COUNT];
 GLenum GFXGLTextureType[GFXFormat_COUNT];
 GLint* GFXGLTextureSwizzle[GFXFormat_COUNT];
 GLenum GFXGLBufferType[GFXBufferType_COUNT];
+GLenum GFXGLTextureBindingType[GFXTextureBindingType_COUNT];
 GLenum GFXGLCullMode[GFXCull_COUNT];
 GLenum GFXGLFillMode[GFXFill_COUNT];
 GLenum GFXGLFaceType[6];
+GLenum GFXGLDeclType[GFXDeclType_COUNT];
 
 void GFXGLEnumTranslate::init()
 {
@@ -46,6 +48,14 @@ void GFXGLEnumTranslate::init()
    GFXGLBufferType[GFXBufferTypeDynamic] = GL_DYNAMIC_DRAW;
    GFXGLBufferType[GFXBufferTypeVolatile] = GL_STREAM_DRAW;
    GFXGLBufferType[GFXBufferTypeImmutable] = GL_STATIC_DRAW;
+   
+   // Texture Binding Types
+   GFXGLTextureBindingType[GFXTextureBindingType1D] = GL_TEXTURE_1D;
+   GFXGLTextureBindingType[GFXTextureBindingType2D] = GL_TEXTURE_2D;
+   GFXGLTextureBindingType[GFXTextureBindingType3D] = GL_TEXTURE_3D;
+   GFXGLTextureBindingType[GFXTextureBindingType2DArray] = GL_TEXTURE_2D_ARRAY;
+   GFXGLTextureBindingType[GFXTextureBindingTypeCubeMap] = GL_TEXTURE_CUBE_MAP;
+   GFXGLTextureBindingType[GFXTextureBindingTypeCubeMapArray] = GL_TEXTURE_CUBE_MAP_ARRAY;
 
    // Primitives
    GFXGLPrimType[GFXPointList] = GL_POINTS;

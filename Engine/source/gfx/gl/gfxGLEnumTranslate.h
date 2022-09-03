@@ -45,10 +45,13 @@ extern GLenum GFXGLTextureType[GFXFormat_COUNT];
 extern GLint* GFXGLTextureSwizzle[GFXFormat_COUNT];
 
 extern GLenum GFXGLBufferType[GFXBufferType_COUNT];
+extern GLenum GFXGLTextureBindingType[GFXTextureBindingType_COUNT];
 extern GLenum GFXGLCullMode[GFXCull_COUNT];
 
 extern GLenum GFXGLFillMode[GFXFill_COUNT];
 
 extern GLenum GFXGLFaceType[6];
+
+extern GLenum GFXGLDeclType[GFXDeclType_COUNT];
 
 #endif

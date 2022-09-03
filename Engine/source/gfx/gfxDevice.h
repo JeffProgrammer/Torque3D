@@ -70,6 +70,7 @@ class GFXShader;
 class GFXStateBlock;
 class GFXShaderConstBuffer;
 class GFXTextureManager;
+class GFXCmdBuffer;
 
 // Global macro
 #define GFX GFXDevice::get() 
@@ -256,6 +257,8 @@ public:
    {
       NumStereoPorts = 2
    };
+
+   S32 mSizeOfPushConstant;
 
 private:
 
@@ -1051,6 +1054,70 @@ public:
 #endif
    protected:
       GFXDrawUtil *mDrawer;
+
+public:
+   // TODO:
+   // Render Targets
+   // Mapping Buffers
+   // Dynamic offsets
+   //  Note about dynamic offsets with Metal...
+   //    (see this for dynamic offsets in webgpu: https://github.com/gpuweb/gpuweb/issues/406)
+   //    (and this.. https://github.com/KhronosGroup/SPIRV-Cross/commit/cb35934248920c2ee28e8162205ad390a6d042c9)
+   // An OpenGL, D3D11, Metal, Vulkan, <insert api> implementation :)
+   // everything else...
+
+   virtual GFXCmdBuffer* allocCmdBuffer() {
+      return nullptr;
+   }
+   virtual void executeCmdBuffer(GFXCmdBuffer* cmdBuffer) {}
+
+   virtual GFXHandle<GFXSamplerHandle> createSampler(const GFXSamplerDesc2& desc) {
+      return GFXHandle<GFXSamplerHandle>(0);
+   }
+   
+   virtual void destroySampler(GFXHandle<GFXSamplerHandle> sampler) {}
+
+   virtual GFXHandle<GFXTextureHandle> createTexture(const GFXTextureDesc& desc) {
+      return GFXHandle<GFXTextureHandle>(0);
+   }
+   
+   virtual void destroyTexture(GFXHandle<GFXTextureHandle> texture) {}
+
+   virtual GFXHandle<GFXVertexBufferHandle2> createVertexBuffer(const GFXVertexBufferDesc& desc) {
+      return GFXHandle<GFXVertexBufferHandle2>(0);
+   }
+   
+   virtual void destroyVertexBuffer(GFXHandle<GFXVertexBufferHandle2> vertexBuffer) {}
+
+   virtual GFXHandle<GFXIndexBufferHandle> createIndexBuffer(const GFXIndexBufferDesc& desc) {
+      return GFXHandle<GFXIndexBufferHandle>(0);
+   }
+   
+   virtual void destroyIndexBuffer(GFXHandle<GFXIndexBufferHandle> indexBuffer) {}
+
+   virtual GFXHandle<GFXConstantBufferHandle> createConstantBuffer(const GFXConstBufferDesc& desc) {
+      return GFXHandle<GFXConstantBufferHandle>(0);
+   }
+   
+   virtual void destroyConstantBuffer(GFXHandle<GFXConstantBufferHandle> constantBuffer) {}
+
+   virtual GFXHandle<GFXGraphicsPipelineHandle> createGraphicsPipeline(const GFXPipelineDesc& desc) {
+      return GFXHandle<GFXGraphicsPipelineHandle>(0);
+   }
+   
+   virtual void destroyGraphicsPipeline(GFXHandle<GFXGraphicsPipelineHandle> pipeline) {}
+
+   virtual GFXHandle<GFXBindGroupLayoutHandle> createBindGroupLayout(const GFXBindGroupLayoutDesc& desc) {
+      return GFXHandle<GFXBindGroupLayoutHandle>(0);
+   }
+   
+   virtual void deleteBindGroupLayout(GFXHandle<GFXBindGroupLayoutHandle> layout) {}
+
+   virtual GFXHandle<GFXBindGroupHandle> createBindGroup(GFXHandle<GFXBindGroupLayoutHandle> bindGroupLayoutHandle, const GFXBindGroupDesc& desc) {
+      return GFXHandle<GFXBindGroupHandle>(0);
+   }
+   
+   virtual void deleteBindGroup(GFXHandle<GFXBindGroupHandle> bindGroup) {}
 }; 
 
 //-----------------------------------------------------------------------------

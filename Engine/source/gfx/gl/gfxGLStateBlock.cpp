@@ -50,7 +50,7 @@ GFXGLStateBlock::GFXGLStateBlock(const GFXStateBlockDesc& desc) :
       {
          glGenSamplers(1, &id);
 
-         glSamplerParameteri(id, GL_TEXTURE_MIN_FILTER, minificationFilter(ssd.minFilter, ssd.mipFilter, 1) );
+         glSamplerParameteri(id, GL_TEXTURE_MIN_FILTER, minificationFilter(ssd.minFilter, ssd.mipFilter) );
          glSamplerParameteri(id, GL_TEXTURE_MAG_FILTER, GFXGLTextureFilter[ssd.magFilter]);
          glSamplerParameteri(id, GL_TEXTURE_WRAP_S, GFXGLTextureAddress[ssd.addressModeU]);
          glSamplerParameteri(id, GL_TEXTURE_WRAP_T, GFXGLTextureAddress[ssd.addressModeV]);

@@ -147,4 +147,156 @@ struct GFXShaderMacro
    static void stringize( const Vector<GFXShaderMacro> &macros, String *outString );
 };
 
+struct GFXGraphicsPipelineHandle {};
+struct GFXVertexBufferHandle2 {}; // remove 2 after we drop the old GFXVertexBufferHandle template class
+struct GFXIndexBufferHandle {};
+struct GFXConstantBufferHandle {};
+struct GFXTextureHandle {};
+struct GFXBindGroupLayoutHandle {};
+struct GFXBindGroupHandle {};
+struct GFXSamplerHandle {};
+
+template<typename T>
+struct GFXHandle
+{
+   operator U32() { return mHandle; }
+   operator const U32() const { return mHandle; }
+
+   GFXHandle() : mHandle(0) {}
+   explicit GFXHandle(U32 handle) : mHandle(handle) {}
+
+   GFXHandle(const GFXHandle<T>& handle) : mHandle(handle) {}
+
+   GFXHandle<T>& operator=(U32 handle) { mHandle = handle; return *this; }
+private:
+   U32 mHandle;
+};
+
+struct GFXVertexBufferDesc
+{
+   GFXBufferType bufferType = GFXBufferTypeStatic;
+   U32 size = 0;
+   void* data = NULL;
+};
+
+struct GFXIndexBufferDesc
+{
+   GFXBufferType bufferType = GFXBufferTypeStatic;
+   U32 size = 0;
+   void* data = NULL;
+};
+
+struct GFXConstBufferDesc
+{
+   GFXBufferType bufferType = GFXBufferTypeStatic;
+   U32 size = 0;
+   void* data = NULL;
+};
+
+struct GFXSamplerDesc2 // remove 2 after we drop old one
+{
+   GFXTextureAddressMode addressModeU = GFXAddressWrap;
+   GFXTextureAddressMode addressModeV = GFXAddressWrap;
+   GFXTextureAddressMode addressModeW = GFXAddressWrap;
+
+   GFXTextureFilterType magFilter = GFXTextureFilterLinear;
+   GFXTextureFilterType minFilter = GFXTextureFilterLinear;
+   GFXTextureFilterType mipFilter = GFXTextureFilterLinear;
+
+   GFXCmpFunc samplerFunc = GFXCmpNever;
+   U32 maxAnisotropy = 1;
+   F32 mipLODBias = 0.0;
+};
+
+struct GFXInputLayoutElementDesc
+{
+   String semanticName;
+   U32 semanticIndex;
+   GFXDeclType type;
+};
+
+struct GFXInputLayoutBufferDesc
+{
+   GFXInputLayoutElementDesc elements[GFX_MAX_INPUT_LAYOUT_ATTRIBUTES];
+   U32 count = 0;
+   U32 stride = 0;
+   bool isInstancingBuffer = false;
+};
+
+struct GFXInputLayoutDesc
+{
+   GFXInputLayoutBufferDesc buffers[GFX_MAX_BOUND_VERTEX_BUFFERS];
+   U32 count = 0;
+};
+
+struct GFXBindGroupLayoutDesc
+{
+   struct Layout
+   {
+      String name;
+      U32 binding;
+      GFXResourceType type;
+      GFXShaderStageFlags stages;
+      bool supportsDynamicOffsets;
+   } resources[GFX_MAX_RESOURCES_PER_BINDGROUP];
+   U32 resourceCount;
+
+   GFXBindGroupLayoutDesc()
+   {
+      resourceCount = 0;
+      for (U32 i = 0; i < GFX_MAX_RESOURCES_PER_BINDGROUP; ++i)
+      {
+         resources[i].name = "";
+         resources[i].binding = 0;
+         resources[i].type = GFXResourceNoneType;
+         resources[i].stages = GFXShaderStageNone;
+         resources[i].supportsDynamicOffsets = false;
+      }
+   }
+};
+
+struct GFXPipelineDesc
+{
+   GFXInputLayoutDesc inputLayout;
+   GFXShader* shader; // TODO: Clean this up
+   GFXHandle<GFXBindGroupLayoutHandle> bindGroupLayout;
+};
+
+struct GFXTextureProfile;
+
+struct GFXTextureDesc
+{
+   GFXTextureBindingType type;
+   U32 width = 0;
+   U32 height = 0;
+   U32 depth = 0;
+   U32 numberLayers = 0;
+   GFXFormat format;
+   GFXTextureProfile* profile;
+   U32 numMipLevels = 1;
+};
+
+struct GFXBindGroupDesc
+{
+   struct
+   {
+      union
+      {
+         struct
+         {
+            GFXHandle<GFXConstantBufferHandle> handle;
+            U32 offset = 0;
+            U32 size = 0;
+         } constantBuffer;
+         struct
+         {
+            GFXHandle<GFXSamplerHandle> handle;
+            U32 textureUnit;
+         } sampler;
+         GFXHandle<GFXTextureHandle> texture;
+      };
+   } resources[GFX_MAX_RESOURCES_PER_BINDGROUP];
+   U32 count;
+};
+
 #endif // _GFXSTRUCTS_H_

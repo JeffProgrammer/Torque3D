@@ -33,7 +33,7 @@ inline U32 getMaxMipmaps(U32 width, U32 height, U32 depth)
    return getMax( getBinLog2(depth), getMax(getBinLog2(width), getBinLog2(height))) + 1;
 }
 
-inline GLenum minificationFilter(U32 minFilter, U32 mipFilter, U32 /*mipLevels*/)
+inline GLenum minificationFilter(U32 minFilter, U32 mipFilter)
 {
    // the compiler should interpret this as array lookups
    switch( minFilter ) 

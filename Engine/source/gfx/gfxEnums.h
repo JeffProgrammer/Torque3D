@@ -216,6 +216,52 @@ enum GFXClearFlags
    GFXClearStencil = 1 << 2,
 };
 
+enum GFXShaderStageFlags
+{
+   GFXShaderStageNone = 0 << 0,
+   GFXShaderStageVertex = 1 << 0,
+   GFXShaderStageFragment = 1 << 1
+};
+
+enum GFXResourceType
+{
+   GFXResourceNoneType,
+   GFXResourceConstantBufferType,
+   GFXResourceDynamicConstantBufferType,
+   GFXResourceTextureType,
+   GFXResourceSamplerType
+};
+
+enum BindGroupConstants
+{
+   GFX_MAX_RESOURCES_PER_BINDGROUP = 16,
+   GFX_MAX_BIND_GROUPS = 4
+};
+
+enum GFXTextureBindingType
+{
+   GFXTextureBindingType_FIRST = 0,
+   GFXTextureBindingType1D = 0,
+   GFXTextureBindingType2D,
+   GFXTextureBindingType3D,
+   GFXTextureBindingType2DArray,
+   GFXTextureBindingTypeCubeMap,
+   GFXTextureBindingTypeCubeMapArray,
+   GFXTextureBindingType_COUNT
+};
+
+enum GFXMaxEnums
+{
+   /// Maximum number of input layout attributes
+   GFX_MAX_INPUT_LAYOUT_ATTRIBUTES = 16,
+   
+   /// The maximum number of vertex buffers that can be bound to a pipeline
+   GFX_MAX_BOUND_VERTEX_BUFFERS = 4,
+   
+   /// Maximum number of shader stages for a pipeline
+   GFX_MAX_NUMBER_SHADER_STAGES = 2
+};
+
 /// The supported blend modes.
 enum GFXBlend 
 {
@@ -252,6 +298,14 @@ enum GFXCullMode
    GFXCullCW,
    GFXCullCCW,
    GFXCull_COUNT
+};
+
+enum GFXWindingMode
+{
+   GFXWinding_FIRST = 0,
+   GFXWindingClockwise = 0,
+   GFXWindingCounterClockwise,
+   GFXWinding_COUNT
 };
 
 enum GFXCmpFunc 

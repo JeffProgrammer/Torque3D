@@ -186,16 +186,7 @@ void GFXGLDevice::initGLState()
    Con::NotifyDelegate clbk(this, &GFXGLDevice::vsyncCallback);
    Con::addVariableNotify("$pref::Video::enableVerticalSync", clbk);
 
-   //OpenGL 3 need a binded VAO for render
-   GLuint vao;
-   glGenVertexArrays(1, &vao);
-   glBindVertexArray(vao);
-
-   //enable sRGB
-   glEnable(GL_FRAMEBUFFER_SRGB);
-
-   //enable seamless cubemapping
-   glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+   init2();
 }
 
 void GFXGLDevice::vsyncCallback()

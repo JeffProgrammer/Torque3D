@@ -35,6 +35,10 @@
 #include "gfx/gfxResource.h"
 #include "gfx/gl/gfxGLStateBlock.h"
 
+#include <vector>
+#include <unordered_map>
+#include <variant>
+
 class GFXGLTextureArray;
 class GFXGLVertexBuffer;
 class GFXGLPrimitiveBuffer;
@@ -272,6 +276,165 @@ private:
    GFXWindowTargetRef *mWindowRT;
 
    bool mUseGlMap;
+   
+   // gfx2
+private:
+   friend class GFXCmdBuffer;
+
+   struct GLBindGroupLayout
+   {
+      struct Layout
+      {
+         String name;
+         U32 binding;
+         GFXResourceType type;
+         GFXShaderStageFlags stages;
+      } resources[GFX_MAX_RESOURCES_PER_BINDGROUP];
+
+      U32 resourceCount;
+      U32 numberOfDynamicResources;
+   };
+
+   struct GLInputLayoutState
+   {
+      struct
+      {
+         struct
+         {
+            U32 attributeIndex;
+            GLenum type;
+            U32 elementCount;
+            U32 localOffset;
+            bool normalized;
+         } elements[GFX_MAX_INPUT_LAYOUT_ATTRIBUTES];
+
+         U32 elementCount;
+         U32 stride;
+         bool isInstancing;
+
+      } buffers[GFX_MAX_BOUND_VERTEX_BUFFERS];
+      U32 bufferCount = 0;
+      U32 numberOfAttributes = 0;
+   };
+
+   struct GLPipelineState
+   {
+      U32 bindGroupLayout;
+      GLInputLayoutState inputLayoutState;
+      GLuint program;
+      U32 pushConstantSize;
+   };
+
+   struct GLBindGroup
+   {
+      struct ConstantBuffer
+      {
+         GFXHandle<GFXConstantBufferHandle> buffer;
+         U32 offset = 0;
+         U32 size = 0;
+      };
+      struct Sampler
+      {
+         GFXHandle<GFXSamplerHandle> sampler;
+         U32 textureUnit;
+      };
+      struct Texture
+      {
+         GFXHandle<GFXTextureHandle> texture;
+         U32 textureUnit;
+      };
+      
+
+      U32 count = 0;
+      struct Resources
+      {
+         GFXResourceType type;
+         std::variant<ConstantBuffer, Sampler, Texture> resource;
+      } resources[GFX_MAX_RESOURCES_PER_BINDGROUP];
+      
+      GFXHandle<GFXBindGroupLayoutHandle> bindGroupLayout;
+   };
+   
+   struct GLTextureState
+   {
+      GLenum type;
+      U32 width = 0;
+      U32 height = 0;
+      U32 depth = 0;
+      U32 numberLayers = 0;
+      GLenum format = 0;
+      GFXTextureProfile* profile;
+      U32 numMipLevels = 1;
+      GLuint textureHandle;
+   };
+   
+   U32 mNextHandle = 0;
+   
+   std::unordered_map<U32, GLPipelineState> mGLPipelineStateTable;
+   std::unordered_map<U32, GLBindGroup> mGLBindGroupTable;
+   std::unordered_map<U32, GLBindGroupLayout> mGLBindGroupLayoutTable;
+   std::unordered_map<U32, GLuint> mGLSamplerStateTable;
+   std::unordered_map<U32, GLuint> mGLVertexBufferTable;
+   std::unordered_map<U32, GLuint> mGLIndexBufferTable;
+   std::unordered_map<U32, GLuint> mGLConstantBufferTable;
+   std::unordered_map<U32, GLTextureState> mGLTextureTable;
+
+   GLuint mPushConstantBuffer;
+   GLint mPushConstantBindingLocation;
+
+   // capabilities
+   struct
+   {
+      bool separateVertexFormat = false;
+      bool bufferStorage = false;
+      bool anisotropicFiltering = false;
+      S32 uboAlignment = 0;
+   } mGLCaps;
+
+   enum
+   {
+      MAX_ATTRIBUTES = 16,
+      MAX_PUSH_CONSTANT_SIZE = 128,
+      MAX_PUSH_CONSTANT_CALLS_PER_CMD_BUFFER = 512
+   };
+
+   struct
+   {
+      bool attributesBound[MAX_ATTRIBUTES];
+      U32 currentPipeline = 0;
+      U32 currentBindGroupLayout = 0;
+   } mInternalGLState;
+
+   void verifyBeforeDraw();
+   void init2();
+
+public:
+   virtual GFXCmdBuffer* allocCmdBuffer() override;
+   virtual void executeCmdBuffer(GFXCmdBuffer* cmdBuffer) override;
+
+   virtual GFXHandle<GFXSamplerHandle> createSampler(const GFXSamplerDesc2& desc) override;
+   virtual void destroySampler(GFXHandle<GFXSamplerHandle> sampler) override;
+
+   virtual GFXHandle<GFXTextureHandle> createTexture(const GFXTextureDesc& desc) override;
+   virtual void destroyTexture(GFXHandle<GFXTextureHandle> texture) override;
+
+   virtual GFXHandle<GFXVertexBufferHandle2> createVertexBuffer(const GFXVertexBufferDesc& desc) override;
+   virtual void destroyVertexBuffer(GFXHandle<GFXVertexBufferHandle2> vertexBuffer) override;
+
+   virtual GFXHandle<GFXIndexBufferHandle> createIndexBuffer(const GFXIndexBufferDesc& desc) override;
+   virtual void destroyIndexBuffer(GFXHandle<GFXIndexBufferHandle> indexBuffer) override;
+
+   virtual GFXHandle<GFXConstantBufferHandle> createConstantBuffer(const GFXConstBufferDesc& desc) override;
+   virtual void destroyConstantBuffer(GFXHandle<GFXConstantBufferHandle> constantBuffer) override;
+
+   virtual GFXHandle<GFXGraphicsPipelineHandle> createGraphicsPipeline(const GFXPipelineDesc& desc) override;
+   virtual void destroyGraphicsPipeline(GFXHandle<GFXGraphicsPipelineHandle> pipeline) override;
+
+   virtual GFXHandle<GFXBindGroupLayoutHandle> createBindGroupLayout(const GFXBindGroupLayoutDesc& desc) override;
+   virtual void deleteBindGroupLayout(GFXHandle<GFXBindGroupLayoutHandle> layout) override;
+
+   virtual GFXHandle<GFXBindGroupHandle> createBindGroup(GFXHandle<GFXBindGroupLayoutHandle> bindGroupLayoutHandle, const GFXBindGroupDesc& desc) override;
+   virtual void deleteBindGroup(GFXHandle<GFXBindGroupHandle> bindGroup) override;
 };
 
 #define GFXGL static_cast<GFXGLDevice*>(GFXDevice::get())
