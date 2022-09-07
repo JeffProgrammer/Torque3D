@@ -222,6 +222,13 @@ void PlatformWindowSDL::_setVideoMode( const GFXVideoMode &mode )
          SDL_MaximizeWindow(mWindowHandle);
    }
 
+   //Pixel scale is independent of mode
+   Point2I drawSize;
+   SDL_GL_GetDrawableSize(mWindowHandle, &drawSize.x, &drawSize.y);
+
+   AssertWarn(mIsEqual(static_cast<F32>(drawSize.x) / static_cast<F32>(mode.resolution.x), static_cast<F32>(drawSize.y) / static_cast<F32>(mode.resolution.y)), "Anisotropic desktop scale");
+   mVideoMode.pixelScale = static_cast<F32>(drawSize.x) / static_cast<F32>(mode.resolution.x);
+   
    mSuppressReset = false;
 }
 

@@ -34,7 +34,7 @@ public:
 
    const Point2I getSize() 
    { 
-      return mWindow->getClientExtent();
+      return mWindow->getClientExtent() * mWindow->getVideoMode().pixelScale;
    }
    virtual GFXFormat getFormat()
    {

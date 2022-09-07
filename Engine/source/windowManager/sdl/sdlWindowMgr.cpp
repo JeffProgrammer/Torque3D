@@ -100,6 +100,20 @@ S32 PlatformWindowManagerSDL::getDesktopBitDepth()
    return bbp;
 }
 
+F32 PlatformWindowManagerSDL::getDesktopPixelScale()
+{
+   return 2.0f;
+   SDL_DisplayMode mode;
+   SDL_GetDesktopDisplayMode(0, &mode);
+
+   SDL_Rect bounds;
+   SDL_GetDisplayBounds(0, &bounds);
+
+   AssertWarn(mIsEqual(static_cast<F32>(mode.w) / static_cast<F32>(bounds.w), static_cast<F32>(mode.h) / static_cast<F32>(bounds.h)), "Anisotropic desktop scale");
+
+   return static_cast<F32>(mode.w) / static_cast<F32>(bounds.w);
+}
+
 S32 PlatformWindowManagerSDL::findFirstMatchingMonitor(const char* name)
 {
    S32 count = SDL_GetNumVideoDisplays();
@@ -238,7 +252,7 @@ PlatformWindow *PlatformWindowManagerSDL::createWindow(GFXDevice *device, const 
 {
    // Do the allocation.
    PlatformWindowSDL *window = new PlatformWindowSDL();   
-   U32 windowFlags = /*SDL_WINDOW_SHOWN |*/ SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
+   U32 windowFlags = /*SDL_WINDOW_SHOWN |*/ SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN | SDL_WINDOW_ALLOW_HIGHDPI;
 
    if(GFX->getAdapterType() == OpenGL)
        windowFlags |= SDL_WINDOW_OPENGL;

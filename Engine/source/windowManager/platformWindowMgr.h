@@ -70,6 +70,11 @@ public:
    /// Retrieve the currently set desktop resolution
    /// @return The current desktop bit depth, or Point2I(-1,-1) if an error occurred
    virtual Point2I getDesktopResolution() = 0;
+   
+   /// Retreive the desktop's current pixel scale. This is generally 1.0 for normal
+   /// displays, or greater for High DPI displays.
+   /// @return The current desktop pixel scale or -1 if an error occurred.
+   virtual F32 getDesktopPixelScale() = 0;
 
    // Build out the monitor list.
    virtual void buildMonitorsList() {}

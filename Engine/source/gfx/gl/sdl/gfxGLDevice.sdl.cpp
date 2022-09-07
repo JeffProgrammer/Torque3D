@@ -55,9 +55,17 @@ void EnumerateVideoModes(Vector<GFXVideoMode>& outModes)
    for(int i = 0; i < count; ++i)
    {
       SDL_GetDisplayMode( 0, i, &mode);
+      
+      
+      SDL_Rect bounds;
+      SDL_GetDisplayBounds(0, &bounds);
+
+      AssertWarn(mIsEqual(static_cast<F32>(mode.w) / static_cast<F32>(bounds.w), static_cast<F32>(mode.h) / static_cast<F32>(bounds.h)), "Anisotropic desktop scale");
+      
       GFXVideoMode outMode;
-      outMode.resolution.set( mode.w, mode.h );
+      outMode.resolution.set( bounds.w, bounds.h );
       outMode.refreshRate = mode.refresh_rate;
+      outMode.pixelScale = static_cast<F32>(mode.w) / static_cast<F32>(bounds.w);
 
       // BBP = 32 for some reason the engine knows it should be 32, but then we
       // add some extra code to break what the engine knows.

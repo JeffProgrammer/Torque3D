@@ -61,6 +61,7 @@ struct GFXVideoMode
    bool wideScreen;
    // When this is returned from GFX, it's the max, otherwise it's the desired AA level.
    U32 antialiasLevel;
+   F32 pixelScale;
 
    inline bool operator == ( const GFXVideoMode &otherMode ) const 
    {
@@ -75,6 +76,8 @@ struct GFXVideoMode
       if( otherMode.wideScreen != wideScreen )
          return false;
       if( otherMode.antialiasLevel != antialiasLevel)
+         return false;
+      if( otherMode.pixelScale != pixelScale )
          return false;
 
       return true;

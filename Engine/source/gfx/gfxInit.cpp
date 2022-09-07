@@ -375,6 +375,7 @@ GFXVideoMode GFXInit::getDesktopResolution()
    // Retrieve Resolution Information.
    resVm.bitDepth    = WindowManager->getDesktopBitDepth();
    resVm.resolution  = WindowManager->getDesktopResolution();
+   resVm.pixelScale  = WindowManager->getDesktopPixelScale();
    resVm.fullScreen  = false;
    resVm.refreshRate = 60;
 

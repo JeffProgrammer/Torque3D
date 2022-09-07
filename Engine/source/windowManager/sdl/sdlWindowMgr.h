@@ -104,6 +104,7 @@ public:
    virtual RectI getPrimaryDesktopArea();
    virtual S32       getDesktopBitDepth();
    virtual Point2I   getDesktopResolution();
+   virtual F32       getDesktopPixelScale();
 
    virtual S32 findFirstMatchingMonitor(const char* name);
    virtual U32 getMonitorCount();
