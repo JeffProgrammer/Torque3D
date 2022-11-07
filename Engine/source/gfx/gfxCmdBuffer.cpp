@@ -10,6 +10,7 @@ GFXCmdBuffer::GFXCmdBuffer(GFXDevice* device) :
    dMemset(&mBuffer, 0, sizeof(mBuffer));
    dMemset(&mPushConstantMemory, 0, sizeof(mPushConstantMemory));
    dMemset(&mStateBlockData, 0, sizeof(mStateBlockData));
+   dMemset(&mScratchVertexData, 0, sizeof(mScratchVertexData));
 }
 
 GFXCmdBuffer::~GFXCmdBuffer()
@@ -85,10 +86,10 @@ void GFXCmdBuffer::setBindGroup(U32 set, GFXHandle<GFXBindGroupHandle> bindGroup
 void GFXCmdBuffer::setPushConstants(GFXShaderStageFlags stageFlags, U32 size, void* data)
 {
    AssertFatal(!mRecording, "GFXCmdBuffer is not currently recording!");
-   AssertFatal(size < 128, "Push Constant size must be no more than 128 bytes. Use a buffer for bigger data.");
+   AssertFatal(size < 128, "GFXCmdBuffer Push Constant size must be no more than 128 bytes. Use a buffer for bigger data.");
 
    S32 sizeOfPushConstant = mDevice->mSizeOfPushConstant;
-   AssertFatal(mPushConstantMemory.count * sizeOfPushConstant < MEMORY_CONSTANT_PAGE_SIZE, "Ran out of Constant Buffer space!");
+   AssertFatal(mPushConstantMemory.count * sizeOfPushConstant < MEMORY_CONSTANT_PAGE_SIZE, "GFXCmdBuffer Ran out of Constant Buffer space!");
 
    dMemcpy(mPushConstantMemory.data + (sizeOfPushConstant * mPushConstantMemory.count), data, size);
    U32 idx = mPushConstantMemory.count++;
@@ -147,4 +148,33 @@ void GFXCmdBuffer::endRecording()
    mRecording = false;
 
    mBuffer.append(GFX_CMD_END);
+}
+
+void GFXCmdBuffer::_internalDrawPrimitivesFromData(GFXPrimitiveType type, U32 count, U32 sizeInBytesOfType, void* data)
+{
+   U32 size = sizeInBytesOfType * count;
+
+   AssertFatal(!mRecording, "GFXCmdBuffer is not currently recording!");
+   AssertFatal(size < MAX_BYTES_DRAW_PRIMITIVES_FROM_DATA, avar("GFXCmdBuffer Max Number of Vertex Bytes in DrawPrimitivesFromData cannot exceed %d", MAX_BYTES_DRAW_PRIMITIVES_FROM_DATA));
+
+   if (mScratchVertexData.sizeOfVertexDataType == 0)
+      mScratchVertexData.sizeOfVertexDataType = sizeInBytesOfType;
+   AssertFatal(mScratchVertexData.sizeOfVertexDataType == sizeInBytesOfType, "GFXCmdBuffer Cannot change the vertex format type size when recording DrawPrimitivesFromData calls in the same command list");;
+
+   U32 index = mScratchVertexData.count++;
+   if (index < MAX_NUMBER_DRAW_PRIMITVES_FROM_DATA)
+   {
+      mScratchVertexData.vertexDataSizes[index] = size;
+      dMemcpy(mScratchVertexData.vertexData + mScratchVertexData.vertexDataPtr, data, size);
+      mScratchVertexData.vertexDataPtr += size;
+   }
+   else
+   {
+      AssertFatal(false, avar("GFXCmdBuffer Can only call DrawPrimitivesFromData %d times per command buffer", MAX_NUMBER_DRAW_PRIMITVES_FROM_DATA));
+   }
+
+   mBuffer.append(GFX_CMD_DRAW_PRIMITIVES_FROM_DATA);
+   mBuffer.append(index);
+   mBuffer.append(type);
+   mBuffer.append(count);
 }

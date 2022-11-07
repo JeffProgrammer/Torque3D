@@ -13,6 +13,7 @@ enum GFXCommand
    GFX_CMD_SET_BIND_GROUP,
    GFX_CMD_SET_PUSHCONSTANTS,
 
+   GFX_CMD_DRAW_PRIMITIVES_FROM_DATA,
    GFX_CMD_DRAW_PRIMITIVES,
    GFX_CMD_DRAW_PRIMITIVES_INSTANCED,
    GFX_CMD_DRAW_INDEXED_PRIMITIVES,
@@ -24,11 +25,14 @@ enum GFXCommand
 class GFXCmdBuffer
 {
 public:
+   // TODO: Get rid of maximums possibly and just allocate new pages of memory dynamically as needed?
    enum
    {
       MEMORY_BUFFER_PAGE_SIZE = 16384,
       MEMORY_CONSTANT_PAGE_SIZE = 16384 * 4,
-      MAX_STATE_BLOCK_RESOURCES = 256
+      MAX_STATE_BLOCK_RESOURCES = 256,           ///< Maximum number of setStateBlock calls allowed per command buffer.
+      MAX_NUMBER_DRAW_PRIMITVES_FROM_DATA = 512, ///< Maximum number of drawPrimitivesFromData calls per command buffer
+      MAX_BYTES_DRAW_PRIMITIVES_FROM_DATA = 128  ///< Maximum number of bytes allowed per drawPrimitivesFromData call
    };
 
    GFXCmdBuffer(GFXDevice* device);
@@ -42,7 +46,10 @@ public:
    void setIndexBuffer(GFXHandle<GFXIndexBufferHandle> buffer, bool is16Bit);
    void setBindGroup(U32 set, GFXHandle<GFXBindGroupHandle> bindGroup, U32 offsetCount, U32* offsets);
    void setPushConstants(GFXShaderStageFlags stageFlags, U32 size, void* data);
-   
+
+   template<typename T>
+   inline void drawPrimitivesFromData(GFXPrimitiveType type, U32 count, T* data);
+
    void drawPrimitives(GFXPrimitiveType type, U32 start, U32 count);
    void drawPrimitivesInstanced(GFXPrimitiveType type, U32 start, U32 count, U32 instanceCount);
    void drawIndexedPrimitives(GFXPrimitiveType type, U32 count, U32 indexBufferOffset, U32 baseVertex);
@@ -66,6 +73,17 @@ private:
       U32 count;
    } mPushConstantMemory;
 
+   struct ScratchVertexData
+   {
+      U8 vertexData[MAX_BYTES_DRAW_PRIMITIVES_FROM_DATA * MAX_NUMBER_DRAW_PRIMITVES_FROM_DATA];
+      U32 vertexDataSizes[MAX_NUMBER_DRAW_PRIMITVES_FROM_DATA];
+      U32 count;
+      U32 vertexDataPtr;
+      U32 sizeOfVertexDataType;
+   } mScratchVertexData;
+
+   void _internalDrawPrimitivesFromData(GFXPrimitiveType type, U32 count, U32 sizeInBytesOfType, void* data);
+
    struct
    {
       TORQUE_FORCEINLINE void append(U32 datum)
@@ -81,3 +99,9 @@ private:
 
    bool mRecording;
 };
+
+template<typename T>
+inline void GFXCmdBuffer::drawPrimitivesFromData(GFXPrimitiveType type, U32 count, T* data)
+{
+   _internalDrawPrimitivesFromData(type, count, sizeof(T), data);
+}

@@ -380,6 +380,7 @@ private:
    std::unordered_map<U32, GLTextureState> mGLTextureTable;
 
    GLuint mPushConstantBuffer;
+   GLuint mDrawPrimitivesFromDataVertexBuffer;
    GLint mPushConstantBindingLocation;
 
    // capabilities
@@ -403,6 +404,7 @@ private:
       bool attributesBound[MAX_ATTRIBUTES];
       U32 currentPipeline = 0;
       U32 currentBindGroupLayout = 0;
+      GLuint lastBoundVertexBufferAtSlot0 = 0;
    } mInternalGLState;
 
    void verifyBeforeDraw();

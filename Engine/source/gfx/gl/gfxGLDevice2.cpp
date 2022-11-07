@@ -51,6 +51,10 @@ void GFXGLDevice::init2()
    glBufferData(GL_UNIFORM_BUFFER, mSizeOfPushConstant * MAX_PUSH_CONSTANT_CALLS_PER_CMD_BUFFER, nullptr, GL_DYNAMIC_DRAW);
    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
+   // initialize dynamic draw primitives buffer (TODO: make this a pool of buffers)
+   glGenBuffers(1, &mDrawPrimitivesFromDataVertexBuffer);
+   glBindBuffer(GL_ARRAY_BUFFER, )
+
    // cache push constant binding location as the last binding location
    GLint maxLocations;
    glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &maxLocations);
@@ -353,6 +357,10 @@ void GFXGLDevice::executeCmdBuffer(GFXCmdBuffer* cmdBuffer)
             U32 offset = mSizeOfPushConstant * index;
 
             glBindBufferRange(GL_UNIFORM_BUFFER, mPushConstantBindingLocation, mPushConstantBuffer, offset, mSizeOfPushConstant);
+            break;
+         }
+      case GFX_CMD_DRAW_PRIMITIVES_FROM_DATA:
+         {
             break;
          }
       case GFX_CMD_DRAW_PRIMITIVES:
