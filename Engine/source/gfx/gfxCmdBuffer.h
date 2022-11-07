@@ -28,7 +28,7 @@ public:
    {
       MEMORY_BUFFER_PAGE_SIZE = 16384,
       MEMORY_CONSTANT_PAGE_SIZE = 16384 * 4,
-      MAX_STATE_BLOCK_RESOURCES = 256
+      MAX_STATE_BLOCK_RESOURCES = 4096
    };
 
    GFXCmdBuffer(GFXDevice* device);

@@ -403,6 +403,7 @@ private:
       bool attributesBound[MAX_ATTRIBUTES];
       U32 currentPipeline = 0;
       U32 currentBindGroupLayout = 0;
+      GFXStateBlockRef currentStateBlock = nullptr;
    } mInternalGLState;
 
    void verifyBeforeDraw();

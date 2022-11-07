@@ -39,6 +39,7 @@ void GFXCmdBuffer::setGraphicsPipeline(GFXHandle<GFXGraphicsPipelineHandle> pipe
 void GFXCmdBuffer::setStateBlock(GFXStateBlockRef state)
 {
    AssertFatal(!mRecording, "GFXCmdBuffer is not currently recording!");
+   AssertFatal(mStateBlockData.count < MAX_STATE_BLOCK_RESOURCES, avar("GFXCmdBuffer cannot call setStateBlock more than %d times in a single command buffer", MAX_STATE_BLOCK_RESOURCES));
 
    U32 stateBlockHandle = mStateBlockData.count++;
    mStateBlockData.stateBlocks[stateBlockHandle] = state;

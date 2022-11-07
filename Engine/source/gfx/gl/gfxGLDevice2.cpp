@@ -138,6 +138,7 @@ void GFXGLDevice::executeCmdBuffer(GFXCmdBuffer* cmdBuffer)
             const GFXStateBlockDesc& state = stateBlock->getDesc();
 
             // Rasterizer State
+            if (mInternalGLState.currentStateBlock != stateBlock)
             {
                if (state.zEnable)
                   glEnable(GL_DEPTH_TEST);
@@ -211,6 +212,8 @@ void GFXGLDevice::executeCmdBuffer(GFXCmdBuffer* cmdBuffer)
 
                glColorMask(state.colorWriteRed, state.colorWriteBlue, state.colorWriteGreen, state.colorWriteAlpha);
             }
+
+            mInternalGLState.currentStateBlock = stateBlock;
 
             // we have to do this after referencing it as we increment it when inserting into the command buffer.
             stateBlock->decRefCount();
