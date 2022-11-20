@@ -1070,6 +1070,9 @@ public:
       return nullptr;
    }
    virtual void executeCmdBuffer(GFXCmdBuffer* cmdBuffer) {}
+   
+   virtual void* mapBuffer(GFXHandle<GFXVertexBufferHandle2> handle) { return nullptr; } ;
+   virtual void unmapBuffer(GFXHandle<GFXVertexBufferHandle2> handle) {};
 
    virtual GFXHandle<GFXSamplerHandle> createSampler(const GFXSamplerDesc2& desc) {
       return GFXHandle<GFXSamplerHandle>(0);

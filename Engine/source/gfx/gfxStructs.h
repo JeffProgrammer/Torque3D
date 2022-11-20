@@ -172,6 +172,8 @@ private:
    U32 mHandle;
 };
 
+#define GFXHandleNone 0
+
 struct GFXVertexBufferDesc
 {
    GFXBufferType bufferType = GFXBufferTypeStatic;
