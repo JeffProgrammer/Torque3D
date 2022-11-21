@@ -10,6 +10,7 @@ GFXCmdBuffer::GFXCmdBuffer(GFXDevice* device) :
    dMemset(&mBuffer, 0, sizeof(mBuffer));
    dMemset(&mPushConstantMemory, 0, sizeof(mPushConstantMemory));
    dMemset(&mStateBlockData, 0, sizeof(mStateBlockData));
+   dMemset(&mTextureData, 0, sizeof(mTextureData));
 }
 
 GFXCmdBuffer::~GFXCmdBuffer()
@@ -80,6 +81,28 @@ void GFXCmdBuffer::setBindGroup(U32 set, GFXHandle<GFXBindGroupHandle> bindGroup
    for (U32 i = 0; i < offsetCount; ++i)
    {
       mBuffer.append(offsets[i]);
+   }
+}
+
+void GFXCmdBuffer::setPushTextureBindGroup(U32 set, U32 count, const GFXPushTextureDesc* desc)
+{
+   AssertFatal(!mRecording, "GFXCmdBuffer is not currently recording!");
+   AssertFatal(set <= GFX_MAX_BIND_GROUPS, avar("PushBindGroup Set must be within the range of [0, %d]", GFX_MAX_BIND_GROUPS - 1));
+   AssertFatal(count < GFX_MAX_PUSH_RESOURCES_PER_BINDGROUP, avar("Count must be less than %d", GFX_MAX_PUSH_RESOURCES_PER_BINDGROUP - 1));
+   
+   mBuffer.append(GFX_CMD_SET_PUSH_TEXTURE_BIND_GROUP);
+   mBuffer.append(set);
+   mBuffer.append(count);
+   
+   for (U32 i = 0; i < count; ++i)
+   {
+      mBuffer.append(desc[i].textureUnit);
+
+      U32 textureHandle = mTextureData.count++;
+      mTextureData.textures[textureHandle] = desc[i].texture;
+      mBuffer.append(textureHandle);
+      
+      mBuffer.append(desc[i].sampler);
    }
 }
 

@@ -15,7 +15,7 @@ class GFXDevice;
 struct GuiVertexList
 {
    friend class GuiRenderManager;
-   friend class GuiRenderBinExecutor;
+   friend class GuiRenderBin;
    
    GFXVertexPCT *vertices;
    
@@ -29,6 +29,7 @@ struct GuiRenderInst
    GFXHandle<GFXGraphicsPipelineHandle> pipeline;
    GFXStateBlock *stateBlock;
    GFXTextureObject *texture; // TODO: Replace with GFXHandle<Texture> when we move to new GFX fully
+   GFXHandle<GFXSamplerHandle> sampler;
    
    GuiVertexList vertexList;
    GFXPrimitiveType primitiveType;
@@ -80,12 +81,12 @@ private:
 };
 
 // This class actually converts GuiRenderInst into GFXCmdBuffer calls.
-class GuiRenderBinExecutor
+class GuiRenderBin
 {
 public:
-   GuiRenderBinExecutor();
-   ~GuiRenderBinExecutor();
-   void execute(GFXCmdBuffer *cmdBuffer, GuiRenderManager* renderManager);
+   GuiRenderBin();
+   ~GuiRenderBin();
+   void fillCommandBuffer(GFXCmdBuffer *cmdBuffer, GuiRenderManager* renderManager);
    
 private:
    void createVertexBuffer();

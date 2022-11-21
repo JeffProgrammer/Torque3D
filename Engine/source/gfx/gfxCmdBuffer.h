@@ -11,6 +11,7 @@ enum GFXCommand
    GFX_CMD_SET_VERTEX_BUFFER,
    GFX_CMD_SET_INDEX_BUFFER,
    GFX_CMD_SET_BIND_GROUP,
+   GFX_CMD_SET_PUSH_TEXTURE_BIND_GROUP,
    GFX_CMD_SET_PUSHCONSTANTS,
 
    GFX_CMD_DRAW_PRIMITIVES,
@@ -28,7 +29,8 @@ public:
    {
       MEMORY_BUFFER_PAGE_SIZE = 16384,
       MEMORY_CONSTANT_PAGE_SIZE = 16384 * 4,
-      MAX_STATE_BLOCK_RESOURCES = 4096
+      MAX_STATE_BLOCK_RESOURCES = 4096,
+      MAX_TEXTURE_RESOURCES = 8912 // TODO: Remove once we use GFXTextureHandle
    };
 
    GFXCmdBuffer(GFXDevice* device);
@@ -41,6 +43,7 @@ public:
    void setVertexBuffer(U32 slot, GFXHandle<GFXVertexBufferHandle2> buffer, U32 offset);
    void setIndexBuffer(GFXHandle<GFXIndexBufferHandle> buffer, bool is16Bit);
    void setBindGroup(U32 set, GFXHandle<GFXBindGroupHandle> bindGroup, U32 offsetCount, U32* offsets);
+   void setPushTextureBindGroup(U32 set, U32 count, const GFXPushTextureDesc* desc);
    void setPushConstants(GFXShaderStageFlags stageFlags, U32 size, void* data);
    
    void drawPrimitives(GFXPrimitiveType type, U32 start, U32 count);
@@ -59,6 +62,12 @@ private:
       GFXStateBlockRef stateBlocks[MAX_STATE_BLOCK_RESOURCES];
       U32 count;
    } mStateBlockData;
+   
+   struct TextureData
+   {
+      GFXTextureObject* textures[MAX_TEXTURE_RESOURCES];
+      U32 count;
+   } mTextureData;
 
    struct PushConstantStruct
    {

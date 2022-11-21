@@ -2,6 +2,7 @@
 #include "gfx/gl/gfxGLEnumTranslate.h"
 #include "gfx/gl/gfxGLVertexAttribLocation.h"
 #include "gfx/gl/gfxGLUtils.h"
+#include "gfx/gl/gfxGLTextureObject.h"
 #include "gfx/gfxCmdBuffer.h"
 
 GFXCmdBuffer* GFXGLDevice::allocCmdBuffer()
@@ -293,6 +294,8 @@ void GFXGLDevice::executeCmdBuffer(GFXCmdBuffer* cmdBuffer)
             
             AssertFatal(bindGroupLayout.numberOfDynamicResources == numberOfDynamicOffsets, avar("GFXGLDevice Command Buffer :: Number of dynamic offsets [%d] does not match number of dynamic resources [%d] in Bind Group", numberOfDynamicOffsets, bindGroupLayout.numberOfDynamicResources));
 
+            // TODO: Replace GFXTextureObject with GFXTextureHandle
+            
             U32 offsetIndex = 0;
             for (U32 i = 0; i < bindGroup.count; i++)
             {
@@ -313,7 +316,12 @@ void GFXGLDevice::executeCmdBuffer(GFXCmdBuffer* cmdBuffer)
                   }
                case GFXResourceTextureType:
                   {
-                  
+                     const auto& texture = std::get<GLBindGroup::Texture>(bindGroup.resources[i].resource);
+                     
+                     GFXGLTextureObject* textureObject = static_cast<GFXGLTextureObject*>(texture.texture);
+                     
+                     glActiveTexture(GL_TEXTURE0 + texture.textureUnit);
+                     glBindTexture(textureObject->getBinding(), textureObject->getHandle());
                      break;
                   }
                case GFXResourceConstantBufferType:
@@ -348,6 +356,33 @@ void GFXGLDevice::executeCmdBuffer(GFXCmdBuffer* cmdBuffer)
                }
             }
             
+            break;
+         }
+      case GFX_CMD_SET_PUSH_TEXTURE_BIND_GROUP:
+         {
+            U32 set = cmdBuffer->mBuffer.data[cmdBufferOffset++];
+            U32 count = cmdBuffer->mBuffer.data[cmdBufferOffset++];
+            
+            // TODO: Replace GFXTextureObject with GFXTextureHandle
+            
+            for (U32 i = 0; i < count; ++i)
+            {
+               U32 textureUnit = cmdBuffer->mBuffer.data[cmdBufferOffset++];
+               U32 textureHandle = cmdBuffer->mBuffer.data[cmdBufferOffset++];
+               U32 samplerHandle = cmdBuffer->mBuffer.data[cmdBufferOffset++];
+               
+               AssertFatal(mGLSamplerStateTable.find(samplerHandle) != mGLSamplerStateTable.end(), avar("GFXGLDevice Command Buffer :: Sampler [%u] is not found!", (U32)samplerHandle));
+
+               
+               GLuint samplerGLHandle = mGLSamplerStateTable[samplerHandle];
+
+               GFXGLTextureObject* textureObject = static_cast<GFXGLTextureObject*>(cmdBuffer->mTextureData.textures[textureHandle]);
+               
+               glBindSampler(textureUnit, samplerGLHandle);
+               
+               glActiveTexture(GL_TEXTURE0 + textureUnit);
+               glBindTexture(textureObject->getBinding(), textureObject->getHandle());
+            }
             break;
          }
       case GFX_CMD_SET_PUSHCONSTANTS:
@@ -422,6 +457,27 @@ void GFXGLDevice::executeCmdBuffer(GFXCmdBuffer* cmdBuffer)
 done:
    glFlush();
    ;
+}
+
+void* GFXGLDevice::mapBuffer(GFXHandle<GFXVertexBufferHandle2> handle)
+{
+   AssertFatal(mGLVertexBufferTable.find(handle) != mGLVertexBufferTable.end(), "GFXGLDevice VertexBuffer not Found");
+   
+   // TODO: performance, glMapBuffer with default GL_WRITE_ONLY flag is probably the slow path!
+   GLuint buffer = mGLVertexBufferTable[handle];
+   
+   glBindBuffer(GL_ARRAY_BUFFER, buffer);
+   return glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+}
+
+void GFXGLDevice::unmapBuffer(GFXHandle<GFXVertexBufferHandle2> handle)
+{
+   AssertFatal(mGLVertexBufferTable.find(handle) != mGLVertexBufferTable.end(), "GFXGLDevice VertexBuffer not Found");
+   
+   GLuint buffer = mGLVertexBufferTable[handle];
+   
+   glBindBuffer(GL_ARRAY_BUFFER, buffer);
+   glUnmapBuffer(GL_ARRAY_BUFFER);
 }
 
 GFXHandle<GFXSamplerHandle> GFXGLDevice::createSampler(const GFXSamplerDesc2& desc)

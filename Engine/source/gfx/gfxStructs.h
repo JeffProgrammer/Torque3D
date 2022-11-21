@@ -50,6 +50,8 @@
 
 //-----------------------------------------------------------------------------
 
+class GFXTextureObject;
+
 struct GFXVideoMode 
 {
    GFXVideoMode();
@@ -261,7 +263,7 @@ struct GFXPipelineDesc
 {
    GFXInputLayoutDesc inputLayout;
    GFXShader* shader; // TODO: Clean this up
-   GFXHandle<GFXBindGroupLayoutHandle> bindGroupLayout;
+   GFXHandle<GFXBindGroupLayoutHandle> bindGroupLayout; // do we need multiple sets in a pipeline?
 };
 
 struct GFXTextureProfile;
@@ -277,6 +279,8 @@ struct GFXTextureDesc
    GFXTextureProfile* profile;
    U32 numMipLevels = 1;
 };
+
+// TODO: Use GFXTextureHandle once Texture Objects are removed.
 
 struct GFXBindGroupDesc
 {
@@ -295,10 +299,19 @@ struct GFXBindGroupDesc
             GFXHandle<GFXSamplerHandle> handle;
             U32 textureUnit;
          } sampler;
-         GFXHandle<GFXTextureHandle> texture;
+         //GFXHandle<GFXTextureHandle> texture;
+         GFXTextureObject* texture;
       };
    } resources[GFX_MAX_RESOURCES_PER_BINDGROUP];
    U32 count;
+};
+
+struct GFXPushTextureDesc
+{
+   //GFXHandle<GFXTextureHandle> texture;
+   GFXTextureObject* texture;
+   GFXHandle<GFXSamplerHandle> sampler;
+   U32 textureUnit;
 };
 
 #endif // _GFXSTRUCTS_H_

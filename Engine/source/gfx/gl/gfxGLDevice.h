@@ -340,7 +340,9 @@ private:
       };
       struct Texture
       {
-         GFXHandle<GFXTextureHandle> texture;
+         // TODO: Use GFXTextureHandle once Texture Objects are removed
+         GFXTextureObject* texture;
+         //GFXHandle<GFXTextureHandle> texture;
          U32 textureUnit;
       };
       
@@ -413,6 +415,9 @@ public:
    virtual GFXCmdBuffer* allocCmdBuffer() override;
    virtual void executeCmdBuffer(GFXCmdBuffer* cmdBuffer) override;
 
+   virtual void* mapBuffer(GFXHandle<GFXVertexBufferHandle2> handle) override;
+   virtual void unmapBuffer(GFXHandle<GFXVertexBufferHandle2> handle) override;
+   
    virtual GFXHandle<GFXSamplerHandle> createSampler(const GFXSamplerDesc2& desc) override;
    virtual void destroySampler(GFXHandle<GFXSamplerHandle> sampler) override;
 

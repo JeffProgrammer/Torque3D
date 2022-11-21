@@ -51,17 +51,17 @@ GuiVertexList GuiRenderManager::allocVertices(U32 numberOfVertices)
 
 //-----------------------------------------------------------------------------
 
-GuiRenderBinExecutor::GuiRenderBinExecutor()
+GuiRenderBin::GuiRenderBin()
 {
    
 }
 
-GuiRenderBinExecutor::~GuiRenderBinExecutor()
+GuiRenderBin::~GuiRenderBin()
 {
    
 }
 
-void GuiRenderBinExecutor::execute(GFXCmdBuffer *cmdBuffer, GuiRenderManager *renderManager)
+void GuiRenderBin::fillCommandBuffer(GFXCmdBuffer *cmdBuffer, GuiRenderManager *renderManager)
 {
    const Vector<GuiRenderInst>& renderInsts = renderManager->getRenderInsts();
    void* vertexData = renderManager->vertexData();
@@ -80,13 +80,26 @@ void GuiRenderBinExecutor::execute(GFXCmdBuffer *cmdBuffer, GuiRenderManager *re
          cmdBuffer->setStateBlock(inst.stateBlock);
       }
       
+      if (inst.texture != NULL || inst.sampler != GFXHandleNone)
+      {
+         AssertFatal(inst.texture == NULL, "GuiRenderBinExecutor::execute Must set texture if setting sampler");
+         AssertFatal(inst.sampler == GFXHandleNone, "GuiRenderBinExecutor::execute Must set sampler if setting texture");
+         
+         GFXPushTextureDesc desc;
+         desc.textureUnit = 0;
+         desc.texture = inst.texture;
+         desc.sampler = inst.sampler;
+         
+         cmdBuffer->setPushTextureBindGroup(0, 1, &desc);
+      }
+      
       cmdBuffer->drawPrimitives(inst.primitiveType, inst.vertexList.drawVboStart, inst.vertexList.count);
    }
    
    cmdBuffer->endRecording();
 }
 
-void GuiRenderBinExecutor::createVertexBuffer()
+void GuiRenderBin::createVertexBuffer()
 {
    GFXVertexBufferDesc desc = {};
    desc.bufferType = GFXBufferTypeDynamic;
@@ -96,7 +109,7 @@ void GuiRenderBinExecutor::createVertexBuffer()
    mVertexBufferHandle = GFX->createVertexBuffer(desc);
 }
 
-void GuiRenderBinExecutor::uploadVertexData(void* vertexData)
+void GuiRenderBin::uploadVertexData(void* vertexData)
 {
    void* ptr = GFX->mapBuffer(mVertexBufferHandle);
    dMemcpy(ptr, vertexData, VERTEX_BUFFER_SIZE_MB);

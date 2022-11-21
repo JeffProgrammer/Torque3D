@@ -235,7 +235,8 @@ enum GFXResourceType
 enum BindGroupConstants
 {
    GFX_MAX_RESOURCES_PER_BINDGROUP = 16,
-   GFX_MAX_BIND_GROUPS = 4
+   GFX_MAX_BIND_GROUPS = 4,
+   GFX_MAX_PUSH_RESOURCES_PER_BINDGROUP = 1
 };
 
 enum GFXTextureBindingType
