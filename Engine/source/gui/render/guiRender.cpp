@@ -85,12 +85,7 @@ void GuiRenderBin::fillCommandBuffer(GFXCmdBuffer *cmdBuffer, GuiRenderManager *
          AssertFatal(inst.texture == NULL, "GuiRenderBinExecutor::execute Must set texture if setting sampler");
          AssertFatal(inst.sampler == GFXHandleNone, "GuiRenderBinExecutor::execute Must set sampler if setting texture");
          
-         GFXPushTextureDesc desc;
-         desc.textureUnit = 0;
-         desc.texture = inst.texture;
-         desc.sampler = inst.sampler;
-         
-         cmdBuffer->setPushTextureBindGroup(0, 1, &desc);
+         cmdBuffer->setTexture(0, inst.texture, inst.sampler);
       }
       
       cmdBuffer->drawPrimitives(inst.primitiveType, inst.vertexList.drawVboStart, inst.vertexList.count);

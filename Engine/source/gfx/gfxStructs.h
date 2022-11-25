@@ -233,37 +233,23 @@ struct GFXInputLayoutDesc
    U32 count = 0;
 };
 
-struct GFXBindGroupLayoutDesc
+struct GFXResourceDynamicConstantBufferLayoutDesc
 {
-   struct Layout
+   struct
    {
       String name;
-      U32 binding;
-      GFXResourceType type;
-      GFXShaderStageFlags stages;
-      bool supportsDynamicOffsets;
-   } resources[GFX_MAX_RESOURCES_PER_BINDGROUP];
-   U32 resourceCount;
-
-   GFXBindGroupLayoutDesc()
-   {
-      resourceCount = 0;
-      for (U32 i = 0; i < GFX_MAX_RESOURCES_PER_BINDGROUP; ++i)
-      {
-         resources[i].name = "";
-         resources[i].binding = 0;
-         resources[i].type = GFXResourceNoneType;
-         resources[i].stages = GFXShaderStageNone;
-         resources[i].supportsDynamicOffsets = false;
-      }
-   }
+      U32 slotNumber;
+      U32 size;
+   } resource[GFX_MAX_DYNAMIC_CONSTANT_BUFFERS];
+   U32 count = 0;
 };
 
 struct GFXPipelineDesc
 {
    GFXInputLayoutDesc inputLayout;
    GFXShader* shader; // TODO: Clean this up
-   GFXHandle<GFXBindGroupLayoutHandle> bindGroupLayout; // do we need multiple sets in a pipeline?
+   GFXResourceDynamicConstantBufferLayoutDesc dynamicConstBufferLayout;
+   U32 pushConstantSize;
 };
 
 struct GFXTextureProfile;
@@ -278,40 +264,6 @@ struct GFXTextureDesc
    GFXFormat format;
    GFXTextureProfile* profile;
    U32 numMipLevels = 1;
-};
-
-// TODO: Use GFXTextureHandle once Texture Objects are removed.
-
-struct GFXBindGroupDesc
-{
-   struct
-   {
-      union
-      {
-         struct
-         {
-            GFXHandle<GFXConstantBufferHandle> handle;
-            U32 offset = 0;
-            U32 size = 0;
-         } constantBuffer;
-         struct
-         {
-            GFXHandle<GFXSamplerHandle> handle;
-            U32 textureUnit;
-         } sampler;
-         //GFXHandle<GFXTextureHandle> texture;
-         GFXTextureObject* texture;
-      };
-   } resources[GFX_MAX_RESOURCES_PER_BINDGROUP];
-   U32 count;
-};
-
-struct GFXPushTextureDesc
-{
-   //GFXHandle<GFXTextureHandle> texture;
-   GFXTextureObject* texture;
-   GFXHandle<GFXSamplerHandle> sampler;
-   U32 textureUnit;
 };
 
 #endif // _GFXSTRUCTS_H_

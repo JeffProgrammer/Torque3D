@@ -281,20 +281,18 @@ private:
 private:
    friend class GFXCmdBuffer;
 
-   struct GLBindGroupLayout
+   struct GLResourceDynamicConstantBufferLayoutDesc
    {
-      struct Layout
+      struct
       {
          String name;
-         U32 binding;
+         U32 slotNumber;
          GFXResourceType type;
-         GFXShaderStageFlags stages;
-      } resources[GFX_MAX_RESOURCES_PER_BINDGROUP];
-
-      U32 resourceCount;
-      U32 numberOfDynamicResources;
+         U32 size;
+      } resource[GFX_MAX_DYNAMIC_CONSTANT_BUFFERS];
+      U32 count;
    };
-
+   
    struct GLInputLayoutState
    {
       struct
@@ -321,42 +319,11 @@ private:
    {
       U32 bindGroupLayout;
       GLInputLayoutState inputLayoutState;
+      GLResourceDynamicConstantBufferLayoutDesc dynamicConstantBufferLayout;
       GLuint program;
       U32 pushConstantSize;
    };
 
-   struct GLBindGroup
-   {
-      struct ConstantBuffer
-      {
-         GFXHandle<GFXConstantBufferHandle> buffer;
-         U32 offset = 0;
-         U32 size = 0;
-      };
-      struct Sampler
-      {
-         GFXHandle<GFXSamplerHandle> sampler;
-         U32 textureUnit;
-      };
-      struct Texture
-      {
-         // TODO: Use GFXTextureHandle once Texture Objects are removed
-         GFXTextureObject* texture;
-         //GFXHandle<GFXTextureHandle> texture;
-         U32 textureUnit;
-      };
-      
-
-      U32 count = 0;
-      struct Resources
-      {
-         GFXResourceType type;
-         std::variant<ConstantBuffer, Sampler, Texture> resource;
-      } resources[GFX_MAX_RESOURCES_PER_BINDGROUP];
-      
-      GFXHandle<GFXBindGroupLayoutHandle> bindGroupLayout;
-   };
-   
    struct GLTextureState
    {
       GLenum type;
@@ -373,8 +340,6 @@ private:
    U32 mNextHandle = 0;
    
    std::unordered_map<U32, GLPipelineState> mGLPipelineStateTable;
-   std::unordered_map<U32, GLBindGroup> mGLBindGroupTable;
-   std::unordered_map<U32, GLBindGroupLayout> mGLBindGroupLayoutTable;
    std::unordered_map<U32, GLuint> mGLSamplerStateTable;
    std::unordered_map<U32, GLuint> mGLVertexBufferTable;
    std::unordered_map<U32, GLuint> mGLIndexBufferTable;
@@ -397,14 +362,13 @@ private:
    {
       MAX_ATTRIBUTES = 16,
       MAX_PUSH_CONSTANT_SIZE = 128,
-      MAX_PUSH_CONSTANT_CALLS_PER_CMD_BUFFER = 512
+      MAX_PUSH_CONSTANT_CALLS_PER_CMD_BUFFER = 2048
    };
 
    struct
    {
       bool attributesBound[MAX_ATTRIBUTES];
       U32 currentPipeline = 0;
-      U32 currentBindGroupLayout = 0;
       GFXStateBlockRef currentStateBlock = nullptr;
    } mInternalGLState;
 
@@ -435,12 +399,6 @@ public:
 
    virtual GFXHandle<GFXGraphicsPipelineHandle> createGraphicsPipeline(const GFXPipelineDesc& desc) override;
    virtual void destroyGraphicsPipeline(GFXHandle<GFXGraphicsPipelineHandle> pipeline) override;
-
-   virtual GFXHandle<GFXBindGroupLayoutHandle> createBindGroupLayout(const GFXBindGroupLayoutDesc& desc) override;
-   virtual void deleteBindGroupLayout(GFXHandle<GFXBindGroupLayoutHandle> layout) override;
-
-   virtual GFXHandle<GFXBindGroupHandle> createBindGroup(GFXHandle<GFXBindGroupLayoutHandle> bindGroupLayoutHandle, const GFXBindGroupDesc& desc) override;
-   virtual void deleteBindGroup(GFXHandle<GFXBindGroupHandle> bindGroup) override;
 };
 
 #define GFXGL static_cast<GFXGLDevice*>(GFXDevice::get())

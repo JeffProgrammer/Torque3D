@@ -68,46 +68,44 @@ void GFXCmdBuffer::setIndexBuffer(GFXHandle<GFXIndexBufferHandle> buffer, bool i
    mBuffer.append(is16Bit);
 }
 
-void GFXCmdBuffer::setBindGroup(U32 set, GFXHandle<GFXBindGroupHandle> bindGroup, U32 offsetCount, U32* offsets)
+void GFXCmdBuffer::setTexture(U32 slot, GFXTextureObject *texture, GFXHandle<GFXSamplerHandle> sampler)
 {
    AssertFatal(!mRecording, "GFXCmdBuffer is not currently recording!");
-   AssertFatal(set <= GFX_MAX_BIND_GROUPS, avar("BindGroup Set must be within the range of [0, %d]", GFX_MAX_BIND_GROUPS - 1));
-   AssertFatal(offsetCount < GFX_MAX_RESOURCES_PER_BINDGROUP, avar("Offset Count must be less than %d", GFX_MAX_RESOURCES_PER_BINDGROUP - 1));
    
-   mBuffer.append(GFX_CMD_SET_BIND_GROUP);
-   mBuffer.append(set);
-   mBuffer.append(bindGroup);
-   mBuffer.append(offsetCount);
-   for (U32 i = 0; i < offsetCount; ++i)
-   {
-      mBuffer.append(offsets[i]);
-   }
+   U32 textureHandle = mTextureData.count++;
+   mTextureData.textures[textureHandle] = texture;
+   
+   mBuffer.append(GFX_CMD_SET_TEXTURE);
+   mBuffer.append(slot);
+   mBuffer.append(textureHandle);
+   mBuffer.append(sampler);
 }
 
-void GFXCmdBuffer::setPushTextureBindGroup(U32 set, U32 count, const GFXPushTextureDesc* desc)
+void GFXCmdBuffer::setConstantBuffer(U32 slot, GFXHandle<GFXConstantBufferHandle> buffer)
 {
    AssertFatal(!mRecording, "GFXCmdBuffer is not currently recording!");
-   AssertFatal(set <= GFX_MAX_BIND_GROUPS, avar("PushBindGroup Set must be within the range of [0, %d]", GFX_MAX_BIND_GROUPS - 1));
-   AssertFatal(count < GFX_MAX_PUSH_RESOURCES_PER_BINDGROUP, avar("Count must be less than %d", GFX_MAX_PUSH_RESOURCES_PER_BINDGROUP - 1));
    
-   mBuffer.append(GFX_CMD_SET_PUSH_TEXTURE_BIND_GROUP);
-   mBuffer.append(set);
-   mBuffer.append(count);
-   
-   for (U32 i = 0; i < count; ++i)
-   {
-      mBuffer.append(desc[i].textureUnit);
+   mBuffer.append(GFX_CMD_SET_CONSTANT_BUFFER);
+   mBuffer.append(slot);
+   mBuffer.append(buffer);
+}
 
-      U32 textureHandle = mTextureData.count++;
-      mTextureData.textures[textureHandle] = desc[i].texture;
-      mBuffer.append(textureHandle);
-      
-      mBuffer.append(desc[i].sampler);
-   }
+void GFXCmdBuffer::setDynamicConstantBuffer(U32 slot, GFXHandle<GFXConstantBufferHandle> buffer, U32 offset)
+{
+   AssertFatal(!mRecording, "GFXCmdBuffer is not currently recording!");
+   
+   mBuffer.append(GFX_CMD_SET_DYNAMIC_CONSTANT_BUFFER);
+   mBuffer.append(slot);
+   mBuffer.append(buffer);
+   mBuffer.append(offset);
 }
 
 void GFXCmdBuffer::setPushConstants(GFXShaderStageFlags stageFlags, U32 size, void* data)
 {
+   // TODO: Set push constant size based on api and different features?
+   // For example, if we are using a fully bindless mode of the CmdBuffer, we will want to expose the
+   // full push constant range. For emulating binding slots, however, we need to reserve some space needed
+   // for the push constants.
    AssertFatal(!mRecording, "GFXCmdBuffer is not currently recording!");
    AssertFatal(size < 128, "Push Constant size must be no more than 128 bytes. Use a buffer for bigger data.");
 

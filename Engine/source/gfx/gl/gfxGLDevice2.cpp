@@ -92,11 +92,7 @@ void GFXGLDevice::executeCmdBuffer(GFXCmdBuffer* cmdBuffer)
             U32 handle = cmdBuffer->mBuffer.data[cmdBufferOffset++];
             const GLPipelineState &pipelineState = mGLPipelineStateTable[handle];
             mInternalGLState.currentPipeline = handle;
-            
-            // Cache bind group layout handle
-            AssertFatal(mGLBindGroupLayoutTable.find(pipelineState.bindGroupLayout) != mGLBindGroupLayoutTable.end(), "GFXGLDevice Command Buffer :: Unable to find Bind Group Layout");
-            mInternalGLState.currentBindGroupLayout = pipelineState.bindGroupLayout;
-
+ 
             // Disable from previous pipeline bind...
             for (U32 i = 0; i < MAX_ATTRIBUTES; ++i)
             {
@@ -274,115 +270,64 @@ void GFXGLDevice::executeCmdBuffer(GFXCmdBuffer* cmdBuffer)
             currentIndexBufferByteSize = is16Bit ? GL_UNSIGNED_SHORT : GL_UNSIGNED_BYTE;
             break;
          }
-      case GFX_CMD_SET_BIND_GROUP:
+      case GFX_CMD_SET_TEXTURE:
          {
-            U32 dynamicOffsets[GFX_MAX_RESOURCES_PER_BINDGROUP];
+            U32 textureUnit = cmdBuffer->mBuffer.data[cmdBufferOffset++];
+            U32 textureHandle = cmdBuffer->mBuffer.data[cmdBufferOffset++];
+            U32 samplerHandle = cmdBuffer->mBuffer.data[cmdBufferOffset++];
             
-            U32 set = cmdBuffer->mBuffer.data[cmdBufferOffset++];
-            U32 bindGroupHandle = cmdBuffer->mBuffer.data[cmdBufferOffset];
-            U32 numberOfDynamicOffsets = cmdBuffer->mBuffer.data[cmdBufferOffset];
-            for (U32 i = 0; i < numberOfDynamicOffsets; ++i)
-            {
-               dynamicOffsets[i] = cmdBuffer->mBuffer.data[cmdBufferOffset++];
-            }
-            
-            AssertFatal(mGLBindGroupTable.find(bindGroupHandle) != mGLBindGroupTable.end(), "GFXGLDevice Command Buffer :: Bind Group not found");
-            const GLBindGroup& bindGroup = mGLBindGroupTable[bindGroupHandle];
-            
-            AssertFatal(mGLBindGroupLayoutTable.find(bindGroup.bindGroupLayout) != mGLBindGroupLayoutTable.end(), "GFXGLDevice Bind Group Layout not Found");
-            const GLBindGroupLayout& bindGroupLayout = mGLBindGroupLayoutTable[bindGroup.bindGroupLayout];
-            
-            AssertFatal(bindGroupLayout.numberOfDynamicResources == numberOfDynamicOffsets, avar("GFXGLDevice Command Buffer :: Number of dynamic offsets [%d] does not match number of dynamic resources [%d] in Bind Group", numberOfDynamicOffsets, bindGroupLayout.numberOfDynamicResources));
+            AssertFatal(mGLSamplerStateTable.find(samplerHandle) != mGLSamplerStateTable.end(), avar("GFXGLDevice Command Buffer :: Sampler [%u] is not found!", (U32)samplerHandle));
 
-            // TODO: Replace GFXTextureObject with GFXTextureHandle
             
-            U32 offsetIndex = 0;
-            for (U32 i = 0; i < bindGroup.count; i++)
-            {
-               if (bindGroup.resources[i].type != GFXResourceDynamicConstantBufferType)
-                  continue;
-               
-               switch (bindGroup.resources[i].type)
-               {
-               case GFXResourceSamplerType:
-                  {
-                     const auto& sampler = std::get<GLBindGroup::Sampler>(bindGroup.resources[i].resource);
-                     
-                     AssertFatal(mGLSamplerStateTable.find(sampler.sampler) != mGLSamplerStateTable.end(), avar("GFXGLDevice Command Buffer :: Sampler [%u] is not found!", (U32)sampler.sampler));
-                     
-                     GLuint samplerHandle = mGLSamplerStateTable[sampler.sampler];
-                     glBindSampler(sampler.textureUnit, samplerHandle);
-                     break;
-                  }
-               case GFXResourceTextureType:
-                  {
-                     const auto& texture = std::get<GLBindGroup::Texture>(bindGroup.resources[i].resource);
-                     
-                     GFXGLTextureObject* textureObject = static_cast<GFXGLTextureObject*>(texture.texture);
-                     
-                     glActiveTexture(GL_TEXTURE0 + texture.textureUnit);
-                     glBindTexture(textureObject->getBinding(), textureObject->getHandle());
-                     break;
-                  }
-               case GFXResourceConstantBufferType:
-                  {
-                     const auto& cbuffer = std::get<GLBindGroup::ConstantBuffer>(bindGroup.resources[i].resource);
-                     AssertFatal(mGLConstantBufferTable.find(cbuffer.buffer) != mGLConstantBufferTable.end(), avar("GFXGLDevice Command Buffer :: Constant Buffer [%u] is not found!", (U32)cbuffer.buffer));
-                     
-                     GLuint bufferHandle = mGLConstantBufferTable[cbuffer.buffer];
-                     U32 bindingLocation = bindGroupLayout.resources[i].binding;
-                     glBindBufferRange(GL_UNIFORM_BUFFER, bindingLocation, bufferHandle, cbuffer.offset, cbuffer.size);
-                     break;
-                  }
-               case GFXResourceDynamicConstantBufferType:
-                  {
-                     const auto& cbuffer = std::get<GLBindGroup::ConstantBuffer>(bindGroup.resources[i].resource);
-                     
-                     AssertFatal(mGLConstantBufferTable.find(cbuffer.buffer) != mGLConstantBufferTable.end(), avar("GFXGLDevice Command Buffer :: Dynamic Constant Buffer [%u] is not found!", (U32)cbuffer.buffer));
-                     
-                     GLuint bufferHandle = mGLConstantBufferTable[cbuffer.buffer];
-                     
-                     U32 offset = cbuffer.offset + dynamicOffsets[offsetIndex++];
-                     U32 bindingLocation = bindGroupLayout.resources[i].binding;
+            GLuint samplerGLHandle = mGLSamplerStateTable[samplerHandle];
 
-                     glBindBufferRange(GL_UNIFORM_BUFFER, bindingLocation, bufferHandle, offset, cbuffer.size);
-                     break;
-                  }
-               default:
-                  {
-                     AssertISV(false, "GFXGLDevice Command Buffer :: Invalid resource type in SetBindGroup");
-                     break;
-                  }
-               }
-            }
+            GFXGLTextureObject* textureObject = static_cast<GFXGLTextureObject*>(cmdBuffer->mTextureData.textures[textureHandle]);
             
+            glBindSampler(textureUnit, samplerGLHandle);
+            
+            glActiveTexture(GL_TEXTURE0 + textureUnit);
+            glBindTexture(textureObject->getBinding(), textureObject->getHandle());
             break;
          }
-      case GFX_CMD_SET_PUSH_TEXTURE_BIND_GROUP:
+      case GFX_CMD_SET_CONSTANT_BUFFER:
          {
-            U32 set = cmdBuffer->mBuffer.data[cmdBufferOffset++];
-            U32 count = cmdBuffer->mBuffer.data[cmdBufferOffset++];
+            U32 slot = cmdBuffer->mBuffer.data[cmdBufferOffset++];
+            U32 bufferHandle = cmdBuffer->mBuffer.data[cmdBufferOffset++];
             
-            // TODO: Replace GFXTextureObject with GFXTextureHandle
+            AssertFatal(mGLConstantBufferTable.find(bufferHandle) != mGLConstantBufferTable.end(), avar("GFXGLDevice Command Buffer :: Constant Buffer [%u] is not found!", (U32)bufferHandle));
             
-            for (U32 i = 0; i < count; ++i)
+            GLuint buffer = mGLConstantBufferTable[bufferHandle];
+            
+            glBindBufferBase(GL_UNIFORM_BUFFER, slot, buffer);
+            break;
+         }
+      case GFX_CMD_SET_DYNAMIC_CONSTANT_BUFFER:
+         {
+            U32 slot = cmdBuffer->mBuffer.data[cmdBufferOffset++];
+            U32 bufferHandle = cmdBuffer->mBuffer.data[cmdBufferOffset++];
+            U32 offset = cmdBuffer->mBuffer.data[cmdBufferOffset++];
+            
+            AssertFatal(mGLConstantBufferTable.find(bufferHandle) != mGLConstantBufferTable.end(), avar("GFXGLDevice Command Buffer :: Constant Buffer [%u] is not found!", (U32)bufferHandle));
+            
+            GLuint buffer = mGLConstantBufferTable[bufferHandle];
+            
+            const GLPipelineState& pipelineState = mGLPipelineStateTable[mInternalGLState.currentPipeline];
+            AssertFatal(mGLPipelineStateTable.find(mInternalGLState.currentPipeline) != mGLPipelineStateTable.end(), "GFXGLDevice Command Buffer :: No Pipeline Bound!");
+            
+            // TODO: better performance
+            U32 size = -1;
+            for (U32 i = 0; i < size; ++i)
             {
-               U32 textureUnit = cmdBuffer->mBuffer.data[cmdBufferOffset++];
-               U32 textureHandle = cmdBuffer->mBuffer.data[cmdBufferOffset++];
-               U32 samplerHandle = cmdBuffer->mBuffer.data[cmdBufferOffset++];
-               
-               AssertFatal(mGLSamplerStateTable.find(samplerHandle) != mGLSamplerStateTable.end(), avar("GFXGLDevice Command Buffer :: Sampler [%u] is not found!", (U32)samplerHandle));
-
-               
-               GLuint samplerGLHandle = mGLSamplerStateTable[samplerHandle];
-
-               GFXGLTextureObject* textureObject = static_cast<GFXGLTextureObject*>(cmdBuffer->mTextureData.textures[textureHandle]);
-               
-               glBindSampler(textureUnit, samplerGLHandle);
-               
-               glActiveTexture(GL_TEXTURE0 + textureUnit);
-               glBindTexture(textureObject->getBinding(), textureObject->getHandle());
+               const auto& resource = pipelineState.dynamicConstantBufferLayout.resource[i];
+               if (resource.slotNumber == slot)
+               {
+                  size = resource.size;
+                  break;
+               }
             }
+            AssertFatal(size == -1, "GFXGLDevice Command Buffer :: Unable to find Dynamic Constant Buffer Size");
+
+            glBindBufferRange(GL_UNIFORM_BUFFER, slot, buffer, offset, size);
             break;
          }
       case GFX_CMD_SET_PUSHCONSTANTS:
@@ -641,6 +586,8 @@ void GFXGLDevice::destroyConstantBuffer(GFXHandle<GFXConstantBufferHandle> const
 GFXHandle<GFXGraphicsPipelineHandle> GFXGLDevice::createGraphicsPipeline(const GFXPipelineDesc& desc)
 {
    GLPipelineState pipelineState = {};
+   pipelineState.pushConstantSize = desc.pushConstantSize;
+   
    pipelineState.inputLayoutState.bufferCount = desc.inputLayout.count;
 
    U32 texCoordIndex = 0;
@@ -769,14 +716,23 @@ GFXHandle<GFXGraphicsPipelineHandle> GFXGLDevice::createGraphicsPipeline(const G
 
    pipelineState.inputLayoutState.numberOfAttributes = numberOfAttributes;
 
-   // Bind Group Layout
-   pipelineState.bindGroupLayout = U32(desc.bindGroupLayout);
+   // Dynamic Constant Buffer sizes
+   pipelineState.dynamicConstantBufferLayout.count = desc.dynamicConstBufferLayout.count;
+   for (U32 i = 0; i < desc.dynamicConstBufferLayout.count; i++)
+   {
+      const auto& resource = desc.dynamicConstBufferLayout.resource[i];
+      
+      pipelineState.dynamicConstantBufferLayout.resource[i].name = resource.name;
+      pipelineState.dynamicConstantBufferLayout.resource[i].slotNumber = resource.slotNumber;
+      pipelineState.dynamicConstantBufferLayout.resource[i].size = resource.size;
+      
+      // TODO: actually bind the cbuffer resource to the program pipeline here if using
+      // GL 4.1 or lower (we set the binding slot in higher GL versions...damn macos)
+   }
 
    // Shader Modules
    //pipelineState.program
-
-   // TODO: cache push constant size...
-
+   
    return GFXHandle<GFXGraphicsPipelineHandle>(0);
 }
 
@@ -788,95 +744,4 @@ void GFXGLDevice::destroyGraphicsPipeline(GFXHandle<GFXGraphicsPipelineHandle> p
    glDeleteProgram(pipelineState.program);
 
    mGLPipelineStateTable.erase(mGLPipelineStateTable.find(pipeline));
-}
-
-GFXHandle<GFXBindGroupLayoutHandle> GFXGLDevice::createBindGroupLayout(const GFXBindGroupLayoutDesc& desc)
-{
-   GLBindGroupLayout layout = {};
-   layout.resourceCount = desc.resourceCount;
-   
-   U32 numberOfDynamicResources = 0;
-   
-   for (U32 i = 0; i < desc.resourceCount; i++)
-   {
-      layout.resources[i].name = desc.resources[i].name;
-      layout.resources[i].binding = desc.resources[i].binding;
-      layout.resources[i].stages = desc.resources[i].stages;
-      layout.resources[i].type = desc.resources[i].type;
-      
-      if (desc.resources[i].type == GFXResourceDynamicConstantBufferType)
-      {
-         numberOfDynamicResources++;
-      }
-   }
-   
-   layout.numberOfDynamicResources = numberOfDynamicResources;
-
-   U32 handle = mNextHandle++;
-   mGLBindGroupLayoutTable[handle] = layout;
-
-   return GFXHandle<GFXBindGroupLayoutHandle>(handle);
-}
-
-void GFXGLDevice::deleteBindGroupLayout(GFXHandle<GFXBindGroupLayoutHandle> layout)
-{
-   AssertFatal(mGLBindGroupLayoutTable.find(layout) != mGLBindGroupLayoutTable.end(), "GFXGLDevice Bind Group Layout not Found");
-   mGLBindGroupLayoutTable.erase(mGLBindGroupLayoutTable.find(layout));
-}
-
-GFXHandle<GFXBindGroupHandle> GFXGLDevice::createBindGroup(GFXHandle<GFXBindGroupLayoutHandle> bindGroupLayoutHandle, const GFXBindGroupDesc& desc)
-{
-   AssertFatal(mGLBindGroupLayoutTable.find(bindGroupLayoutHandle) != mGLBindGroupLayoutTable.end(), "GFXGLDevice Bind Group Layout not Found");
-   const GLBindGroupLayout& layout = mGLBindGroupLayoutTable[bindGroupLayoutHandle];
- 
-   AssertFatal(desc.count <= GFX_MAX_RESOURCES_PER_BINDGROUP, "GGFXGLDevice Bind Group :: Number of resources exceeds GFX_MAX_RESOURCES_PER_BINDGROUP");
-   AssertFatal(desc.count == layout.resourceCount, "GFXGLDevice Bind Group :: Resource Count does not match the Layout Count");
-
-   GLBindGroup group = {};
-   group.count = desc.count;
-   group.bindGroupLayout = bindGroupLayoutHandle;
-
-   for (U32 i = 0; i < desc.count; i++)
-   {
-      GFXResourceType resourceType = layout.resources[i].type;
-      group.resources[i].type = resourceType;
-
-      GLBindGroup::ConstantBuffer constantBuffer;
-      GLBindGroup::Sampler sampler;
-      GLBindGroup::Texture texture;
-
-      switch (resourceType)
-      {
-      case GFXResourceConstantBufferType:
-         TORQUE_CASE_FALLTHROUGH;
-      case GFXResourceDynamicConstantBufferType:
-         constantBuffer.buffer = desc.resources[i].constantBuffer.handle;
-         constantBuffer.offset = desc.resources[i].constantBuffer.offset;
-         constantBuffer.size = desc.resources[i].constantBuffer.size;
-         group.resources[i].resource = constantBuffer;
-         break;
-      case GFXResourceSamplerType:
-         sampler.sampler = desc.resources[i].sampler.handle;
-         sampler.textureUnit = desc.resources[i].sampler.textureUnit;
-         group.resources[i].resource = sampler;
-         break;
-      case GFXResourceTextureType:
-         texture.texture = desc.resources[i].texture;
-         group.resources[i].resource = texture;
-         break;
-      default:
-         AssertISV(false, "GFXGLDevice Bind Group :: Invalid Resource Type");
-      };
-   }
-   
-   U32 handle = mNextHandle++;
-   mGLBindGroupTable[handle] = group;
-   
-   return GFXHandle<GFXBindGroupHandle>(handle);
-}
-
-void GFXGLDevice::deleteBindGroup(GFXHandle<GFXBindGroupHandle> bindGroup)
-{
-   AssertFatal(mGLBindGroupTable.find(bindGroup) != mGLBindGroupTable.end(), "GFXGLDevice Bind Group not Found");
-   mGLBindGroupTable.erase(mGLBindGroupTable.find(bindGroup));
 }

@@ -10,8 +10,9 @@ enum GFXCommand
    
    GFX_CMD_SET_VERTEX_BUFFER,
    GFX_CMD_SET_INDEX_BUFFER,
-   GFX_CMD_SET_BIND_GROUP,
-   GFX_CMD_SET_PUSH_TEXTURE_BIND_GROUP,
+   GFX_CMD_SET_TEXTURE,
+   GFX_CMD_SET_CONSTANT_BUFFER,
+   GFX_CMD_SET_DYNAMIC_CONSTANT_BUFFER,
    GFX_CMD_SET_PUSHCONSTANTS,
 
    GFX_CMD_DRAW_PRIMITIVES,
@@ -42,8 +43,10 @@ public:
 
    void setVertexBuffer(U32 slot, GFXHandle<GFXVertexBufferHandle2> buffer, U32 offset);
    void setIndexBuffer(GFXHandle<GFXIndexBufferHandle> buffer, bool is16Bit);
-   void setBindGroup(U32 set, GFXHandle<GFXBindGroupHandle> bindGroup, U32 offsetCount, U32* offsets);
-   void setPushTextureBindGroup(U32 set, U32 count, const GFXPushTextureDesc* desc);
+
+   void setTexture(U32 slot, GFXTextureObject* texture, GFXHandle<GFXSamplerHandle> sampler);
+   void setConstantBuffer(U32 slot, GFXHandle<GFXConstantBufferHandle> buffer);
+   void setDynamicConstantBuffer(U32 slot, GFXHandle<GFXConstantBufferHandle> buffer, U32 offset);
    void setPushConstants(GFXShaderStageFlags stageFlags, U32 size, void* data);
    
    void drawPrimitives(GFXPrimitiveType type, U32 start, U32 count);

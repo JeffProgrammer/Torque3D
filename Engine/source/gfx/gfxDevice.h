@@ -1109,18 +1109,6 @@ public:
    }
    
    virtual void destroyGraphicsPipeline(GFXHandle<GFXGraphicsPipelineHandle> pipeline) {}
-
-   virtual GFXHandle<GFXBindGroupLayoutHandle> createBindGroupLayout(const GFXBindGroupLayoutDesc& desc) {
-      return GFXHandle<GFXBindGroupLayoutHandle>(0);
-   }
-   
-   virtual void deleteBindGroupLayout(GFXHandle<GFXBindGroupLayoutHandle> layout) {}
-
-   virtual GFXHandle<GFXBindGroupHandle> createBindGroup(GFXHandle<GFXBindGroupLayoutHandle> bindGroupLayoutHandle, const GFXBindGroupDesc& desc) {
-      return GFXHandle<GFXBindGroupHandle>(0);
-   }
-   
-   virtual void deleteBindGroup(GFXHandle<GFXBindGroupHandle> bindGroup) {}
 }; 
 
 //-----------------------------------------------------------------------------

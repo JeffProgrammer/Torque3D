@@ -232,13 +232,6 @@ enum GFXResourceType
    GFXResourceSamplerType
 };
 
-enum BindGroupConstants
-{
-   GFX_MAX_RESOURCES_PER_BINDGROUP = 16,
-   GFX_MAX_BIND_GROUPS = 4,
-   GFX_MAX_PUSH_RESOURCES_PER_BINDGROUP = 1
-};
-
 enum GFXTextureBindingType
 {
    GFXTextureBindingType_FIRST = 0,
@@ -255,6 +248,9 @@ enum GFXMaxEnums
 {
    /// Maximum number of input layout attributes
    GFX_MAX_INPUT_LAYOUT_ATTRIBUTES = 16,
+   
+   /// The maximum number of dynamic constant buffers that can be bound to a pipeline
+   GFX_MAX_DYNAMIC_CONSTANT_BUFFERS = 8,
    
    /// The maximum number of vertex buffers that can be bound to a pipeline
    GFX_MAX_BOUND_VERTEX_BUFFERS = 4,
