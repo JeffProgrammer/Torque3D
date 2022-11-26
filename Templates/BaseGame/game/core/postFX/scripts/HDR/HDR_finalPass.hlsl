@@ -51,14 +51,15 @@ uniform float logContrast;
 uniform float brightnessValue;
 uniform float saturationValue;
 uniform float3 colorFilter;
-            
+            	 
+			
 float3 Tonemap(float3 x)
-{ 
-    //ACES      
+{     
+    //ACES           
     if(g_fTonemapMode == 1.0f)    
-   {           
-	  x = ACESFitted(x, whitePoint);    	  
-   }             
+   {              
+      x = ACESFitted(x, whitePoint) * 1.4f; //ACES is crushing our blacks, need to pre-expose!  
+   }                             
    //Filmic Helji	       
    if(g_fTonemapMode == 2.0f) 
    {             
@@ -81,7 +82,7 @@ float3 Tonemap(float3 x)
    //Linear Tonemap  
    else if (g_fTonemapMode == 5.0)
    {  
-      x = TO_Linear(x);  	   
+      x = toLinear(TO_Linear(toGamma(x)));   	   
    }
         
    return x;
@@ -91,11 +92,11 @@ float4 main( PFXVertToPix IN ) : TORQUE_TARGET0
 {
    float4 sample = hdrDecode( TORQUE_TEX2D( sceneTex, IN.uv0 ) );
    float adaptedLum = TORQUE_TEX2D( luminanceTex, float2( 0.5f, 0.5f ) ).r;
-   float4 bloom = TORQUE_TEX2D( bloomTex, IN.uv0 ); 
+   float4 bloom = TORQUE_TEX2D( bloomTex, IN.uv2 ); 
         	    
    // Add the bloom effect.     
    sample += bloom;         
-   			
+   		 	
 	//Apply Exposure     
    sample.rgb *= TO_Exposure(sample.rgb, exposureValue, colorFilter); 
                                         

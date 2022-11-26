@@ -59,11 +59,11 @@ out vec4 OUT_col;
 
 
 vec3 Tonemap(vec3 x)
-{ 
+{     
     //ACES      
     if(g_fTonemapMode == 1.0f)    
-   {           
-	  x = ACESFitted(x, whitePoint);    	  
+   {
+	  x = ACESFitted(x, whitePoint) * 1.4f;  //ACES is crushing our blacks, need to pre-expose!    	  
    }             
    //Filmic Helji	       
    if(g_fTonemapMode == 2.0f) 
@@ -87,7 +87,7 @@ vec3 Tonemap(vec3 x)
    //Linear Tonemap  
    else if (g_fTonemapMode == 5.0)
    {  
-      x = TO_Linear(x);  	   
+      x = toLinear(TO_Linear(toGamma(x)));    	   
    }
         
    return x;
@@ -97,13 +97,13 @@ void main()
 {
    vec4 _sample = hdrDecode( texture( sceneTex, IN_uv0 ) );
    float adaptedLum = texture( luminanceTex, vec2( 0.5f, 0.5f ) ).r;
-   vec4 bloom = texture( bloomTex, IN_uv0 );
+   vec4 bloom = texture( bloomTex, IN_uv2 );
 
    
         	    
    // Add the bloom effect.     
-   _sample += bloom; 
-   
+   _sample += bloom;  
+           
    //Apply Exposure     
    _sample.rgb *= TO_Exposure(_sample.rgb, exposureValue, colorFilter);
    

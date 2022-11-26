@@ -207,8 +207,9 @@ void ShapeAsset::initializeAsset()
    //Ensure our path is expando'd if it isn't already
    mFilePath = getOwned() ? expandAssetFilePath(mFileName) : mFilePath;
 
-   mConstructorFilePath = getOwned() ? expandAssetFilePath(mConstructorFilePath) : mConstructorFilePath;
-
+   mConstructorFilePath = getOwned() ? expandAssetFilePath(mConstructorFileName) : mConstructorFilePath;
+   if (!Torque::FS::IsFile(mConstructorFilePath))
+      Con::errorf("ShapeAsset::initializeAsset (%s) could not find %s!", getAssetName(), mConstructorFilePath);
    mDiffuseImposterPath = getOwned() ? expandAssetFilePath(mDiffuseImposterFileName) : mDiffuseImposterFileName;
    if (mDiffuseImposterPath == StringTable->EmptyString())
    {
@@ -357,8 +358,9 @@ bool ShapeAsset::loadShape()
       mLoadedState = BadFileReference;
       return false; //if it failed to load, bail out
    }
-
-   mShape->setupBillboardDetails(mFilePath, mDiffuseImposterPath, mNormalImposterPath);
+   // Construct billboards if not done already
+   if (GFXDevice::devicePresent())
+      mShape->setupBillboardDetails(mFilePath, mDiffuseImposterPath, mNormalImposterPath);
 
    //If they exist, grab our imposters here and bind them to our shapeAsset
 

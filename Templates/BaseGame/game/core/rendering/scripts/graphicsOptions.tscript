@@ -599,6 +599,7 @@ new SimGroup( ShaderQualityGroup )
       
       key["$pref::Video::disablePixSpecular"] = false;
       key["$pref::Video::disableNormalmapping"] = false;
+      key["$pref::PostFX::EnableHDRBloom"] = true;
    };
    new ArrayObject()
    {
@@ -609,6 +610,7 @@ new SimGroup( ShaderQualityGroup )
       
       key["$pref::Video::disablePixSpecular"] = true;
       key["$pref::Video::disableNormalmapping"] = true;
+      key["$pref::PostFX::EnableHDRBloom"] = false;
    };
 };
 
@@ -686,6 +688,7 @@ function AutodetectGraphics_Apply(%shaderVer, %intel, %videoMem )
          $pref::PostFX::EnableLightRays = false;
          $pref::PostFX::EnableVignette = false;
          
+         $pref::Video::AAMode = "None";
          $pref::Video::AA = 0;
          $pref::Video::defaultAnisotropy = 0;
       }
@@ -712,6 +715,7 @@ function AutodetectGraphics_Apply(%shaderVer, %intel, %videoMem )
          $pref::PostFX::EnableLightRays = false;
          $pref::PostFX::EnableVignette = false;
          
+         $pref::Video::AAMode = "None";
          $pref::Video::AA = 0;
          $pref::Video::defaultAnisotropy = 0;
       }
@@ -742,6 +746,7 @@ function AutodetectGraphics_Apply(%shaderVer, %intel, %videoMem )
          $pref::PostFX::EnableLightRays = true;
          $pref::PostFX::EnableVignette = true;
          
+         $pref::Video::AAMode = "SMAA High";
          $pref::Video::AA = 4;
          $pref::Video::defaultAnisotropy = 16;
       }
@@ -768,6 +773,7 @@ function AutodetectGraphics_Apply(%shaderVer, %intel, %videoMem )
          $pref::PostFX::EnableLightRays = true;
          $pref::PostFX::EnableVignette = true;
          
+         $pref::Video::AAMode = "SMAA";
          $pref::Video::AA = 4;
          $pref::Video::defaultAnisotropy = 4;
          
@@ -797,6 +803,7 @@ function AutodetectGraphics_Apply(%shaderVer, %intel, %videoMem )
          $pref::PostFX::EnableLightRays = false;
          $pref::PostFX::EnableVignette = false;
          
+         $pref::Video::AAMode = "FXAA";
          $pref::Video::AA = 0;
          $pref::Video::defaultAnisotropy = 0;
       }
