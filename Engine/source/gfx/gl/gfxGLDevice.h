@@ -322,6 +322,7 @@ private:
       GLResourceDynamicConstantBufferLayoutDesc dynamicConstantBufferLayout;
       GLuint program;
       U32 pushConstantSize;
+      bool hasPushConstantBlock;
    };
 
    struct GLTextureState
@@ -355,6 +356,7 @@ private:
       bool separateVertexFormat = false;
       bool bufferStorage = false;
       bool anisotropicFiltering = false;
+      bool bindUniformLocations = false;
       S32 uboAlignment = 0;
    } mGLCaps;
 
@@ -362,7 +364,7 @@ private:
    {
       MAX_ATTRIBUTES = 16,
       MAX_PUSH_CONSTANT_SIZE = 128,
-      MAX_PUSH_CONSTANT_CALLS_PER_CMD_BUFFER = 2048
+      MAX_PUSH_CONSTANT_CALLS_PER_CMD_BUFFER = 2048,
    };
 
    struct

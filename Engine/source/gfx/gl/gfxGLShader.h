@@ -70,6 +70,7 @@ protected:
 
    friend class GFXGLShaderConstBuffer;
    friend class GFXGLShaderConstHandle;
+   friend class GFXGLDevice;
    
    virtual bool _init();   
 

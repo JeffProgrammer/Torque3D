@@ -3,6 +3,7 @@
 #include "gfx/gl/gfxGLVertexAttribLocation.h"
 #include "gfx/gl/gfxGLUtils.h"
 #include "gfx/gl/gfxGLTextureObject.h"
+#include "gfx/gl/gfxGLShader.h"
 #include "gfx/gfxCmdBuffer.h"
 
 GFXCmdBuffer* GFXGLDevice::allocCmdBuffer()
@@ -126,6 +127,7 @@ void GFXGLDevice::executeCmdBuffer(GFXCmdBuffer* cmdBuffer)
                }
             }
 
+            glUseProgram(pipelineState.program);
             break;
          }
       case GFX_CMD_SET_STATE_BLOCK:
@@ -585,10 +587,7 @@ void GFXGLDevice::destroyConstantBuffer(GFXHandle<GFXConstantBufferHandle> const
 
 GFXHandle<GFXGraphicsPipelineHandle> GFXGLDevice::createGraphicsPipeline(const GFXPipelineDesc& desc)
 {
-   GLPipelineState pipelineState = {};
-   pipelineState.pushConstantSize = desc.pushConstantSize;
-   
-   pipelineState.inputLayoutState.bufferCount = desc.inputLayout.count;
+   GLPipelineState pipelineState = {};   
 
    U32 texCoordIndex = 0;
    
@@ -715,6 +714,29 @@ GFXHandle<GFXGraphicsPipelineHandle> GFXGLDevice::createGraphicsPipeline(const G
    }
 
    pipelineState.inputLayoutState.numberOfAttributes = numberOfAttributes;
+   pipelineState.inputLayoutState.bufferCount = desc.inputLayout.count;
+
+   // Shader Modules
+   GFXGLShader* shader = static_cast<GFXGLShader*>(desc.shader);
+   pipelineState.program = shader->mProgram;
+
+   GLuint pushConstantsIndex = glGetUniformBlockIndex(pipelineState.program, "PushConstants");
+   if (pushConstantsIndex > -1)
+   {
+      pipelineState.pushConstantSize = desc.pushConstantSize;
+      pipelineState.hasPushConstantBlock = true;
+      glUniformBlockBinding(pipelineState.program, pushConstantsIndex, mPushConstantBindingLocation);
+   }
+   else
+   {
+      AssertISV(desc.pushConstantSize == 0, "GFXGLDevice Pipeline has specified a Push Constant block size, yet no Push Constant was found in the shader!");
+      pipelineState.pushConstantSize = 0;
+      pipelineState.hasPushConstantBlock = false;
+   }
+
+
+   // TODO: we will need to bind static constant buffers too by name if we don't have bind uniform locations,
+   // we need to declare those as part of the pipeline layout!
 
    // Dynamic Constant Buffer sizes
    pipelineState.dynamicConstantBufferLayout.count = desc.dynamicConstBufferLayout.count;
@@ -725,14 +747,29 @@ GFXHandle<GFXGraphicsPipelineHandle> GFXGLDevice::createGraphicsPipeline(const G
       pipelineState.dynamicConstantBufferLayout.resource[i].name = resource.name;
       pipelineState.dynamicConstantBufferLayout.resource[i].slotNumber = resource.slotNumber;
       pipelineState.dynamicConstantBufferLayout.resource[i].size = resource.size;
-      
-      // TODO: actually bind the cbuffer resource to the program pipeline here if using
+
+      GLuint blockIndex = glGetUniformBlockIndex(pipelineState.program, resource.name.c_str());
+      AssertFatal(blockIndex == -1, avar("GFXGLDevice Uniform Mismatch! Constant Buffer Handle [%s] not found in shader!", resource.name));
+
+      // actually bind the cbuffer resource to the program pipeline here if using
       // GL 4.1 or lower (we set the binding slot in higher GL versions...damn macos)
+      if (!mGLCaps.bindUniformLocations)
+      {
+         glUniformBlockBinding(pipelineState.program, blockIndex, resource.slotNumber);
+      }
+#ifdef TORQUE_DEBUG
+      else
+      {
+         // Validate that they match!
+         AssertFatal(blockIndex == resource.slotNumber, avar("GFXGLDevice Uniform Mismatch! Constant Buffer Handle [%s] does not bind to slot number [%d]", resource.name, resource.slotNumber));
+      }
+
+      GLint size;
+      glGetActiveUniformBlockiv(pipelineState.program, resource.slotNumber, GL_UNIFORM_BLOCK_DATA_SIZE, &size);
+      AssertFatal(resource.size == size, avar("GFXGLDevice Uniform Mismatch! Constant Buffer Handle [%s] has a Shader size of [%d bytes], but our requested size was [%d bytes]", resource.name, size, resource.size));
+#endif
    }
 
-   // Shader Modules
-   //pipelineState.program
-   
    return GFXHandle<GFXGraphicsPipelineHandle>(0);
 }
 
