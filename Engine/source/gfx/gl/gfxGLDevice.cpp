@@ -874,8 +874,6 @@ GFXOcclusionQuery* GFXGLDevice::createOcclusionQuery()
 
 void GFXGLDevice::setupGenericShaders( GenericShaderType type ) 
 {
-   AssertFatal(type != GSTargetRestore, "");
-
    if( mGenericShader[GSColor] == NULL )
    {
       ShaderData *shaderData;

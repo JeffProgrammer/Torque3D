@@ -244,7 +244,7 @@ struct GFXResourceDynamicConstantBufferLayoutDesc
    U32 count = 0;
 };
 
-struct GFXPipelineDesc
+struct GFXGraphicsPipelineDesc
 {
    GFXInputLayoutDesc inputLayout;
    GFXShader* shader; // TODO: Clean this up

@@ -683,8 +683,6 @@ void GFXD3D11Device::endReset(GFXD3D11WindowTarget* windowTarget)
 
 void GFXD3D11Device::setupGenericShaders(GenericShaderType type)
 {
-   AssertFatal(type != GSTargetRestore, ""); //not used
-
    if(mGenericShader[GSColor] == NULL)
    {
       ShaderData *shaderData;

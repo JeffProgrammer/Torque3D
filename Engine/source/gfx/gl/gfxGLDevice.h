@@ -317,7 +317,6 @@ private:
 
    struct GLPipelineState
    {
-      U32 bindGroupLayout;
       GLInputLayoutState inputLayoutState;
       GLResourceDynamicConstantBufferLayoutDesc dynamicConstantBufferLayout;
       GLuint program;
@@ -399,7 +398,7 @@ public:
    virtual GFXHandle<GFXConstantBufferHandle> createConstantBuffer(const GFXConstBufferDesc& desc) override;
    virtual void destroyConstantBuffer(GFXHandle<GFXConstantBufferHandle> constantBuffer) override;
 
-   virtual GFXHandle<GFXGraphicsPipelineHandle> createGraphicsPipeline(const GFXPipelineDesc& desc) override;
+   virtual GFXHandle<GFXGraphicsPipelineHandle> createGraphicsPipeline(const GFXGraphicsPipelineDesc& desc) override;
    virtual void destroyGraphicsPipeline(GFXHandle<GFXGraphicsPipelineHandle> pipeline) override;
 };
 

@@ -5,6 +5,7 @@
 #include "gfx/gl/gfxGLTextureObject.h"
 #include "gfx/gl/gfxGLShader.h"
 #include "gfx/gfxCmdBuffer.h"
+#include "gfx/gl/gfxGLGenericShaderPipeline.h"
 
 GFXCmdBuffer* GFXGLDevice::allocCmdBuffer()
 {
@@ -57,6 +58,9 @@ void GFXGLDevice::init2()
    GLint maxLocations;
    glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &maxLocations);
    mPushConstantBindingLocation = maxLocations - 1;
+
+   mGenericPipelineManager = new GFXGLGenericShaderPipelineManager();
+   mGenericPipelineManager->init();
 }
 
 void GFXGLDevice::executeCmdBuffer(GFXCmdBuffer* cmdBuffer)
@@ -585,7 +589,7 @@ void GFXGLDevice::destroyConstantBuffer(GFXHandle<GFXConstantBufferHandle> const
    glDeleteBuffers(1, &bufferId);
 }
 
-GFXHandle<GFXGraphicsPipelineHandle> GFXGLDevice::createGraphicsPipeline(const GFXPipelineDesc& desc)
+GFXHandle<GFXGraphicsPipelineHandle> GFXGLDevice::createGraphicsPipeline(const GFXGraphicsPipelineDesc& desc)
 {
    GLPipelineState pipelineState = {};   
 
@@ -721,7 +725,7 @@ GFXHandle<GFXGraphicsPipelineHandle> GFXGLDevice::createGraphicsPipeline(const G
    pipelineState.program = shader->mProgram;
 
    GLuint pushConstantsIndex = glGetUniformBlockIndex(pipelineState.program, "PushConstants");
-   if (pushConstantsIndex > -1)
+   if (pushConstantsIndex != -1)
    {
       pipelineState.pushConstantSize = desc.pushConstantSize;
       pipelineState.hasPushConstantBlock = true;
@@ -770,7 +774,10 @@ GFXHandle<GFXGraphicsPipelineHandle> GFXGLDevice::createGraphicsPipeline(const G
 #endif
    }
 
-   return GFXHandle<GFXGraphicsPipelineHandle>(0);
+   U32 handle = mNextHandle++;
+   mGLPipelineStateTable[handle] = pipelineState;
+
+   return GFXHandle<GFXGraphicsPipelineHandle>(handle);
 }
 
 void GFXGLDevice::destroyGraphicsPipeline(GFXHandle<GFXGraphicsPipelineHandle> pipeline)

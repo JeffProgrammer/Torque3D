@@ -71,6 +71,7 @@ class GFXStateBlock;
 class GFXShaderConstBuffer;
 class GFXTextureManager;
 class GFXCmdBuffer;
+class GFXGenericShaderPipelineManager;
 
 // Global macro
 #define GFX GFXDevice::get() 
@@ -1023,7 +1024,6 @@ public:
       GSTexture,
       GSModColorTexture,
       GSAddColorTexture,
-      GSTargetRestore,
       GS_COUNT
    };
 
@@ -1052,8 +1052,11 @@ public:
 #else
    void dumpStates( const char *fileName ) const {};
 #endif
-   protected:
-      GFXDrawUtil *mDrawer;
+protected:
+   GFXDrawUtil *mDrawer;
+
+
+   GFXGenericShaderPipelineManager* mGenericPipelineManager = nullptr;
 
 public:
    // TODO:
@@ -1067,8 +1070,12 @@ public:
    // everything else...
 
    virtual GFXCmdBuffer* allocCmdBuffer() {
+      AssertFatal(false, "Implement me!");
       return nullptr;
    }
+
+   GFXGenericShaderPipelineManager* getShaderPipelineManager() { return mGenericPipelineManager; }
+
    virtual void executeCmdBuffer(GFXCmdBuffer* cmdBuffer) {}
    
    virtual void* mapBuffer(GFXHandle<GFXVertexBufferHandle2> handle) { return nullptr; } ;
@@ -1104,7 +1111,7 @@ public:
    
    virtual void destroyConstantBuffer(GFXHandle<GFXConstantBufferHandle> constantBuffer) {}
 
-   virtual GFXHandle<GFXGraphicsPipelineHandle> createGraphicsPipeline(const GFXPipelineDesc& desc) {
+   virtual GFXHandle<GFXGraphicsPipelineHandle> createGraphicsPipeline(const GFXGraphicsPipelineDesc& desc) {
       return GFXHandle<GFXGraphicsPipelineHandle>(0);
    }
    
