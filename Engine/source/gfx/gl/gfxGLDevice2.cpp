@@ -753,7 +753,7 @@ GFXHandle<GFXGraphicsPipelineHandle> GFXGLDevice::createGraphicsPipeline(const G
       pipelineState.dynamicConstantBufferLayout.resource[i].size = resource.size;
 
       GLuint blockIndex = glGetUniformBlockIndex(pipelineState.program, resource.name.c_str());
-      AssertFatal(blockIndex == -1, avar("GFXGLDevice Uniform Mismatch! Constant Buffer Handle [%s] not found in shader!", resource.name));
+      AssertFatal(blockIndex == -1, avar("GFXGLDevice Uniform Mismatch! Constant Buffer Handle [%s] not found in shader!", resource.name.c_str()));
 
       // actually bind the cbuffer resource to the program pipeline here if using
       // GL 4.1 or lower (we set the binding slot in higher GL versions...damn macos)
@@ -765,12 +765,12 @@ GFXHandle<GFXGraphicsPipelineHandle> GFXGLDevice::createGraphicsPipeline(const G
       else
       {
          // Validate that they match!
-         AssertFatal(blockIndex == resource.slotNumber, avar("GFXGLDevice Uniform Mismatch! Constant Buffer Handle [%s] does not bind to slot number [%d]", resource.name, resource.slotNumber));
+         AssertFatal(blockIndex == resource.slotNumber, avar("GFXGLDevice Uniform Mismatch! Constant Buffer Handle [%s] does not bind to slot number [%d]", resource.name.c_str(), resource.slotNumber));
       }
 
       GLint size;
       glGetActiveUniformBlockiv(pipelineState.program, resource.slotNumber, GL_UNIFORM_BLOCK_DATA_SIZE, &size);
-      AssertFatal(resource.size == size, avar("GFXGLDevice Uniform Mismatch! Constant Buffer Handle [%s] has a Shader size of [%d bytes], but our requested size was [%d bytes]", resource.name, size, resource.size));
+      AssertFatal(resource.size == size, avar("GFXGLDevice Uniform Mismatch! Constant Buffer Handle [%s] has a Shader size of [%d bytes], but our requested size was [%d bytes]", resource.name.c_str(), size, resource.size));
 #endif
    }
 

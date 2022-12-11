@@ -14,13 +14,27 @@ GuiRenderManager::~GuiRenderManager()
    dFree_aligned(mCurrentVertexData.data);
 }
 
-GuiRenderInst* GuiRenderManager::allocRenderInst(U32 numberOfVertices)
+GuiRenderInstDraw* GuiRenderManager::allocRenderInstDraw(U32 numberOfVertices)
 {
-   GuiRenderInst inst = {};
-   inst.vertexList = allocVertices(numberOfVertices);
+   GuiRenderInstDraw* inst = mRenderInstMemory.alloc<GuiRenderInstDraw>();
+   constructInPlace(inst);
+   
+   inst->type = GuiRenderInstType::DRAW;
+   inst->vertexList = allocVertices(numberOfVertices);
    
    mRenderInsts.push_back(inst);
-   return &mRenderInsts.last();
+   return inst;
+}
+
+GuiRenderInstClipRect* GuiRenderManager::allocRenderInstClipRect()
+{
+   GuiRenderInstClipRect* inst = mRenderInstMemory.alloc<GuiRenderInstClipRect>();
+   constructInPlace(inst);
+   
+   inst->type = GuiRenderInstType::CLIP_RECT;
+   
+   mRenderInsts.push_back(inst);
+   return inst;
 }
 
 void GuiRenderManager::clear()
@@ -29,6 +43,7 @@ void GuiRenderManager::clear()
    mCurrentVertexData.offset = 0;
    dMemset(mCurrentVertexData.data, 0, VERTEX_BUFFER_SIZE_MB);
    mRenderInsts.clear();
+   mRenderInstMemory.clear();
 }
 
 GuiVertexList GuiRenderManager::allocVertices(U32 numberOfVertices)
@@ -63,35 +78,62 @@ GuiRenderBin::~GuiRenderBin()
 
 void GuiRenderBin::fillCommandBuffer(GFXCmdBuffer *cmdBuffer, GuiRenderManager *renderManager)
 {
-   const Vector<GuiRenderInst>& renderInsts = renderManager->getRenderInsts();
+   const Vector<GuiRenderInst*>& renderInsts = renderManager->getRenderInsts();
    void* vertexData = renderManager->vertexData();
    
    uploadVertexData(vertexData);
    
-   for (const GuiRenderInst& inst : renderInsts)
+   for (const GuiRenderInst* inst : renderInsts)
    {
-      if (inst.pipeline != GFXHandleNone)
+      switch (inst->type)
       {
-         cmdBuffer->setGraphicsPipeline(inst.pipeline);
-      }
-      
-      if (inst.stateBlock != nullptr)
-      {
-         cmdBuffer->setStateBlock(inst.stateBlock);
-      }
-      
-      if (inst.texture != NULL || inst.sampler != GFXHandleNone)
-      {
-         AssertFatal(inst.texture == NULL, "GuiRenderBinExecutor::execute Must set texture if setting sampler");
-         AssertFatal(inst.sampler == GFXHandleNone, "GuiRenderBinExecutor::execute Must set sampler if setting texture");
+         case GuiRenderInstType::CLIP_RECT:
+         {
+            const auto clipRectInst = static_cast<const GuiRenderInstClipRect*>(inst);
+            processClipRectInst(cmdBuffer, clipRectInst);
+            break;
+         }
          
-         cmdBuffer->setTexture(0, inst.texture, inst.sampler);
+         case GuiRenderInstType::DRAW:
+         {
+            const auto drawInst = static_cast<const GuiRenderInstDraw*>(inst);
+            processDrawInst(cmdBuffer, drawInst);
+            break;
+         }
       }
-      
-      cmdBuffer->drawPrimitives(inst.primitiveType, inst.vertexList.drawVboStart, inst.vertexList.count);
    }
    
    cmdBuffer->endRecording();
+}
+
+void GuiRenderBin::processClipRectInst(GFXCmdBuffer *cmdBuffer, const GuiRenderInstClipRect* clipRectInst)
+{
+   const RectI rect = clipRectInst->rect;
+   const float* matrix = (const float*)clipRectInst->projMatrix;
+   
+   cmdBuffer->setViewport(rect.point.x, rect.point.y, rect.extent.x, rect.extent.y);
+   
+   cmdBuffer->setPushConstants(GFXShaderStageVertex, sizeof(MatrixF), (void*)matrix);
+}
+
+void GuiRenderBin::processDrawInst(GFXCmdBuffer *cmdBuffer, const GuiRenderInstDraw* drawInst)
+{
+   if (drawInst->pipeline != GFXHandleNone)
+      cmdBuffer->setGraphicsPipeline(drawInst->pipeline);
+   
+   if (drawInst->stateBlock != nullptr)
+      cmdBuffer->setStateBlock(drawInst->stateBlock);
+   
+   if (drawInst->texture != nullptr || drawInst->sampler != GFXHandleNone)
+   {
+      AssertFatal(drawInst->texture == nullptr, "GuiRenderBinExecutor::execute Must set texture if setting sampler");
+      AssertFatal(drawInst->sampler == GFXHandleNone, "GuiRenderBinExecutor::execute Must set sampler if setting texture");
+      
+      cmdBuffer->setTexture(0, drawInst->texture, drawInst->sampler);
+   }
+   
+   cmdBuffer->drawPrimitives(drawInst->primitiveType, drawInst->vertexList.drawVboStart, drawInst->vertexList.count);
+   
 }
 
 void GuiRenderBin::createVertexBuffer()

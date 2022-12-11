@@ -24,7 +24,18 @@ private:
    U32 drawVboStart;
 };
 
+enum class GuiRenderInstType
+{
+   CLIP_RECT,
+   DRAW
+};
+
 struct GuiRenderInst
+{
+   GuiRenderInstType type;
+};
+
+struct GuiRenderInstDraw : public GuiRenderInst
 {
    GFXHandle<GFXGraphicsPipelineHandle> pipeline;
    GFXStateBlock *stateBlock;
@@ -33,6 +44,12 @@ struct GuiRenderInst
    
    GuiVertexList vertexList;
    GFXPrimitiveType primitiveType;
+};
+
+struct GuiRenderInstClipRect : public GuiRenderInst
+{
+   RectI rect;
+   MatrixF projMatrix;
 };
 
 enum GuiRenderConstants
@@ -48,7 +65,9 @@ public:
    GuiRenderManager();
    ~GuiRenderManager();
    
-   GuiRenderInst* allocRenderInst(U32 numberOfVertices);
+   
+   GuiRenderInstDraw* allocRenderInstDraw(U32 numberOfVertices);
+   GuiRenderInstClipRect* allocRenderInstClipRect();
    
    void clear();
    
@@ -57,7 +76,7 @@ public:
       return mCurrentVertexData.data;
    }
    
-   inline const Vector<GuiRenderInst>& getRenderInsts()
+   inline const Vector<GuiRenderInst*>& getRenderInsts()
    {
       return mRenderInsts;
    }
@@ -77,7 +96,8 @@ private:
    // TODO: make this a vector so we can use more than 1 4MB buffer
    //Vector<VertexData> mVertexData;
    
-   Vector<GuiRenderInst> mRenderInsts;
+   Vector<GuiRenderInst*> mRenderInsts;
+   MultiTypedChunker mRenderInstMemory;
 };
 
 // This class actually converts GuiRenderInst into GFXCmdBuffer calls.
@@ -89,6 +109,9 @@ public:
    void fillCommandBuffer(GFXCmdBuffer *cmdBuffer, GuiRenderManager* renderManager);
    
 private:
+   void processClipRectInst(GFXCmdBuffer *cmdBuffer, const GuiRenderInstClipRect* clipRectInst);
+   void processDrawInst(GFXCmdBuffer *cmdBuffer, const GuiRenderInstDraw* drawInst);
+   
    void createVertexBuffer();
    void uploadVertexData(void* vertexData);
    
