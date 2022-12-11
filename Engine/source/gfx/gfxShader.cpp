@@ -64,6 +64,7 @@ bool GFXShader::init(   const Torque::Path &vertFile,
                         F32 pixVersion, 
                         const Vector<GFXShaderMacro> &macros,
                         const Vector<String> &samplerNames,
+                        bool skipInitHandles,
                         GFXVertexFormat *instanceFormat)
 {
    // Take care of instancing
@@ -79,13 +80,14 @@ bool GFXShader::init(   const Torque::Path &vertFile,
    mPixVersion = pixVersion;
    mMacros = macros;
    mSamplerNamesOrdered = samplerNames;
+   mSkipInitHandles = skipInitHandles;
 
    // Before we compile the shader make sure the
    // conditioner features have been updated.
    ConditionerFeature::updateConditioners();
 
    // Now do the real initialization.
-   if ( !_init() )
+   if ( !_init(skipInitHandles) )
       return false;
 
    _updateDesc();
@@ -106,7 +108,7 @@ bool GFXShader::reload()
    mReloadKey++;
 
    // Init does the work.
-   bool success = _init();
+   bool success = _init(mSkipInitHandles);
    if ( success )
       _updateDesc();
 

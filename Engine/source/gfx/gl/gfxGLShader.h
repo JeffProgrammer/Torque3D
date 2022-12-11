@@ -72,7 +72,7 @@ protected:
    friend class GFXGLShaderConstHandle;
    friend class GFXGLDevice;
    
-   virtual bool _init();   
+   virtual bool _init(bool skipInitHandles);   
 
    bool initShader(  const Torque::Path &file, 
                      bool isVertex, 

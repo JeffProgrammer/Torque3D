@@ -136,7 +136,7 @@ void GFXGLDevice::initGLState()
    
    // [JTH 5/6/2016] GLSL 1.50 is really SM 4.0
    // Setting mPixelShaderVersion to 3.0 will allow Advanced Lighting to run.   
-   mPixelShaderVersion = 3.0;
+   mPixelShaderVersion = 5.0;
 
 	// Set capability extensions.
    mCapabilities.anisotropicFiltering = mCardProfiler->queryProfile("GL_EXT_texture_filter_anisotropic");

@@ -246,6 +246,9 @@ protected:
 
    /// The pixel version this is compiled for.
    F32 mPixVersion;
+   
+   /// This is for new shaders in GFX2, will remove once transition is complete.
+   bool mSkipInitHandles;
 
    ///
    String mDescription;
@@ -312,6 +315,7 @@ public:
                F32 pixVersion, 
                const Vector<GFXShaderMacro> &macros,
                const Vector<String> &samplerNames,
+               bool skipInitHandles = false,
                GFXVertexFormat *instanceFormat = NULL );
 
    /// Reloads the shader from disk.
@@ -368,7 +372,7 @@ protected:
 
    /// Internal initialization function overloaded for
    /// each GFX device type.
-   virtual bool _init() = 0;
+   virtual bool _init(bool skipInitHandles) = 0;
 
    /// Buffers call this from their destructor (so we don't have to ref count them).
    void _unlinkBuffer( GFXShaderConstBuffer *buf );

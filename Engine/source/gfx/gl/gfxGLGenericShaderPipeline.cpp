@@ -14,7 +14,7 @@ void GFXGLGenericShaderPipelineManager::init()
    commonDesc.shader = createShader(String("/fixedFunction/gfx2/textureV.glsl"), String("/fixedFunction/gfx2/textureP.glsl"));
    mPipelines[GFXGenericShaderPipelineType::GSPTexture] = GFX->createGraphicsPipeline(commonDesc);
 
-   commonDesc.shader = createShader(String("/fixedFunction/gfx2/modColorTextureV.glsl"), String("/fixedFunction/gfx2/modColorTextureV.glsl"));
+   commonDesc.shader = createShader(String("/fixedFunction/gfx2/modColorTextureV.glsl"), String("/fixedFunction/gfx2/modColorTextureP.glsl"));
    mPipelines[GFXGenericShaderPipelineType::GSPModColorTexture] = GFX->createGraphicsPipeline(commonDesc);
 
    commonDesc.shader = createShader(String("/fixedFunction/gfx2/addColorTextureV.glsl"), String("/fixedFunction/gfx2/addColorTextureP.glsl"));
@@ -35,9 +35,9 @@ GFXShader* GFXGLGenericShaderPipelineManager::createShader(const String& vertPat
    Vector<String> samplers;
 
    GFXShader* shader = GFX->createShader();
-   bool success = shader->init(vertFile, pixelFile, 5.0, macros, samplers);
+   bool success = shader->init(vertFile, pixelFile, 5.0, macros, samplers, true);
    AssertISV(success, "GFXGLGenericShaderPipelineManager :: Failed to Init Shader");
-
+   
    return shader;
 }
 
