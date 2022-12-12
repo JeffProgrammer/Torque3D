@@ -88,7 +88,7 @@ bool GuiSwatchButtonCtrl::onWake()
    return true;
 }
 
-void GuiSwatchButtonCtrl::onRender( Point2I offset, const RectI &updateRect )
+void GuiSwatchButtonCtrl::onRender( Point2I offset, const RectI &updateRect, GuiRenderManager* manager )
 {
    bool highlight = mHighlighted;
 

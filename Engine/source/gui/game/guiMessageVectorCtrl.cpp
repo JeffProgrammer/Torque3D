@@ -678,12 +678,11 @@ void GuiMessageVectorCtrl::onSleep()
 
 
 //--------------------------------------------------------------------------
-void GuiMessageVectorCtrl::onRender(Point2I      offset,
-                                    const RectI& updateRect)
+void GuiMessageVectorCtrl::onRender(Point2I offset, const RectI& updateRect, GuiRenderManager* manager)
 {
    GFXDrawUtil *drawer = GFX->getDrawUtil();
 
-   Parent::onRender(offset, updateRect);
+   Parent::onRender(offset, updateRect, manager);
    if (isAttached()) {
       U32 linePixels = mProfile->mFont->getHeight() + mLineSpacingPixels;
       U32 currLine   = 0;

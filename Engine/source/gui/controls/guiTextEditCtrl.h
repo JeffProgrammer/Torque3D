@@ -159,7 +159,7 @@ public:
    void onStaticModified(const char* slotName, const char* newValue = NULL);
 
    void onPreRender();
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
    virtual void drawText( const RectI &drawRect, bool isFocused );
 
    bool dealWithEnter( bool clearResponder );

@@ -68,7 +68,7 @@ protected:
   GFXTexHandle      cooldown_txrs[NUM_COOLDOWN_FRAMES];
   
   void              update_bitmap();
-  void              renderButton(GFXTexHandle &texture, Point2I &offset, const RectI& updateRect);
+  void              renderButton(GFXTexHandle &texture, Point2I &offset, const RectI& updateRect, GuiRenderManager* manager);
   
 public:   
   /*C*/             afxSpellButton();
@@ -88,7 +88,7 @@ public:
   virtual void      inspectPostApply();
   virtual void      onMouseEnter(const GuiEvent &event);
   virtual void      onMouseLeave(const GuiEvent &event);
-  virtual void      onRender(Point2I offset, const RectI &updateRect);
+  virtual void      onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 
   virtual void      onDeleteNotify(SimObject*);
   

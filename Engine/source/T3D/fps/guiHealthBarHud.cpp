@@ -57,7 +57,7 @@ class GuiHealthBarHud : public GuiControl
 public:
    GuiHealthBarHud();
 
-   void onRender( Point2I, const RectI &);
+   void onRender( Point2I, const RectI &, GuiRenderManager*);
    static void initPersistFields();
    DECLARE_CONOBJECT( GuiHealthBarHud );
    DECLARE_CATEGORY( "Gui Game" );
@@ -139,7 +139,7 @@ void GuiHealthBarHud::initPersistFields()
    Gui onRender method.
    Renders a health bar with filled background and border.
 */
-void GuiHealthBarHud::onRender(Point2I offset, const RectI &updateRect)
+void GuiHealthBarHud::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    // Must have a connection and player control object
    GameConnection* conn = GameConnection::getConnectionToServer();

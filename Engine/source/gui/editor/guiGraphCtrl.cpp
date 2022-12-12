@@ -128,7 +128,7 @@ void GuiGraphCtrl::initPersistFields()
 
 //-----------------------------------------------------------------------------
 
-void GuiGraphCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiGraphCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {   
    if (mBlendSB.isNull())
    {
@@ -252,7 +252,7 @@ void GuiGraphCtrl::onRender(Point2I offset, const RectI &updateRect)
 		GFX->getDrawUtil()->drawRect( rect, mProfile->mBorderColor );
 	}
    
-   renderChildControls( offset, updateRect );
+   renderChildControls( offset, updateRect, manager );
 }
 
 //-----------------------------------------------------------------------------

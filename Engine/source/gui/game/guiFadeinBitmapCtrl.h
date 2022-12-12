@@ -74,7 +74,7 @@ class GuiFadeinBitmapCtrl : public GuiBitmapCtrl
       virtual bool onKeyDown(const GuiEvent &);
       virtual bool onGamepadButtonDown(const GuiEvent& event);
       virtual bool onWake();
-      virtual void onRender(Point2I offset, const RectI &updateRect);
+      virtual void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
       
       static void initPersistFields();
 

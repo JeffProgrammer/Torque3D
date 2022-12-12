@@ -153,7 +153,7 @@ void afxTSCtrl::onMouseMove(const GuiEvent& evt)
   performTargeting(evt.mousePoint, targeting.mode);
 }
 
-void afxTSCtrl::onRender(Point2I offset, const RectI &updateRect)
+void afxTSCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
   GameConnection* con = GameConnection::getConnectionToServer();
 #if defined(BROKEN_DAMAGEFLASH_WHITEOUT_BLACKOUT)
@@ -166,7 +166,7 @@ void afxTSCtrl::onRender(Point2I offset, const RectI &updateRect)
 #endif
 
   if (!skipRender)
-    Parent::onRender(offset, updateRect);
+    Parent::onRender(offset, updateRect, manager);
 
   GFX->setViewport(updateRect);
 }

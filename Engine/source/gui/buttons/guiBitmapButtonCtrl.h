@@ -177,7 +177,7 @@ class GuiBitmapButtonCtrl : public GuiButtonCtrl
       virtual void onAction();
       virtual void inspectPostApply();
 
-      virtual void onRender(Point2I offset, const RectI &updateRect);
+      virtual void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 
       static void initPersistFields();
       bool pointInControl(const Point2I& parentCoordPoint);

@@ -223,9 +223,9 @@ bool GuiSplitContainer::onWake()
 
 //-----------------------------------------------------------------------------
 
-void GuiSplitContainer::onRender( Point2I offset, const RectI &updateRect )
+void GuiSplitContainer::onRender( Point2I offset, const RectI &updateRect, GuiRenderManager* manager )
 {
-   Parent::onRender( offset, updateRect );
+   Parent::onRender( offset, updateRect, manager );
 
    // Only render if we're dragging the splitter
    if ( mDragging && mSplitRect.isValidRect() )

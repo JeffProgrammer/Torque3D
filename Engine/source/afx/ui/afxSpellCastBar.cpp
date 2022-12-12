@@ -50,7 +50,7 @@ class afxSpellCastBar : public GuiControl, public afxProgressBase
 public:
   /*C*/             afxSpellCastBar();
 
-  virtual void      onRender(Point2I, const RectI&);
+  virtual void      onRender(Point2I, const RectI&, GuiRenderManager*);
 
   void              setFraction(F32 frac);
   F32               getFraction() const { return fraction; }
@@ -119,7 +119,7 @@ void afxSpellCastBar::initPersistFields()
 
 //~~~~~~~~~~~~~~~~~~~~//~~~~~~~~~~~~~~~~~~~~//~~~~~~~~~~~~~~~~~~~~//
 
-void afxSpellCastBar::onRender(Point2I offset, const RectI &updateRect)
+void afxSpellCastBar::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
   LinearColorF color;
 

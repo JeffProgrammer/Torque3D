@@ -1,5 +1,5 @@
-#ifndef GUI_GUI_RENDER_H
-#define GUI_GUI_RENDER_H
+#ifndef _GUI_GUI_RENDER_H_
+#define _GUI_GUI_RENDER_H_
 
 #include "platform/platform.h"
 #include "gfx/gfxEnums.h"
@@ -14,12 +14,8 @@ class GFXDevice;
 
 struct GuiVertexList
 {
-   friend class GuiRenderManager;
-   friend class GuiRenderBin;
-   
    GFXVertexPCT *vertices;
    
-private:
    U32 count;
    U32 drawVboStart;
 };
@@ -27,19 +23,22 @@ private:
 enum class GuiRenderInstType
 {
    CLIP_RECT,
+   STATEBLOCK,
    DRAW
 };
 
 struct GuiRenderInst
 {
+   friend class GuiRenderBin;
+   friend class GuiRenderManager;
+protected:
    GuiRenderInstType type;
 };
 
 struct GuiRenderInstDraw : public GuiRenderInst
 {
    GFXHandle<GFXGraphicsPipelineHandle> pipeline;
-   GFXStateBlock *stateBlock;
-   GFXTextureObject *texture; // TODO: Replace with GFXHandle<Texture> when we move to new GFX fully
+   GFXTextureObject *texture = nullptr; // TODO: Replace with GFXHandle<Texture> when we move to new GFX fully
    GFXHandle<GFXSamplerHandle> sampler;
    
    GuiVertexList vertexList;
@@ -50,6 +49,11 @@ struct GuiRenderInstClipRect : public GuiRenderInst
 {
    RectI rect;
    MatrixF projMatrix;
+};
+
+struct GuiRenderInstStateBlock : public GuiRenderInst
+{
+   GFXStateBlock* stateBlock = nullptr;
 };
 
 enum GuiRenderConstants
@@ -68,6 +72,7 @@ public:
    
    GuiRenderInstDraw* allocRenderInstDraw(U32 numberOfVertices);
    GuiRenderInstClipRect* allocRenderInstClipRect();
+   GuiRenderInstStateBlock* allocRenderInstStateBlock();
    
    void clear();
    
@@ -108,10 +113,7 @@ public:
    ~GuiRenderBin();
    void fillCommandBuffer(GFXCmdBuffer *cmdBuffer, GuiRenderManager* renderManager);
    
-private:
-   void processClipRectInst(GFXCmdBuffer *cmdBuffer, const GuiRenderInstClipRect* clipRectInst);
-   void processDrawInst(GFXCmdBuffer *cmdBuffer, const GuiRenderInstDraw* drawInst);
-   
+private:   
    void createVertexBuffer();
    void uploadVertexData(void* vertexData);
    

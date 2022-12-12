@@ -37,6 +37,17 @@ GuiRenderInstClipRect* GuiRenderManager::allocRenderInstClipRect()
    return inst;
 }
 
+GuiRenderInstStateBlock* GuiRenderManager::allocRenderInstStateBlock()
+{
+   GuiRenderInstStateBlock* inst = mRenderInstMemory.alloc<GuiRenderInstStateBlock>();
+   constructInPlace(inst);
+
+   inst->type = GuiRenderInstType::STATEBLOCK;
+
+   mRenderInsts.push_back(inst);
+   return inst;
+}
+
 void GuiRenderManager::clear()
 {
    mCurrentVertexData.count = 0;
@@ -66,6 +77,41 @@ GuiVertexList GuiRenderManager::allocVertices(U32 numberOfVertices)
 
 //-----------------------------------------------------------------------------
 
+static TORQUE_FORCEINLINE
+void processClipRectInst(GFXCmdBuffer* cmdBuffer, const GuiRenderInstClipRect* clipRectInst)
+{
+   const RectI rect = clipRectInst->rect;
+   const float* matrix = (const float*)clipRectInst->projMatrix;
+
+   cmdBuffer->setViewport(rect);
+   cmdBuffer->setPushConstants(GFXShaderStageVertex, sizeof(MatrixF), (void*)matrix);
+}
+
+static TORQUE_FORCEINLINE
+void processStateBlockInst(GFXCmdBuffer* cmdBuffer, const GuiRenderInstStateBlock* stateBlockInst)
+{
+   if (stateBlockInst->stateBlock != nullptr)
+      cmdBuffer->setStateBlock(stateBlockInst->stateBlock);
+}
+
+static TORQUE_FORCEINLINE
+void processDrawInst(GFXCmdBuffer* cmdBuffer, const GuiRenderInstDraw* drawInst)
+{
+   if (drawInst->pipeline != GFXHandleNone)
+      cmdBuffer->setGraphicsPipeline(drawInst->pipeline);
+
+   if (drawInst->texture != nullptr || drawInst->sampler != GFXHandleNone)
+   {
+      AssertFatal(drawInst->texture == nullptr, "GuiRenderBinExecutor::execute Must set texture if setting sampler");
+      AssertFatal(drawInst->sampler == GFXHandleNone, "GuiRenderBinExecutor::execute Must set sampler if setting texture");
+
+      cmdBuffer->setTexture(0, drawInst->texture, drawInst->sampler);
+   }
+
+   cmdBuffer->drawPrimitives(drawInst->primitiveType, drawInst->vertexList.drawVboStart, drawInst->vertexList.count);
+}
+
+
 GuiRenderBin::GuiRenderBin()
 {
    
@@ -93,6 +139,13 @@ void GuiRenderBin::fillCommandBuffer(GFXCmdBuffer *cmdBuffer, GuiRenderManager *
             processClipRectInst(cmdBuffer, clipRectInst);
             break;
          }
+
+         case GuiRenderInstType::STATEBLOCK:
+         {
+            const auto stateBlockInst = static_cast<const GuiRenderInstStateBlock*>(inst);
+            processStateBlockInst(cmdBuffer, stateBlockInst);
+            break;
+         }
          
          case GuiRenderInstType::DRAW:
          {
@@ -104,36 +157,6 @@ void GuiRenderBin::fillCommandBuffer(GFXCmdBuffer *cmdBuffer, GuiRenderManager *
    }
    
    cmdBuffer->endRecording();
-}
-
-void GuiRenderBin::processClipRectInst(GFXCmdBuffer *cmdBuffer, const GuiRenderInstClipRect* clipRectInst)
-{
-   const RectI rect = clipRectInst->rect;
-   const float* matrix = (const float*)clipRectInst->projMatrix;
-   
-   cmdBuffer->setViewport(rect.point.x, rect.point.y, rect.extent.x, rect.extent.y);
-   
-   cmdBuffer->setPushConstants(GFXShaderStageVertex, sizeof(MatrixF), (void*)matrix);
-}
-
-void GuiRenderBin::processDrawInst(GFXCmdBuffer *cmdBuffer, const GuiRenderInstDraw* drawInst)
-{
-   if (drawInst->pipeline != GFXHandleNone)
-      cmdBuffer->setGraphicsPipeline(drawInst->pipeline);
-   
-   if (drawInst->stateBlock != nullptr)
-      cmdBuffer->setStateBlock(drawInst->stateBlock);
-   
-   if (drawInst->texture != nullptr || drawInst->sampler != GFXHandleNone)
-   {
-      AssertFatal(drawInst->texture == nullptr, "GuiRenderBinExecutor::execute Must set texture if setting sampler");
-      AssertFatal(drawInst->sampler == GFXHandleNone, "GuiRenderBinExecutor::execute Must set sampler if setting texture");
-      
-      cmdBuffer->setTexture(0, drawInst->texture, drawInst->sampler);
-   }
-   
-   cmdBuffer->drawPrimitives(drawInst->primitiveType, drawInst->vertexList.drawVboStart, drawInst->vertexList.count);
-   
 }
 
 void GuiRenderBin::createVertexBuffer()

@@ -46,7 +46,7 @@ protected:
    DECLARE_IMAGEASSET(GuiToolboxButtonCtrl, HoverBitmap, onHoverImageChanged, GFXDefaultGUIProfile);
    DECLARE_ASSET_SETGET(GuiToolboxButtonCtrl, HoverBitmap);
 
-   void renderButton(GFXTexHandle &texture, Point2I &offset, const RectI& updateRect);
+   void renderButton(GFXTexHandle &texture, Point2I &offset, const RectI& updateRect, GuiRenderManager *manager);
    void renderStateRect( GFXTexHandle &texture, const RectI& rect );
 
    void onNormalImageChanged() {}
@@ -69,7 +69,7 @@ public:
    void setHoverBitmap( StringTableEntry bitmapName );
    
 
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 };
 
 

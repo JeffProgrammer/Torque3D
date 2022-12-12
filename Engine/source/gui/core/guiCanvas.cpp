@@ -33,6 +33,8 @@
 #include "platform/profiler.h"
 #include "gfx/gfxDevice.h"
 #include "gfx/gfxDrawUtil.h"
+#include "gui/render/guiRender.h"
+#include "gfx/gfxCmdBuffer.h"
 #include "gui/core/guiTypes.h"
 #include "gui/core/guiControl.h"
 #include "gui/editor/guiMenuBar.h"
@@ -1926,6 +1928,9 @@ void GuiCanvas::renderFrame(bool preRenderOnly, bool bufferSwap /* = true */)
    if ( gScreenShot && gScreenShot->isPending() )
       gScreenShot->tileGui( size );
 
+   GuiRenderBin renderBin;
+   GuiRenderManager renderManager;
+
    RectI updateUnion;
    buildUpdateUnion(&updateUnion);
    if (updateUnion.intersect(screenRect))
@@ -1935,12 +1940,24 @@ void GuiCanvas::renderFrame(bool preRenderOnly, bool bufferSwap /* = true */)
       {
          // Get the control
          GuiControl *contentCtrl = static_cast<GuiControl*>(*i);
+
+         RectI clipRect;
+         MatrixF projMatrix;
+         GFX->calcClipRect(updateUnion, projMatrix, clipRect);
+
+         GuiRenderInstClipRect *clipRectInst = renderManager.allocRenderInstClipRect();
+         clipRectInst->projMatrix = projMatrix;
+         clipRectInst->rect = clipRect;
+
+         GuiRenderInstStateBlock* stateBlockInst = renderManager.allocRenderInstStateBlock();
+         stateBlockInst->stateBlock = mDefaultGuiSB;
          
-         GFX->setClipRect( updateUnion );
-         GFX->setStateBlock(mDefaultGuiSB);
-         
-         contentCtrl->onRender(contentCtrl->getPosition(), updateUnion);
+         contentCtrl->onRender(contentCtrl->getPosition(), updateUnion, &renderManager);
       }
+
+      GFXCmdBuffer cmdBuffer(GFX);
+      renderBin.fillCommandBuffer(&cmdBuffer, &renderManager);
+      GFX->executeCmdBuffer(&cmdBuffer);
 
       // Fill Black if no Dialogs
       if(this->size() == 0)

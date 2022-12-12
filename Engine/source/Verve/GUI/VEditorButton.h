@@ -52,7 +52,7 @@ public:
     void            onMouseLeave( const GuiEvent &pEvent );
     void            onMouseEvent( const char *pEventName, const GuiEvent &pEvent );
 
-    void            onRender( Point2I offset, const RectI &updateRect );
+    void            onRender( Point2I offset, const RectI &updateRect, GuiRenderManager* manager );
 
 public:
 

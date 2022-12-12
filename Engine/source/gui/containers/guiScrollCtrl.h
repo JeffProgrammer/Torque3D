@@ -256,7 +256,7 @@ class GuiScrollCtrl : public GuiContainer
       virtual void onSleep();
 
       virtual void onPreRender();
-      virtual void onRender(Point2I offset, const RectI &updateRect);
+      virtual void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
       virtual void drawBorder(const Point2I &offset, bool isFirstResponder);
       virtual void drawVScrollBar(const Point2I &offset);
       virtual void drawHScrollBar(const Point2I &offset);

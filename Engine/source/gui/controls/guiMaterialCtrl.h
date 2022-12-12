@@ -64,7 +64,7 @@ public:
 
    bool setMaterial( const String &materialName );
 
-   void onRender( Point2I offset, const RectI &updateRect );
+   void onRender( Point2I offset, const RectI &updateRect, GuiRenderManager* manager );
 };
 
 #endif // _GUIMATERIALCTRL_H_

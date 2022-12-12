@@ -451,7 +451,7 @@ void GuiTSCtrl::_internalRender(RectI guiViewport, RectI renderViewport, Frustum
 
 //-----------------------------------------------------------------------------
 
-void GuiTSCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiTSCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    // Save the current transforms so we can restore
    // it for child control rendering below.
@@ -465,7 +465,7 @@ void GuiTSCtrl::onRender(Point2I offset, const RectI &updateRect)
       // We have no camera, but render the GUI children 
       // anyway.  This makes editing GuiTSCtrl derived
       // controls easier in the GuiEditor.
-      renderChildControls(offset, updateRect);
+      renderChildControls(offset, updateRect, manager);
       return;
    }
 
@@ -722,7 +722,7 @@ void GuiTSCtrl::onRender(Point2I offset, const RectI &updateRect)
 
    if (shouldRenderChildControls())
    {
-      renderChildControls(offset, updateRect);
+      renderChildControls(offset, updateRect, manager);
    }
    smFrameCount++;
 }

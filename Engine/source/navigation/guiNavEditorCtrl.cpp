@@ -488,11 +488,11 @@ void GuiNavEditorCtrl::updateGuiInfo()
 {
 }
 
-void GuiNavEditorCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiNavEditorCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    PROFILE_SCOPE(GuiNavEditorCtrl_OnRender);
 
-   Parent::onRender(offset, updateRect);
+   Parent::onRender(offset, updateRect, manager);
    return;
 }
 

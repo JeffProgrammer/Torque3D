@@ -899,11 +899,11 @@ void GuiRiverEditorCtrl::updateGuiInfo()
    // nothing to do
 }
       
-void GuiRiverEditorCtrl::onRender( Point2I offset, const RectI &updateRect )
+void GuiRiverEditorCtrl::onRender( Point2I offset, const RectI &updateRect, GuiRenderManager* manager )
 {
    PROFILE_SCOPE( GuiRiverEditorCtrl_OnRender );
 
-   Parent::onRender( offset, updateRect );
+   Parent::onRender( offset, updateRect, manager );
    return;
 }
       

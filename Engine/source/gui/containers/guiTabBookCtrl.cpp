@@ -478,7 +478,7 @@ void GuiTabBookCtrl::onRightMouseUp( const GuiEvent& event )
 
 //-----------------------------------------------------------------------------
 
-void GuiTabBookCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiTabBookCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    RectI tabRect = mTabRect;
    tabRect.point += offset;
@@ -492,7 +492,7 @@ void GuiTabBookCtrl::onRender(Point2I offset, const RectI &updateRect)
    // Wipe it out
    GFX->getDrawUtil()->clearBitmapModulation();
 
-   Parent::onRender(offset, updateRect);
+   Parent::onRender(offset, updateRect, manager);
 
    // Clip to tab area
    RectI savedClipRect = GFX->getClipRect();

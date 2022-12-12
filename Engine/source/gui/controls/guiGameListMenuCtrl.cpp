@@ -57,7 +57,7 @@ GuiGameListMenuCtrl::~GuiGameListMenuCtrl()
    }
 }
 
-void GuiGameListMenuCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiGameListMenuCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    GuiGameListMenuProfile * profile = (GuiGameListMenuProfile *) mProfile;
 
@@ -162,7 +162,7 @@ void GuiGameListMenuCtrl::onRender(Point2I offset, const RectI &updateRect)
       onDebugRender(offset);
    }
 
-   renderChildControls(offset, updateRect);
+   renderChildControls(offset, updateRect, manager);
 }
 
 void GuiGameListMenuCtrl::onRenderListOption(Row* row, Point2I currentOffset)

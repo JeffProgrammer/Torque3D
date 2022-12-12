@@ -97,7 +97,7 @@ bool GuiGradientSwatchCtrl::onWake()
 	return true;
 }
 
-void GuiGradientSwatchCtrl::onRender( Point2I offset, const RectI &updateRect )
+void GuiGradientSwatchCtrl::onRender( Point2I offset, const RectI &updateRect, GuiRenderManager* manager )
 {
    bool highlight = mHighlighted;
 
@@ -272,7 +272,7 @@ void GuiGradientCtrl::inspectPostApply()
    Parent::inspectPostApply();
 }
 
-void GuiGradientCtrl::onRender(Point2I offset, const RectI& updateRect)
+void GuiGradientCtrl::onRender(Point2I offset, const RectI& updateRect, GuiRenderManager* manager)
 {
    if (mStateBlock.isNull())
    {
@@ -297,7 +297,7 @@ void GuiGradientCtrl::onRender(Point2I offset, const RectI& updateRect)
    }
    
    //render the children
-   renderChildControls( offset, updateRect);
+   renderChildControls( offset, updateRect, manager);
 }
 
 /// Function to invoke calls to draw the picker box and swatch controls

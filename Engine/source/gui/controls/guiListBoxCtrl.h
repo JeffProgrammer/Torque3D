@@ -127,7 +127,7 @@ public:
    virtual bool      onWake();
 
    // Rendering
-   virtual void      onRender( Point2I offset, const RectI &updateRect );
+   virtual void      onRender( Point2I offset, const RectI &updateRect, GuiRenderManager* manager );
    virtual void      onRenderItem(const RectI& itemRect, LBItem *item);
    void              drawBox( const Point2I &box, S32 size, ColorI &outlineColor, ColorI &boxColor );
    bool              renderTooltip( const Point2I &hoverPos, const Point2I& cursorPos, const char* tipText );

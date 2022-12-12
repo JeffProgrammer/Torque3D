@@ -50,7 +50,7 @@ public:
    DECLARE_CONOBJECT(GuiRenderTargetVizCtrl);
    GuiRenderTargetVizCtrl();
    bool onWake();
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 
    static void initPersistFields();
 };

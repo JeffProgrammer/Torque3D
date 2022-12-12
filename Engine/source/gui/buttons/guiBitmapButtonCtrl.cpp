@@ -537,16 +537,16 @@ void GuiBitmapButtonCtrl::onAction()
 
 //------------------------------------------------------------------------------
 
-void GuiBitmapButtonCtrl::onRender(Point2I offset, const RectI& updateRect)
+void GuiBitmapButtonCtrl::onRender(Point2I offset, const RectI& updateRect, GuiRenderManager* manager)
 {
    GFXTexHandle& texture = getTextureForCurrentState();
    if( texture )
    {
       renderButton( texture, offset, updateRect );
-      renderChildControls( offset, updateRect );
+      renderChildControls( offset, updateRect, manager );
    }
    else
-      Parent::onRender(offset, updateRect);
+      Parent::onRender(offset, updateRect, manager);
 }
 
 //------------------------------------------------------------------------------

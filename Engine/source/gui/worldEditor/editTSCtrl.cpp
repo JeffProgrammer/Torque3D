@@ -151,7 +151,7 @@ void EditTSCtrl::onRemove()
       mGizmo->deleteObject();
 }
 
-void EditTSCtrl::onRender(Point2I offset, const RectI &updateRect)
+void EditTSCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    // Perform possible mouse border move...
    if(mAllowBorderMove && smCamOrtho && !mLeftMouseDown && !mRightMouseDown && !mMouseLeft)
@@ -211,7 +211,7 @@ void EditTSCtrl::onRender(Point2I offset, const RectI &updateRect)
    }
 
    updateGuiInfo();
-   Parent::onRender(offset, updateRect);
+   Parent::onRender(offset, updateRect, manager);
 
 }
 

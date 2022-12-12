@@ -92,7 +92,7 @@ void GuiProgressCtrl::onPreRender()
    }
 }
 
-void GuiProgressCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiProgressCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    RectI ctrlRect(offset, getExtent());
 
@@ -109,9 +109,9 @@ void GuiProgressCtrl::onRender(Point2I offset, const RectI &updateRect)
    if (mProfile->mBorder)
       GFX->getDrawUtil()->drawRect(ctrlRect, mProfile->mBorderColor);
 
-   Parent::onRender( offset, updateRect );
+   Parent::onRender( offset, updateRect, manager );
 
    //render the children
-   renderChildControls(offset, updateRect);
+   renderChildControls(offset, updateRect, manager);
 }
 

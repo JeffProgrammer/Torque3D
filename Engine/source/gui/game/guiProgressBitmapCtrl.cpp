@@ -197,7 +197,7 @@ void GuiProgressBitmapCtrl::onPreRender()
 
 //-----------------------------------------------------------------------------
 
-void GuiProgressBitmapCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiProgressBitmapCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {	
 	RectI ctrlRect(offset, getExtent());
 	
@@ -253,10 +253,10 @@ void GuiProgressBitmapCtrl::onRender(Point2I offset, const RectI &updateRect)
    if (mProfile->mBorder)
       drawUtil->drawRect(ctrlRect, mProfile->mBorderColor);
 
-   Parent::onRender( offset, updateRect );
+   Parent::onRender( offset, updateRect, manager );
 
    //render the children
-   renderChildControls(offset, updateRect);
+   renderChildControls(offset, updateRect, manager);
 	
 }
 

@@ -55,7 +55,7 @@ class GuiHealthTextHud : public GuiControl
 public:  
    GuiHealthTextHud();  
   
-   void onRender(Point2I, const RectI &);  
+   void onRender(Point2I, const RectI &, GuiRenderManager*);  
    static void initPersistFields();  
    DECLARE_CONOBJECT(GuiHealthTextHud);  
    DECLARE_CATEGORY("Gui Game");  
@@ -141,7 +141,7 @@ void GuiHealthTextHud::initPersistFields()
   
 // ----------------------------------------------------------------------------  
   
-void GuiHealthTextHud::onRender(Point2I offset, const RectI &updateRect)  
+void GuiHealthTextHud::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)  
 {  
    // Must have a connection and player control object  
    GameConnection* conn = GameConnection::getConnectionToServer();  

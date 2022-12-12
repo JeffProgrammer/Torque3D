@@ -153,9 +153,9 @@ bool GuiFadeinBitmapCtrl::onWake()
 
 //-----------------------------------------------------------------------------
 
-void GuiFadeinBitmapCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiFadeinBitmapCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
-   Parent::onRender(offset, updateRect);
+   Parent::onRender(offset, updateRect, manager);
    
    // Set reference time if we haven't already.  This is done here when rendering
    // starts so that we begin counting from the time the control is actually

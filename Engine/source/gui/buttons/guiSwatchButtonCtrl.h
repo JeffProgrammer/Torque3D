@@ -58,7 +58,7 @@ class GuiSwatchButtonCtrl : public GuiButtonBaseCtrl
 
       // GuiButtonBaseCtrl
       virtual bool onWake();
-      virtual void onRender(Point2I offset, const RectI &updateRect);
+      virtual void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 
       static void initPersistFields();
 

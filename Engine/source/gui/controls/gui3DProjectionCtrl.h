@@ -57,7 +57,7 @@ public:
    Point2I                   mUseEyePoint;      /// optionally use the eye point. x != 0 -> horiz.  y != 0 -> vert.  
   
   
-   virtual void   onRender            (Point2I offset, const RectI &updateRect);  
+   virtual void   onRender            (Point2I offset, const RectI &updateRect, GuiRenderManager* manager);  
    virtual void   resizeDuringRender  ();  
   
    virtual bool   onWake              ();  

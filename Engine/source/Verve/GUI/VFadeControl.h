@@ -56,7 +56,7 @@ public:
 
     // Render Methods.
 
-    virtual void    onRender( Point2I pOffset, const RectI &pUpdateRect );
+    virtual void    onRender( Point2I pOffset, const RectI &pUpdateRect, GuiRenderManager* manager);
 
     // Console Declaration.
 

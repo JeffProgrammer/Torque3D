@@ -232,12 +232,12 @@ void GuiArrayCtrl::onRenderCell(Point2I offset, Point2I cell, bool selected, boo
 
 //-----------------------------------------------------------------------------
 
-void GuiArrayCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiArrayCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    // The unmodified offset which was passed into this method.
    const Point2I inOffset( offset );
 
-   //Parent::onRender( offset, updateRect );
+   //Parent::onRender( offset, updateRect, manager );
 
    // We render our fill, borders, and child controls ourself.
    // This allows us to render child controls after we render cells,
@@ -359,7 +359,7 @@ void GuiArrayCtrl::onRender(Point2I offset, const RectI &updateRect)
 
    // Done rendering cells.
    // Render child controls, if any, on top.
-   renderChildControls( inOffset, updateRect );
+   renderChildControls( inOffset, updateRect, manager );
 }
 
 //-----------------------------------------------------------------------------

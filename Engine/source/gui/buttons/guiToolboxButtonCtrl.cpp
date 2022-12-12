@@ -136,7 +136,7 @@ void GuiToolboxButtonCtrl::setHoverBitmap( StringTableEntry bitmapName )
 
 
 //-------------------------------------
-void GuiToolboxButtonCtrl::onRender(Point2I offset, const RectI& updateRect)
+void GuiToolboxButtonCtrl::onRender(Point2I offset, const RectI& updateRect, GuiRenderManager *manager)
 {
    // Only render the state rect (hover/down) if we're active
    if (mActive)
@@ -151,7 +151,7 @@ void GuiToolboxButtonCtrl::onRender(Point2I offset, const RectI& updateRect)
    // Now render the image
    if( mNormalBitmap )
    {
-      renderButton(mNormalBitmap, offset, updateRect );
+      renderButton(mNormalBitmap, offset, updateRect, manager );
       return;
    }
 
@@ -178,7 +178,7 @@ void GuiToolboxButtonCtrl::renderStateRect( GFXTexHandle &texture, const RectI& 
 
 //------------------------------------------------------------------------------
 
-void GuiToolboxButtonCtrl::renderButton(GFXTexHandle &texture, Point2I &offset, const RectI& updateRect)
+void GuiToolboxButtonCtrl::renderButton(GFXTexHandle &texture, Point2I &offset, const RectI& updateRect, GuiRenderManager *manager)
 {
    if (texture)
    {
@@ -189,7 +189,7 @@ void GuiToolboxButtonCtrl::renderButton(GFXTexHandle &texture, Point2I &offset, 
 
       GFX->getDrawUtil()->clearBitmapModulation();
       GFX->getDrawUtil()->drawBitmap(texture, finalOffset);
-      renderChildControls( offset, updateRect);
+      renderChildControls( offset, updateRect, manager);
    }
 }
 

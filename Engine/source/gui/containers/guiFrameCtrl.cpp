@@ -557,10 +557,10 @@ bool GuiFrameSetCtrl::onWake()
 }
 
 //-----------------------------------------------------------------------------
-void GuiFrameSetCtrl::onRender(Point2I offset, const RectI &updateRect )
+void GuiFrameSetCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager )
 {
 
-   Parent::onRender( offset, updateRect );
+   Parent::onRender( offset, updateRect, manager );
  
    drawDividers(offset);
 

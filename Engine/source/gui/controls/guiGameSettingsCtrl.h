@@ -230,7 +230,7 @@ public:
    GuiGameSettingsCtrl();
    ~GuiGameSettingsCtrl();
 
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 
    void onRenderListOption(Point2I currentOffset);
    void onRenderSliderOption(Point2I currentOffset);

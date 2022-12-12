@@ -53,7 +53,7 @@ public:
    virtual void onMouseDown(const GuiEvent &event);
    virtual void onMouseDragged(const GuiEvent &event);
 
-   virtual void onRender(Point2I offset, const RectI &updateRect);
+   virtual void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 };
 
 #endif

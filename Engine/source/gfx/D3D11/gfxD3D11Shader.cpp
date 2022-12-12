@@ -741,7 +741,7 @@ GFXD3D11Shader::~GFXD3D11Shader()
    //maybe add SAFE_RELEASE(mVertexCode) ?
 }
 
-bool GFXD3D11Shader::_init()
+bool GFXD3D11Shader::_init(bool skip)
 {
    PROFILE_SCOPE( GFXD3D11Shader_Init );
 

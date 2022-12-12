@@ -37,7 +37,7 @@ protected:
 public:
    DECLARE_CONOBJECT(GuiBorderButtonCtrl);
 
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 };
 
 IMPLEMENT_CONOBJECT(GuiBorderButtonCtrl);
@@ -55,7 +55,7 @@ ConsoleDocClass( GuiBorderButtonCtrl,
    "@ingroup GuiButtons\n"
 );
 
-void GuiBorderButtonCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiBorderButtonCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    if ( mProfile->mBorder > 0 )
    {
@@ -90,6 +90,6 @@ void GuiBorderButtonCtrl::onRender(Point2I offset, const RectI &updateRect)
       }
    }
 
-   renderChildControls( offset, updateRect );
+   renderChildControls( offset, updateRect, manager );
 }
 

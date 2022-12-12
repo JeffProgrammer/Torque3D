@@ -439,7 +439,7 @@ void GuiControl::onPreRender()
 
 //-----------------------------------------------------------------------------
 
-void GuiControl::onRender(Point2I offset, const RectI &updateRect)
+void GuiControl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    RectI ctrlRect(offset, getExtent());
 
@@ -452,7 +452,7 @@ void GuiControl::onRender(Point2I offset, const RectI &updateRect)
       renderBorder(ctrlRect, mProfile);
 
    // Render Children
-   renderChildControls(offset, updateRect);
+   renderChildControls(offset, updateRect, manager);
 }
 
 //-----------------------------------------------------------------------------
@@ -558,7 +558,7 @@ bool GuiControl::defaultTooltipRender( const Point2I &hoverPos, const Point2I &c
 
 //-----------------------------------------------------------------------------
 
-void GuiControl::renderChildControls(Point2I offset, const RectI &updateRect)
+void GuiControl::renderChildControls(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    // Save the current clip rect 
    // so we can restore it at the end of this method.
@@ -580,9 +580,18 @@ void GuiControl::renderChildControls(Point2I offset, const RectI &updateRect)
 
          if (childClip.intersect(clipRect))
          {
-            GFX->setClipRect( childClip );
-            GFX->setStateBlock(mDefaultGuiSB);
-            ctrl->onRender(childPosition, childClip);
+            RectI calculatedClip;
+            MatrixF projMatrix;
+            GFX->calcClipRect(childClip, projMatrix, calculatedClip);
+
+            GuiRenderInstClipRect* clipRectInst = manager->allocRenderInstClipRect();
+            clipRectInst->projMatrix = projMatrix;
+            clipRectInst->rect = calculatedClip;
+
+            GuiRenderInstStateBlock* stateBlockInst = manager->allocRenderInstStateBlock();
+            stateBlockInst->stateBlock = mDefaultGuiSB;
+
+            ctrl->onRender(childPosition, childClip, manager);
          }
       }
    }

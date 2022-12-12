@@ -1291,7 +1291,7 @@ void GuiMenuBar::onMouseUp(const GuiEvent &event)
    onAction();
 }
 
-void GuiMenuBar::onRender(Point2I offset, const RectI &updateRect)
+void GuiMenuBar::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    Point2I extent = getExtent();
 
@@ -1364,7 +1364,7 @@ void GuiMenuBar::onRender(Point2I offset, const RectI &updateRect)
       }
    }
 
-   renderChildControls(offset, updateRect);
+   renderChildControls(offset, updateRect, manager);
 }
 
 void GuiMenuBar::buildWindowAcceleratorMap(WindowInputGenerator &inputGenerator)

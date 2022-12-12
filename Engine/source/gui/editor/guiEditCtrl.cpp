@@ -711,7 +711,7 @@ void GuiEditCtrl::onPreRender()
 
 //-----------------------------------------------------------------------------
 
-void GuiEditCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiEditCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {   
    Point2I ctOffset;
    Point2I cext;
@@ -756,7 +756,7 @@ void GuiEditCtrl::onRender(Point2I offset, const RectI &updateRect)
       }
    }
 
-   renderChildControls(offset, updateRect);
+   renderChildControls(offset, updateRect, manager);
    
    // Draw selection rectangle.
    
@@ -2870,7 +2870,7 @@ class GuiEditorRuler : public GuiControl
          mEditCtrl->startMouseGuideDrag( axis, guideIndex );
       }
       
-      void onRender(Point2I offset, const RectI &updateRect)
+      void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
       {
          GFX->getDrawUtil()->drawRectFill(updateRect, ColorI::WHITE);
          

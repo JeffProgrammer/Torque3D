@@ -52,7 +52,7 @@ class GuiEaseViewCtrl : public GuiControl
       bool onWake();
       void onSleep();
 
-      void onRender( Point2I, const RectI &);
+      void onRender( Point2I, const RectI &, GuiRenderManager*);
       static void initPersistFields();
       
       DECLARE_CONOBJECT( GuiEaseViewCtrl );

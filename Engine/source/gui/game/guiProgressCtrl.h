@@ -52,7 +52,7 @@ public:
    virtual void setScriptValue(const char *value);
 
    void onPreRender();
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 };
 
 #endif

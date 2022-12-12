@@ -403,7 +403,7 @@ public:
 
 protected:
 
-   virtual bool _init();   
+   virtual bool _init(bool skip);   
 
    static const U32 smCompiledShaderTag;
 

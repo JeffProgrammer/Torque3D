@@ -61,9 +61,9 @@ bool GuiGameListOptionsCtrl::onAdd()
    return true;
 }
 
-void GuiGameListOptionsCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiGameListOptionsCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
-   Parent::onRender(offset, updateRect);
+   Parent::onRender(offset, updateRect, manager);
    GuiGameListOptionsProfile * profile = (GuiGameListOptionsProfile *) mProfile;
 
    F32 xScale = (float) getWidth() / profile->getRowWidth();

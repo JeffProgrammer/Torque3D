@@ -93,7 +93,7 @@ public:
    /// \param enabled [optional] If this row is initially enabled. Default true.
    void addRow(const char* label, const char* optionsList, bool wrapOptions, const char* callback, S32 icon = -1, S32 yPad = 0, bool enabled = true);
 
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 
    /// Callback when the mouse button is released.
    ///

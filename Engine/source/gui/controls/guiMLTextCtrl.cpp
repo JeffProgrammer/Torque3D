@@ -429,9 +429,9 @@ void GuiMLTextCtrl::drawAtomText(bool sel, U32 start, U32 end, Atom *atom, Line 
 }
 
 //--------------------------------------------------------------------------
-void GuiMLTextCtrl::onRender(Point2I offset, const RectI& updateRect)
+void GuiMLTextCtrl::onRender(Point2I offset, const RectI& updateRect, GuiRenderManager* manager)
 {
-   Parent::onRender(offset, updateRect);
+   Parent::onRender(offset, updateRect, manager);
 
    GFXDrawUtil *drawer = GFX->getDrawUtil();
 

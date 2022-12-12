@@ -215,7 +215,7 @@ void afxSpellButton::setBitmap(const char *name, bool placeholder)
   setUpdate();
 }   
 
-void afxSpellButton::onRender(Point2I offset, const RectI& updateRect)
+void afxSpellButton::onRender(Point2I offset, const RectI& updateRect, GuiRenderManager* manager)
 {
   enum { NORMAL, HILIGHT, DEPRESSED, INACTIVE } state = NORMAL;
 
@@ -229,10 +229,10 @@ void afxSpellButton::onRender(Point2I offset, const RectI& updateRect)
   
   switch (state)
   {
-  case NORMAL:      renderButton(mTextureNormal, offset, updateRect); break;
-  case HILIGHT:     renderButton(mTextureHilight ? mTextureHilight : mTextureNormal, offset, updateRect); break;
-  case DEPRESSED:   renderButton(mTextureDepressed, offset, updateRect); break;
-  case INACTIVE:    renderButton(mTextureInactive ? mTextureInactive : mTextureNormal, offset, updateRect); break;
+  case NORMAL:      renderButton(mTextureNormal, offset, updateRect, manager); break;
+  case HILIGHT:     renderButton(mTextureHilight ? mTextureHilight : mTextureNormal, offset, updateRect, manager); break;
+  case DEPRESSED:   renderButton(mTextureDepressed, offset, updateRect, manager); break;
+  case INACTIVE:    renderButton(mTextureInactive ? mTextureInactive : mTextureNormal, offset, updateRect, manager); break;
   }
 }
 
@@ -258,7 +258,7 @@ void afxSpellButton::onDeleteNotify(SimObject* obj)
 // protected:
 
 void afxSpellButton::renderButton(GFXTexHandle &texture, Point2I &offset, 
-                                  const RectI& updateRect)
+                                  const RectI& updateRect, GuiRenderManager *manager)
 {
   if (texture)
   {
@@ -277,10 +277,10 @@ void afxSpellButton::renderButton(GFXTexHandle &texture, Point2I &offset,
       }
     }
 
-    renderChildControls( offset, updateRect);
+    renderChildControls( offset, updateRect, manager);
   }
   else
-    Parent::onRender(offset, updateRect);
+    Parent::onRender(offset, updateRect, manager);
 }
 
 void afxSpellButton::update_bitmap()

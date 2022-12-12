@@ -51,7 +51,7 @@ class GuiSpeedometerHud : public GuiBitmapCtrl
 public:
    GuiSpeedometerHud();
 
-   void onRender( Point2I, const RectI &);
+   void onRender( Point2I, const RectI &, GuiRenderManager*);
    static void initPersistFields();
    DECLARE_CONOBJECT( GuiSpeedometerHud );
    DECLARE_CATEGORY( "Gui Game" );
@@ -149,7 +149,7 @@ void GuiSpeedometerHud::initPersistFields()
    Gui onRender method.
    Renders an analog speedometer needle over a specified bitmap background.
 */
-void GuiSpeedometerHud::onRender(Point2I offset, const RectI &updateRect)
+void GuiSpeedometerHud::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    // Must have a connection
    GameConnection* conn = GameConnection::getConnectionToServer();
@@ -166,7 +166,7 @@ void GuiSpeedometerHud::onRender(Point2I offset, const RectI &updateRect)
       if(!vehicle) return;
    }
 
-   Parent::onRender(offset,updateRect);
+   Parent::onRender(offset,updateRect, manager);
 
    // Use the vehicle's velocity as its speed...
    mSpeed = vehicle->getVelocity().len();

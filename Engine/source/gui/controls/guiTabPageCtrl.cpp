@@ -206,10 +206,10 @@ void GuiTabPageCtrl::selectWindow(void)
    setFirstResponder(mFirstResponder);
 }
 
-void GuiTabPageCtrl::onRender(Point2I offset,const RectI &updateRect)
+void GuiTabPageCtrl::onRender(Point2I offset, const RectI& updateRect, GuiRenderManager* manager)
 {
    // Call directly into GuiControl to skip the GuiTextCtrl parent render
-   GuiControl::onRender( offset, updateRect );
+   GuiControl::onRender(offset, updateRect, manager);
 }
 
 void GuiTabPageCtrl::inspectPostApply()

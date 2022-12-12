@@ -169,7 +169,7 @@ void VEditorButton::onMouseEvent( const char *pEventName, const GuiEvent &pEvent
 
 //-----------------------------------------------------------------------------
 
-void VEditorButton::onRender( Point2I offset, const RectI& updateRect )
+void VEditorButton::onRender(Point2I offset, const RectI& updateRect, GuiRenderManager* manager)
 {
     // Fetch Texture.
     GFXTexHandle texture = getTextureForCurrentState();
@@ -201,7 +201,7 @@ void VEditorButton::onRender( Point2I offset, const RectI& updateRect )
     GFX->getDrawUtil()->setBitmapModulation( mProfile->mFontColor );
     renderJustifiedText( offset + mProfile->mTextOffset, getExtent(), mButtonText );
 
-    renderChildControls( offset, updateRect);
+    renderChildControls(offset, updateRect, manager);
 }
 
 //-----------------------------------------------------------------------------

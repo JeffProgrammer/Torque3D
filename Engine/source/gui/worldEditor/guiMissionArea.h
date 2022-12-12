@@ -123,7 +123,7 @@ public:
    static void initPersistFields();
 
    // GuiControl
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
    bool onWake();
    void onSleep();
 

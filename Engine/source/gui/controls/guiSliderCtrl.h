@@ -103,7 +103,7 @@ class GuiSliderCtrl : public GuiControl
       void setScriptValue(const char *val) { setValue(dAtof(val)); }
       void setValue(F32 val, bool doCallback=false);
 
-      void onRender(Point2I offset, const RectI &updateRect);
+      void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
       
       virtual bool resize( const Point2I& newSize, const Point2I& newExtent );
       virtual void parentResized( const RectI& oldParentRect, const RectI& newParentRect );

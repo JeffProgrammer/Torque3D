@@ -160,14 +160,14 @@ void GameTSCtrl::onMouseMove(const GuiEvent &evt)
    }
 }
 
-void GameTSCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GameTSCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    // check if should bother with a render
    GameConnection * con = GameConnection::getConnectionToServer();
    bool skipRender = !con || (con->getWhiteOut() >= 1.f) || (con->getDamageFlash() >= 1.f) || (con->getBlackOut() >= 1.f);
 
    if(!skipRender || true)
-      Parent::onRender(offset, updateRect);
+      Parent::onRender(offset, updateRect, manager);
 }
 
 //--------------------------------------------------------------------------

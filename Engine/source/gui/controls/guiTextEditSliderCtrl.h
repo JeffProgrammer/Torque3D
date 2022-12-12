@@ -72,7 +72,7 @@ public:
    virtual bool onMouseWheelDown(const GuiEvent &event);
 
    virtual void onPreRender();
-   virtual void onRender(Point2I offset, const RectI &updateRect);
+   virtual void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 
 protected:
 

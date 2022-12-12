@@ -133,7 +133,7 @@ class GuiTabBookCtrl : public GuiContainer
       /// @{
        
       bool onWake();
-      void onRender( Point2I offset, const RectI &updateRect );
+      void onRender( Point2I offset, const RectI &updateRect, GuiRenderManager* manager );
       
       /// @}
 

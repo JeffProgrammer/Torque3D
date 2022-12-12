@@ -711,11 +711,11 @@ void GuiRoadEditorCtrl::updateGuiInfo()
    // nothing to do
 }
       
-void GuiRoadEditorCtrl::onRender( Point2I offset, const RectI &updateRect )
+void GuiRoadEditorCtrl::onRender( Point2I offset, const RectI &updateRect, GuiRenderManager* manager )
 {
    PROFILE_SCOPE( GuiRoadEditorCtrl_OnRender );
 
-   Parent::onRender( offset, updateRect );
+   Parent::onRender( offset, updateRect, manager );
    return;
 }
       

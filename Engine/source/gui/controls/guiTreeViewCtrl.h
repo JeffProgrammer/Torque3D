@@ -619,7 +619,7 @@ class GuiTreeViewCtrl : public GuiArrayCtrl
 
       // GuiArrayCtrl
       void onRenderCell(Point2I offset, Point2I cell, bool, bool);
-      void onRender(Point2I offset, const RectI &updateRect);
+      void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
       
       bool renderTooltip( const Point2I &hoverPos, const Point2I& cursorPos, const char* tipText );
 

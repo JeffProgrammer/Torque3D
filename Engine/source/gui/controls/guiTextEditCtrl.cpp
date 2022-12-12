@@ -1189,7 +1189,7 @@ void GuiTextEditCtrl::onLoseFirstResponder()
    Parent::onLoseFirstResponder();
 }
 
-void GuiTextEditCtrl::onRender( Point2I offset, const RectI &updateRect )
+void GuiTextEditCtrl::onRender( Point2I offset, const RectI &updateRect, GuiRenderManager* manager )
 {
    RectI ctrlRect( offset, getExtent() );
 

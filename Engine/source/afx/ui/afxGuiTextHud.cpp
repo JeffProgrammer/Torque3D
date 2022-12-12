@@ -98,7 +98,7 @@ void afxGuiTextHud::initPersistFields()
 /// is used.
 ///
 /// @param   updateRect   Extents of control.
-void afxGuiTextHud::onRender( Point2I, const RectI &updateRect)
+void afxGuiTextHud::onRender(Point2I, const RectI &updateRect, GuiRenderManager* manager)
 {
    // Background fill first
    if (mShowFill)

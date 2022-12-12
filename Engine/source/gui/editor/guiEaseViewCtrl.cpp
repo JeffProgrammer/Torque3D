@@ -77,7 +77,7 @@ void GuiEaseViewCtrl::onSleep()
 
 //-----------------------------------------------------------------------------
 
-void GuiEaseViewCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiEaseViewCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    const F32 W = getExtent().x;
    const F32 H = getExtent().y;

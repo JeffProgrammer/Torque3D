@@ -35,7 +35,7 @@ public:
    GuiToggleButtonCtrl();
 
    virtual void onPreRender();
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 };
 
 #endif //_GUITOGGLEBUTTONCTRL_H_

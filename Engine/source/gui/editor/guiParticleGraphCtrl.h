@@ -110,7 +110,7 @@ public:
    //Parental methods
    bool onWake();
 
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
    bool renderGraphTooltip(Point2I cursorPos, StringTableEntry tooltip);
 
    // Graph interface

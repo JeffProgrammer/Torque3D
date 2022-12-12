@@ -45,7 +45,7 @@ public:
 	void onMouseDown(const GuiEvent &);
 	void onRightMouseDown(const GuiEvent &);
    void onMouseDragged(const GuiEvent &event);
-	void onRender(Point2I offset, const RectI &updateRect);
+	void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 	bool onWake();
 protected:
 	StringTableEntry  mColorFunction;
@@ -121,7 +121,7 @@ public:
    GuiGradientCtrl();
 
    static void initPersistFields();
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
    bool mShowReticle;       ///< Show reticle on render
    /// @name Color Value Functions
    /// @{

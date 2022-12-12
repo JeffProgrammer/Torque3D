@@ -101,9 +101,9 @@ void GuiMaterialCtrl::inspectPostApply()
    Parent::inspectPostApply();
 }
 
-void GuiMaterialCtrl::onRender( Point2I offset, const RectI &updateRect )
+void GuiMaterialCtrl::onRender( Point2I offset, const RectI &updateRect, GuiRenderManager* manager )
 {
-   Parent::onRender( offset, updateRect );
+   Parent::onRender( offset, updateRect, manager );
 
    if ( !mMaterialInst )
       return;

@@ -1046,7 +1046,7 @@ void GuiScrollCtrl::scrollByMouseWheel( const GuiEvent &event )
 
 //-----------------------------------------------------------------------------
 
-void GuiScrollCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiScrollCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    // draw content controls
    // create a rect to intersect with the updateRect
@@ -1054,7 +1054,7 @@ void GuiScrollCtrl::onRender(Point2I offset, const RectI &updateRect)
    contentRect.intersect(updateRect);
    
    // Always call parent
-   Parent::onRender(offset, contentRect);
+   Parent::onRender(offset, contentRect, manager);
    
    if( mTextureObject )
    {

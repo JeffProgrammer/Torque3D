@@ -163,7 +163,7 @@ void GuiBitmapCtrl::setBitmapHandle(GFXTexHandle handle, bool resize)
    }
 }
 
-void GuiBitmapCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiBitmapCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    if (mBitmap)
    {
@@ -208,7 +208,7 @@ void GuiBitmapCtrl::onRender(Point2I offset, const RectI &updateRect)
       GFX->getDrawUtil()->drawRect(rect, mProfile->mBorderColor);
    }
 
-   renderChildControls(offset, updateRect);
+   renderChildControls(offset, updateRect, manager);
 }
 
 void GuiBitmapCtrl::setValue(S32 x, S32 y)

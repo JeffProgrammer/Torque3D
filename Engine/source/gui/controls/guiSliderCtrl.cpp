@@ -372,7 +372,7 @@ void GuiSliderCtrl::_updateThumb( F32 _value, bool snap, bool onWake, bool doCal
 
 //----------------------------------------------------------------------------
 
-void GuiSliderCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiSliderCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    Point2I pos(offset.x+mShiftPoint, offset.y);
    Point2I ext(getWidth() - mShiftExtent, getHeight());
@@ -385,7 +385,7 @@ void GuiSliderCtrl::onRender(Point2I offset, const RectI &updateRect)
 
       drawUtil->drawRectFill(RectI(offset.x, offset.y, getWidth() * mValue, getHeight()), mFillBarColor);
 
-      renderChildControls(offset, updateRect);
+      renderChildControls(offset, updateRect, manager);
       return;
    }
 
@@ -525,7 +525,7 @@ void GuiSliderCtrl::onRender(Point2I offset, const RectI &updateRect)
     	drawUtil->setBitmapModulation(mProfile->mFontColor);
     	drawUtil->drawText(mProfile->mFont, textStart, buf, mProfile->mFontColors);
    }
-   renderChildControls(offset, updateRect);
+   renderChildControls(offset, updateRect, manager);
 }
 
 //----------------------------------------------------------------------------

@@ -57,7 +57,7 @@ public:
    bool onAdd();
 
    static void initPersistFields();
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
    DECLARE_CONOBJECT(guiAnimBitmapCtrl);
    DECLARE_CATEGORY("Gui Images");
    DECLARE_DESCRIPTION("A control that clips a bitmap based on %.");

@@ -109,7 +109,7 @@ public:
    virtual void onMouseDragged(const GuiEvent &event);
 
    bool onAdd();
-   void onRender(Point2I offset, const RectI &updateRect );
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 protected:
    /* member variables */
    Vector<S32> mColumnOffsets;

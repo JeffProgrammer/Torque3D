@@ -172,7 +172,7 @@ class GuiRolloutCtrl : public GuiTickCtrl
       void setCanCollapse( bool value ) { mCanCollapse = value; }
 
       // Control Rendering
-      virtual void onRender(Point2I offset, const RectI &updateRect);
+      virtual void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
       bool onAdd();
 };
 

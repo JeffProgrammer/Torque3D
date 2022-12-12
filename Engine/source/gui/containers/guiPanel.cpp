@@ -81,7 +81,7 @@ GuiPanel::~GuiPanel()
 IMPLEMENT_CONOBJECT(GuiPanel);
 
 
-void GuiPanel::onRender(Point2I offset, const RectI &updateRect)
+void GuiPanel::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    if ( !mProfile->mOpaque )
    {
@@ -109,5 +109,5 @@ void GuiPanel::onRender(Point2I offset, const RectI &updateRect)
       PrimBuild::end();
    }
 
-   Parent::onRender( offset, updateRect );
+   Parent::onRender( offset, updateRect, manager );
 }

@@ -193,7 +193,7 @@ void GuiTheoraCtrl::onSleep()
 
 //-----------------------------------------------------------------------------
 
-void GuiTheoraCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiTheoraCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    const RectI rect(offset, getBounds().extent);
 
@@ -236,7 +236,7 @@ void GuiTheoraCtrl::onRender(Point2I offset, const RectI &updateRect)
 	else
  		GFX->getDrawUtil()->drawRectFill(rect, mBackgroundColor); // black rect
 
-	renderChildControls(offset, updateRect);
+	renderChildControls(offset, updateRect, manager);
 }
 
 //-----------------------------------------------------------------------------

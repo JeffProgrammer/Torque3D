@@ -80,8 +80,7 @@ bool GuiButtonCtrl::onWake()
 
 //-----------------------------------------------------------------------------
 
-void GuiButtonCtrl::onRender(Point2I      offset,
-                             const RectI& updateRect)
+void GuiButtonCtrl::onRender(Point2I offset, const RectI& updateRect, GuiRenderManager* manager)
 {
    bool highlight = mHighlighted;
    bool depressed = mDepressed;
@@ -121,6 +120,6 @@ void GuiButtonCtrl::onRender(Point2I      offset,
    renderJustifiedText( textPos, getExtent(), mButtonText );
 
    //render the children
-   renderChildControls( offset, updateRect);
+   renderChildControls( offset, updateRect, manager);
 }
 

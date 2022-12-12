@@ -128,7 +128,7 @@ void GuiConsoleTextCtrl::onPreRender()
    calcResize();
 }
 
-void GuiConsoleTextCtrl::onRender( Point2I offset, const RectI &updateRect )
+void GuiConsoleTextCtrl::onRender( Point2I offset, const RectI &updateRect, GuiRenderManager* manager )
 {
    RectI ctrlRect( offset, getExtent() );
 
@@ -160,7 +160,7 @@ void GuiConsoleTextCtrl::onRender( Point2I offset, const RectI &updateRect )
    }
 
    // render the child controlsmResult
-   renderChildControls(offset, updateRect);
+   renderChildControls(offset, updateRect, manager);
 }
 
 const char *GuiConsoleTextCtrl::getScriptValue()

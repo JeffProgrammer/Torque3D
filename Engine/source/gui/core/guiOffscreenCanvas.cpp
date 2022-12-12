@@ -198,8 +198,10 @@ void GuiOffscreenCanvas::renderFrame(bool preRenderOnly, bool bufferSwap /* = tr
          
          GFX->setClipRect( contentRect );
          GFX->setStateBlock(mDefaultGuiSB);
-         
-         contentCtrl->onRender(contentCtrl->getPosition(), contentRect);
+
+         // TODO
+         GuiRenderManager* manager = nullptr;
+         contentCtrl->onRender(contentCtrl->getPosition(), contentRect, manager);
       }
 
       // Fill Blue if no Dialogs

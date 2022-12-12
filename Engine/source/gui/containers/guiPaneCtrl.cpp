@@ -183,7 +183,7 @@ bool GuiPaneControl::resize(const Point2I &newPosition, const Point2I &newExtent
 
 //-----------------------------------------------------------------------------
 
-void GuiPaneControl::onRender(Point2I offset, const RectI &updateRect)
+void GuiPaneControl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    // Render our awesome little doogong
    if(mProfile->mBitmapArrayRects.size() >= 2 && mCollapsable)
@@ -271,7 +271,7 @@ void GuiPaneControl::onRender(Point2I offset, const RectI &updateRect)
 
    // Draw child controls if appropriate
    if(!mCollapsed)
-      renderChildControls(offset, updateRect);
+      renderChildControls(offset, updateRect, manager);
 }
 
 //-----------------------------------------------------------------------------

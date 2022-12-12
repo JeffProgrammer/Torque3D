@@ -124,7 +124,7 @@ bool GuiParticleGraphCtrl::onWake()
    return true;
 }
 
-void GuiParticleGraphCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiParticleGraphCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    // Fetch Draw Utility.
    GFXDrawUtil* pDrawUtil = GFX->getDrawUtil();

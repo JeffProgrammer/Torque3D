@@ -567,7 +567,7 @@ Point2I GuiMissionAreaCtrl::convertOrigin(const Point2I &pos)
    return pt;
 }
 
-void GuiMissionAreaCtrl::onRender(Point2I offset, const RectI & updateRect)
+void GuiMissionAreaCtrl::onRender(Point2I offset, const RectI & updateRect, GuiRenderManager* manager)
 {
 
    RectI rect(offset, getExtent());
@@ -673,7 +673,7 @@ void GuiMissionAreaCtrl::onRender(Point2I offset, const RectI & updateRect)
    getScreenMissionArea(iArea);
    drawHandles(iArea);
 
-   renderChildControls(offset, updateRect);
+   renderChildControls(offset, updateRect, manager);
 }
 
 //------------------------------------------------------------------------------

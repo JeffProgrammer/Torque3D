@@ -59,7 +59,7 @@ protected:
    /// Calculate extent based on icon size, text width, and layout options.
    bool mAutoSize;          
 
-   void renderButton( Point2I &offset, const RectI& updateRect);
+   void renderButton( Point2I &offset, const RectI& updateRect, GuiRenderManager* manager);
 
    enum 
    {
@@ -111,7 +111,7 @@ public:
    //  Used to set the optional error bitmap
    void setErrorBitmap(const char *name);
 
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 
    void onImageChanged() {}
 };

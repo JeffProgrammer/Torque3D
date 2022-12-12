@@ -53,7 +53,7 @@ void GuiBitmapBarCtrl::initPersistFields()
    removeField("wrap");
 }
 
-void GuiBitmapBarCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiBitmapBarCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    if (mBitmap)
    {
@@ -97,5 +97,5 @@ void GuiBitmapBarCtrl::onRender(Point2I offset, const RectI &updateRect)
       GFX->getDrawUtil()->drawRect(rect, mProfile->mBorderColor);
    }
 
-   renderChildControls(offset, updateRect);
+   renderChildControls(offset, updateRect, manager);
 }

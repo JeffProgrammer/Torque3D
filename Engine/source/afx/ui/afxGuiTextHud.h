@@ -72,7 +72,7 @@ public:
    afxGuiTextHud();
 
    // GuiControl
-   virtual void onRender(Point2I offset, const RectI &updateRect);
+   virtual void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 
    static void initPersistFields();
    static void addTextItem(const Point3F& pos, const char* text, LinearColorF& color, SceneObject* obj=0);

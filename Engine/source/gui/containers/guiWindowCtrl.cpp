@@ -1298,10 +1298,10 @@ bool GuiWindowCtrl::onKeyDown(const GuiEvent &event)
 
 //-----------------------------------------------------------------------------
 
-void GuiWindowCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiWindowCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    if( !mProfile || mProfile->mFont == NULL || mProfile->mBitmapArrayRects.size() < NumBitmaps )
-      return Parent::onRender( offset, updateRect );
+      return Parent::onRender( offset, updateRect, manager );
 
    // Draw the outline
    RectI winRect;
@@ -1452,7 +1452,7 @@ void GuiWindowCtrl::onRender(Point2I offset, const RectI &updateRect)
    if( !mMinimized )
    {
       // Render the children
-      renderChildControls( offset, updateRect );
+      renderChildControls( offset, updateRect, manager );
    }
 }
 

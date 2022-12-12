@@ -49,11 +49,13 @@
 #ifndef _LANG_H_
 #include "i18n/lang.h"
 #endif
+#ifndef _GUI_GUI_RENDER_H_
+#include "gui/render/guiRender.h"
+#endif
 
 class GuiCanvas;
 class GuiEditCtrl;
 class GuiWindowCtrl;
-
 
 DECLARE_SCOPE( GuiAPI );
 
@@ -496,12 +498,12 @@ class GuiControl : public SimGroup
       /// Called when this control is to render itself
       /// @param   offset   The location this control is to begin rendering
       /// @param   updateRect   The screen area this control has drawing access to
-      virtual void onRender(Point2I offset, const RectI &updateRect);
+      virtual void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
       
       /// Called when this control should render its children
       /// @param   offset   The location this control is to begin rendering
       /// @param   updateRect   The screen area this control has drawing access to
-      void renderChildControls(Point2I offset, const RectI &updateRect);
+      void renderChildControls(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
       
       /// Sets the area (local coordinates) this control wants refreshed each frame
       /// @param   pos   UpperLeft point on rectangle of refresh area

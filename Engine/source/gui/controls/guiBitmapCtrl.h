@@ -69,7 +69,7 @@ class GuiBitmapCtrl : public GuiControl
 
       void updateSizing();
 
-      void onRender(Point2I offset, const RectI &updateRect);
+      void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
       void setValue(S32 x, S32 y);
 
       DECLARE_CONOBJECT( GuiBitmapCtrl );

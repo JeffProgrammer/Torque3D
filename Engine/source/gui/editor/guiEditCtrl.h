@@ -259,7 +259,7 @@ class GuiEditCtrl : public GuiControl
       void              drawNut(const Point2I &nut, ColorI &outlineColor, ColorI &nutColor);
       void              drawNuts(RectI &box, ColorI &outlineColor, ColorI &nutColor);
       void              onPreRender();
-      void              onRender(Point2I offset, const RectI &updateRect);
+      void              onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
       void              addNewControl(GuiControl *ctrl);
       void              setCurrentAddSet(GuiControl *ctrl, bool clearSelection = true);
       GuiControl*       getCurrentAddSet();

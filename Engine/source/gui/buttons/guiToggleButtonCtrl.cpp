@@ -63,8 +63,7 @@ void GuiToggleButtonCtrl::onPreRender()
       mStateOn = Con::getBoolVariable( mConsoleVariable );
 }
 
-void GuiToggleButtonCtrl::onRender(Point2I      offset,
-                                   const RectI& updateRect)
+void GuiToggleButtonCtrl::onRender(Point2I offset, const RectI& updateRect, GuiRenderManager* manager)
 {
    bool highlight = mHighlighted;
    bool depressed = mDepressed;
@@ -104,5 +103,5 @@ void GuiToggleButtonCtrl::onRender(Point2I      offset,
    renderJustifiedText(textPos, getExtent(), mButtonText);
 
    //render the children
-   renderChildControls( offset, updateRect);
+   renderChildControls(offset, updateRect, manager);
 }

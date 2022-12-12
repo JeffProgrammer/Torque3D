@@ -60,7 +60,7 @@ public:
    virtual void onMiddleMouseUp(const GuiEvent &evt);
 
    void onMouseMove(const GuiEvent &evt);
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 
    virtual bool onAdd();
 };

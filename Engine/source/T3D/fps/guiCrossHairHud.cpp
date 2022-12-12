@@ -53,7 +53,7 @@ protected:
 public:
    GuiCrossHairHud();
 
-   void onRender( Point2I, const RectI &);
+   void onRender( Point2I, const RectI &, GuiRenderManager*);
    static void initPersistFields();
    DECLARE_CONOBJECT( GuiCrossHairHud );
    DECLARE_CATEGORY( "Gui Game" );
@@ -111,7 +111,7 @@ void GuiCrossHairHud::initPersistFields()
 
 //-----------------------------------------------------------------------------
 
-void GuiCrossHairHud::onRender(Point2I offset, const RectI &updateRect)
+void GuiCrossHairHud::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    // Must have a connection and player control object
    GameConnection* conn = GameConnection::getConnectionToServer();
@@ -122,7 +122,7 @@ void GuiCrossHairHud::onRender(Point2I offset, const RectI &updateRect)
       return;
 
    // Parent render.
-   Parent::onRender(offset,updateRect);
+   Parent::onRender(offset,updateRect,manager);
 
    // Get control camera info
    MatrixF cam;

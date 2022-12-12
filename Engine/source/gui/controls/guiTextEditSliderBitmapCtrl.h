@@ -72,7 +72,7 @@ public:
 	
 	bool onWake();
    virtual void onPreRender();
-   virtual void onRender(Point2I offset, const RectI &updateRect);
+   virtual void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 
 	void setBitmap(const char *name);
 

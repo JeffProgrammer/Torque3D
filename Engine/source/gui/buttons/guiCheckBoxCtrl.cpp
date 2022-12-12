@@ -93,7 +93,7 @@ bool GuiCheckBoxCtrl::onWake()
 
 //-----------------------------------------------------------------------------
 
-void GuiCheckBoxCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiCheckBoxCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    // RLP/Sickhead NOTE: New/experimental code
    // for notifying the GuiCheckBoxCtrl of changes
@@ -145,7 +145,7 @@ void GuiCheckBoxCtrl::onRender(Point2I offset, const RectI &updateRect)
                           mButtonText);
    }
    //render the children
-   renderChildControls(offset, updateRect);
+   renderChildControls(offset, updateRect, manager);
 }
 
 //-----------------------------------------------------------------------------

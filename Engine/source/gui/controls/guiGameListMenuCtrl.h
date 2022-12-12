@@ -266,7 +266,7 @@ public:
    GuiGameListMenuCtrl();
    ~GuiGameListMenuCtrl();
 
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 
    void onRenderListOption(Row* row, Point2I currentOffset);
    void onRenderSliderOption(Row* row, Point2I currentOffset);

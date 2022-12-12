@@ -268,12 +268,12 @@ void VTimeLineControl::onPreRender( void )
     setUpdate();
 }
 
-void VTimeLineControl::onRender( Point2I offset, const RectI &updateRect )
+void VTimeLineControl::onRender( Point2I offset, const RectI &updateRect, GuiRenderManager* manager )
 {
     if ( !mController )
     {
         // Default Render.
-        Parent::onRender( offset, updateRect );
+        Parent::onRender( offset, updateRect, manager );
 
         // Quit.
         return;
@@ -318,7 +318,7 @@ void VTimeLineControl::onRender( Point2I offset, const RectI &updateRect )
     }
 
     // Render Children
-    renderChildControls( offset, updateRect );
+    renderChildControls( offset, updateRect, manager );
 
     if ( mSelection.Active )
     {

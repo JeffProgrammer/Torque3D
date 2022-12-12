@@ -518,7 +518,7 @@ void GuiRolloutCtrl::processTick()
 
 //-----------------------------------------------------------------------------
 
-void GuiRolloutCtrl::onRender( Point2I offset, const RectI &updateRect )
+void GuiRolloutCtrl::onRender( Point2I offset, const RectI &updateRect, GuiRenderManager* manager )
 {
    if( !mProfile || mProfile->mFont == NULL )
       return;
@@ -570,7 +570,7 @@ void GuiRolloutCtrl::onRender( Point2I offset, const RectI &updateRect )
          pChild->setVisible( true );
      }
    }
-   renderChildControls( offset, updateRect );
+   renderChildControls( offset, updateRect, manager );
 
    // Render our border should we have it specified in our profile.
    renderBorder(worldBounds, mProfile);

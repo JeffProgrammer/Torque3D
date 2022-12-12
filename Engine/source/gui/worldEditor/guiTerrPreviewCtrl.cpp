@@ -216,7 +216,7 @@ void GuiTerrPreviewCtrl::onPreRender()
    setUpdate();
 }
 
-void GuiTerrPreviewCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiTerrPreviewCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    CameraQuery query;
 	GameProcessCameraQuery(&query);
@@ -353,6 +353,6 @@ void GuiTerrPreviewCtrl::onRender(Point2I offset, const RectI &updateRect)
    PrimBuild::end();
 
 
-   renderChildControls(offset, updateRect);
+   renderChildControls(offset, updateRect, manager);
 }
 

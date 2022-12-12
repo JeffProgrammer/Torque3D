@@ -124,7 +124,7 @@ public:
 
    void onPreRender();
    void _internalRender(RectI guiViewport, RectI renderViewport, Frustum &frustum);
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
    virtual bool processCameraQuery(CameraQuery *query);
 
    /// Subclasses can override this to perform 3D rendering.

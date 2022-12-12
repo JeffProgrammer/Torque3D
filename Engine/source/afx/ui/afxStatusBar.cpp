@@ -49,7 +49,7 @@ class afxStatusBar : public GuiControl, public afxProgressBase
 public:
   /*C*/             afxStatusBar();
 
-  virtual void      onRender(Point2I, const RectI&);
+  virtual void      onRender(Point2I, const RectI&, GuiRenderManager*);
 
   void              setFraction(F32 frac);
   F32               getFraction() const { return fraction; }
@@ -147,7 +147,7 @@ void afxStatusBar::initPersistFields()
 //~~~~~~~~~~~~~~~~~~~~//~~~~~~~~~~~~~~~~~~~~//~~~~~~~~~~~~~~~~~~~~//
 
 
-void afxStatusBar::onRender(Point2I offset, const RectI &updateRect)
+void afxStatusBar::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
   if (!shape)
     return;

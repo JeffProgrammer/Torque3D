@@ -151,7 +151,7 @@ class GuiPopUpMenuCtrlEx : public GuiTextCtrl
    void sortID(); //  Added
 	void addEntry(const char *buf, S32 id = -1, U32 scheme = 0);
    void addScheme(U32 id, ColorI fontColor, ColorI fontColorHL, ColorI fontColorSEL);
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
    void onAction();
    virtual void closePopUp();
    void clear();

@@ -69,7 +69,7 @@ public:
    GuiShapeNameHud();
 
    // GuiControl
-   virtual void onRender(Point2I offset, const RectI &updateRect);
+   virtual void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 
    static void initPersistFields();
    DECLARE_CONOBJECT( GuiShapeNameHud );
@@ -158,7 +158,7 @@ void GuiShapeNameHud::initPersistFields()
 /// is used.
 ///
 /// @param   updateRect   Extents of control.
-void GuiShapeNameHud::onRender( Point2I, const RectI &updateRect)
+void GuiShapeNameHud::onRender( Point2I, const RectI &updateRect, GuiRenderManager* manager)
 {
    // Background fill first
    if (mShowFill)

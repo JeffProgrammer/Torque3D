@@ -64,7 +64,7 @@ class GuiRoadEditorCtrl : public EditTSCtrl
 
       // GuiControl
       virtual void onSleep();
-      virtual void onRender(Point2I offset, const RectI &updateRect);
+      virtual void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 
       // EditTSCtrl      
 		bool onKeyDown(const GuiEvent& event);

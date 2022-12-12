@@ -210,7 +210,7 @@ bool guiAnimBitmapCtrl::ptSetFrameRanges(void *object, const char *index, const 
    return true;
 }
 
-void guiAnimBitmapCtrl::onRender(Point2I offset, const RectI &updateRect)
+void guiAnimBitmapCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    if (mBitmap)
    {
@@ -291,5 +291,5 @@ void guiAnimBitmapCtrl::onRender(Point2I offset, const RectI &updateRect)
       GFX->getDrawUtil()->drawRect(rect, mProfile->mBorderColor);
    }
 
-   renderChildControls(offset, updateRect);
+   renderChildControls(offset, updateRect, manager);
 }

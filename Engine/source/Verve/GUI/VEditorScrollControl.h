@@ -44,7 +44,7 @@ public:
 
     // Rendering.
 
-    void            onRender( Point2I pOffset, const RectI &pUpdateRect );
+    void            onRender( Point2I pOffset, const RectI &pUpdateRect, GuiRenderManager* manager );
 
     // Console Declaration.
 

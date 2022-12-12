@@ -43,12 +43,12 @@ GuiBackgroundCtrl::GuiBackgroundCtrl() : GuiControl()
 }
 
 //--------------------------------------------------------------------------
-void GuiBackgroundCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiBackgroundCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    if ( mDraw )
-      Parent::onRender( offset, updateRect );
+      Parent::onRender( offset, updateRect, manager );
 
-   renderChildControls(offset, updateRect);
+   renderChildControls(offset, updateRect, manager);
 }
 
 

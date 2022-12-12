@@ -152,7 +152,7 @@ bool GuiInspectorField::resize( const Point2I &newPosition, const Point2I &newEx
 
 //-----------------------------------------------------------------------------
 
-void GuiInspectorField::onRender( Point2I offset, const RectI &updateRect )
+void GuiInspectorField::onRender( Point2I offset, const RectI &updateRect, GuiRenderManager* manager )
 {
    RectI ctrlRect(offset, getExtent());
    
@@ -208,7 +208,7 @@ void GuiInspectorField::onRender( Point2I offset, const RectI &updateRect )
    }
 
    // Render Children...
-   renderChildControls(offset, updateRect);
+   renderChildControls(offset, updateRect, manager);
 
    // Render border...
    if ( mProfile->mBorder )

@@ -51,7 +51,7 @@ class GuiBitmapBorderCtrl : public GuiControl
 public:
    bool onWake();
    void onSleep();
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
    DECLARE_CONOBJECT(GuiBitmapBorderCtrl);
    DECLARE_CATEGORY( "Gui Images" );
    DECLARE_DESCRIPTION( "A control that renders a skinned border." );
@@ -128,9 +128,9 @@ void GuiBitmapBorderCtrl::onSleep()
    Parent::onSleep();
 }
 
-void GuiBitmapBorderCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiBitmapBorderCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
-   renderChildControls( offset, updateRect );
+   renderChildControls( offset, updateRect, manager );
    
    if( mBitmapBounds )
    {

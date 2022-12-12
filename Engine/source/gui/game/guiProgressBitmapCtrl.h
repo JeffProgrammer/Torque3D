@@ -75,7 +75,7 @@ class GuiProgressBitmapCtrl : public GuiTextCtrl
 
       // GuiTextCtrl.
       virtual void onPreRender();
-      virtual void onRender( Point2I offset, const RectI &updateRect );
+      virtual void onRender( Point2I offset, const RectI &updateRect, GuiRenderManager* manager );
       virtual bool onWake();
 
       DECLARE_CONOBJECT( GuiProgressBitmapCtrl );

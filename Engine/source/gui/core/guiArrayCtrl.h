@@ -89,7 +89,7 @@ public:
    virtual void onRenderColumnHeaders(Point2I offset, Point2I parentOffset, Point2I headerDim);
    virtual void onRenderRowHeader(Point2I offset, Point2I parentOffset, Point2I headerDim, Point2I cell);
    virtual void onRenderCell(Point2I offset, Point2I cell, bool selected, bool mouseOver);
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
    /// @}
 
    /// @name Mouse input methods

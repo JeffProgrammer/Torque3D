@@ -357,7 +357,7 @@ void GuiColorPickerCtrl::renderColorBox(RectI &bounds)
    }
 }
 
-void GuiColorPickerCtrl::onRender(Point2I offset, const RectI& updateRect)
+void GuiColorPickerCtrl::onRender(Point2I offset, const RectI& updateRect, GuiRenderManager* manager)
 {
    if (mStateBlock.isNull())
    {
@@ -432,7 +432,7 @@ void GuiColorPickerCtrl::onRender(Point2I offset, const RectI& updateRect)
    }
 
    //render the children
-   renderChildControls(offset, updateRect);
+   renderChildControls(offset, updateRect, manager);
 }
 
 void GuiColorPickerCtrl::setSelectorPos(const LinearColorF & color)

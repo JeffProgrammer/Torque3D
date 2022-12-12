@@ -37,7 +37,7 @@ public:
 
    void setBitmap(const char *name);
 
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 
    void onImageChanged() {}
 };

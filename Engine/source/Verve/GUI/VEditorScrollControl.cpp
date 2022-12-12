@@ -83,9 +83,9 @@ void VEditorScrollControl::onMouseEvent( const char *pEventName, const GuiEvent 
 //
 //-----------------------------------------------------------------------------
 
-void VEditorScrollControl::onRender( Point2I pOffset, const RectI &pUpdateRect )
+void VEditorScrollControl::onRender( Point2I pOffset, const RectI &pUpdateRect, GuiRenderManager* manager )
 {
-    Parent::onRender( pOffset, pUpdateRect );
+    Parent::onRender( pOffset, pUpdateRect, manager );
 
     const S32 offsetX = ( mHasVScrollBar ) ? mScrollBarThickness : 1;
     const S32 offsetY = ( mHasHScrollBar ) ? mScrollBarThickness : 1;

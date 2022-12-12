@@ -46,9 +46,9 @@ VFadeControl::VFadeControl( void ) :
 //
 //-----------------------------------------------------------------------------
 
-void VFadeControl::onRender( Point2I pOffset, const RectI &pUpdateRect )
+void VFadeControl::onRender( Point2I pOffset, const RectI &pUpdateRect, GuiRenderManager* manager )
 {
-    Parent::onRender( pOffset, pUpdateRect );
+    Parent::onRender( pOffset, pUpdateRect, manager );
 
     if ( mFadeType == k_TypeInvalid )
     {

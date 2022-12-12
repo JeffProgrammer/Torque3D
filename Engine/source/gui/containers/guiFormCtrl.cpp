@@ -242,7 +242,7 @@ bool GuiFormCtrl::resize(const Point2I &newPosition, const Point2I &newExtent)
    return true;
 }
 
-void GuiFormCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiFormCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    // Fill in the control's child area
    RectI boundsRect(offset, getExtent());
@@ -308,7 +308,7 @@ void GuiFormCtrl::onRender(Point2I offset, const RectI &updateRect)
    }
 
    // Render the children
-   renderChildControls(offset, updateRect);
+   renderChildControls(offset, updateRect, manager);
 }
 
 void GuiFormCtrl::onMouseMove(const GuiEvent &event)

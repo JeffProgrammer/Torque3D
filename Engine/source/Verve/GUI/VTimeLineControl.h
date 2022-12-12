@@ -72,7 +72,7 @@ public:
     // Rendering.
 
     void            onPreRender( void );
-    void            onRender( Point2I offset, const RectI &updateRect );
+    void            onRender( Point2I offset, const RectI &updateRect, GuiRenderManager* manager );
 
     // Console Declaration.
 

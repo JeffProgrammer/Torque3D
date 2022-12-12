@@ -78,7 +78,7 @@ public:
    void inspectPostApply();
    //rendering methods
    void onPreRender();
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
    void displayText( S32 xOffset, S32 yOffset );
 
    // resizing

@@ -172,7 +172,7 @@ void GuiFilterCtrl::onPreRender()
    }
 }
 
-void GuiFilterCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiFilterCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    Point2I pos = offset;
    Point2I ext = getExtent();
@@ -227,7 +227,7 @@ void GuiFilterCtrl::onRender(Point2I offset, const RectI &updateRect)
       GFX->getDrawUtil()->drawRectFill(knotRect, ColorI(255,0,0));
    }
 
-   renderChildControls(offset, updateRect);
+   renderChildControls(offset, updateRect, manager);
 }
 
 

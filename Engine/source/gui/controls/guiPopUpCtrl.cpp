@@ -861,7 +861,7 @@ const char *GuiPopUpMenuCtrl::getScriptValue()
 }
 
 //------------------------------------------------------------------------------
-void GuiPopUpMenuCtrl::onRender( Point2I offset, const RectI &updateRect )
+void GuiPopUpMenuCtrl::onRender( Point2I offset, const RectI &updateRect, GuiRenderManager* manager )
 {
    TORQUE_UNUSED(updateRect);
    Point2I localStart;

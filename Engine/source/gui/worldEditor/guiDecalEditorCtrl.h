@@ -59,7 +59,7 @@ class GuiDecalEditorCtrl : public EditTSCtrl
       // GuiControl
       virtual bool onWake();
       virtual void onSleep();
-      virtual void onRender(Point2I offset, const RectI &updateRect);
+      virtual void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 
       // EditTSCtrl      
       void get3DCursor( GuiCursor *&cursor, bool &visible, const Gui3DMouseEvent &event_ );

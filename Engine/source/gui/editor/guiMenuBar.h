@@ -90,7 +90,7 @@ public:
 	MenuEntry *findHitMenu(Point2I mousePoint);
 
    void onPreRender();
-	void onRender(Point2I offset, const RectI &updateRect);
+	void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 
    void checkMenuMouseMove(const GuiEvent &event);
    void onMouseMove(const GuiEvent &event);

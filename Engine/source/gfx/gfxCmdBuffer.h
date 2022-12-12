@@ -37,7 +37,7 @@ public:
    GFXCmdBuffer(GFXDevice* device);
    ~GFXCmdBuffer();
 
-   void setViewport(S32 x, S32 y, S32 w, S32 h);
+   void setViewport(const RectI &rect);
    void setGraphicsPipeline(GFXHandle<GFXGraphicsPipelineHandle> pipeline);
    void setStateBlock(GFXStateBlockRef stateBlock);
 

@@ -85,9 +85,9 @@ void GuiSeparatorCtrl::initPersistFields()
 }
 
 //--------------------------------------------------------------------------
-void GuiSeparatorCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiSeparatorCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
-   Parent::onRender( offset, updateRect );
+   Parent::onRender( offset, updateRect, manager );
 
    if( mInvisible )
       return;
@@ -136,7 +136,7 @@ void GuiSeparatorCtrl::onRender(Point2I offset, const RectI &updateRect)
       }
    }
 
-   renderChildControls(offset, updateRect);
+   renderChildControls(offset, updateRect, manager);
 }
 
 

@@ -91,7 +91,7 @@ public:
       done = false;
    }
 
-   void onRender(Point2I offset, const RectI &updateRect)
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
    {
       U32 elapsed = Platform::getRealMilliseconds() - wakeTime;
 
@@ -156,7 +156,7 @@ public:
          GFX->getDrawUtil()->drawRect(rect, borderCol);
       }
 
-      renderChildControls(offset, updateRect);
+      renderChildControls(offset, updateRect, manager);
    }
 
    static void initPersistFields()

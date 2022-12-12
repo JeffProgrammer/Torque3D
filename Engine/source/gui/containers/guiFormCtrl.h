@@ -96,7 +96,7 @@ public:
    void setHasMenu( bool value );
 
    bool resize(const Point2I &newPosition, const Point2I &newExtent);
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 
    bool onWake();
    void onSleep();

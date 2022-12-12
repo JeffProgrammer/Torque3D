@@ -3611,7 +3611,7 @@ void GuiTreeViewCtrl::onRightMouseUp(const GuiEvent & event)
 
 //------------------------------------------------------------------------------
 
-void GuiTreeViewCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiTreeViewCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    if ( !mRenamingItem && mRenameCtrl )   
    {
@@ -3620,7 +3620,7 @@ void GuiTreeViewCtrl::onRender(Point2I offset, const RectI &updateRect)
    }
    
    // Get all our contents drawn!
-   Parent::onRender(offset,updateRect);
+   Parent::onRender(offset,updateRect,manager);
 
    // Deal with drawing the drag & drop line, if any...
    GFX->setClipRect(updateRect);

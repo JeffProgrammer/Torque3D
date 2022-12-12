@@ -163,7 +163,7 @@ void GuiChunkedBitmapCtrl::renderRegion(const Point2I &offset, const Point2I &ex
 }
 
 
-void GuiChunkedBitmapCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiChunkedBitmapCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
 
    if( mBitmap )
@@ -172,5 +172,5 @@ void GuiChunkedBitmapCtrl::onRender(Point2I offset, const RectI &updateRect)
       GFX->getDrawUtil()->drawBitmapStretch(mBitmap, boundsRect, GFXBitmapFlip_None, GFXTextureFilterLinear );
    }
 
-   renderChildControls(offset, updateRect);
+   renderChildControls(offset, updateRect, manager);
 }

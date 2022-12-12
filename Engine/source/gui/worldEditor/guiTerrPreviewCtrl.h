@@ -81,7 +81,7 @@ public:
    //void setValue(const Point2F *center, const Point2F *camera);
    //const char *getScriptValue();
    void onPreRender();
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 };
 
 

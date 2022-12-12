@@ -86,8 +86,7 @@ void GuiRenderTargetVizCtrl::initPersistFields()
 
 //-----------------------------------------------------------------------------
 
-void GuiRenderTargetVizCtrl::onRender(Point2I      offset,
-   const RectI& updateRect)
+void GuiRenderTargetVizCtrl::onRender(Point2I offset, const RectI& updateRect, GuiRenderManager *manger)
 {
    GFXDrawUtil* drawer = GFX->getDrawUtil();
 

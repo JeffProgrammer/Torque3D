@@ -106,7 +106,7 @@ class GuiPaneControl : public GuiControl
       virtual void onMouseEnter(const GuiEvent &event);
 
       virtual bool resize(const Point2I &newPosition, const Point2I &newExtent);
-      virtual void onRender(Point2I offset, const RectI &updateRect);
+      virtual void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 
       static void initPersistFields();
       

@@ -55,7 +55,7 @@ public:
    void setReverseTime(F32 reverseTime);
    F32  getTime();
 
-   void onRender( Point2I, const RectI &);
+   void onRender( Point2I, const RectI &, GuiRenderManager*);
    static void initPersistFields();
    DECLARE_CONOBJECT( GuiClockHud );
    DECLARE_CATEGORY( "Gui Game" );
@@ -111,7 +111,7 @@ void GuiClockHud::initPersistFields()
 
 //-----------------------------------------------------------------------------
 
-void GuiClockHud::onRender(Point2I offset, const RectI &updateRect)
+void GuiClockHud::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    GFXDrawUtil* drawUtil = GFX->getDrawUtil();
 

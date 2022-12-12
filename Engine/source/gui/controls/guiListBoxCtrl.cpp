@@ -1036,7 +1036,7 @@ void GuiListBoxCtrl::parentResized(const RectI &oldParentRect, const RectI &newP
 //-----------------------------------------------------------------------------
 // Overrides
 //-----------------------------------------------------------------------------
-void GuiListBoxCtrl::onRender( Point2I offset, const RectI &updateRect )
+void GuiListBoxCtrl::onRender( Point2I offset, const RectI &updateRect, GuiRenderManager* manager )
 {
    RectI clipRect(updateRect.point, updateRect.extent);
 

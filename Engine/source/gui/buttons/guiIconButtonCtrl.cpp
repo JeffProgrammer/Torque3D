@@ -211,12 +211,12 @@ void GuiIconButtonCtrl::setBitmap(const char *name)
    setUpdate();
 }   
 
-void GuiIconButtonCtrl::onRender(Point2I offset, const RectI& updateRect)
+void GuiIconButtonCtrl::onRender(Point2I offset, const RectI& updateRect, GuiRenderManager* manager)
 {
-   renderButton( offset, updateRect);
+   renderButton( offset, updateRect, manager);
 }
 
-void GuiIconButtonCtrl::renderButton( Point2I &offset, const RectI& updateRect )
+void GuiIconButtonCtrl::renderButton( Point2I &offset, const RectI& updateRect, GuiRenderManager* manager )
 {
    bool highlight = mHighlighted;
    bool depressed = mDepressed;
@@ -401,7 +401,7 @@ void GuiIconButtonCtrl::renderButton( Point2I &offset, const RectI& updateRect )
       }
    }
 
-   renderChildControls( offset, updateRect);
+   renderChildControls( offset, updateRect, manager);
 }
 
 // Draw the bitmap array's borders according to the button's state.

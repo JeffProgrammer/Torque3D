@@ -325,7 +325,7 @@ void GuiTextEditSliderCtrl::timeInc(U32 elapseTime)
    }
 }
 
-void GuiTextEditSliderCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiTextEditSliderCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    if(mTextAreaHit != None)
    {
@@ -344,7 +344,7 @@ void GuiTextEditSliderCtrl::onRender(Point2I offset, const RectI &updateRect)
          }
       }
    }
-	Parent::onRender(offset, updateRect);
+	Parent::onRender(offset, updateRect, manager);
 
    Point2I start(offset.x + getWidth() - 14, offset.y);
    Point2I midPoint(start.x + 7, start.y + (getExtent().y/2));

@@ -72,7 +72,7 @@ public:
    //rendering methods
    void calcResize();
    void onPreRender();    // do special pre render processing
-   void onRender( Point2I offset, const RectI &updateRect );
+   void onRender( Point2I offset, const RectI &updateRect, GuiRenderManager* manager );
 
    //Console methods
    const char* getScriptValue();

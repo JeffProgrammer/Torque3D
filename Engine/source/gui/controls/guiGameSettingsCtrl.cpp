@@ -103,7 +103,7 @@ void GuiGameSettingsCtrl::onMouseUp(const GuiEvent& event)
    }
 }
 
-void GuiGameSettingsCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiGameSettingsCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    GFXDrawUtil* drawUtil = GFX->getDrawUtil();
 
@@ -164,7 +164,7 @@ void GuiGameSettingsCtrl::onRender(Point2I offset, const RectI &updateRect)
       onRenderKeybindOption(currentOffset);
    }
 
-   renderChildControls(offset, updateRect);
+   renderChildControls(offset, updateRect, manager);
 }
 
 void GuiGameSettingsCtrl::onRenderListOption(Point2I currentOffset)

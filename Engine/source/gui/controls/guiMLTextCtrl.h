@@ -283,7 +283,7 @@ class GuiMLTextCtrl : public GuiControl
    bool onWake();
    void onSleep();
    void onPreRender();
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
    void getCursorPositionAndColor(Point2I &cursorTop, Point2I &cursorBottom, ColorI &color);
    void inspectPostApply();
    void parentResized(const RectI& oldParentRect, const RectI& newParentRect);

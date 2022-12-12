@@ -451,9 +451,9 @@ void GuiMLTextEditCtrl::handleMoveKeys(const GuiEvent& event)
 }
 
 //--------------------------------------------------------------------------
-void GuiMLTextEditCtrl::onRender(Point2I offset, const RectI& updateRect)
+void GuiMLTextEditCtrl::onRender(Point2I offset, const RectI& updateRect, GuiRenderManager* manager)
 {
-   Parent::onRender(offset, updateRect);
+   Parent::onRender(offset, updateRect, manager);
 
    // We are the first responder, draw our cursor in the appropriate position...
    if (isFirstResponder()) 

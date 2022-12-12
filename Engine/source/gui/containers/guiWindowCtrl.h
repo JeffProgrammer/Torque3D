@@ -276,7 +276,7 @@ class GuiWindowCtrl : public GuiContainer
       virtual void onMouseUp(const GuiEvent &event);
 		virtual void onMouseMove(const GuiEvent &event);
       virtual bool onKeyDown(const GuiEvent &event);
-      virtual void onRender(Point2I offset, const RectI &updateRect);
+      virtual void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 
       DECLARE_CONOBJECT( GuiWindowCtrl );
       DECLARE_DESCRIPTION( "A control that shows an independent window inside the canvas." );

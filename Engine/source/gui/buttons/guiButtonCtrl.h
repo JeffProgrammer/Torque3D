@@ -36,7 +36,7 @@ public:
    DECLARE_CONOBJECT(GuiButtonCtrl);
    GuiButtonCtrl();
    bool onWake();
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 };
 
 #endif //_GUI_BUTTON_CTRL_H

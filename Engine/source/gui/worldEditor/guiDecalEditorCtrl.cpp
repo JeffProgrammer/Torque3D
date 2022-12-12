@@ -437,9 +437,9 @@ void GuiDecalEditorCtrl::updateGuiInfo()
    // nothing to do
 }
       
-void GuiDecalEditorCtrl::onRender( Point2I offset, const RectI &updateRect )
+void GuiDecalEditorCtrl::onRender( Point2I offset, const RectI &updateRect, GuiRenderManager* manager )
 {
-   Parent::onRender( offset, updateRect );
+   Parent::onRender( offset, updateRect, manager );
 }
 
 void GuiDecalEditorCtrl::renderGui( Point2I offset, const RectI &updateRect )

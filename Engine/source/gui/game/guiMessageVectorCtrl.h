@@ -68,7 +68,7 @@ class GuiMessageVectorCtrl : public GuiControl
 
    bool onWake();
    void onSleep();
-   void onRender(Point2I offset, const RectI &updateRect);
+   void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
    void inspectPostApply();
    void parentResized(const RectI& oldParentRect, const RectI& newParentRect);
 

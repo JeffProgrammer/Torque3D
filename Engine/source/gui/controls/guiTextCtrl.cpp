@@ -226,7 +226,7 @@ void GuiTextCtrl::onPreRender()
       setText(var);
 }
 
-void GuiTextCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiTextCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    renderBorder( RectI( offset, getExtent() ), mProfile );
 
@@ -234,7 +234,7 @@ void GuiTextCtrl::onRender(Point2I offset, const RectI &updateRect)
    renderJustifiedText(offset, getExtent(), (char*)mText);
 
    //render the child controls
-   renderChildControls(offset, updateRect);
+   renderChildControls(offset, updateRect, manager);
 }
 
 const char *GuiTextCtrl::getScriptValue()

@@ -84,13 +84,13 @@ void Gui3DProjectionCtrl::initPersistFields()
    endGroup("3DProjection");  
 }  
   
-void Gui3DProjectionCtrl::onRender(Point2I offset, const RectI &updateRect)  
+void Gui3DProjectionCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)  
 {  
    doPositioning();
    doProjection();
    doAlignment();
 
-   Parent::onRender(offset, updateRect);  
+   Parent::onRender(offset, updateRect, manager);  
 }  
   
 void Gui3DProjectionCtrl::resizeDuringRender()  

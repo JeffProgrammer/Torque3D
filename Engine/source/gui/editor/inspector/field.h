@@ -202,7 +202,7 @@ class GuiInspectorField : public GuiControl
       // GuiControl.
       virtual bool onAdd();
       virtual bool resize(const Point2I &newPosition, const Point2I &newExtent);
-      virtual void onRender(Point2I offset, const RectI &updateRect);
+      virtual void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
       virtual void setFirstResponder( GuiControl *firstResponder );
       virtual void onMouseDown( const GuiEvent &event );
       virtual void onRightMouseUp( const GuiEvent &event );

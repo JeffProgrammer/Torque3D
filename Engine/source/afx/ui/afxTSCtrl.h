@@ -57,7 +57,7 @@ public:
 
   virtual bool        processCameraQuery(CameraQuery *query);
   virtual void        renderWorld(const RectI &updateRect);
-  virtual void        onRender(Point2I offset, const RectI &updateRect);
+  virtual void        onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 
   virtual void        getCursor(GuiCursor *&cursor, bool &showCursor, const GuiEvent &lastGuiEvent);
 

@@ -272,9 +272,9 @@ void GuiRectHandles::onMouseDragged(const GuiEvent &event)
 }
 
 //--------------------------------------------------------------------------
-void GuiRectHandles::onRender(Point2I offset, const RectI &updateRect)
+void GuiRectHandles::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
-   Parent::onRender( offset, updateRect );
+   Parent::onRender( offset, updateRect, manager );
 
    ColorI handleColor = mProfile->mBorderColor;
    if(mUseCustomColor)
@@ -317,5 +317,5 @@ void GuiRectHandles::onRender(Point2I offset, const RectI &updateRect)
    handleRect.point = Point2I(box.point.x+halfSize.x-halfHandleSize.x, box.point.y+halfSize.y-halfHandleSize.y);
    drawUtil->drawRectFill(handleRect, handleColor);      // Middle
 
-   renderChildControls(offset, updateRect);
+   renderChildControls(offset, updateRect, manager);
 }

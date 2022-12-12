@@ -383,7 +383,7 @@ void GuiTextEditSliderBitmapCtrl::onPreRender()
    }
 }
 
-void GuiTextEditSliderBitmapCtrl::onRender(Point2I offset, const RectI &updateRect)
+void GuiTextEditSliderBitmapCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
    if(mTextAreaHit != None)
    {
@@ -403,7 +403,7 @@ void GuiTextEditSliderBitmapCtrl::onRender(Point2I offset, const RectI &updateRe
       }
    }
 
-	Parent::onRender(offset, updateRect);
+	Parent::onRender(offset, updateRect, manager);
 
 	// Arrow placement coordinates
    Point2I arrowUpStart(offset.x + getWidth() - 14, offset.y + 1 );

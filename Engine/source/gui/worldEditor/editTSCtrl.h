@@ -175,7 +175,7 @@ class EditTSCtrl : public GuiTSCtrl
       bool processCameraQuery(CameraQuery * query);
 
       // guiControl
-      virtual void onRender(Point2I offset, const RectI &updateRect);
+      virtual void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
       virtual void on3DMouseUp(const Gui3DMouseEvent &){};
       virtual void on3DMouseDown(const Gui3DMouseEvent &){};
       virtual void on3DMouseMove(const Gui3DMouseEvent &){};

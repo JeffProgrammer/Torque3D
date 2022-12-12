@@ -18,15 +18,15 @@ GFXCmdBuffer::~GFXCmdBuffer()
 
 }
 
-void GFXCmdBuffer::setViewport(S32 x, S32 y, S32 w, S32 h)
+void GFXCmdBuffer::setViewport(const RectI &rect)
 {
    AssertFatal(!mRecording, "GFXCmdBuffer is not currently recording!");
 
    mBuffer.append(GFX_CMD_VIEWPORT);
-   mBuffer.append(x);
-   mBuffer.append(y);
-   mBuffer.append(w);
-   mBuffer.append(h);
+   mBuffer.append(rect.point.x);
+   mBuffer.append(rect.point.y);
+   mBuffer.append(rect.extent.x);
+   mBuffer.append(rect.extent.y);
 }
 
 void GFXCmdBuffer::setGraphicsPipeline(GFXHandle<GFXGraphicsPipelineHandle> pipeline)
