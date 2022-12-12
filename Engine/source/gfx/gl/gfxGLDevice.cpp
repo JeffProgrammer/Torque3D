@@ -826,6 +826,51 @@ void GFXGLDevice::setClipRect( const RectI &inRect )
    setViewport(viewport);
 }
 
+void GFXGLDevice::calcClipRect(const RectI &rect, MatrixF &outProjMatrix, RectI &outRect) const
+{
+   AssertFatal(mCurrentRT.isValid(), "GFXGLDevice::setClipRect - must have a render target set to do any rendering operations!");
+
+   // Clip the rect against the renderable size.
+   Point2I size = mCurrentRT->getSize();
+   RectI maxRect(Point2I(0,0), size);
+   outRect = rect;
+   outRect.intersect(maxRect);
+   
+   // Create projection matrix.  See http://www.opengl.org/documentation/specs/man_pages/hardcopy/GL/html/gl/ortho.html
+   const F32 left = outRect.point.x;
+   const F32 right = outRect.point.x + outRect.extent.x;
+   const F32 bottom = outRect.extent.y;
+   const F32 top = 0.0f;
+   const F32 nearPlane = 0.0f;
+   const F32 farPlane = 1.0f;
+   
+   const F32 tx = -(right + left)/(right - left);
+   const F32 ty = -(top + bottom)/(top - bottom);
+   const F32 tz = -(farPlane + nearPlane)/(farPlane - nearPlane);
+   
+   outProjMatrix = MatrixF(1.0);
+   
+   static Point4F pt;
+   pt.set(2.0f / (right - left), 0.0f, 0.0f, 0.0f);
+   outProjMatrix.setColumn(0, pt);
+   
+   pt.set(0.0f, 2.0f/(top - bottom), 0.0f, 0.0f);
+   outProjMatrix.setColumn(1, pt);
+   
+   pt.set(0.0f, 0.0f, -2.0f/(farPlane - nearPlane), 0.0f);
+   outProjMatrix.setColumn(2, pt);
+   
+   pt.set(tx, ty, tz, 1.0f);
+   outProjMatrix.setColumn(3, pt);
+   
+   // Translate projection matrix.
+   static MatrixF translate(true);
+   pt.set(0.0f, -outRect.point.y, 0.0f, 1.0f);
+   translate.setColumn(3, pt);
+   
+   outProjMatrix *= translate;
+}
+
 /// Creates a state block object based on the desc passed in.  This object
 /// represents an immutable state.
 GFXStateBlockRef GFXGLDevice::createStateBlockInternal(const GFXStateBlockDesc& desc)

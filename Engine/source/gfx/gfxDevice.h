@@ -969,6 +969,7 @@ public:
 
    virtual void setClipRect( const RectI &rect ) = 0;
    virtual const RectI &getClipRect() const = 0;
+   virtual void calcClipRect(const RectI &rect, MatrixF &outProjMatrix, RectI &outRect) const = 0;
 
    /// Set the projection frustum.
    ///

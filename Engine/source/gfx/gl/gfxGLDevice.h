@@ -141,7 +141,8 @@ public:
 
    virtual void setClipRect( const RectI &rect );
    virtual const RectI &getClipRect() const { return mClip; }
-
+   virtual void calcClipRect(const RectI &rect, MatrixF &outProjMatrix, RectI &outRect) const;
+   
    virtual void preDestroy() { Parent::preDestroy(); }
 
    virtual U32 getMaxDynamicVerts() { return GFX_MAX_DYNAMIC_VERTS; }
