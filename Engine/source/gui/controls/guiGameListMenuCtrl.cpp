@@ -129,31 +129,31 @@ void GuiGameListMenuCtrl::onRender(Point2I offset, const RectI &updateRect, GuiR
 
       // render the row bitmap
       drawUtil->clearBitmapModulation();
-      drawUtil->drawBitmapStretchSR(profile->mBitmap, RectI(currentOffset, rowExtent), profile->getBitmapArrayRect(buttonTextureIndex));
+      drawUtil->drawBitmapStretchSR(profile->mBitmap, RectI(currentOffset, rowExtent), profile->getBitmapArrayRect(buttonTextureIndex), manager);
 
       // render the row icon if it has one
       if ((iconIndex != NO_ICON) && profileHasIcons && (!profile->getBitmapArrayRect((U32)iconIndex).extent.isZero()))
       {
          iconIndex += Profile::TEX_FIRST_ICON;
          drawUtil->clearBitmapModulation();
-         drawUtil->drawBitmapStretchSR(profile->mBitmap, RectI(currentOffset + iconOffset, iconExtent), profile->getBitmapArrayRect(iconIndex));
+         drawUtil->drawBitmapStretchSR(profile->mBitmap, RectI(currentOffset + iconOffset, iconExtent), profile->getBitmapArrayRect(iconIndex), manager);
       }
 
       // render the row text
       drawUtil->setBitmapModulation(fontColor);
-      renderJustifiedText(currentOffset + textOffset, textExtent, (*row)->mLabel);
+      renderJustifiedText(manager, currentOffset + textOffset, textExtent, (*row)->mLabel);
 
       if ((*row)->mMode == Row::Mode::OptionList)
       {
-         onRenderListOption((*row), currentOffset);
+         onRenderListOption((*row), currentOffset, manager);
       }
       else if ((*row)->mMode == Row::Mode::Slider)
       {
-         onRenderSliderOption((*row), currentOffset);
+         onRenderSliderOption((*row), currentOffset, manager);
       }
       else if ((*row)->mMode == Row::Mode::Keybind)
       {
-         onRenderKeybindOption((*row), currentOffset);
+         onRenderKeybindOption((*row), currentOffset, manager);
       }
    }
 
@@ -165,7 +165,7 @@ void GuiGameListMenuCtrl::onRender(Point2I offset, const RectI &updateRect, GuiR
    renderChildControls(offset, updateRect, manager);
 }
 
-void GuiGameListMenuCtrl::onRenderListOption(Row* row, Point2I currentOffset)
+void GuiGameListMenuCtrl::onRenderListOption(Row* row, Point2I currentOffset, GuiRenderManager* manager)
 {
    GuiGameListMenuProfile* profile = (GuiGameListMenuProfile*)mProfile;
 
@@ -204,7 +204,7 @@ void GuiGameListMenuCtrl::onRenderListOption(Row* row, Point2I currentOffset)
          arrowOffset.y = currentOffset.y + arrowOffsetY;
 
          drawer->clearBitmapModulation();
-         drawer->drawBitmapStretchSR(profile->getBitmapResource(), RectI(arrowOffset, arrowExtent), profile->getBitmapArrayRect((U32)iconIndex));
+         drawer->drawBitmapStretchSR(profile->getBitmapResource(), RectI(arrowOffset, arrowExtent), profile->getBitmapArrayRect((U32)iconIndex), manager);
 
          // render the right arrow
          bool arrowOnR = (isRowSelected || isRowHighlighted) && (row->mWrapOptions || (row->mSelectedOption < row->mOptions.size() - 1));
@@ -213,7 +213,7 @@ void GuiGameListMenuCtrl::onRenderListOption(Row* row, Point2I currentOffset)
          arrowOffset.y = currentOffset.y + arrowOffsetY;
 
          drawer->clearBitmapModulation();
-         drawer->drawBitmapStretchSR(profile->getBitmapResource(), RectI(arrowOffset, arrowExtent), profile->getBitmapArrayRect((U32)iconIndex));
+         drawer->drawBitmapStretchSR(profile->getBitmapResource(), RectI(arrowOffset, arrowExtent), profile->getBitmapArrayRect((U32)iconIndex), manager);
       }
 
       // get the appropriate font color
@@ -247,11 +247,11 @@ void GuiGameListMenuCtrl::onRenderListOption(Row* row, Point2I currentOffset)
       // render the option text itself
       Point2I textExtent(columnWidth, rowHeight);
       drawer->setBitmapModulation(fontColor);
-      renderJustifiedText(currentOffset + textOffset, textExtent, text);
+      renderJustifiedText(manager, currentOffset + textOffset, textExtent, text);
    }
 }
 
-void GuiGameListMenuCtrl::onRenderSliderOption(Row* row, Point2I currentOffset)
+void GuiGameListMenuCtrl::onRenderSliderOption(Row* row, Point2I currentOffset, GuiRenderManager* manager)
 {
    GuiGameListMenuProfile* profile = (GuiGameListMenuProfile*)mProfile;
 
@@ -332,7 +332,7 @@ void GuiGameListMenuCtrl::onRenderSliderOption(Row* row, Point2I currentOffset)
          barOutlineColor = profile->mFillColorHL;
       }
 
-      drawer->drawRectFill(fillRect, barColor);
+      drawer->drawRectFill(fillRect, barColor, manager);
 
       drawer->drawRect(sliderRect, barOutlineColor);
    }
@@ -371,10 +371,10 @@ void GuiGameListMenuCtrl::onRenderSliderOption(Row* row, Point2I currentOffset)
    // render the option text itself
    Point2I textExtent(columnWidth, rowHeight);
    drawer->setBitmapModulation(fontColor);
-   renderJustifiedText(currentOffset + textOffset, textExtent, stringVal);
+   renderJustifiedText(manager, currentOffset + textOffset, textExtent, stringVal);
 }
 
-void GuiGameListMenuCtrl::onRenderKeybindOption(Row* row, Point2I currentOffset)
+void GuiGameListMenuCtrl::onRenderKeybindOption(Row* row, Point2I currentOffset, GuiRenderManager* manager)
 {
    GuiGameListMenuProfile* profile = (GuiGameListMenuProfile*)mProfile;
    F32 xScale = (float)getWidth() / profile->getRowWidth();
@@ -398,7 +398,7 @@ void GuiGameListMenuCtrl::onRenderKeybindOption(Row* row, Point2I currentOffset)
       GFXTextureObject* texture = row->mBitmapTex;
       RectI rect(button, buttonSize);
       drawer->clearBitmapModulation();
-      drawer->drawBitmapStretch(texture, rect, GFXBitmapFlip_None, GFXTextureFilterLinear, false);
+      drawer->drawBitmapStretch(texture, rect, manager, GFXBitmapFlip_None, GFXTextureFilterLinear, false);
    }
 
    //drawer->drawRectFill(button, ColorI::BLUE);

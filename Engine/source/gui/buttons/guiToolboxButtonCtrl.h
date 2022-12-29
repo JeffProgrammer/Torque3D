@@ -47,7 +47,7 @@ protected:
    DECLARE_ASSET_SETGET(GuiToolboxButtonCtrl, HoverBitmap);
 
    void renderButton(GFXTexHandle &texture, Point2I &offset, const RectI& updateRect, GuiRenderManager *manager);
-   void renderStateRect( GFXTexHandle &texture, const RectI& rect );
+   void renderStateRect( GFXTexHandle &texture, const RectI& rect, GuiRenderManager* manager );
 
    void onNormalImageChanged() {}
    void onLoweredImageChanged() {}

@@ -1348,7 +1348,7 @@ void WorldEditor::renderObjectFace(SceneObject * obj, const VectorF & normal, co
    PrimBuild::end();
 }
 
-void WorldEditor::renderMousePopupInfo()
+void WorldEditor::renderMousePopupInfo(GuiRenderManager* manager)
 {
    if ( !mMouseDragged )
       return;
@@ -1415,11 +1415,11 @@ void WorldEditor::renderMousePopupInfo()
       Point2I minPt(posi.x - width / 2 - 2, posi.y - 1);
       Point2I maxPt(posi.x + width / 2 + 2, posi.y + mProfile->mFont->getHeight() + 1);
 
-      GFX->getDrawUtil()->drawRectFill(minPt, maxPt, mPopupBackgroundColor);
+      GFX->getDrawUtil()->drawRectFill(minPt, maxPt, mPopupBackgroundColor, manager);
    }
 
 	GFX->getDrawUtil()->setBitmapModulation(mPopupTextColor);
-   GFX->getDrawUtil()->drawText(mProfile->mFont, Point2I(posi.x - width / 2, posi.y), buf);
+   GFX->getDrawUtil()->drawText(manager, mProfile->mFont, Point2I(posi.x - width / 2, posi.y), buf);
 }
 
 void WorldEditor::renderPaths(SimObject *obj)
@@ -1594,7 +1594,7 @@ void WorldEditor::renderSplinePath(SimPath::Path *path)
       GFX->drawPrimitive(GFXTriangleList,0,vIdx/3);
 }
 
-void WorldEditor::renderScreenObj( SceneObject *obj, const Point3F& projPos, const Point3F& wPos )
+void WorldEditor::renderScreenObj( SceneObject *obj, const Point3F& projPos, const Point3F& wPos, GuiRenderManager* manager )
 {
    // Do not render control objects, hidden objects,
    // or objects that are within a prefab.
@@ -1658,11 +1658,11 @@ void WorldEditor::renderScreenObj( SceneObject *obj, const Point3F& projPos, con
       else      
          drawer->setBitmapModulation( ColorI(255,255,255,iconAlpha) );         
 
-      drawer->drawBitmapStretch( classIcon, renderRect );      
+      drawer->drawBitmapStretch( classIcon, renderRect, manager );      
       drawer->clearBitmapModulation();
 
       if ( obj->isLocked() )      
-         drawer->drawBitmap( mDefaultClassEntry.mLockedHandle, renderPos );      
+         drawer->drawBitmap( mDefaultClassEntry.mLockedHandle, renderPos, manager );      
 
       // Save an IconObject for performing icon-click testing later.
 
@@ -1692,11 +1692,11 @@ void WorldEditor::renderScreenObj( SceneObject *obj, const Point3F& projPos, con
       
 	  if(mGizmoProfile->mode == NoneMode){
 		  
-		 drawer->drawBitmapStretch( classIcon, renderRect );
+		 drawer->drawBitmapStretch( classIcon, renderRect, manager );
 		 drawer->setBitmapModulation( ColorI(255,255,255,255) ); 
-		 drawer->drawText(mProfile->mFont, pos, str); 
+		 drawer->drawText(manager, mProfile->mFont, pos, str);
 		 if ( obj->isLocked() )      
-			drawer->drawBitmap( mDefaultClassEntry.mLockedHandle, renderPos );      
+			drawer->drawBitmap( mDefaultClassEntry.mLockedHandle, renderPos, manager );      
 
 			// Save an IconObject for performing icon-click testing later.
 		{
@@ -1708,7 +1708,7 @@ void WorldEditor::renderScreenObj( SceneObject *obj, const Point3F& projPos, con
 		}
 	  }else{
 		  drawer->setBitmapModulation(mObjectTextColor);
-		  drawer->drawText(mProfile->mFont, pos, str);
+		  drawer->drawText(manager, mProfile->mFont, pos, str);
 	  };
    }
 
@@ -1740,7 +1740,7 @@ void WorldEditor::renderScreenObj( SceneObject *obj, const Point3F& projPos, con
       noteTextColor.alpha = 255 * fade;
 
       drawer->setBitmapModulation(noteTextColor);
-      drawer->drawText(mProfile->mFont, pos, noteObj->getNote().c_str());
+      drawer->drawText(manager, mProfile->mFont, pos, noteObj->getNote().c_str());
    }
 }
 
@@ -2483,6 +2483,8 @@ void WorldEditor::renderScene( const RectI &updateRect )
 
    if (mActiveEditorTool != nullptr)
       mActiveEditorTool->render();
+
+   GuiRenderManager manager;
 	
    // Grab this before anything here changes it.
    Frustum frustum;
@@ -2758,7 +2760,7 @@ void WorldEditor::renderScene( const RectI &updateRect )
                mDragSelected->addObject(obj);
 
          //
-         renderScreenObj( obj, sPos, wPos );
+         renderScreenObj( obj, sPos, wPos, &manager );
       }
    }
 
@@ -2767,13 +2769,15 @@ void WorldEditor::renderScene( const RectI &updateRect )
    //   GFX->getDrawUtil()->drawRect( mIcons[i].rect, ColorI(255,255,255,255) );
 
    if ( mShowMousePopupInfo && mMouseDown )
-      renderMousePopupInfo();
+      renderMousePopupInfo(&manager);
 
    if ( mDragSelect && mDragRect.extent.x > 1 && mDragRect.extent.y > 1 )
       GFX->getDrawUtil()->drawRect( mDragRect, mDragRectColor );
 
    if ( selection && selection->size() )
       mGizmo->renderText( mSaveViewport, mSaveModelview, mSaveProjection );
+
+   // TODO: Execute Manager
 }
 
 //------------------------------------------------------------------------------

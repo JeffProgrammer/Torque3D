@@ -178,7 +178,7 @@ void GuiTextListCtrl::onCellSelected(Point2I cell)
    execConsoleCallback();
 }
 
-void GuiTextListCtrl::onRenderCell(Point2I offset, Point2I cell, bool selected, bool mouseOver)
+void GuiTextListCtrl::onRenderCell(Point2I offset, Point2I cell, bool selected, bool mouseOver, GuiRenderManager* manager)
 {
    if ( mList[cell.y].active )
    {
@@ -186,7 +186,7 @@ void GuiTextListCtrl::onRenderCell(Point2I offset, Point2I cell, bool selected, 
       {
          RectI highlightRect = RectI(offset.x, offset.y, mCellSize.x, mCellSize.y);
          highlightRect.inset( 0, -1 );
-         renderFilledBorder( highlightRect, mProfile->mBorderColorHL, mProfile->mFillColorHL);
+         renderFilledBorder( highlightRect, mProfile->mBorderColorHL, mProfile->mFillColorHL, manager );
          GFX->getDrawUtil()->setBitmapModulation(mProfile->mFontColorHL);
       }
       else
@@ -224,7 +224,7 @@ void GuiTextListCtrl::onRenderCell(Point2I offset, Point2I cell, bool selected, 
             }
          }
 
-         GFX->getDrawUtil()->drawTextN(mFont, pos, text, slen, mProfile->mFontColors);
+         GFX->getDrawUtil()->drawTextN(manager, mFont, pos, text, slen, mProfile->mFontColors);
 
          if(clipped)
             GFX->setClipRect( saveClipRect );

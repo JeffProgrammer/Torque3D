@@ -158,7 +158,7 @@ void GuiInspectorField::onRender( Point2I offset, const RectI &updateRect, GuiRe
    
    // Render fillcolor...
    if ( mProfile->mOpaque )
-      GFX->getDrawUtil()->drawRectFill(ctrlRect, mProfile->mFillColor);   
+      GFX->getDrawUtil()->drawRectFill(ctrlRect, mProfile->mFillColor, manager);   
 
    // Render caption...
    if ( mCaption && mCaption[0] )
@@ -185,9 +185,9 @@ void GuiInspectorField::onRender( Point2I offset, const RectI &updateRect, GuiRe
 
          // Draw caption background...
          if( !isActive() )
-            GFX->getDrawUtil()->drawRectFill( clipRect, mProfile->mFillColorNA );
+            GFX->getDrawUtil()->drawRectFill( clipRect, mProfile->mFillColorNA, manager );
          else if ( mHighlighted )         
-            GFX->getDrawUtil()->drawRectFill( clipRect, mProfile->mFillColorHL );             
+            GFX->getDrawUtil()->drawRectFill( clipRect, mProfile->mFillColorHL, manager );             
 
          // Draw caption text...
 
@@ -197,7 +197,7 @@ void GuiInspectorField::onRender( Point2I offset, const RectI &updateRect, GuiRe
          String clippedText( mCaption );
          clipText( clippedText, clipRect.extent.x );
 
-         renderJustifiedText( offset + mProfile->mTextOffset, getExtent(), clippedText );
+         renderJustifiedText( manager, offset + mProfile->mTextOffset, getExtent(), clippedText );
 
          // Restore modulation color
          drawer->setBitmapModulation( currColor );
@@ -212,7 +212,7 @@ void GuiInspectorField::onRender( Point2I offset, const RectI &updateRect, GuiRe
 
    // Render border...
    if ( mProfile->mBorder )
-      renderBorder(ctrlRect, mProfile);   
+      renderBorder(ctrlRect, mProfile, manager);
 
    // Render divider...
    Point2I worldPnt = mEditCtrlRect.point + offset;

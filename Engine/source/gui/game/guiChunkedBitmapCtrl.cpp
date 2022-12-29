@@ -162,14 +162,12 @@ void GuiChunkedBitmapCtrl::renderRegion(const Point2I &offset, const Point2I &ex
 */
 }
 
-
 void GuiChunkedBitmapCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
 {
-
    if( mBitmap )
    {
       RectI boundsRect( offset, getExtent());
-      GFX->getDrawUtil()->drawBitmapStretch(mBitmap, boundsRect, GFXBitmapFlip_None, GFXTextureFilterLinear );
+      GFX->getDrawUtil()->drawBitmapStretch(mBitmap, boundsRect, manager, GFXBitmapFlip_None, GFXTextureFilterLinear );
    }
 
    renderChildControls(offset, updateRect, manager);

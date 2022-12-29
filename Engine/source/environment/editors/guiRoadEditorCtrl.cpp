@@ -743,15 +743,15 @@ void GuiRoadEditorCtrl::renderScene(const RectI & updateRect)
    }
 } 
 
-void GuiRoadEditorCtrl::renderGui( Point2I offset, const RectI &updateRect )
+void GuiRoadEditorCtrl::renderGui( Point2I offset, const RectI &updateRect, GuiRenderManager* manager )
 {
    // Draw Control nodes for selected and highlighted roads
    if ( mHoverRoad )
-      _drawRoadControlNodes( mHoverRoad, mHoverSplineColor );
+      _drawRoadControlNodes( mHoverRoad, mHoverSplineColor, manager );
    if ( mSelRoad )
-      _drawRoadControlNodes( mSelRoad, mSelectedSplineColor );
+      _drawRoadControlNodes( mSelRoad, mSelectedSplineColor, manager );
 
-   Parent::renderGui(offset, updateRect);
+   Parent::renderGui(offset, updateRect, manager);
 }
 
 void GuiRoadEditorCtrl::_drawRoadSpline( DecalRoad *road, const ColorI &color )
@@ -803,7 +803,7 @@ void GuiRoadEditorCtrl::_drawRoadSpline( DecalRoad *road, const ColorI &color )
 	}
 }
 
-void GuiRoadEditorCtrl::_drawRoadControlNodes( DecalRoad *road, const ColorI &color )
+void GuiRoadEditorCtrl::_drawRoadControlNodes( DecalRoad *road, const ColorI &color, GuiRenderManager* manager)
 {
    if ( !DecalRoad::smShowSpline )
       return;
@@ -857,7 +857,7 @@ void GuiRoadEditorCtrl::_drawRoadControlNodes( DecalRoad *road, const ColorI &co
          }         
       }
 
-      drawer->drawRectFill( posi - nodeHalfSize, posi + nodeHalfSize, theColor );
+      drawer->drawRectFill( posi - nodeHalfSize, posi + nodeHalfSize, theColor, manager );
    }
 }
 

@@ -290,7 +290,7 @@ void GuiColorPickerCtrl::drawSelector(RectI &bounds, Point2I &selectorPos, Selec
 
 //--------------------------------------------------------------------------
 /// Function to invoke calls to draw the picker box and selector
-void GuiColorPickerCtrl::renderColorBox(RectI &bounds)
+void GuiColorPickerCtrl::renderColorBox(RectI &bounds, GuiRenderManager* manager)
 {
    RectI pickerBounds;
    pickerBounds.point.x = bounds.point.x+1;
@@ -352,7 +352,7 @@ void GuiColorPickerCtrl::renderColorBox(RectI &bounds)
    break;
    case pPallet:
    default:
-      GFX->getDrawUtil()->drawRectFill( pickerBounds, mBaseColor.toColorI());
+      GFX->getDrawUtil()->drawRectFill( pickerBounds, mBaseColor.toColorI(), manager);
    break;
    }
 }
@@ -370,7 +370,7 @@ void GuiColorPickerCtrl::onRender(Point2I offset, const RectI& updateRect, GuiRe
    }
 
    RectI boundsRect(offset, getExtent());
-   renderColorBox(boundsRect);
+   renderColorBox(boundsRect, manager);
 
    if (mPositionChanged || mBitmap == NULL)
    {

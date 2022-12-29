@@ -22,6 +22,8 @@
 
 #include "gfx/gfxFontRenderBatcher.h"
 #include "gfx/gFont.h"
+#include "gui/render/guiRender.h"
+#include "gfx/gfxGenericShaderPipeline.h"
 
 FontRenderBatcher::FontRenderBatcher() : mStorage(8096)
 {
@@ -39,37 +41,41 @@ FontRenderBatcher::FontRenderBatcher() : mStorage(8096)
       f.blendEnable = true;
       f.blendSrc = GFXBlendSrcAlpha;
       f.blendDest = GFXBlendInvSrcAlpha;
-      f.samplersDefined = true;
-      f.samplers[0].magFilter = GFXTextureFilterPoint;
-      f.samplers[0].minFilter = GFXTextureFilterPoint;
-      f.samplers[0].addressModeU = GFXAddressClamp;
-      f.samplers[0].addressModeV = GFXAddressClamp;
 
       f.setColorWrites(true, true, true, false); // NOTE: comment this out if alpha write is needed
       mFontSB = GFX->createStateBlock(f);
    }
+   
+   if (!mSampler)
+   {
+      GFXSamplerDesc2 sampler;
+      sampler.magFilter = GFXTextureFilterPoint;
+      sampler.minFilter = GFXTextureFilterPoint;
+      sampler.addressModeU = GFXAddressClamp;
+      sampler.addressModeV = GFXAddressClamp;
+      
+      mSampler = GFX->createSampler(sampler);
+   }
 }
 
-void FontRenderBatcher::render( F32 rot, const Point2F &offset )
+void FontRenderBatcher::render(GuiRenderManager* manager, F32 rot, const Point2F &offset )
 {
    if( mLength == 0 )
       return;
 
-   GFX->setStateBlock(mFontSB);
-   for(U32 i = 0; i < GFX->getNumSamplers(); i++)
-      GFX->setTexture(i, NULL);
-
+   GuiRenderInstStateBlock* stateBlockInst = manager->allocRenderInstStateBlock();
+   stateBlockInst->stateBlock = mFontSB;
+   
+   Vector<GuiRenderInstDraw*> drawInsts;
+   
    MatrixF rotMatrix;
 
    bool doRotation = rot != 0.f;
    if(doRotation)
       rotMatrix.set( EulerF( 0.0, 0.0, mDegToRad( rot ) ) );
 
-   // Write verts out.
-   U32 currentPt = 0;
-   GFXVertexBufferHandle<GFXVertexPCT> verts(GFX, mLength * 6, GFXBufferTypeVolatile);
-   verts.lock();
-
+   GFXHandle<GFXGraphicsPipelineHandle> pipeline = GFX->getShaderPipelineManager()->getShaderPipeline(GFXGenericShaderPipelineType::GSPAddColorTexture);
+   
    for( S32 i = 0; i < mSheets.size(); i++ )
    {
       // Do some early outs...
@@ -78,10 +84,21 @@ void FontRenderBatcher::render( F32 rot, const Point2F &offset )
 
       if(!mSheets[i]->numChars)
          continue;
+      
+      GFXTextureObject* tex = mFont->getTextureHandle(i);
+      
+      GuiRenderInstDraw* drawInst = manager->allocRenderInstDraw(mSheets[i]->numChars * 6);
+      drawInst->pipeline = pipeline;
+      drawInst->primitiveType = GFXTriangleList;
+      drawInst->texture = tex;
+      drawInst->sampler = mSampler;
+      drawInst->primitiveCount = mSheets[i]->numChars * 6;
+      
+      drawInsts.push_back(drawInst);
+      
+      GFXVertexPCT *verts = drawInst->vertexList.vertices;
 
-      mSheets[i]->startVertex = currentPt;
-      const GFXTextureObject *tex = mFont->getTextureHandle(i);
-
+      U32 currentPt = 0;
       for( S32 j = 0; j < mSheets[i]->numChars; j++ )
       {
          // Get some general info to proceed with...
@@ -167,24 +184,10 @@ void FontRenderBatcher::render( F32 rot, const Point2F &offset )
       }
    }
 
-   verts->unlock();
-
-   AssertFatal(currentPt <= mLength * 6, "FontRenderBatcher::render - too many verts for length of string!");
-
-   GFX->setVertexBuffer(verts);
-   GFX->setupGenericShaders( GFXDevice::GSAddColorTexture );
-
-   // Now do an optimal render!
-   for( S32 i = 0; i < mSheets.size(); i++ )
+   manager->pushInst(stateBlockInst);
+   for (U32 i = 0; i < drawInsts.size(); i++)
    {
-      if(!mSheets[i])
-         continue;
-
-      if(!mSheets[i]->numChars )
-         continue;
-      
-      GFX->setTexture( 0, mFont->getTextureHandle(i) );
-      GFX->drawPrimitive(GFXTriangleList, mSheets[i]->startVertex, mSheets[i]->numChars * 2);
+      manager->pushInst(drawInsts[i]);
    }
 }
 

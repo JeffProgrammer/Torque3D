@@ -98,7 +98,7 @@ GuiPopupMenuTextListCtrl::GuiPopupMenuTextListCtrl()
    mBackground = NULL;
 }
 
-void GuiPopupMenuTextListCtrl::onRenderCell(Point2I offset, Point2I cell, bool selected, bool mouseOver)
+void GuiPopupMenuTextListCtrl::onRenderCell(Point2I offset, Point2I cell, bool selected, bool mouseOver, GuiRenderManager* manager)
 {
    //check if we're a real entry, or if it's a divider
    if (mPopup->mMenuItems[cell.y].mIsSpacer)
@@ -110,7 +110,7 @@ void GuiPopupMenuTextListCtrl::onRenderCell(Point2I offset, Point2I cell, bool s
    {
       if (String::compare(mList[cell.y].text + 3, "-\t")) //  Was: String::compare(mList[cell.y].text + 2, "-\t")) but has been changed to take into account the submenu flag
       {
-         Parent::onRenderCell(offset, cell, selected, mouseOver);
+         Parent::onRenderCell(offset, cell, selected, mouseOver, manager);
       }
       else
       {
@@ -142,7 +142,7 @@ void GuiPopupMenuTextListCtrl::onRenderCell(Point2I offset, Point2I cell, bool s
          Point2I bitPos = Point2I(offset.x + mCellSize.y / 2, offset.y + mCellSize.y / 2);
 
          GFX->getDrawUtil()->clearBitmapModulation();
-         GFX->getDrawUtil()->drawBitmapSR(mProfile->getBitmapResource(), bitPos + off, rect);
+         GFX->getDrawUtil()->drawBitmapSR(mProfile->getBitmapResource(), bitPos + off, rect, manager);
       }
    }
 

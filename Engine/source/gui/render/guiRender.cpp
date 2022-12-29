@@ -22,7 +22,6 @@ GuiRenderInstDraw* GuiRenderManager::allocRenderInstDraw(U32 numberOfVertices)
    inst->type = GuiRenderInstType::DRAW;
    inst->vertexList = allocVertices(numberOfVertices);
    
-   mRenderInsts.push_back(inst);
    return inst;
 }
 
@@ -33,7 +32,6 @@ GuiRenderInstClipRect* GuiRenderManager::allocRenderInstClipRect()
    
    inst->type = GuiRenderInstType::CLIP_RECT;
    
-   mRenderInsts.push_back(inst);
    return inst;
 }
 
@@ -44,7 +42,6 @@ GuiRenderInstStateBlock* GuiRenderManager::allocRenderInstStateBlock()
 
    inst->type = GuiRenderInstType::STATEBLOCK;
 
-   mRenderInsts.push_back(inst);
    return inst;
 }
 
@@ -95,20 +92,27 @@ void processStateBlockInst(GFXCmdBuffer* cmdBuffer, const GuiRenderInstStateBloc
 }
 
 static TORQUE_FORCEINLINE
-void processDrawInst(GFXCmdBuffer* cmdBuffer, const GuiRenderInstDraw* drawInst)
+void processDrawInst(GFXCmdBuffer* cmdBuffer, const GuiRenderInstDraw* drawInst, GFXHandle<GFXVertexBufferHandle2> vertexBuffer)
 {
    if (drawInst->pipeline != GFXHandleNone)
+   {
       cmdBuffer->setGraphicsPipeline(drawInst->pipeline);
+
+      // We use the same vbo for all...only set it once if we haven't
+      // we need to set it everytime until we force separate vertex attribs in opengl
+      cmdBuffer->setVertexBuffer(0, vertexBuffer, 0);
+   }
 
    if (drawInst->texture != nullptr || drawInst->sampler != GFXHandleNone)
    {
-      AssertFatal(drawInst->texture == nullptr, "GuiRenderBinExecutor::execute Must set texture if setting sampler");
-      AssertFatal(drawInst->sampler == GFXHandleNone, "GuiRenderBinExecutor::execute Must set sampler if setting texture");
+      AssertFatal(drawInst->texture != nullptr, "GuiRenderBinExecutor::execute Must set texture if setting sampler");
+      AssertFatal(drawInst->sampler != GFXHandleNone, "GuiRenderBinExecutor::execute Must set sampler if setting texture");
 
       cmdBuffer->setTexture(0, drawInst->texture, drawInst->sampler);
    }
 
-   cmdBuffer->drawPrimitives(drawInst->primitiveType, drawInst->vertexList.drawVboStart, drawInst->vertexList.count);
+   AssertFatal(drawInst->primitiveCount > 0, "GuiRenderBinExecutor::execute Must have primitive count greater than 0");
+   cmdBuffer->drawPrimitives(drawInst->primitiveType, drawInst->vertexList.drawVboStart, drawInst->primitiveCount);
 }
 
 
@@ -128,7 +132,7 @@ void GuiRenderBin::fillCommandBuffer(GFXCmdBuffer *cmdBuffer, GuiRenderManager *
    void* vertexData = renderManager->vertexData();
    
    uploadVertexData(vertexData);
-   
+
    for (const GuiRenderInst* inst : renderInsts)
    {
       switch (inst->type)
@@ -150,7 +154,7 @@ void GuiRenderBin::fillCommandBuffer(GFXCmdBuffer *cmdBuffer, GuiRenderManager *
          case GuiRenderInstType::DRAW:
          {
             const auto drawInst = static_cast<const GuiRenderInstDraw*>(inst);
-            processDrawInst(cmdBuffer, drawInst);
+            processDrawInst(cmdBuffer, drawInst, mVertexBufferHandle);
             break;
          }
       }

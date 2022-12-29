@@ -405,7 +405,7 @@ void CreatorTree::onMouseDragged(const GuiEvent & event)
 }
 
 //------------------------------------------------------------------------------
-void CreatorTree::onRenderCell(Point2I offset, Point2I cell, bool, bool) 
+void CreatorTree::onRenderCell(Point2I offset, Point2I cell, bool, bool, GuiRenderManager* manager)
 {
    Point2I cellOffset = offset;
 
@@ -428,7 +428,7 @@ void CreatorTree::onRenderCell(Point2I offset, Point2I cell, bool, bool)
    if( node->isGroup() ) 
    { 
       // If we need a box...
-      drawer->drawRectFill( boxStart, boxEnd, mProfile->mFillColor ); // Box background
+      drawer->drawRectFill( boxStart, boxEnd, mProfile->mFillColor, manager ); // Box background
       drawer->drawRect( boxStart, boxEnd, mProfile->mFontColor );     // Border
 
       // Cross line
@@ -473,7 +473,7 @@ void CreatorTree::onRenderCell(Point2I offset, Point2I cell, bool, bool)
       fontColor.set( 0, 0, 128 );
 
    drawer->setBitmapModulation(fontColor); //node->isSelected() ? mProfile->mFontColorHL : mProfile->mFontColor);
-   drawer->drawText( mProfile->mFont,
+   drawer->drawText( manager, mProfile->mFont,
                 Point2I( offset.x + mTxtOffset + mTabSize * ( node->mTab + 1 ), offset.y ),
                 node->mName);
 }

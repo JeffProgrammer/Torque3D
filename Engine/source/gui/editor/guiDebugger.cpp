@@ -651,7 +651,7 @@ void DbgFileView::onMouseUp(const GuiEvent &)
    mbMouseDragging = false;
 }
 
-void DbgFileView::onRenderCell(Point2I offset, Point2I cell, bool selected, bool)
+void DbgFileView::onRenderCell(Point2I offset, Point2I cell, bool selected, bool, GuiRenderManager* manager)
 {
    Point2I cellOffset = offset;
    cellOffset.x += 4;
@@ -660,12 +660,12 @@ void DbgFileView::onRenderCell(Point2I offset, Point2I cell, bool selected, bool
    if (mFileView[cell.y].breakOnLine)
    {
       GFX->getDrawUtil()->setBitmapModulation(mProfile->mFontColorHL);
-      GFX->getDrawUtil()->drawText(mFont, cellOffset, "#");
+      GFX->getDrawUtil()->drawText(manager, mFont, cellOffset, "#");
    }
    else if (mFileView[cell.y].breakPosition)
    {
       GFX->getDrawUtil()->setBitmapModulation(mProfile->mFontColor);
-      GFX->getDrawUtil()->drawText(mFont, cellOffset, "-");
+      GFX->getDrawUtil()->drawText(manager, mFont, cellOffset, "-");
    }
    cellOffset.x += 8;
 
@@ -673,7 +673,7 @@ void DbgFileView::onRenderCell(Point2I offset, Point2I cell, bool selected, bool
    if (mFileName == mPCFileName && (cell.y + 1 == mPCCurrentLine))
    {
       GFX->getDrawUtil()->setBitmapModulation(mProfile->mFontColorHL);
-      GFX->getDrawUtil()->drawText(mFont, cellOffset, "=>");
+      GFX->getDrawUtil()->drawText(manager, mFont, cellOffset, "=>");
    }
 
 	//by this time, the cellOffset has been incremented by 44 - the value of gFileXOffset
@@ -685,7 +685,7 @@ void DbgFileView::onRenderCell(Point2I offset, Point2I cell, bool selected, bool
       if (mBlockStart == -1)
       {
          GFX->getDrawUtil()->drawRectFill(RectI(cellOffset.x - 2, cellOffset.y - 3,
-                                 mCellSize.x + 4, mCellSize.y + 6), mProfile->mFillColorHL);
+                                 mCellSize.x + 4, mCellSize.y + 6), mProfile->mFillColorHL, manager);
       }
       else if (mBlockStart >= 0 && mBlockEnd > mBlockStart && mBlockEnd <= S32(dStrlen(mFileView[cell.y].text) + 1))
       {
@@ -702,11 +702,11 @@ void DbgFileView::onRenderCell(Point2I offset, Point2I cell, bool selected, bool
          startPos = mFont->getStrWidth((const UTF8 *)tempBuf);
 
          //draw the hilite
-         GFX->getDrawUtil()->drawRectFill(RectI(cellOffset.x + startPos, cellOffset.y - 3, endPos - startPos + 2, mCellSize.y + 6), mProfile->mFillColorHL);
+         GFX->getDrawUtil()->drawRectFill(RectI(cellOffset.x + startPos, cellOffset.y - 3, endPos - startPos + 2, mCellSize.y + 6), mProfile->mFillColorHL, manager);
       }
    }
 
    //draw the line of text
    GFX->getDrawUtil()->setBitmapModulation(mFileView[cell.y].breakOnLine ? mProfile->mFontColorHL : mProfile->mFontColor);
-   GFX->getDrawUtil()->drawText(mFont, cellOffset, mFileView[cell.y].text);
+   GFX->getDrawUtil()->drawText(manager, mFont, cellOffset, mFileView[cell.y].text);
 }

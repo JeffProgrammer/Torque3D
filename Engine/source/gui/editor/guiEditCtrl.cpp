@@ -752,7 +752,7 @@ void GuiEditCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderMan
          if(!keyFocused)
             nutColor.set( 128, 128, 128, 100 );
 
-         drawNuts(box, outlineColor, nutColor);
+         drawNuts(box, outlineColor, nutColor, manager);
       }
    }
 
@@ -773,7 +773,7 @@ void GuiEditCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderMan
       // Draw fill.
       
       b.inset( 1, 1 );
-      drawer->drawRectFill( b, ColorI( 150, 150, 150, 128 ) );
+      drawer->drawRectFill( b, ColorI( 150, 150, 150, 128 ), manager );
    }
 
    // Draw grid.
@@ -869,7 +869,7 @@ void GuiEditCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderMan
 
 //-----------------------------------------------------------------------------
 
-void GuiEditCtrl::drawNuts(RectI &box, ColorI &outlineColor, ColorI &nutColor)
+void GuiEditCtrl::drawNuts(RectI &box, ColorI &outlineColor, ColorI &nutColor, GuiRenderManager* manager)
 {
    GFXDrawUtil *drawer = GFX->getDrawUtil();
 
@@ -917,24 +917,24 @@ void GuiEditCtrl::drawNuts(RectI &box, ColorI &outlineColor, ColorI &nutColor)
    
    // Draw nuts.
 
-   drawNut( Point2I( lx - NUT_SIZE, ty - NUT_SIZE ), outlineColor, nutColor ); // Top left
-   drawNut( Point2I( lx - NUT_SIZE, cy - NUT_SIZE / 2 ), outlineColor, nutColor ); // Mid left
-   drawNut( Point2I( lx - NUT_SIZE, by ), outlineColor, nutColor ); // Bottom left
-   drawNut( Point2I( rx, ty - NUT_SIZE ), outlineColor, nutColor ); // Top right
-   drawNut( Point2I( rx, cy - NUT_SIZE / 2 ), outlineColor, nutColor ); // Mid right
-   drawNut( Point2I( rx, by ), outlineColor, nutColor ); // Bottom right
-   drawNut( Point2I( cx - NUT_SIZE / 2, ty - NUT_SIZE ), outlineColor, nutColor ); // Mid top
-   drawNut( Point2I( cx - NUT_SIZE / 2, by ), outlineColor, nutColor ); // Mid bottom
+   drawNut( Point2I( lx - NUT_SIZE, ty - NUT_SIZE ), outlineColor, nutColor, manager ); // Top left
+   drawNut( Point2I( lx - NUT_SIZE, cy - NUT_SIZE / 2 ), outlineColor, nutColor, manager ); // Mid left
+   drawNut( Point2I( lx - NUT_SIZE, by ), outlineColor, nutColor, manager ); // Bottom left
+   drawNut( Point2I( rx, ty - NUT_SIZE ), outlineColor, nutColor, manager ); // Top right
+   drawNut( Point2I( rx, cy - NUT_SIZE / 2 ), outlineColor, nutColor, manager ); // Mid right
+   drawNut( Point2I( rx, by ), outlineColor, nutColor, manager ); // Bottom right
+   drawNut( Point2I( cx - NUT_SIZE / 2, ty - NUT_SIZE ), outlineColor, nutColor, manager ); // Mid top
+   drawNut( Point2I( cx - NUT_SIZE / 2, by ), outlineColor, nutColor, manager ); // Mid bottom
 }
 
 //-----------------------------------------------------------------------------
 
-void GuiEditCtrl::drawNut(const Point2I &nut, ColorI &outlineColor, ColorI &nutColor)
+void GuiEditCtrl::drawNut(const Point2I &nut, ColorI &outlineColor, ColorI &nutColor, GuiRenderManager* manager)
 {
    RectI r( nut.x, nut.y, NUT_SIZE * 2, NUT_SIZE * 2 );
    GFX->getDrawUtil()->drawRect( r, outlineColor );
    r.inset( 1, 1 );
-   GFX->getDrawUtil()->drawRectFill( r, nutColor );
+   GFX->getDrawUtil()->drawRectFill( r, nutColor, manager);
 }
 
 //=============================================================================
@@ -2872,7 +2872,7 @@ class GuiEditorRuler : public GuiControl
       
       void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager)
       {
-         GFX->getDrawUtil()->drawRectFill(updateRect, ColorI::WHITE);
+         GFX->getDrawUtil()->drawRectFill(updateRect, ColorI::WHITE, manager);
          
          Point2I choffset(0,0);
          if( mRefCtrl != NULL )

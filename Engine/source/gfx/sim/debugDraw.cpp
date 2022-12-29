@@ -215,6 +215,9 @@ void DebugDrawer::render(bool clear)
 #ifdef ENABLE_DEBUGDRAW
    if(!isDrawing)
       return;
+   
+   // TODO:
+   GuiRenderManager *manager = nullptr;
 
    GFXDEBUGEVENT_SCOPE( DebugDrawer, ColorI::GREEN );
 
@@ -300,13 +303,13 @@ void DebugDrawer::render(bool clear)
                Point2I  where = Point2I(result.x, result.y);
                //only switch statement that uses p->color2
                GFX->getDrawUtil()->setBitmapModulation(p->color2.toColorI());
-               GFX->getDrawUtil()->drawText(mFont, Point2I(where.x-1, where.y), p->mText);
-               GFX->getDrawUtil()->drawText(mFont, Point2I(where.x+1, where.y), p->mText);
-               GFX->getDrawUtil()->drawText(mFont, Point2I(where.x, where.y-1), p->mText);
-               GFX->getDrawUtil()->drawText(mFont, Point2I(where.x, where.y+1), p->mText);
+               GFX->getDrawUtil()->drawText(manager, mFont, Point2I(where.x-1, where.y), p->mText);
+               GFX->getDrawUtil()->drawText(manager, mFont, Point2I(where.x+1, where.y), p->mText);
+               GFX->getDrawUtil()->drawText(manager, mFont, Point2I(where.x, where.y-1), p->mText);
+               GFX->getDrawUtil()->drawText(manager, mFont, Point2I(where.x, where.y+1), p->mText);
 
                GFX->getDrawUtil()->setBitmapModulation(color); 
-               GFX->getDrawUtil()->drawText(mFont, where, p->mText);
+               GFX->getDrawUtil()->drawText(manager, mFont, where, p->mText);
             }
          }
          break;
@@ -332,7 +335,7 @@ void DebugDrawer::render(bool clear)
             {
                GFX->setClipRect(GFX->getViewport());
                GFX->getDrawUtil()->setBitmapModulation(color); 
-               GFX->getDrawUtil()->drawText(mFont, Point2I(result.x, result.y), p->mText);
+               GFX->getDrawUtil()->drawText(manager, mFont, Point2I(result.x, result.y), p->mText);
             }
          }
          break;

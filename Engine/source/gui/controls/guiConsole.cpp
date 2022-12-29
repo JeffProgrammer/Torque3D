@@ -185,7 +185,7 @@ void GuiConsole::onPreRender()
 
 //-----------------------------------------------------------------------------
 
-void GuiConsole::onRenderCell(Point2I offset, Point2I cell, bool /*selected*/, bool /*mouseOver*/)
+void GuiConsole::onRenderCell(Point2I offset, Point2I cell, bool /*selected*/, bool /*mouseOver*/, GuiRenderManager* manager)
 {
    ConsoleLogEntry &entry = mFilteredLog[cell.y];
    switch (entry.mLevel)
@@ -195,7 +195,7 @@ void GuiConsole::onRenderCell(Point2I offset, Point2I cell, bool /*selected*/, b
       case ConsoleLogEntry::Error:    GFX->getDrawUtil()->setBitmapModulation(mProfile->mFontColorNA); break;
       default: AssertFatal(false, "GuiConsole::onRenderCell - Unrecognized ConsoleLogEntry type, update this.");
    }
-   GFX->getDrawUtil()->drawText(mFont, Point2I(offset.x + 3, offset.y), entry.mString, mProfile->mFontColors);
+   GFX->getDrawUtil()->drawText(manager, mFont, Point2I(offset.x + 3, offset.y), entry.mString, mProfile->mFontColors);
 }
 
 //-----------------------------------------------------------------------------

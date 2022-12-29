@@ -178,7 +178,7 @@ void VEditorButton::onRender(Point2I offset, const RectI& updateRect, GuiRenderM
     if ( texture )
     {
         GFX->getDrawUtil()->clearBitmapModulation();
-        GFX->getDrawUtil()->drawBitmapStretch( texture, RectI( offset, getExtent() ) );
+        GFX->getDrawUtil()->drawBitmapStretch( texture, RectI( offset, getExtent() ), manager );
     }
     else
     {
@@ -188,18 +188,18 @@ void VEditorButton::onRender(Point2I offset, const RectI& updateRect, GuiRenderM
 
             if ( mDepressed || mStateOn || mHighlighted )
             {
-                renderFilledBorder( boundsRect, mProfile->mBorderColorHL, mProfile->mFillColorHL );
+                renderFilledBorder( boundsRect, mProfile->mBorderColorHL, mProfile->mFillColorHL, manager );
             }
             else
             {
-                renderFilledBorder( boundsRect, mProfile->mBorderColor, mProfile->mFillColor );
+                renderFilledBorder( boundsRect, mProfile->mBorderColor, mProfile->mFillColor, manager );
             }
         }
     }
 
     // Render Text.
     GFX->getDrawUtil()->setBitmapModulation( mProfile->mFontColor );
-    renderJustifiedText( offset + mProfile->mTextOffset, getExtent(), mButtonText );
+    renderJustifiedText( manager, offset + mProfile->mTextOffset, getExtent(), mButtonText );
 
     renderChildControls(offset, updateRect, manager);
 }

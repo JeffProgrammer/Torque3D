@@ -528,7 +528,7 @@ void GuiRolloutCtrl::onRender( Point2I offset, const RectI &updateRect, GuiRende
 
    // if opaque, fill the update rect with the fill color
    if ( mProfile->mOpaque )
-      GFX->getDrawUtil()->drawRectFill( worldBounds, mProfile->mFillColor );
+      GFX->getDrawUtil()->drawRectFill( worldBounds, mProfile->mFillColor, manager );
 
    if ( mProfile->mBitmapArrayRects.size() >= NumBitmaps )
    {
@@ -536,11 +536,11 @@ void GuiRolloutCtrl::onRender( Point2I offset, const RectI &updateRect, GuiRende
 
       // Draw Rollout From Skin
       if ( !mIsExpanded && !mIsAnimating )
-         renderFixedBitmapBordersFilled( worldBounds, 1, mProfile );
+         renderFixedBitmapBordersFilled( worldBounds, 1, mProfile, manager );
       else if ( mHideHeader )
-         renderSizableBitmapBordersFilledIndex( worldBounds, MidPageLeft, mProfile );
+         renderSizableBitmapBordersFilledIndex( worldBounds, MidPageLeft, mProfile, manager );
       else
-         renderSizableBitmapBordersFilledIndex( worldBounds, TopLeftHeader, mProfile );
+         renderSizableBitmapBordersFilledIndex( worldBounds, TopLeftHeader, mProfile, manager );
    }
 
    if ( !(mIsExpanded && mHideHeader ) )
@@ -550,7 +550,7 @@ void GuiRolloutCtrl::onRender( Point2I offset, const RectI &updateRect, GuiRende
       GFX->getDrawUtil()->getBitmapModulation( &currColor );
       Point2I textPosition = mHeader.point + offset + mProfile->mTextOffset;
       GFX->getDrawUtil()->setBitmapModulation( mProfile->mFontColor );
-      renderJustifiedText( textPosition, mHeader.extent, mCaption );
+      renderJustifiedText( manager, textPosition, mHeader.extent, mCaption );
       GFX->getDrawUtil()->setBitmapModulation( currColor );
    }
 
@@ -573,7 +573,7 @@ void GuiRolloutCtrl::onRender( Point2I offset, const RectI &updateRect, GuiRende
    renderChildControls( offset, updateRect, manager );
 
    // Render our border should we have it specified in our profile.
-   renderBorder(worldBounds, mProfile);
+   renderBorder(worldBounds, mProfile, manager);
 }
 
 //=============================================================================

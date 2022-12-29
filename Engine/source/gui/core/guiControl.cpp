@@ -445,11 +445,11 @@ void GuiControl::onRender(Point2I offset, const RectI &updateRect, GuiRenderMana
 
    //if opaque, fill the update rect with the fill color
    if ( mProfile->mOpaque )
-      GFX->getDrawUtil()->drawRectFill(ctrlRect, mProfile->mFillColor);
+      GFX->getDrawUtil()->drawRectFill(ctrlRect, mProfile->mFillColor, manager);
 
    //if there's a border, draw the border
    if ( mProfile->mBorder )
-      renderBorder(ctrlRect, mProfile);
+      renderBorder(ctrlRect, mProfile, manager);
 
    // Render Children
    renderChildControls(offset, updateRect, manager);
@@ -457,7 +457,7 @@ void GuiControl::onRender(Point2I offset, const RectI &updateRect, GuiRenderMana
 
 //-----------------------------------------------------------------------------
 
-bool GuiControl::defaultTooltipRender( const Point2I &hoverPos, const Point2I &cursorPos, const char* tipText )
+bool GuiControl::defaultTooltipRender( const Point2I &hoverPos, const Point2I &cursorPos, GuiRenderManager* manager, const char* tipText )
 {
    // Short Circuit.
    if (!mAwake) 
@@ -535,7 +535,7 @@ bool GuiControl::defaultTooltipRender( const Point2I &hoverPos, const Point2I &c
    GFX->setClipRect( rect );
 
    // Draw Filler bit, then border on top of that
-   drawUtil->drawRectFill( rect, mTooltipProfile->mFillColor );
+   drawUtil->drawRectFill( rect, mTooltipProfile->mFillColor, manager );
    drawUtil->drawRect( rect, mTooltipProfile->mBorderColor );
 
    // Draw the text centered in the tool tip box...
@@ -548,7 +548,7 @@ bool GuiControl::defaultTooltipRender( const Point2I &hoverPos, const Point2I &c
       const UTF8 *line = renderTip.c_str() + startLineOffsets[i];
       U32 lineLen = lineLengths[i];
 
-      drawUtil->drawTextN( font, start + offset, line, lineLen, mProfile->mFontColors );
+      drawUtil->drawTextN( manager, font, start + offset, line, lineLen, mProfile->mFontColors );
    }
 
    GFX->setClipRect( oldClip );
@@ -591,6 +591,9 @@ void GuiControl::renderChildControls(Point2I offset, const RectI &updateRect, Gu
             GuiRenderInstStateBlock* stateBlockInst = manager->allocRenderInstStateBlock();
             stateBlockInst->stateBlock = mDefaultGuiSB;
 
+            manager->pushInst(clipRectInst);
+            manager->pushInst(stateBlockInst);
+
             ctrl->onRender(childPosition, childClip, manager);
          }
       }
@@ -622,7 +625,7 @@ void GuiControl::setUpdate()
 
 //-----------------------------------------------------------------------------
 
-void GuiControl::renderJustifiedText(Point2I offset, Point2I extent, const char *text)
+void GuiControl::renderJustifiedText(GuiRenderManager* manager, Point2I offset, Point2I extent, const char *text)
 {
    GFont *font = mProfile->mFont;
    if(!font)
@@ -681,7 +684,7 @@ void GuiControl::renderJustifiedText(Point2I offset, Point2I extent, const char 
             break;
       }
 
-   GFX->getDrawUtil()->drawText( font, start + offset, text, mProfile->mFontColors );
+   GFX->getDrawUtil()->drawText( manager, font, start + offset, text, mProfile->mFontColors );
 }
 
 //=============================================================================

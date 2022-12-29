@@ -77,9 +77,9 @@ void GuiToggleButtonCtrl::onRender(Point2I offset, const RectI& updateRect, GuiR
    if( !mHasTheme )
    {
       if( mProfile->mBorder != 0 )
-         renderFilledBorder( boundsRect, borderColor, fillColor, mProfile->mBorderThickness );
+         renderFilledBorder( boundsRect, borderColor, fillColor, manager, mProfile->mBorderThickness );
       else
-         GFX->getDrawUtil()->drawRectFill( boundsRect, fillColor );
+         GFX->getDrawUtil()->drawRectFill( boundsRect, fillColor, manager );
    }
    else if( mHasTheme )
    {
@@ -92,7 +92,7 @@ void GuiToggleButtonCtrl::onRender(Point2I offset, const RectI& updateRect, GuiR
          indexMultiplier = 3;
 
 
-      renderSizableBitmapBordersFilled( boundsRect, indexMultiplier, mProfile );
+      renderSizableBitmapBordersFilled( boundsRect, indexMultiplier, mProfile, manager );
    }
 
    Point2I textPos = offset;
@@ -100,7 +100,7 @@ void GuiToggleButtonCtrl::onRender(Point2I offset, const RectI& updateRect, GuiR
       textPos += Point2I(1,1);
 
    GFX->getDrawUtil()->setBitmapModulation( fontColor );
-   renderJustifiedText(textPos, getExtent(), mButtonText);
+   renderJustifiedText(manager, textPos, getExtent(), mButtonText);
 
    //render the children
    renderChildControls(offset, updateRect, manager);

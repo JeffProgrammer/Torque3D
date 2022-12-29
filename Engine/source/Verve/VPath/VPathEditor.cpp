@@ -1458,6 +1458,8 @@ void VPathEditor::renderScene( const RectI &pUpdateRect )
     // Setup State Block.
     setStateBlock();
 
+    GuiRenderManager manager;
+
     if ( isValidSelection() )
     {
         // Fetch Current Node.
@@ -1537,13 +1539,13 @@ void VPathEditor::renderScene( const RectI &pUpdateRect )
     }
 
     // Render Path Segments.
-    renderPaths( k_RenderSegments );
+    renderPaths( k_RenderSegments, &manager );
 
     // Set Clip Rect.
     GFX->setClipRect( pUpdateRect ); 
 
     // Render Path Nodes.
-    renderPaths( k_RenderNodes );
+    renderPaths( k_RenderNodes, &manager );
 
     if ( isValidSelection() )
     {
@@ -1570,14 +1572,16 @@ void VPathEditor::renderScene( const RectI &pUpdateRect )
                 if ( getBounds().overlaps( nodeRect ) )
                 {
                     // Render the Point.
-                    GFX->getDrawUtil()->drawRectFill( nodeRect, gNodeLookAtPointColor );
+                    GFX->getDrawUtil()->drawRectFill( nodeRect, gNodeLookAtPointColor, &manager );
                 }
             }
         }
     }
+
+    // TODO: Execute Manager
 }
 
-void VPathEditor::renderPaths( const RenderType &pRenderType )
+void VPathEditor::renderPaths( const RenderType &pRenderType, GuiRenderManager* manager )
 {
     SimSet *objectSet = VPath::getServerSet();
     for ( SimSetIterator itr( objectSet ); *itr; ++itr )
@@ -1586,12 +1590,12 @@ void VPathEditor::renderPaths( const RenderType &pRenderType )
         if ( path )
         {
             // Render Path.
-            renderPath( pRenderType, path, ( path == mSelection.Path ) ? gPathColorSel : gPathColor );
+            renderPath( pRenderType, path, ( path == mSelection.Path ) ? gPathColorSel : gPathColor, manager );
         }
     }
 }
 
-void VPathEditor::renderPath( const RenderType &pRenderType, VPath *pPath, const ColorI &pColor )
+void VPathEditor::renderPath( const RenderType &pRenderType, VPath *pPath, const ColorI &pColor, GuiRenderManager* manager )
 {
     if ( !pPath )
     {
@@ -1663,11 +1667,11 @@ void VPathEditor::renderPath( const RenderType &pRenderType, VPath *pPath, const
                     }
 
                     // Render the Point.
-                    drawUtil->drawRectFill( nodeRect, pColor );
+                    drawUtil->drawRectFill( nodeRect, pColor, manager );
 
                     // Draw the node index text.
                     drawUtil->setBitmapModulation( getControlProfile()->mFontColor );
-                    drawUtil->drawText( getControlProfile()->mFont, nodeCenter - nodeTextHalfSize, nodeText );
+                    drawUtil->drawText( manager, getControlProfile()->mFont, nodeCenter - nodeTextHalfSize, nodeText );
                 }
 
             } break;

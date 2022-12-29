@@ -194,7 +194,8 @@ void GuiPaneControl::onRender(Point2I offset, const RectI &updateRect, GuiRender
       GFX->getDrawUtil()->drawBitmapStretchSR(
          mProfile->getBitmapResource(),
          RectI(offset, mProfile->mBitmapArrayRects[idx].extent),
-         mProfile->mBitmapArrayRects[idx]
+         mProfile->mBitmapArrayRects[idx],
+         manager
       );
 
    }
@@ -205,6 +206,7 @@ void GuiPaneControl::onRender(Point2I offset, const RectI &updateRect, GuiRender
    {
       GFX->getDrawUtil()->setBitmapModulation((mMouseOver ? mProfile->mFontColorHL : mProfile->mFontColor));
       textWidth = GFX->getDrawUtil()->drawText(
+            manager,
             mProfile->mFont,
             Point2I(mThumbSize.x, 0) + offset,
             mCaption,
@@ -227,7 +229,8 @@ void GuiPaneControl::onRender(Point2I offset, const RectI &updateRect, GuiRender
       GFX->getDrawUtil()->drawBitmapStretchSR(
          mProfile->getBitmapResource(),
          RectI(barOffset, mProfile->mBitmapArrayRects[2].extent),
-         mProfile->mBitmapArrayRects[2]
+         mProfile->mBitmapArrayRects[2],
+         manager
          );
 
       // Now draw the middle...
@@ -244,7 +247,8 @@ void GuiPaneControl::onRender(Point2I offset, const RectI &updateRect, GuiRender
          GFX->getDrawUtil()->drawBitmapStretchSR(
             mProfile->getBitmapResource(),
             RectI(barOffset, Point2I(barMiddleSize, mProfile->mBitmapArrayRects[3].extent.y)),
-            foo
+            foo,
+            manager
             );
       }
 
@@ -254,7 +258,8 @@ void GuiPaneControl::onRender(Point2I offset, const RectI &updateRect, GuiRender
       GFX->getDrawUtil()->drawBitmapStretchSR(
          mProfile->getBitmapResource(),
          RectI(barOffset, mProfile->mBitmapArrayRects[4].extent),
-         mProfile->mBitmapArrayRects[4]
+         mProfile->mBitmapArrayRects[4],
+         manager
          );
    }
 
@@ -262,6 +267,7 @@ void GuiPaneControl::onRender(Point2I offset, const RectI &updateRect, GuiRender
    {
       GFX->getDrawUtil()->setBitmapModulation((mMouseOver ? mProfile->mFontColorHL : mProfile->mFontColor));
       GFX->getDrawUtil()->drawText(
+            manager,
             mProfile->mFont,
             Point2I(mThumbSize.x, 0) + offset,
             mCaption,

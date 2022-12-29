@@ -220,14 +220,14 @@ void GuiProgressBitmapCtrl::onRender(Point2I offset, const RectI &updateRect, Gu
 			//drawing stretch bitmap
 			RectI progressRect = ctrlRect;
 			progressRect.extent.x = width;
-			drawUtil->drawBitmapStretchSR(mProfile->getBitmapResource(), progressRect, mProfile->mBitmapArrayRects[0]);
+			drawUtil->drawBitmapStretchSR(mProfile->getBitmapResource(), progressRect, mProfile->mBitmapArrayRects[0], manager);
 		}
 	}
 	else if(mNumberOfBitmaps >= 3)
 	{
 		//drawing left-end bitmap
 		RectI progressRectLeft(ctrlRect.point.x, ctrlRect.point.y, mDim, mDim);
-		drawUtil->drawBitmapStretchSR(mProfile->getBitmapResource(), progressRectLeft, mProfile->mBitmapArrayRects[0]);
+		drawUtil->drawBitmapStretchSR(mProfile->getBitmapResource(), progressRectLeft, mProfile->mBitmapArrayRects[0], manager);
 
 		//draw the progress with image
 		S32 width = (S32)((F32)(getWidth()) * mProgress);
@@ -239,11 +239,11 @@ void GuiProgressBitmapCtrl::onRender(Point2I offset, const RectI &updateRect, Gu
 			progressRect.extent.x = (width - mDim - mDim);
 			if (progressRect.extent.x < 0)
 				progressRect.extent.x = 0;
-			drawUtil->drawBitmapStretchSR(mProfile->getBitmapResource(), progressRect, mProfile->mBitmapArrayRects[1]);
+			drawUtil->drawBitmapStretchSR(mProfile->getBitmapResource(), progressRect, mProfile->mBitmapArrayRects[1], manager);
 		
 			//drawing right-end bitmap
 			RectI progressRectRight(progressRect.point.x + progressRect.extent.x, ctrlRect.point.y, mDim, mDim );
-			drawUtil->drawBitmapStretchSR(mProfile->getBitmapResource(), progressRectRight, mProfile->mBitmapArrayRects[2]);
+			drawUtil->drawBitmapStretchSR(mProfile->getBitmapResource(), progressRectRight, mProfile->mBitmapArrayRects[2], manager);
 		}
 	}
 	else

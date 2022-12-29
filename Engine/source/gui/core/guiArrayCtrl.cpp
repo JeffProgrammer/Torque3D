@@ -186,18 +186,18 @@ void GuiArrayCtrl::scrollCellVisible(Point2I cell)
 
 //-----------------------------------------------------------------------------
 
-void GuiArrayCtrl::onRenderColumnHeaders(Point2I offset, Point2I parentOffset, Point2I headerDim)
+void GuiArrayCtrl::onRenderColumnHeaders(Point2I offset, Point2I parentOffset, Point2I headerDim, GuiRenderManager* manager)
 {
    if (mProfile->mBorder)
    {
       RectI cellR(offset.x + headerDim.x, parentOffset.y, getWidth() - headerDim.x, headerDim.y);
-      GFX->getDrawUtil()->drawRectFill(cellR, mProfile->mBorderColor);
+      GFX->getDrawUtil()->drawRectFill(cellR, mProfile->mBorderColor, manager);
    }
 }
 
 //-----------------------------------------------------------------------------
 
-void GuiArrayCtrl::onRenderRowHeader(Point2I offset, Point2I parentOffset, Point2I headerDim, Point2I cell)
+void GuiArrayCtrl::onRenderRowHeader(Point2I offset, Point2I parentOffset, Point2I headerDim, Point2I cell, GuiRenderManager* manager)
 {
    ColorI color;
    RectI cellR;
@@ -208,12 +208,12 @@ void GuiArrayCtrl::onRenderRowHeader(Point2I offset, Point2I parentOffset, Point
 
    cellR.point.set(parentOffset.x, offset.y);
    cellR.extent.set(headerDim.x, mCellSize.y);
-   GFX->getDrawUtil()->drawRectFill(cellR, color);
+   GFX->getDrawUtil()->drawRectFill(cellR, color, manager);
 }
 
 //-----------------------------------------------------------------------------
 
-void GuiArrayCtrl::onRenderCell(Point2I offset, Point2I cell, bool selected, bool mouseOver)
+void GuiArrayCtrl::onRenderCell(Point2I offset, Point2I cell, bool selected, bool mouseOver, GuiRenderManager* manager)
 {
    ColorI color(255 * (cell.x % 2), 255 * (cell.y % 2), 255 * ((cell.x + cell.y) % 2), 255);
    if (selected)
@@ -227,7 +227,7 @@ void GuiArrayCtrl::onRenderCell(Point2I offset, Point2I cell, bool selected, boo
 
    //draw the cell
    RectI cellR(offset.x, offset.y, mCellSize.x, mCellSize.y);
-   GFX->getDrawUtil()->drawRectFill(cellR, color);
+   GFX->getDrawUtil()->drawRectFill(cellR, color, manager);
 }
 
 //-----------------------------------------------------------------------------
@@ -250,11 +250,11 @@ void GuiArrayCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderMa
 
       //if opaque, fill the update rect with the fill color
       if ( mProfile->mOpaque )
-         GFX->getDrawUtil()->drawRectFill(ctrlRect, mProfile->mFillColor);
+         GFX->getDrawUtil()->drawRectFill(ctrlRect, mProfile->mFillColor, manager);
 
       //if there's a border, draw the border
       if ( mProfile->mBorder )
-         renderBorder(ctrlRect, mProfile);
+         renderBorder(ctrlRect, mProfile, manager );
    }
 
    //make sure we have a parent
@@ -281,7 +281,7 @@ void GuiArrayCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderMa
          GFX->setClipRect(headerClip);
 
          //now render the header
-         onRenderColumnHeaders(offset, parentOffset, mHeaderDim);
+         onRenderColumnHeaders(offset, parentOffset, mHeaderDim, manager);
 
          clipRect.point.y += headerClip.extent.y;
          clipRect.extent.y -= headerClip.extent.y;
@@ -323,7 +323,7 @@ void GuiArrayCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderMa
             //render the row header
             onRenderRowHeader(Point2I(0, offset.y + j * mCellSize.y),
                               Point2I(parentOffset.x, offset.y + j * mCellSize.y),
-                              mHeaderDim, Point2I(0, j));
+                              mHeaderDim, Point2I(0, j), manager);
          }
       }
 
@@ -352,7 +352,7 @@ void GuiArrayCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderMa
             //render the cell
             onRenderCell(Point2I(cellx, celly), Point2I(i, j),
                i == mSelectedCell.x && j == mSelectedCell.y,
-               i == mMouseOverCell.x && j == mMouseOverCell.y);
+               i == mMouseOverCell.x && j == mMouseOverCell.y, manager);
          }
       }
    }

@@ -111,7 +111,7 @@ void GuiCursor::onRemove()
    Parent::onRemove();
 }
 
-void GuiCursor::render(const Point2I &pos)
+void GuiCursor::render(const Point2I &pos, GuiRenderManager* manager)
 {
    if (mBitmap)
    {
@@ -127,7 +127,7 @@ void GuiCursor::render(const Point2I &pos)
    renderPos.y -= (S32)( texHeight * mRenderOffset.y );
 
    GFX->getDrawUtil()->clearBitmapModulation();
-   GFX->getDrawUtil()->drawBitmap(mBitmap, renderPos);
+   GFX->getDrawUtil()->drawBitmap(mBitmap, renderPos, manager);
 }
 
 //------------------------------------------------------------------------------

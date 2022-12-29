@@ -80,7 +80,7 @@ void VFadeControl::onRender( Point2I pOffset, const RectI &pUpdateRect, GuiRende
     if ( alpha > 0.f )
     {
         // Render.
-        GFX->getDrawUtil()->drawRectFill( pOffset, pOffset + getExtent(), ColorI( 0, 0, 0, alpha * 255 ) );
+        GFX->getDrawUtil()->drawRectFill( pOffset, pOffset + getExtent(), ColorI( 0, 0, 0, alpha * 255 ), manager );
     }
 
     if ( mElapsedTime >= mDuration )

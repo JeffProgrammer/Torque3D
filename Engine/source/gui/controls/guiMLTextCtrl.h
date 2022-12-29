@@ -224,7 +224,7 @@ class GuiMLTextCtrl : public GuiControl
    void emitBitmapToken(Bitmap *bmp, U32 textStart, bool bitmapBreak);
    void processEmitAtoms();
    Atom *splitAtomListEmit(Atom *list, U32 width);
-   void drawAtomText(bool sel, U32 start, U32 end, Atom *atom, Line *line, Point2I offset);
+   void drawAtomText(bool sel, U32 start, U32 end, Atom *atom, Line *line, Point2I offset, GuiRenderManager* manager);
    Atom *findHitAtom(const Point2I localCoords);
    Style *allocStyle(Style *style);
 

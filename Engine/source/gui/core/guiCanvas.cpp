@@ -310,6 +310,8 @@ bool GuiCanvas::onAdd()
       WindowManager->setDisplayWindow(false);
       window->setDisplayWindow(false);
    }
+   
+   renderBin.createVertexBuffer();
 
    // Propagate add to parents.
    // CodeReview - if GuiCanvas fails to add for whatever reason, what happens to
@@ -1928,9 +1930,8 @@ void GuiCanvas::renderFrame(bool preRenderOnly, bool bufferSwap /* = true */)
    if ( gScreenShot && gScreenShot->isPending() )
       gScreenShot->tileGui( size );
 
-   GuiRenderBin renderBin;
-   GuiRenderManager renderManager;
-
+   renderManager.clear();
+   
    RectI updateUnion;
    buildUpdateUnion(&updateUnion);
    if (updateUnion.intersect(screenRect))
@@ -1951,14 +1952,14 @@ void GuiCanvas::renderFrame(bool preRenderOnly, bool bufferSwap /* = true */)
 
          GuiRenderInstStateBlock* stateBlockInst = renderManager.allocRenderInstStateBlock();
          stateBlockInst->stateBlock = mDefaultGuiSB;
+
+         renderManager.pushInst(clipRectInst);
+         renderManager.pushInst(stateBlockInst);
          
          contentCtrl->onRender(contentCtrl->getPosition(), updateUnion, &renderManager);
       }
 
-      GFXCmdBuffer cmdBuffer(GFX);
-      renderBin.fillCommandBuffer(&cmdBuffer, &renderManager);
-      GFX->executeCmdBuffer(&cmdBuffer);
-
+      // Jeff: TODO: put clear in command buffer??
       // Fill Black if no Dialogs
       if(this->size() == 0)
          GFX->clear( GFXClearTarget, ColorI(0,0,0,0), 1.0f, 0 );
@@ -1975,7 +1976,7 @@ void GuiCanvas::renderFrame(bool preRenderOnly, bool bufferSwap /* = true */)
                {
                   mHoverPosition = cursorPos;
                }
-               mHoverPositionSet = mMouseControl->mRenderTooltipDelegate( mHoverPosition, cursorPos, NULL );
+               mHoverPositionSet = mMouseControl->mRenderTooltipDelegate( mHoverPosition, cursorPos, &renderManager, NULL );
             }
 
          } 
@@ -2017,8 +2018,12 @@ void GuiCanvas::renderFrame(bool preRenderOnly, bool bufferSwap /* = true */)
          Point2I spot = mouseCursor->getHotSpot();
 
          pos -= spot;
-         mouseCursor->render(pos);
+         mouseCursor->render(pos, &renderManager);
       }
+
+      GFXCmdBuffer cmdBuffer(GFX);
+      renderBin.fillCommandBuffer(&cmdBuffer, &renderManager);
+      GFX->executeCmdBuffer(&cmdBuffer);
    }
 
    // Render all RTT end of frame updates HERE

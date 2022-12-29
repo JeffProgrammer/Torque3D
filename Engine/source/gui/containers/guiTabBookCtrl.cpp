@@ -501,7 +501,7 @@ void GuiTabBookCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRender
    GFX->setClipRect( clippedTabRect );
 
    // Render our tabs
-   renderTabs( offset, tabRect );
+   renderTabs( offset, tabRect, manager );
 
    // Restore Rect.
    GFX->setClipRect( savedClipRect );
@@ -512,7 +512,7 @@ void GuiTabBookCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRender
 
 //-----------------------------------------------------------------------------
 
-void GuiTabBookCtrl::renderTabs( const Point2I &offset, const RectI &tabRect )
+void GuiTabBookCtrl::renderTabs( const Point2I &offset, const RectI &tabRect, GuiRenderManager* manager )
 {
    // If the tab size is zero, don't render tabs,
    //  assuming it's a tab-less book
@@ -526,7 +526,7 @@ void GuiTabBookCtrl::renderTabs( const Point2I &offset, const RectI &tabRect )
       tabBounds.point += offset;
       GuiTabPageCtrl *tab = mPages[i].Page;
       if( tab != NULL )
-         renderTab( tabBounds, tab );
+         renderTab( tabBounds, tab, manager );
 
       // If we're on the last tab, draw the nice end piece
       if( i + 1 == mPages.size() )
@@ -541,14 +541,14 @@ void GuiTabBookCtrl::renderTabs( const Point2I &offset, const RectI &tabRect )
          // case trying to render causes a DX assert. Could be better if 
          // setClipRect returned a bool.
          if ( GFX->getViewport().isValidRect() )
-            renderFixedBitmapBordersFilled( tabEndRect, TabEnds + 1, mProfile );
+            renderFixedBitmapBordersFilled( tabEndRect, TabEnds + 1, mProfile, manager );
       }
    }
 }
 
 //-----------------------------------------------------------------------------
 
-void GuiTabBookCtrl::renderTab(const RectI& tabRect, GuiTabPageCtrl *tab)
+void GuiTabBookCtrl::renderTab(const RectI& tabRect, GuiTabPageCtrl *tab, GuiRenderManager* manager)
 {
    StringTableEntry text = tab->getText();
    ColorI oldColor;
@@ -573,17 +573,17 @@ void GuiTabBookCtrl::renderTab(const RectI& tabRect, GuiTabPageCtrl *tab)
          break;
       } 
 
-      renderFixedBitmapBordersFilled( tabRect, indexMultiplier, mProfile );
+      renderFixedBitmapBordersFilled( tabRect, indexMultiplier, mProfile, manager );
    }
    else
    {
       // If this isn't a skinned control or the bitmap is simply missing, handle it WELL
       if ( mActivePage == tab )
-         GFX->getDrawUtil()->drawRectFill(tabRect, mProfile->mFillColor);
+         GFX->getDrawUtil()->drawRectFill(tabRect, mProfile->mFillColor, manager);
       else if( mHoverTab == tab )
-         GFX->getDrawUtil()->drawRectFill(tabRect, mProfile->mFillColorHL);
+         GFX->getDrawUtil()->drawRectFill(tabRect, mProfile->mFillColorHL, manager);
       else
-         GFX->getDrawUtil()->drawRectFill(tabRect, mProfile->mFillColorNA);
+         GFX->getDrawUtil()->drawRectFill(tabRect, mProfile->mFillColorNA, manager);
 
    }
 
@@ -594,7 +594,7 @@ void GuiTabBookCtrl::renderTab(const RectI& tabRect, GuiTabPageCtrl *tab)
    {
    case AlignTop:
    case AlignBottom:
-      renderJustifiedText( tabRect.point, tabRect.extent, text);
+      renderJustifiedText( manager, tabRect.point, tabRect.extent, text);
    break;
    }
 

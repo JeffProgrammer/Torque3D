@@ -129,9 +129,9 @@ void GuiGameSettingsCtrl::onRender(Point2I offset, const RectI &updateRect, GuiR
    if (!mHasTheme)
    {
       if (mProfile->mBorder != 0)
-         renderFilledBorder(boundsRect, borderColor, fillColor, mProfile->mBorderThickness);
+         renderFilledBorder(boundsRect, borderColor, fillColor, manager, mProfile->mBorderThickness);
       else
-         GFX->getDrawUtil()->drawRectFill(boundsRect, fillColor);
+         GFX->getDrawUtil()->drawRectFill(boundsRect, fillColor, manager);
    }
    else
    {
@@ -144,30 +144,30 @@ void GuiGameSettingsCtrl::onRender(Point2I offset, const RectI &updateRect, GuiR
       else if (mHighlighted)
          indexMultiplier = 3;
 
-      renderSizableBitmapBordersFilled(boundsRect, indexMultiplier, mProfile);
+      renderSizableBitmapBordersFilled(boundsRect, indexMultiplier, mProfile, manager);
    }
 
    // render the text
    drawUtil->setBitmapModulation(fontColor);
-   renderJustifiedText(currentOffset + textOffset, textExtent, mLabel);
+   renderJustifiedText(manager, currentOffset + textOffset, textExtent, mLabel);
 
    if (mMode == Mode::OptionList)
    {
-      onRenderListOption(currentOffset);
+      onRenderListOption(currentOffset, manager);
    }
    else if (mMode == Mode::Slider)
    {
-      onRenderSliderOption(currentOffset);
+      onRenderSliderOption(currentOffset, manager);
    }
    else if (mMode == Mode::Keybind)
    {
-      onRenderKeybindOption(currentOffset);
+      onRenderKeybindOption(currentOffset, manager);
    }
 
    renderChildControls(offset, updateRect, manager);
 }
 
-void GuiGameSettingsCtrl::onRenderListOption(Point2I currentOffset)
+void GuiGameSettingsCtrl::onRenderListOption(Point2I currentOffset, GuiRenderManager* manager)
 {
    F32 xScale = (float)getWidth();
 
@@ -190,7 +190,7 @@ void GuiGameSettingsCtrl::onRenderListOption(Point2I currentOffset)
          arrowOffset.y = currentOffset.y + arrowOffsetY;
 
          drawer->clearBitmapModulation();
-         drawer->drawBitmapStretch(mPreviousBitmap, RectI(arrowOffset, Point2I(mArrowSize, mArrowSize)), GFXBitmapFlip_None, GFXTextureFilterLinear, false);
+         drawer->drawBitmapStretch(mPreviousBitmap, RectI(arrowOffset, Point2I(mArrowSize, mArrowSize)), manager, GFXBitmapFlip_None, GFXTextureFilterLinear, false);
       }
       else
       {
@@ -213,7 +213,7 @@ void GuiGameSettingsCtrl::onRenderListOption(Point2I currentOffset)
          arrowOffset.y = currentOffset.y + arrowOffsetY;
 
          drawer->clearBitmapModulation();
-         drawer->drawBitmapStretch(mNextBitmap, RectI(arrowOffset, Point2I(mArrowSize, mArrowSize)), GFXBitmapFlip_None, GFXTextureFilterLinear, false);
+         drawer->drawBitmapStretch(mNextBitmap, RectI(arrowOffset, Point2I(mArrowSize, mArrowSize)), manager, GFXBitmapFlip_None, GFXTextureFilterLinear, false);
       }
       else
       {
@@ -259,11 +259,11 @@ void GuiGameSettingsCtrl::onRenderListOption(Point2I currentOffset)
       // render the option text itself
       Point2I textExtent(columnWidth, height);
       drawer->setBitmapModulation(fontColor);
-      renderJustifiedText(currentOffset + Point2I(mColumnSplit, 0), textExtent, text);
+      renderJustifiedText(manager, currentOffset + Point2I(mColumnSplit, 0), textExtent, text);
    }
 }
 
-void GuiGameSettingsCtrl::onRenderSliderOption(Point2I currentOffset)
+void GuiGameSettingsCtrl::onRenderSliderOption(Point2I currentOffset, GuiRenderManager* manager)
 {
    F32 xScale = (float)getWidth();
 
@@ -366,7 +366,7 @@ void GuiGameSettingsCtrl::onRenderSliderOption(Point2I currentOffset)
       barOutlineColor = mProfile->mFontColorHL;
    }
 
-   drawer->drawRectFill(fillRect, barColor);
+   drawer->drawRectFill(fillRect, barColor, manager);
 
    drawer->drawRect(sliderRect, barOutlineColor);
 
@@ -406,12 +406,12 @@ void GuiGameSettingsCtrl::onRenderSliderOption(Point2I currentOffset)
    textRect.extent.x = optionRect.extent.x * 0.3;
 
    drawer->setBitmapModulation(fontColor);
-   renderJustifiedText(textRect.point, textRect.extent, stringVal);
+   renderJustifiedText(manager, textRect.point, textRect.extent, stringVal);
 
    //drawer->drawRectFill(textRect, ColorI::RED);
 }
 
-void GuiGameSettingsCtrl::onRenderKeybindOption(Point2I currentOffset)
+void GuiGameSettingsCtrl::onRenderKeybindOption(Point2I currentOffset, GuiRenderManager* manager)
 {
    F32 xScale = (float)getWidth();
    S32 columnSplit = mColumnSplit;
@@ -433,7 +433,7 @@ void GuiGameSettingsCtrl::onRenderKeybindOption(Point2I currentOffset)
    {
       RectI rect(button, buttonSize);
       drawer->clearBitmapModulation();
-      drawer->drawBitmapStretch(mKeybindBitmap, rect, GFXBitmapFlip_None, GFXTextureFilterLinear, false);
+      drawer->drawBitmapStretch(mKeybindBitmap, rect, manager, GFXBitmapFlip_None, GFXTextureFilterLinear, false);
    }
 
    //drawer->drawRectFill(button, ColorI::BLUE);

@@ -73,7 +73,7 @@ class GuiDecalEditorCtrl : public EditTSCtrl
       void on3DRightMouseUp(const Gui3DMouseEvent & event);
       void updateGuiInfo();      
       void renderScene(const RectI & updateRect);
-      void renderGui(Point2I offset, const RectI &updateRect);
+      void renderGui(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 
       /// Find clicked point on "static collision" objects.
       bool getRayInfo( const Gui3DMouseEvent &event, RayInfo *rInfo );

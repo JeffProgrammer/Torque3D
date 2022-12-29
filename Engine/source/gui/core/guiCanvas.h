@@ -178,6 +178,9 @@ protected:
    bool           mHoverPositionSet;
    U32            mHoverLeftControlTime;
 
+   GuiRenderBin renderBin;
+   GuiRenderManager renderManager;
+   
 public:
    /// Setting for how to handle 'enableKeyboardTranslation' and 'setNativeAcceleratorsEnabled' requests.
    enum KeyTranslationMode

@@ -102,7 +102,7 @@ void GuiProgressCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRende
    {
       RectI progressRect = ctrlRect;
       progressRect.extent.x = width;
-      GFX->getDrawUtil()->drawRectFill(progressRect, mProfile->mFillColor);
+      GFX->getDrawUtil()->drawRectFill(progressRect, mProfile->mFillColor, manager);
    }
 
    //now draw the border

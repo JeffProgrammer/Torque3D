@@ -86,9 +86,9 @@ public:
 
    /// @name Rendering methods
    /// @{
-   virtual void onRenderColumnHeaders(Point2I offset, Point2I parentOffset, Point2I headerDim);
-   virtual void onRenderRowHeader(Point2I offset, Point2I parentOffset, Point2I headerDim, Point2I cell);
-   virtual void onRenderCell(Point2I offset, Point2I cell, bool selected, bool mouseOver);
+   virtual void onRenderColumnHeaders(Point2I offset, Point2I parentOffset, Point2I headerDim, GuiRenderManager* manager);
+   virtual void onRenderRowHeader(Point2I offset, Point2I parentOffset, Point2I headerDim, Point2I cell, GuiRenderManager* manager);
+   virtual void onRenderCell(Point2I offset, Point2I cell, bool selected, bool mouseOver, GuiRenderManager* manager);
    void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
    /// @}
 

@@ -21,7 +21,7 @@
 //-----------------------------------------------------------------------------
 #include "../../gl/hlslCompat.glsl"
 
-in vec4 vPosition;
+in vec3 vPosition;
 in vec4 vColor;
 in vec2 vTexCoord0;
 
@@ -31,7 +31,7 @@ out vec2 texCoord;
 
 void main()
 {
-   gl_Position = tMul(modelview, vPosition);
+   gl_Position = tMul(modelview, vec4(vPosition, 1.0));
    correctSSP(gl_Position);
    color = vColor;
    texCoord = vTexCoord0.st;

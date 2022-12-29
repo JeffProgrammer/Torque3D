@@ -134,10 +134,10 @@ public:
     // Render Methods.
 
     virtual void    setStateBlock( void );
-    virtual void    renderScene( const RectI &pUpdateRect );
-    void            renderPaths( const RenderType &pRenderType );
+    virtual void    renderScene( const RectI &pUpdateRect);
+    void            renderPaths( const RenderType &pRenderType, GuiRenderManager* manager);
 
-    void            renderPath( const RenderType &pRenderType, VPath *pPath, const ColorI &pColor );
+    void            renderPath( const RenderType &pRenderType, VPath *pPath, const ColorI &pColor, GuiRenderManager* manager);
     void            renderLinearPath( VPath *pPath, const ColorI &pColor );
     void            renderBezierPath( VPath *pPath, const ColorI &pColor );
 

@@ -34,6 +34,8 @@
 #include "gfx/gfxPrimitiveBuffer.h"
 #include "gfx/primBuilder.h"
 #include "gfx/gfxDebugEvent.h"
+#include "gui/render/guiRender.h"
+#include "gfx/gfxGenericShaderPipeline.h"
 
 #include "math/mPolyhedron.impl.h"
 
@@ -60,30 +62,13 @@ void GFXDrawUtil::_setupStateBlocks()
    bitmapStretchSR.setCullMode(GFXCullNone);
    bitmapStretchSR.setZReadWrite(false);
    bitmapStretchSR.setBlend(true, GFXBlendSrcAlpha, GFXBlendInvSrcAlpha);
-   bitmapStretchSR.samplersDefined = true;
    bitmapStretchSR.setColorWrites(true, true, true, false); // NOTE: comment this out if alpha write is needed
+   mBitmapSB = mDevice->createStateBlock(bitmapStretchSR);
 
-   // Linear: Create wrap SB
-   bitmapStretchSR.samplers[0] = GFXSamplerStateDesc::getWrapLinear();
-   mBitmapStretchWrapLinearSB = mDevice->createStateBlock(bitmapStretchSR);
-
-   // Linear: Create clamp SB
-   bitmapStretchSR.samplers[0] = GFXSamplerStateDesc::getClampLinear();
-   mBitmapStretchLinearSB = mDevice->createStateBlock(bitmapStretchSR);
-
-   // Point:
-   bitmapStretchSR.samplers[0].minFilter = GFXTextureFilterPoint;
-   bitmapStretchSR.samplers[0].mipFilter = GFXTextureFilterPoint;
-   bitmapStretchSR.samplers[0].magFilter = GFXTextureFilterPoint;
-
-   // Point: Create clamp SB, last created clamped so no work required here
-   mBitmapStretchSB = mDevice->createStateBlock(bitmapStretchSR);
-
-   // Point: Create wrap SB, have to do this manually because getWrapLinear doesn't
-   bitmapStretchSR.samplers[0].addressModeU = GFXAddressWrap;
-   bitmapStretchSR.samplers[0].addressModeV = GFXAddressWrap;
-   bitmapStretchSR.samplers[0].addressModeW = GFXAddressWrap;
-   mBitmapStretchWrapSB = mDevice->createStateBlock(bitmapStretchSR);
+   mBitmapStretchWrapLinearSampler = GFX->createSampler(GFXSamplerDesc2::getWrapLinear());
+   mBitmapStretchLinearSampler = GFX->createSampler(GFXSamplerDesc2::getClampLinear());
+   mBitmapStretchSampler = GFX->createSampler(GFXSamplerDesc2::getWrapPoint());
+   mBitmapStretchWrapSampler = GFX->createSampler(GFXSamplerDesc2::getClampLinear());
 
    GFXStateBlockDesc rectFill;
    rectFill.setCullMode(GFXCullNone);
@@ -118,29 +103,29 @@ void GFXDrawUtil::setTextAnchorColor( const ColorI &ancColor )
 //-----------------------------------------------------------------------------
 // Draw Text
 //-----------------------------------------------------------------------------
-U32 GFXDrawUtil::drawText( GFont *font, const Point2I &ptDraw, const UTF16 *in_string, 
+U32 GFXDrawUtil::drawText( GuiRenderManager* manager, GFont *font, const Point2I &ptDraw, const UTF16 *in_string,
                           const ColorI *colorTable, const U32 maxColorIndex, F32 rot )
 {
-   return drawTextN( font, ptDraw, in_string, dStrlen(in_string), colorTable, maxColorIndex, rot );
+   return drawTextN( manager, font, ptDraw, in_string, dStrlen(in_string), colorTable, maxColorIndex, rot );
 }
 
-U32 GFXDrawUtil::drawText( GFont *font, const Point2I &ptDraw, const UTF8 *in_string, 
+U32 GFXDrawUtil::drawText( GuiRenderManager* manager, GFont *font, const Point2I &ptDraw, const UTF8 *in_string,
                           const ColorI *colorTable, const U32 maxColorIndex, F32 rot )
 {
-   return drawTextN( font, ptDraw, in_string, dStrlen(in_string), colorTable, maxColorIndex, rot );
+   return drawTextN( manager, font, ptDraw, in_string, dStrlen(in_string), colorTable, maxColorIndex, rot );
 }
 
-U32 GFXDrawUtil::drawText( GFont *font, const Point2F &ptDraw, const UTF8 *in_string, const ColorI *colorTable /*= NULL*/, const U32 maxColorIndex /*= 9*/, F32 rot /*= 0.f */ )
+U32 GFXDrawUtil::drawText( GuiRenderManager* manager, GFont *font, const Point2F &ptDraw, const UTF8 *in_string, const ColorI *colorTable /*= NULL*/, const U32 maxColorIndex /*= 9*/, F32 rot /*= 0.f */ )
 {
-   return drawText(font,Point2I((S32)ptDraw.x,(S32)ptDraw.y),in_string,colorTable,maxColorIndex,rot);
+   return drawText(manager,font,Point2I((S32)ptDraw.x,(S32)ptDraw.y),in_string,colorTable,maxColorIndex,rot);
 }
 
-U32 GFXDrawUtil::drawText( GFont *font, const Point2F &ptDraw, const UTF16 *in_string, const ColorI *colorTable /*= NULL*/, const U32 maxColorIndex /*= 9*/, F32 rot /*= 0.f */ )
+U32 GFXDrawUtil::drawText( GuiRenderManager* manager, GFont *font, const Point2F &ptDraw, const UTF16 *in_string, const ColorI *colorTable /*= NULL*/, const U32 maxColorIndex /*= 9*/, F32 rot /*= 0.f */ )
 {
-   return drawText(font,Point2I((S32)ptDraw.x,(S32)ptDraw.y),in_string,colorTable,maxColorIndex,rot);
+   return drawText(manager,font,Point2I((S32)ptDraw.x,(S32)ptDraw.y),in_string,colorTable,maxColorIndex,rot);
 }
 
-U32 GFXDrawUtil::drawTextN( GFont *font, const Point2I &ptDraw, const UTF8 *in_string, U32 n,
+U32 GFXDrawUtil::drawTextN( GuiRenderManager* manager, GFont *font, const Point2I &ptDraw, const UTF8 *in_string, U32 n,
                            const ColorI *colorTable, const U32 maxColorIndex, F32 rot )
 {
    // return on zero length strings
@@ -151,10 +136,10 @@ U32 GFXDrawUtil::drawTextN( GFont *font, const Point2I &ptDraw, const UTF8 *in_s
    FrameTemp<UTF16> ubuf( n + 1 ); // (n+1) to add space for null terminator
    convertUTF8toUTF16N(in_string, ubuf, n + 1);
 
-   return drawTextN( font, ptDraw, ubuf, n, colorTable, maxColorIndex, rot );
+   return drawTextN( manager, font, ptDraw, ubuf, n, colorTable, maxColorIndex, rot );
 }
 
-U32 GFXDrawUtil::drawTextN( GFont *font, const Point2I &ptDraw, const UTF16 *in_string, 
+U32 GFXDrawUtil::drawTextN( GuiRenderManager* manager, GFont *font, const Point2I &ptDraw, const UTF16 *in_string,
                            U32 n, const ColorI *colorTable, const U32 maxColorIndex, F32 rot )
 {
    // return on zero length strings
@@ -164,12 +149,12 @@ U32 GFXDrawUtil::drawTextN( GFont *font, const Point2I &ptDraw, const UTF16 *in_
    // If it's over about 4000 verts we want to break it up
    if( n > 666 )
    {
-      U32 left = drawTextN(font, ptDraw, in_string, 666, colorTable, maxColorIndex, rot);
+      U32 left = drawTextN(manager, font, ptDraw, in_string, 666, colorTable, maxColorIndex, rot);
 
       Point2I newDrawPt(left, ptDraw.y);
       const UTF16* str = (const UTF16*)in_string;
 
-      return drawTextN(font, newDrawPt, &(str[666]), n - 666, colorTable, maxColorIndex, rot);
+      return drawTextN(manager, font, newDrawPt, &(str[666]), n - 666, colorTable, maxColorIndex, rot);
    }
 
    PROFILE_START(GFXDevice_drawTextN);
@@ -283,81 +268,103 @@ U32 GFXDrawUtil::drawTextN( GFont *font, const Point2I &ptDraw, const UTF16 *in_
    }
 
 
-   mFontRenderBatcher->render(rot, Point2F((F32)ptDraw.x, (F32)ptDraw.y));
+   mFontRenderBatcher->render(manager, rot, Point2F((F32)ptDraw.x, (F32)ptDraw.y));
 
    PROFILE_END();
 
    return ptX + ptDraw.x;
 }
 
-U32 GFXDrawUtil::drawTextN( GFont *font, const Point2F &ptDraw, const UTF8 *in_string, U32 n, const ColorI *colorTable /*= NULL*/, const U32 maxColorIndex /*= 9*/, F32 rot /*= 0.f */ )
+U32 GFXDrawUtil::drawTextN( GuiRenderManager* manager, GFont *font, const Point2F &ptDraw, const UTF8 *in_string, U32 n, const ColorI *colorTable /*= NULL*/, const U32 maxColorIndex /*= 9*/, F32 rot /*= 0.f */ )
 {
-   return drawTextN(font,Point2I((S32)ptDraw.x,(S32)ptDraw.y),in_string,n,colorTable,maxColorIndex,rot);
+   return drawTextN(manager,font,Point2I((S32)ptDraw.x,(S32)ptDraw.y),in_string,n,colorTable,maxColorIndex,rot);
 }
 
-U32 GFXDrawUtil::drawTextN( GFont *font, const Point2F &ptDraw, const UTF16 *in_string, U32 n, const ColorI *colorTable /*= NULL*/, const U32 maxColorIndex /*= 9*/, F32 rot /*= 0.f */ )
+U32 GFXDrawUtil::drawTextN( GuiRenderManager* manager, GFont *font, const Point2F &ptDraw, const UTF16 *in_string, U32 n, const ColorI *colorTable /*= NULL*/, const U32 maxColorIndex /*= 9*/, F32 rot /*= 0.f */ )
 {
-   return drawTextN(font,Point2I((S32)ptDraw.x,(S32)ptDraw.y),in_string,n,colorTable,maxColorIndex,rot);
+   return drawTextN(manager,font,Point2I((S32)ptDraw.x,(S32)ptDraw.y),in_string,n,colorTable,maxColorIndex,rot);
 }
 
 //-----------------------------------------------------------------------------
 // Draw Bitmaps
 //-----------------------------------------------------------------------------
-void GFXDrawUtil::drawBitmap( GFXTextureObject* texture, const Point2I &in_rAt, const GFXBitmapFlip in_flip, const GFXTextureFilterType filter , bool in_wrap /*= true*/, F32 angle)
+void GFXDrawUtil::drawBitmap( GFXTextureObject* texture, const Point2I &in_rAt, GuiRenderManager* manager, const GFXBitmapFlip in_flip, const GFXTextureFilterType filter , bool in_wrap /*= true*/, F32 angle)
 {
-   drawBitmap(texture,Point2F((F32)in_rAt.x,(F32)in_rAt.y),in_flip,filter,in_wrap, angle);
+   drawBitmap(texture,Point2F((F32)in_rAt.x,(F32)in_rAt.y),manager,in_flip,filter,in_wrap, angle);
 }
 
-void GFXDrawUtil::drawBitmapStretch( GFXTextureObject* texture, const RectI &dstRect, const GFXBitmapFlip in_flip, const GFXTextureFilterType filter , bool in_wrap /*= true*/, F32 angle)
+void GFXDrawUtil::drawBitmapStretch( GFXTextureObject* texture, const RectI &dstRect, GuiRenderManager* manager,  const GFXBitmapFlip in_flip, const GFXTextureFilterType filter , bool in_wrap /*= true*/, F32 angle)
 {
-   drawBitmapStretch(texture,RectF((F32)dstRect.point.x,(F32)dstRect.point.y,(F32)dstRect.extent.x,(F32)dstRect.extent.y),in_flip,filter,in_wrap, angle);
+   drawBitmapStretch(texture,RectF((F32)dstRect.point.x,(F32)dstRect.point.y,(F32)dstRect.extent.x,(F32)dstRect.extent.y),manager,in_flip,filter,in_wrap, angle);
 }
 
-void GFXDrawUtil::drawBitmapSR( GFXTextureObject* texture, const Point2I &in_rAt, const RectI &srcRect, const GFXBitmapFlip in_flip, const GFXTextureFilterType filter , bool in_wrap /*= true*/, F32 angle)
+void GFXDrawUtil::drawBitmapSR( GFXTextureObject* texture, const Point2I &in_rAt, const RectI &srcRect, GuiRenderManager* manager, const GFXBitmapFlip in_flip, const GFXTextureFilterType filter , bool in_wrap /*= true*/, F32 angle)
 {
-   drawBitmapSR(texture,Point2F((F32)in_rAt.x,(F32)in_rAt.y),RectF((F32)srcRect.point.x,(F32)srcRect.point.y,(F32)srcRect.extent.x,(F32)srcRect.extent.y),in_flip,filter,in_wrap, angle);
+   drawBitmapSR(texture,Point2F((F32)in_rAt.x,(F32)in_rAt.y),RectF((F32)srcRect.point.x,(F32)srcRect.point.y,(F32)srcRect.extent.x,(F32)srcRect.extent.y),manager,in_flip,filter,in_wrap, angle);
 }
 
-void GFXDrawUtil::drawBitmapStretchSR( GFXTextureObject *texture, const RectI &dstRect, const RectI &srcRect, const GFXBitmapFlip in_flip, const GFXTextureFilterType filter , bool in_wrap /*= true*/, F32 angle)
+void GFXDrawUtil::drawBitmapStretchSR( GFXTextureObject *texture, const RectI &dstRect, const RectI &srcRect, GuiRenderManager* manager, const GFXBitmapFlip in_flip, const GFXTextureFilterType filter , bool in_wrap /*= true*/, F32 angle)
 {
    RectF dstRectF = RectF((F32)dstRect.point.x,(F32)dstRect.point.y,(F32)dstRect.extent.x,(F32)dstRect.extent.y);
    RectF srcRectF = RectF((F32)srcRect.point.x,(F32)srcRect.point.y,(F32)srcRect.extent.x,(F32)srcRect.extent.y);
-   drawBitmapStretchSR(texture,dstRectF,srcRectF,in_flip,filter,in_wrap, angle);
+   drawBitmapStretchSR(texture,dstRectF,srcRectF,manager,in_flip,filter,in_wrap, angle);
 }
 
-void GFXDrawUtil::drawBitmap( GFXTextureObject*texture, const Point2F &in_rAt, const GFXBitmapFlip in_flip /*= GFXBitmapFlip_None*/, const GFXTextureFilterType filter /*= GFXTextureFilterPoint */ , bool in_wrap /*= true*/, F32 angle)
+void GFXDrawUtil::drawBitmap( GFXTextureObject*texture, const Point2F &in_rAt, GuiRenderManager* manager, const GFXBitmapFlip in_flip /*= GFXBitmapFlip_None*/, const GFXTextureFilterType filter /*= GFXTextureFilterPoint */ , bool in_wrap /*= true*/, F32 angle)
 {
    AssertFatal( texture != 0, "No texture specified for drawBitmap()" );
 
    RectI subRegion( 0, 0, texture->mBitmapSize.x, texture->mBitmapSize.y );
    RectI stretch( in_rAt.x, in_rAt.y, texture->mBitmapSize.x, texture->mBitmapSize.y );
-   drawBitmapStretchSR( texture, stretch, subRegion, in_flip, filter, in_wrap, angle);
+   drawBitmapStretchSR(texture, stretch, subRegion, manager, in_flip, filter, in_wrap, angle);
 }
 
-void GFXDrawUtil::drawBitmapStretch( GFXTextureObject*texture, const RectF &dstRect, const GFXBitmapFlip in_flip /*= GFXBitmapFlip_None*/, const GFXTextureFilterType filter /*= GFXTextureFilterPoint */ , bool in_wrap /*= true*/, F32 angle)
+void GFXDrawUtil::drawBitmapStretch( GFXTextureObject*texture, const RectF &dstRect, GuiRenderManager* manager, const GFXBitmapFlip in_flip /*= GFXBitmapFlip_None*/, const GFXTextureFilterType filter /*= GFXTextureFilterPoint */ , bool in_wrap /*= true*/, F32 angle)
 {
    AssertFatal( texture != 0, "No texture specified for drawBitmapStretch()" );
 
    RectF subRegion( 0.f, 0.f, (F32)texture->mBitmapSize.x, (F32)texture->mBitmapSize.y );
-   drawBitmapStretchSR( texture, dstRect, subRegion, in_flip, filter, in_wrap, angle);
+   drawBitmapStretchSR(texture, dstRect, subRegion, manager, in_flip, filter, in_wrap, angle);
 }
 
-void GFXDrawUtil::drawBitmapSR( GFXTextureObject*texture, const Point2F &in_rAt, const RectF &srcRect, const GFXBitmapFlip in_flip /*= GFXBitmapFlip_None*/, const GFXTextureFilterType filter /*= GFXTextureFilterPoint */ , bool in_wrap /*= true*/, F32 angle)
+void GFXDrawUtil::drawBitmapSR( GFXTextureObject*texture, const Point2F &in_rAt, const RectF &srcRect, GuiRenderManager* manager, const GFXBitmapFlip in_flip /*= GFXBitmapFlip_None*/, const GFXTextureFilterType filter /*= GFXTextureFilterPoint */ , bool in_wrap /*= true*/, F32 angle)
 {
    AssertFatal( texture != 0, "No texture specified for drawBitmapSR()" );
 
    RectF stretch( in_rAt.x, in_rAt.y, srcRect.len_x(), srcRect.len_y() );
-   drawBitmapStretchSR( texture, stretch, srcRect, in_flip, filter, in_wrap, angle);
+   drawBitmapStretchSR(texture, stretch, srcRect, manager, in_flip, filter, in_wrap, angle);
 }
 
-void GFXDrawUtil::drawBitmapStretchSR( GFXTextureObject* texture, const RectF &dstRect, const RectF &srcRect, const GFXBitmapFlip in_flip /*= GFXBitmapFlip_None*/, const GFXTextureFilterType filter /*= GFXTextureFilterPoint */ , bool in_wrap /*= true*/, F32 angle)
+void GFXDrawUtil::drawBitmapStretchSR( GFXTextureObject* texture, const RectF &dstRect, const RectF &srcRect, GuiRenderManager* manager, const GFXBitmapFlip in_flip /*= GFXBitmapFlip_None*/, const GFXTextureFilterType filter /*= GFXTextureFilterPoint */ , bool in_wrap /*= true*/, F32 angle)
 {
    // Sanity if no texture is specified.
    if(!texture)
       return;   
 
-   GFXVertexBufferHandle<GFXVertexPCT> verts(mDevice, 4, GFXBufferTypeVolatile );
-   verts.lock();
+   GuiRenderInstStateBlock* stateBlockInst = manager->allocRenderInstStateBlock();
+   stateBlockInst->stateBlock = mBitmapSB;
+
+   GuiRenderInstDraw* drawInst = manager->allocRenderInstDraw(4);
+   drawInst->pipeline = GFX->getShaderPipelineManager()->getShaderPipeline(GFXGenericShaderPipelineType::GSPModColorTexture);
+   drawInst->primitiveType = GFXTriangleStrip;
+   drawInst->primitiveCount = 4;
+   drawInst->texture = texture;
+
+   switch (filter)
+   {
+   case GFXTextureFilterPoint:
+      drawInst->sampler = in_wrap ? mBitmapStretchWrapSampler : mBitmapStretchSampler;
+      break;
+   case GFXTextureFilterLinear:
+      drawInst->sampler = in_wrap ? mBitmapStretchWrapLinearSampler : mBitmapStretchLinearSampler;
+      break;
+   default:
+      AssertFatal(false, "No sampler filter defined for DrawBitmapStretchSR");
+      drawInst->sampler = mBitmapStretchSampler;
+      break;
+   }
+
+   GFXVertexPCT *verts = drawInst->vertexList.vertices;
 
    F32 texLeft   = (srcRect.point.x)                    / (texture->mTextureSize.x);
    F32 texRight  = (srcRect.point.x + srcRect.extent.x) / (texture->mTextureSize.x);
@@ -419,27 +426,8 @@ void GFXDrawUtil::drawBitmapStretchSR( GFXTextureObject* texture, const RectF &d
       }
    }
 
-   verts.unlock();
-
-   mDevice->setVertexBuffer( verts );
-
-   switch (filter)
-   {
-   case GFXTextureFilterPoint :
-      mDevice->setStateBlock(in_wrap ? mBitmapStretchWrapSB : mBitmapStretchSB);
-      break;
-   case GFXTextureFilterLinear :
-      mDevice->setStateBlock(in_wrap ? mBitmapStretchWrapLinearSB : mBitmapStretchLinearSB);
-      break;
-   default:
-      AssertFatal(false, "No GFXDrawUtil state block defined for this filter type!");
-      mDevice->setStateBlock(mBitmapStretchSB);
-      break;
-   }   
-   mDevice->setTexture( 0, texture );
-   mDevice->setupGenericShaders( GFXDevice::GSModColorTexture );
-
-   mDevice->drawPrimitive( GFXTriangleStrip, 0, 2 );
+   manager->pushInst(stateBlockInst);
+   manager->pushInst(drawInst);
 }
 
 //-----------------------------------------------------------------------------
@@ -513,22 +501,22 @@ void GFXDrawUtil::drawRect( const Point2F &upperLeft, const Point2F &lowerRight,
 //-----------------------------------------------------------------------------
 // Draw Rectangle Fill
 //-----------------------------------------------------------------------------
-void GFXDrawUtil::drawRectFill( const RectF &rect, const ColorI &color )
+void GFXDrawUtil::drawRectFill( const RectF &rect, const ColorI &color, GuiRenderManager* manager)
 {
-   drawRectFill(rect.point, Point2F(rect.extent.x + rect.point.x - 1, rect.extent.y + rect.point.y - 1), color );
+   drawRectFill(rect.point, Point2F(rect.extent.x + rect.point.x - 1, rect.extent.y + rect.point.y - 1), color, manager );
 }
 
-void GFXDrawUtil::drawRectFill( const Point2I &upperLeft, const Point2I &lowerRight, const ColorI &color ) 
+void GFXDrawUtil::drawRectFill( const Point2I &upperLeft, const Point2I &lowerRight, const ColorI &color, GuiRenderManager* manager)
 {   
-   drawRectFill(Point2F((F32)upperLeft.x, (F32)upperLeft.y), Point2F((F32)lowerRight.x, (F32)lowerRight.y), color);
+   drawRectFill(Point2F((F32)upperLeft.x, (F32)upperLeft.y), Point2F((F32)lowerRight.x, (F32)lowerRight.y), color, manager);
 }
 
-void GFXDrawUtil::drawRectFill( const RectI &rect, const ColorI &color )
+void GFXDrawUtil::drawRectFill( const RectI &rect, const ColorI &color, GuiRenderManager* manager)
 {
-   drawRectFill(rect.point, Point2I(rect.extent.x + rect.point.x - 1, rect.extent.y + rect.point.y - 1), color );
+   drawRectFill(rect.point, Point2I(rect.extent.x + rect.point.x - 1, rect.extent.y + rect.point.y - 1), color, manager );
 }
 
-void GFXDrawUtil::drawRectFill( const Point2F &upperLeft, const Point2F &lowerRight, const ColorI &color )
+void GFXDrawUtil::drawRectFill( const Point2F &upperLeft, const Point2F &lowerRight, const ColorI &color, GuiRenderManager* manager)
 {
    //
    // Convert Box   a----------x
@@ -546,24 +534,28 @@ void GFXDrawUtil::drawRectFill( const Point2F &upperLeft, const Point2F &lowerRi
    Point2F nw(-0.5,-0.5); /*  \  */
    Point2F ne(0.5,-0.5); /*  /  */
 
-   GFXVertexBufferHandle<GFXVertexPCT> verts(mDevice, 4, GFXBufferTypeVolatile);
-   verts.lock();
-
    F32 ulOffset = 0.5f - mDevice->getFillConventionOffset();
-   
-   verts[0].point.set( upperLeft.x+nw.x + ulOffset, upperLeft.y+nw.y + ulOffset, 0.0f );
-   verts[1].point.set( lowerRight.x + ne.x + ulOffset, upperLeft.y + ne.y + ulOffset, 0.0f);
-   verts[2].point.set( upperLeft.x - ne.x + ulOffset, lowerRight.y - ne.y + ulOffset, 0.0f);
-   verts[3].point.set( lowerRight.x - nw.x + ulOffset, lowerRight.y - nw.y + ulOffset, 0.0f);
+
+   GuiRenderInstStateBlock* stateBlockInst = manager->allocRenderInstStateBlock();
+   stateBlockInst->stateBlock = mRectFillSB;
+
+   GuiRenderInstDraw* drawInst = manager->allocRenderInstDraw(4);
+   drawInst->pipeline = GFX->getShaderPipelineManager()->getShaderPipeline(GFXGenericShaderPipelineType::GSPColor);
+   drawInst->primitiveType = GFXTriangleStrip;
+   drawInst->primitiveCount = 4;
+
+   drawInst->vertexList.vertices[0].point.set(upperLeft.x + nw.x + ulOffset, upperLeft.y + nw.y + ulOffset, 0.0f);
+   drawInst->vertexList.vertices[1].point.set( lowerRight.x + ne.x + ulOffset, upperLeft.y + ne.y + ulOffset, 0.0f);
+   drawInst->vertexList.vertices[2].point.set( upperLeft.x - ne.x + ulOffset, lowerRight.y - ne.y + ulOffset, 0.0f);
+   drawInst->vertexList.vertices[3].point.set( lowerRight.x - nw.x + ulOffset, lowerRight.y - nw.y + ulOffset, 0.0f);
+
    for (S32 i = 0; i < 4; i++)
-      verts[i].color = color;
+   {
+      drawInst->vertexList.vertices[i].color = color;
+   }
 
-   verts.unlock();
-
-   mDevice->setStateBlock(mRectFillSB);
-   mDevice->setVertexBuffer( verts );
-   mDevice->setupGenericShaders();
-   mDevice->drawPrimitive( GFXTriangleStrip, 0, 2 );
+   manager->pushInst(stateBlockInst);
+   manager->pushInst(drawInst);
 }
 
 void GFXDrawUtil::draw2DSquare( const Point2F &screenPoint, F32 width, F32 spinAngle )

@@ -188,14 +188,14 @@ void GuiBitmapCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderM
 								      ((texture->mBitmapSize.y*y)+offset.y)-yshift,
 								      texture->mBitmapSize.x,
 								      texture->mBitmapSize.y);
-               GFX->getDrawUtil()->drawBitmapStretchSR(texture, dstRegion, srcRegion, GFXBitmapFlip_None, GFXTextureFilterLinear, mAngle);
+               GFX->getDrawUtil()->drawBitmapStretchSR(texture, dstRegion, srcRegion, manager, GFXBitmapFlip_None, GFXTextureFilterLinear, mAngle);
 				}
 
 		}
 		else
       {
          RectI rect(offset, getExtent());
-         GFX->getDrawUtil()->drawBitmapStretch(mBitmap, rect, GFXBitmapFlip_None, GFXTextureFilterLinear, false, mAngle);
+         GFX->getDrawUtil()->drawBitmapStretch(mBitmap, rect, manager, GFXBitmapFlip_None, GFXTextureFilterLinear, false, mAngle);
       }
    }
 

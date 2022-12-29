@@ -251,16 +251,16 @@ void GuiFormCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderMan
 
    // draw the border of the form if specified
    if (mProfile->mOpaque)
-      GFX->getDrawUtil()->drawRectFill(boundsRect, mProfile->mFillColor);
+      GFX->getDrawUtil()->drawRectFill(boundsRect, mProfile->mFillColor, manager);
 
    if (mProfile->mBorder)
-      renderBorder(boundsRect, mProfile);
+      renderBorder(boundsRect, mProfile, manager);
 
    // If we don't have a child, put some text in the child area
    if( empty() )
    {
       GFX->getDrawUtil()->setBitmapModulation(ColorI(0,0,0));
-      renderJustifiedText(boundsRect.point, boundsRect.extent, "[none]");
+      renderJustifiedText(manager, boundsRect.point, boundsRect.extent, "[none]");
    }
 
    S32 textWidth = 0;
@@ -276,7 +276,7 @@ void GuiFormCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderMan
       Point2I barOffset(barStart, barTop);
 
       // Draw the start of the bar...
-      GFX->getDrawUtil()->drawBitmapStretchSR(mProfile->getBitmapResource(),RectI(barOffset, mProfile->mBitmapArrayRects[2].extent), mProfile->mBitmapArrayRects[2] );
+      GFX->getDrawUtil()->drawBitmapStretchSR(mProfile->getBitmapResource(),RectI(barOffset, mProfile->mBitmapArrayRects[2].extent), mProfile->mBitmapArrayRects[2], manager );
 
       // Now draw the middle...
       barOffset.x += mProfile->mBitmapArrayRects[2].extent.x;
@@ -292,7 +292,8 @@ void GuiFormCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderMan
          GFX->getDrawUtil()->drawBitmapStretchSR(
             mProfile->getBitmapResource(),
             RectI(barOffset, Point2I(barMiddleSize, mProfile->mBitmapArrayRects[3].extent.y)),
-            foo
+            foo,
+            manager
             );
       }
 
@@ -300,10 +301,10 @@ void GuiFormCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderMan
       barOffset.x += barMiddleSize;
 
       GFX->getDrawUtil()->drawBitmapStretchSR( mProfile->getBitmapResource(), RectI(barOffset, mProfile->mBitmapArrayRects[4].extent),
-         mProfile->mBitmapArrayRects[4]);
+         mProfile->mBitmapArrayRects[4], manager);
 
       GFX->getDrawUtil()->setBitmapModulation((mMouseOver ? mProfile->mFontColorHL : mProfile->mFontColor));
-      renderJustifiedText(Point2I(mThumbSize.x, 0) + offset, Point2I(getWidth() - mThumbSize.x - mProfile->mBitmapArrayRects[4].extent.x, mThumbSize.y), (mUseSmallCaption ? mSmallCaption : mCaption) );
+      renderJustifiedText(manager, Point2I(mThumbSize.x, 0) + offset, Point2I(getWidth() - mThumbSize.x - mProfile->mBitmapArrayRects[4].extent.x, mThumbSize.y), (mUseSmallCaption ? mSmallCaption : mCaption) );
 
    }
 

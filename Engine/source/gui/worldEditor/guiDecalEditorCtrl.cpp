@@ -442,9 +442,9 @@ void GuiDecalEditorCtrl::onRender( Point2I offset, const RectI &updateRect, GuiR
    Parent::onRender( offset, updateRect, manager );
 }
 
-void GuiDecalEditorCtrl::renderGui( Point2I offset, const RectI &updateRect )
+void GuiDecalEditorCtrl::renderGui( Point2I offset, const RectI &updateRect, GuiRenderManager* manager )
 {
-   Parent::renderGui( offset, updateRect );
+   Parent::renderGui( offset, updateRect, manager );
 
    PROFILE_SCOPE( GuiDecalEditorCtrl_renderGui );
 
@@ -482,9 +482,9 @@ void GuiDecalEditorCtrl::renderGui( Point2I offset, const RectI &updateRect )
          const Point2I maxPt(posi.x + width / 2 + 2, posi.y + font->getHeight() + 1);
 
          GFXDrawUtil *drawer = GFX->getDrawUtil();
-         drawer->drawRectFill( minPt, maxPt, bgColor );
+         drawer->drawRectFill( minPt, maxPt, bgColor, manager );
 	      GFX->getDrawUtil()->setBitmapModulation( textColor );
-         GFX->getDrawUtil()->drawText( mProfile->mFont, Point2I( posi.x - width / 2, posi.y ), buf );
+         GFX->getDrawUtil()->drawText( manager, mProfile->mFont, Point2I( posi.x - width / 2, posi.y ), buf );
       }      
    }
 }

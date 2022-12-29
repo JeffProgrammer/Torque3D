@@ -1428,7 +1428,10 @@ void Gizmo::renderText( const RectI &viewPort, const MatrixF &modelView, const M
 
    if ( mMouseDown && !mProfile->renderWhenUsed )
       return;
-
+   
+   // TODO
+   GuiRenderManager* manager = nullptr;
+   
    GFXDrawUtil *drawer = GFX->getDrawUtil();
 
    _setStateBlock();
@@ -1472,7 +1475,7 @@ void Gizmo::renderText( const RectI &viewPort, const MatrixF &modelView, const M
          char buf[2];
          buf[0] = axisText[i]; buf[1] = '\0';
          drawer->setBitmapModulation(textColor);
-         drawer->drawText( mProfile->font, Point2I((S32)sPos.x, (S32)sPos.y), buf );
+         drawer->drawText( manager, mProfile->font, Point2I((S32)sPos.x, (S32)sPos.y), buf );
       }
    }
 }

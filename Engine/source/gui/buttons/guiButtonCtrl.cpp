@@ -94,9 +94,9 @@ void GuiButtonCtrl::onRender(Point2I offset, const RectI& updateRect, GuiRenderM
    if( !mHasTheme )
    {
       if( mProfile->mBorder != 0 )
-         renderFilledBorder( boundsRect, borderColor, fillColor, mProfile->mBorderThickness );
+         renderFilledBorder( boundsRect, borderColor, fillColor, manager, mProfile->mBorderThickness );
       else
-         GFX->getDrawUtil()->drawRectFill( boundsRect, fillColor );
+         GFX->getDrawUtil()->drawRectFill( boundsRect, fillColor, manager );
    }
    else
    {
@@ -109,7 +109,7 @@ void GuiButtonCtrl::onRender(Point2I offset, const RectI& updateRect, GuiRenderM
       else if ( mHighlighted )
          indexMultiplier = 3;
 
-      renderSizableBitmapBordersFilled( boundsRect, indexMultiplier, mProfile );
+      renderSizableBitmapBordersFilled( boundsRect, indexMultiplier, mProfile, manager );
    }
 
    Point2I textPos = offset;
@@ -117,7 +117,7 @@ void GuiButtonCtrl::onRender(Point2I offset, const RectI& updateRect, GuiRenderM
       textPos += Point2I( 1, 1 );
 
    GFX->getDrawUtil()->setBitmapModulation( fontColor );
-   renderJustifiedText( textPos, getExtent(), mButtonText );
+   renderJustifiedText( manager, textPos, getExtent(), mButtonText );
 
    //render the children
    renderChildControls( offset, updateRect, manager);

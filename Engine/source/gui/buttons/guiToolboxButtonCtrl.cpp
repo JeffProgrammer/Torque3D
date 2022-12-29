@@ -143,9 +143,9 @@ void GuiToolboxButtonCtrl::onRender(Point2I offset, const RectI& updateRect, Gui
    {
       RectI r(offset, getExtent());
       if ( mDepressed  || mStateOn )
-         renderStateRect( mLoweredBitmap , r );
+         renderStateRect( mLoweredBitmap , r, manager );
       else if ( mHighlighted )
-         renderStateRect( mHoverBitmap , r );
+         renderStateRect( mHoverBitmap , r, manager );
    }
 
    // Now render the image
@@ -163,16 +163,16 @@ void GuiToolboxButtonCtrl::onRender(Point2I offset, const RectI& updateRect, Gui
    textPos += mProfile->mTextOffset;
 
    GFX->getDrawUtil()->setBitmapModulation( mProfile->mFontColor );
-   renderJustifiedText(textPos, getExtent(), mButtonText);
+   renderJustifiedText(manager, textPos, getExtent(), mButtonText);
 
 }
 
-void GuiToolboxButtonCtrl::renderStateRect( GFXTexHandle &texture, const RectI& rect )
+void GuiToolboxButtonCtrl::renderStateRect( GFXTexHandle &texture, const RectI& rect, GuiRenderManager* manager)
 {
    if (texture)
    {
       GFX->getDrawUtil()->clearBitmapModulation();
-      GFX->getDrawUtil()->drawBitmapStretch( texture, rect );
+      GFX->getDrawUtil()->drawBitmapStretch( texture, rect, manager );
    }
 }
 
@@ -188,7 +188,7 @@ void GuiToolboxButtonCtrl::renderButton(GFXTexHandle &texture, Point2I &offset, 
       finalOffset.y += ( ( getHeight() / 2 ) - ( texture.getHeight() / 2 ) );
 
       GFX->getDrawUtil()->clearBitmapModulation();
-      GFX->getDrawUtil()->drawBitmap(texture, finalOffset);
+      GFX->getDrawUtil()->drawBitmap(texture, finalOffset, manager);
       renderChildControls( offset, updateRect, manager);
    }
 }

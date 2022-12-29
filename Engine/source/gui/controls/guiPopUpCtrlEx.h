@@ -71,7 +71,7 @@ class GuiPopupTextListCtrlEx : public GuiTextListCtrl
       bool onKeyDown(const GuiEvent &event);
       void onMouseUp(const GuiEvent &event);
       void onMouseMove(const GuiEvent &event);
-      void onRenderCell(Point2I offset, Point2I cell, bool selected, bool mouseOver);
+      void onRenderCell(Point2I offset, Point2I cell, bool selected, bool mouseOver, GuiRenderManager* manager);
 };
 
 class GuiPopUpMenuCtrlEx : public GuiTextCtrl

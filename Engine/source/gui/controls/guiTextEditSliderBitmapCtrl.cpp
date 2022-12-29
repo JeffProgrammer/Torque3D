@@ -425,14 +425,14 @@ void GuiTextEditSliderBitmapCtrl::onRender(Point2I offset, const RectI &updateRe
 	{
 		// This control needs 4 images in order to render correctly
 		if(mTextAreaHit == ArrowUp)
-			GFX->getDrawUtil()->drawBitmapStretchSR( mProfile->mBitmap, RectI(arrowUpStart,arrowUpEnd), mProfile->mBitmapArrayRects[0] );
+			GFX->getDrawUtil()->drawBitmapStretchSR( mProfile->mBitmap, RectI(arrowUpStart,arrowUpEnd), mProfile->mBitmapArrayRects[0], manager );
 		else
-			GFX->getDrawUtil()->drawBitmapStretchSR( mProfile->mBitmap, RectI(arrowUpStart,arrowUpEnd), mProfile->mBitmapArrayRects[1] );
+			GFX->getDrawUtil()->drawBitmapStretchSR( mProfile->mBitmap, RectI(arrowUpStart,arrowUpEnd), mProfile->mBitmapArrayRects[1], manager );
 
 		if(mTextAreaHit == ArrowDown)
-			GFX->getDrawUtil()->drawBitmapStretchSR( mProfile->mBitmap, RectI(arrowDownStart,arrowDownEnd), mProfile->mBitmapArrayRects[2] );
+			GFX->getDrawUtil()->drawBitmapStretchSR( mProfile->mBitmap, RectI(arrowDownStart,arrowDownEnd), mProfile->mBitmapArrayRects[2], manager );
 		else
-			GFX->getDrawUtil()->drawBitmapStretchSR( mProfile->mBitmap, RectI(arrowDownStart,arrowDownEnd), mProfile->mBitmapArrayRects[3] );
+			GFX->getDrawUtil()->drawBitmapStretchSR( mProfile->mBitmap, RectI(arrowDownStart,arrowDownEnd), mProfile->mBitmapArrayRects[3], manager );
 	}
 }
 

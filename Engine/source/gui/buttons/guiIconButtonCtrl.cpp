@@ -232,9 +232,9 @@ void GuiIconButtonCtrl::renderButton( Point2I &offset, const RectI& updateRect, 
       // If there is a bitmap array then render using it.  
       // Otherwise use a standard fill.
       if(mProfile->mUseBitmapArray && mProfile->mBitmapArrayRects.size())
-         renderBitmapArray(boundsRect, statePressed);
+         renderBitmapArray(boundsRect, statePressed, manager);
       else
-         renderSlightlyLoweredBox(boundsRect, mProfile);
+         renderSlightlyLoweredBox(boundsRect, mProfile, manager);
    }
    else if(mHighlighted && mActive)
    {
@@ -242,11 +242,11 @@ void GuiIconButtonCtrl::renderButton( Point2I &offset, const RectI& updateRect, 
       // Otherwise use a standard fill.
       if (mProfile->mUseBitmapArray && mProfile->mBitmapArrayRects.size())
       {
-         renderBitmapArray(boundsRect, stateMouseOver);
+         renderBitmapArray(boundsRect, stateMouseOver, manager);
       }
       else
       {
-         drawer->drawRectFill(boundsRect, mProfile->mFillColorHL);
+         drawer->drawRectFill(boundsRect, mProfile->mFillColorHL, manager);
          drawer->drawRect(boundsRect, mProfile->mBorderColorHL);
       }
    }
@@ -257,20 +257,20 @@ void GuiIconButtonCtrl::renderButton( Point2I &offset, const RectI& updateRect, 
       if(mProfile->mUseBitmapArray && mProfile->mBitmapArrayRects.size())
       {
          if(mActive)
-            renderBitmapArray(boundsRect, stateNormal);
+            renderBitmapArray(boundsRect, stateNormal, manager);
          else
-            renderBitmapArray(boundsRect, stateDisabled);
+            renderBitmapArray(boundsRect, stateDisabled, manager);
       }
       else
       {
          if (mActive)
          {
-            drawer->drawRectFill(boundsRect, mProfile->mFillColor);
+            drawer->drawRectFill(boundsRect, mProfile->mFillColor, manager);
             drawer->drawRect(boundsRect, mProfile->mBorderColor);
          }
          else
          {
-            drawer->drawRectFill(boundsRect, mProfile->mFillColorNA);
+            drawer->drawRectFill(boundsRect, mProfile->mFillColorNA, manager);
             drawer->drawRect(boundsRect, mProfile->mBorderColorNA);
          }
       }
@@ -310,7 +310,7 @@ void GuiIconButtonCtrl::renderButton( Point2I &offset, const RectI& updateRect, 
             iconRect.point.y = offset.y + ( getHeight() - textureSize.y ) / 2;
          }
 
-         drawer->drawBitmapStretch(mBitmap, iconRect );
+         drawer->drawBitmapStretch(mBitmap, iconRect, manager );
 
       } 
       else
@@ -340,7 +340,7 @@ void GuiIconButtonCtrl::renderButton( Point2I &offset, const RectI& updateRect, 
             iconRect.point.y = offset.y + (getHeight() / 2) - (iconRect.extent.y / 2) + mButtonMargin.y;
          }
 
-         drawer->drawBitmapStretch( mBitmap, iconRect );
+         drawer->drawBitmapStretch( mBitmap, iconRect, manager );
       }
    }
 
@@ -362,14 +362,14 @@ void GuiIconButtonCtrl::renderButton( Point2I &offset, const RectI& updateRect, 
             start.x = iconRect.extent.x + mButtonMargin.x + mTextMargin;
          }
 
-         drawer->drawText( mProfile->mFont, start + offset, text, mProfile->mFontColors );
+         drawer->drawText( manager, mProfile->mFont, start + offset, text, mProfile->mFontColors );
       }
 
       if ( mTextLocation == TextLocLeft )
       {
          Point2I start( mTextMargin, ( getHeight() - mProfile->mFont->getHeight() ) / 2 );
 
-         drawer->drawText( mProfile->mFont, start + offset, text, mProfile->mFontColors );
+         drawer->drawText( manager, mProfile->mFont, start + offset, text, mProfile->mFontColors );
       }
 
       if ( mTextLocation == TextLocCenter )
@@ -383,7 +383,7 @@ void GuiIconButtonCtrl::renderButton( Point2I &offset, const RectI& updateRect, 
          else
             start.set( ( getWidth() - textWidth ) / 2, ( getHeight() - mProfile->mFont->getHeight() ) / 2 );
          drawer->setBitmapModulation( fontColor );
-         drawer->drawText( mProfile->mFont, start + offset, text, mProfile->mFontColors );
+         drawer->drawText( manager, mProfile->mFont, start + offset, text, mProfile->mFontColors );
       }
 
       if ( mTextLocation == TextLocBottom )
@@ -397,7 +397,7 @@ void GuiIconButtonCtrl::renderButton( Point2I &offset, const RectI& updateRect, 
             start.x = 0;
 
          drawer->setBitmapModulation( fontColor );
-         drawer->drawText( mProfile->mFont, start + offset, text, mProfile->mFontColors );
+         drawer->drawText( manager, mProfile->mFont, start + offset, text, mProfile->mFontColors );
       }
    }
 
@@ -405,36 +405,36 @@ void GuiIconButtonCtrl::renderButton( Point2I &offset, const RectI& updateRect, 
 }
 
 // Draw the bitmap array's borders according to the button's state.
-void GuiIconButtonCtrl::renderBitmapArray(RectI &bounds, S32 state)
+void GuiIconButtonCtrl::renderBitmapArray(RectI &bounds, S32 state, GuiRenderManager* manager)
 {
    switch(state)
    {
    case stateNormal:
       if(mProfile->mBorder == -2)
-         renderSizableBitmapBordersFilled(bounds, 1, mProfile);
+         renderSizableBitmapBordersFilled(bounds, 1, mProfile, manager);
       else
-         renderFixedBitmapBordersFilled(bounds, 1, mProfile);
+         renderFixedBitmapBordersFilled(bounds, 1, mProfile, manager);
       break;
 
    case stateMouseOver:
       if(mProfile->mBorder == -2)
-         renderSizableBitmapBordersFilled(bounds, 2, mProfile);
+         renderSizableBitmapBordersFilled(bounds, 2, mProfile, manager);
       else
-         renderFixedBitmapBordersFilled(bounds, 2, mProfile);
+         renderFixedBitmapBordersFilled(bounds, 2, mProfile, manager);
       break;
 
    case statePressed:
       if(mProfile->mBorder == -2)
-         renderSizableBitmapBordersFilled(bounds, 3, mProfile);
+         renderSizableBitmapBordersFilled(bounds, 3, mProfile, manager);
       else
-         renderFixedBitmapBordersFilled(bounds, 3, mProfile);
+         renderFixedBitmapBordersFilled(bounds, 3, mProfile, manager);
       break;
 
    case stateDisabled:
       if(mProfile->mBorder == -2)
-         renderSizableBitmapBordersFilled(bounds, 4, mProfile);
+         renderSizableBitmapBordersFilled(bounds, 4, mProfile, manager);
       else
-         renderFixedBitmapBordersFilled(bounds, 4, mProfile);
+         renderFixedBitmapBordersFilled(bounds, 4, mProfile, manager);
       break;
    }
 }

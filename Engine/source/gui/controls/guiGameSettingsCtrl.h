@@ -232,10 +232,10 @@ public:
 
    void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 
-   void onRenderListOption(Point2I currentOffset);
-   void onRenderSliderOption(Point2I currentOffset);
+   void onRenderListOption(Point2I currentOffset, GuiRenderManager* manager);
+   void onRenderSliderOption(Point2I currentOffset, GuiRenderManager* manager);
 
-   void onRenderKeybindOption(Point2I currentOffset);
+   void onRenderKeybindOption(Point2I currentOffset, GuiRenderManager* manager);
 
    /// Callback when the object is registered with the sim.
    ///

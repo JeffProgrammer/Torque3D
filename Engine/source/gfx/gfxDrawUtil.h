@@ -35,7 +35,7 @@
 
 class FontRenderBatcher;
 class Frustum;
-
+class GuiRenderManager;
 
 /// Helper class containing utility functions for useful drawing routines
 /// (line, box, rect, billboard, text).
@@ -53,10 +53,10 @@ public:
    void drawRect( const Point2I &upperLeft, const Point2I &lowerRight, const ColorI &color );
    void drawRect( const RectI &rect, const ColorI &color );
 
-   void drawRectFill( const Point2F &upperL, const Point2F &lowerR, const ColorI &color );
-   void drawRectFill( const RectF &rect, const ColorI &color );
-   void drawRectFill( const Point2I &upperLeft, const Point2I &lowerRight, const ColorI &color );
-   void drawRectFill( const RectI &rect, const ColorI &color );
+   void drawRectFill( const Point2F &upperL, const Point2F &lowerR, const ColorI &color, GuiRenderManager* manager );
+   void drawRectFill( const RectF &rect, const ColorI &color, GuiRenderManager* manager);
+   void drawRectFill( const Point2I &upperLeft, const Point2I &lowerRight, const ColorI &color, GuiRenderManager* manager);
+   void drawRectFill( const RectI &rect, const ColorI &color, GuiRenderManager* manager);
 
    void draw2DSquare( const Point2F &screenPoint, F32 width, F32 spinAngle = 0.0f );
 
@@ -72,15 +72,15 @@ public:
    //-----------------------------------------------------------------------------
    // Draw Text
    //-----------------------------------------------------------------------------
-   U32 drawText( GFont *font, const Point2I &ptDraw, const UTF8 *in_string, const ColorI *colorTable = NULL, const U32 maxColorIndex = 9, F32 rot = 0.f );
-   U32 drawTextN( GFont *font, const Point2I &ptDraw, const UTF8 *in_string, U32 n, const ColorI *colorTable = NULL, const U32 maxColorIndex = 9, F32 rot = 0.f );
-   U32 drawText( GFont *font, const Point2I &ptDraw, const UTF16 *in_string, const ColorI *colorTable = NULL, const U32 maxColorIndex = 9, F32 rot = 0.f );
-   U32 drawTextN( GFont *font, const Point2I &ptDraw, const UTF16 *in_string, U32 n, const ColorI *colorTable = NULL, const U32 maxColorIndex = 9, F32 rot = 0.f );
+   U32 drawText( GuiRenderManager* manager, GFont *font, const Point2I &ptDraw, const UTF8 *in_string, const ColorI *colorTable = NULL, const U32 maxColorIndex = 9, F32 rot = 0.f );
+   U32 drawTextN( GuiRenderManager* manager, GFont *font, const Point2I &ptDraw, const UTF8 *in_string, U32 n, const ColorI *colorTable = NULL, const U32 maxColorIndex = 9, F32 rot = 0.f );
+   U32 drawText( GuiRenderManager* manager, GFont *font, const Point2I &ptDraw, const UTF16 *in_string, const ColorI *colorTable = NULL, const U32 maxColorIndex = 9, F32 rot = 0.f );
+   U32 drawTextN( GuiRenderManager* manager, GFont *font, const Point2I &ptDraw, const UTF16 *in_string, U32 n, const ColorI *colorTable = NULL, const U32 maxColorIndex = 9, F32 rot = 0.f );
 
-   U32 drawText( GFont *font, const Point2F &ptDraw, const UTF8 *in_string, const ColorI *colorTable = NULL, const U32 maxColorIndex = 9, F32 rot = 0.f );
-   U32 drawTextN( GFont *font, const Point2F &ptDraw, const UTF8 *in_string, U32 n, const ColorI *colorTable = NULL, const U32 maxColorIndex = 9, F32 rot = 0.f );
-   U32 drawText( GFont *font, const Point2F &ptDraw, const UTF16 *in_string, const ColorI *colorTable = NULL, const U32 maxColorIndex = 9, F32 rot = 0.f );
-   U32 drawTextN( GFont *font, const Point2F &ptDraw, const UTF16 *in_string, U32 n, const ColorI *colorTable = NULL, const U32 maxColorIndex = 9, F32 rot = 0.f );
+   U32 drawText( GuiRenderManager* manager, GFont *font, const Point2F &ptDraw, const UTF8 *in_string, const ColorI *colorTable = NULL, const U32 maxColorIndex = 9, F32 rot = 0.f );
+   U32 drawTextN( GuiRenderManager* manager, GFont *font, const Point2F &ptDraw, const UTF8 *in_string, U32 n, const ColorI *colorTable = NULL, const U32 maxColorIndex = 9, F32 rot = 0.f );
+   U32 drawText( GuiRenderManager* manager, GFont *font, const Point2F &ptDraw, const UTF16 *in_string, const ColorI *colorTable = NULL, const U32 maxColorIndex = 9, F32 rot = 0.f );
+   U32 drawTextN( GuiRenderManager* manager, GFont *font, const Point2F &ptDraw, const UTF16 *in_string, U32 n, const ColorI *colorTable = NULL, const U32 maxColorIndex = 9, F32 rot = 0.f );
 
    //-----------------------------------------------------------------------------
    // Color Modulation
@@ -93,15 +93,15 @@ public:
    //-----------------------------------------------------------------------------
    // Draw Bitmaps
    //-----------------------------------------------------------------------------  
-   void drawBitmap( GFXTextureObject*texture, const Point2F &in_rAt, const GFXBitmapFlip in_flip = GFXBitmapFlip_None, const GFXTextureFilterType filter = GFXTextureFilterPoint , bool in_wrap = true, F32 angle = 0.0f);
-   void drawBitmapSR( GFXTextureObject*texture, const Point2F &in_rAt, const RectF &srcRect, const GFXBitmapFlip in_flip = GFXBitmapFlip_None, const GFXTextureFilterType filter = GFXTextureFilterPoint , bool in_wrap = true, F32 angle = 0.0f);
-   void drawBitmapStretch( GFXTextureObject*texture, const RectF &dstRect, const GFXBitmapFlip in_flip = GFXBitmapFlip_None, const GFXTextureFilterType filter = GFXTextureFilterPoint , bool in_wrap = true, F32 angle = 0.0f);
-   void drawBitmapStretchSR( GFXTextureObject*texture, const RectF &dstRect, const RectF &srcRect, const GFXBitmapFlip in_flip = GFXBitmapFlip_None, const GFXTextureFilterType filter = GFXTextureFilterPoint , bool in_wrap = true, F32 angle = 0.0f);
+   void drawBitmap( GFXTextureObject*texture, const Point2F &in_rAt, GuiRenderManager* manager, const GFXBitmapFlip in_flip = GFXBitmapFlip_None, const GFXTextureFilterType filter = GFXTextureFilterPoint , bool in_wrap = true, F32 angle = 0.0f);
+   void drawBitmapSR( GFXTextureObject*texture, const Point2F &in_rAt, const RectF &srcRect, GuiRenderManager* manager, const GFXBitmapFlip in_flip = GFXBitmapFlip_None, const GFXTextureFilterType filter = GFXTextureFilterPoint , bool in_wrap = true, F32 angle = 0.0f);
+   void drawBitmapStretch( GFXTextureObject*texture, const RectF &dstRect, GuiRenderManager* manager, const GFXBitmapFlip in_flip = GFXBitmapFlip_None, const GFXTextureFilterType filter = GFXTextureFilterPoint , bool in_wrap = true, F32 angle = 0.0f);
+   void drawBitmapStretchSR( GFXTextureObject*texture, const RectF &dstRect, const RectF &srcRect, GuiRenderManager* manager, const GFXBitmapFlip in_flip = GFXBitmapFlip_None, const GFXTextureFilterType filter = GFXTextureFilterPoint , bool in_wrap = true, F32 angle = 0.0f);
 
-   void drawBitmap( GFXTextureObject*texture, const Point2I &in_rAt, const GFXBitmapFlip in_flip = GFXBitmapFlip_None, const GFXTextureFilterType filter = GFXTextureFilterPoint , bool in_wrap = true, F32 angle = 0.0f);
-   void drawBitmapSR( GFXTextureObject*texture, const Point2I &in_rAt, const RectI &srcRect, const GFXBitmapFlip in_flip = GFXBitmapFlip_None, const GFXTextureFilterType filter = GFXTextureFilterPoint , bool in_wrap = true, F32 angle = 0.0f);
-   void drawBitmapStretch( GFXTextureObject*texture, const RectI &dstRect, const GFXBitmapFlip in_flip = GFXBitmapFlip_None, const GFXTextureFilterType filter = GFXTextureFilterPoint , bool in_wrap = true, F32 angle = 0.0f);
-   void drawBitmapStretchSR( GFXTextureObject*texture, const RectI &dstRect, const RectI &srcRect, const GFXBitmapFlip in_flip = GFXBitmapFlip_None, const GFXTextureFilterType filter = GFXTextureFilterPoint , bool in_wrap = true, F32 angle = 0.0f);
+   void drawBitmap( GFXTextureObject*texture, const Point2I &in_rAt, GuiRenderManager* manager, const GFXBitmapFlip in_flip = GFXBitmapFlip_None, const GFXTextureFilterType filter = GFXTextureFilterPoint , bool in_wrap = true, F32 angle = 0.0f);
+   void drawBitmapSR( GFXTextureObject*texture, const Point2I &in_rAt, const RectI &srcRect, GuiRenderManager* manager, const GFXBitmapFlip in_flip = GFXBitmapFlip_None, const GFXTextureFilterType filter = GFXTextureFilterPoint , bool in_wrap = true, F32 angle = 0.0f);
+   void drawBitmapStretch( GFXTextureObject*texture, const RectI &dstRect, GuiRenderManager* manager, const GFXBitmapFlip in_flip = GFXBitmapFlip_None, const GFXTextureFilterType filter = GFXTextureFilterPoint , bool in_wrap = true, F32 angle = 0.0f);
+   void drawBitmapStretchSR( GFXTextureObject*texture, const RectI &dstRect, const RectI &srcRect, GuiRenderManager* manager, const GFXBitmapFlip in_flip = GFXBitmapFlip_None, const GFXTextureFilterType filter = GFXTextureFilterPoint , bool in_wrap = true, F32 angle = 0.0f);
 
    //-----------------------------------------------------------------------------
    // Draw 3D Shapes
@@ -169,11 +169,13 @@ protected:
    /// specified.
    GFXVertexColor mTextAnchorColor;
 
-   GFXStateBlockRef mBitmapStretchSB;
-   GFXStateBlockRef mBitmapStretchLinearSB;
-   GFXStateBlockRef mBitmapStretchWrapSB;
-   GFXStateBlockRef mBitmapStretchWrapLinearSB;
+   GFXStateBlockRef mBitmapSB;
    GFXStateBlockRef mRectFillSB;
+
+   GFXHandle<GFXSamplerHandle> mBitmapStretchSampler;
+   GFXHandle<GFXSamplerHandle> mBitmapStretchLinearSampler;
+   GFXHandle<GFXSamplerHandle> mBitmapStretchWrapSampler;
+   GFXHandle<GFXSamplerHandle> mBitmapStretchWrapLinearSampler;
    
    FontRenderBatcher* mFontRenderBatcher;
 };

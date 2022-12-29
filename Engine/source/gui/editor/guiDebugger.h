@@ -95,7 +95,7 @@ class DbgFileView : public GuiArrayCtrl
    void onMouseUp(const GuiEvent &event);
 
    void onPreRender();
-   void onRenderCell(Point2I offset, Point2I cell, bool selected, bool mouseOver);
+   void onRenderCell(Point2I offset, Point2I cell, bool selected, bool mouseOver, GuiRenderManager* manager);
 };
 
 #endif //_GUI_DEBUGGER_H

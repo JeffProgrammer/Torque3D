@@ -117,7 +117,7 @@ void GuiClockHud::onRender(Point2I offset, const RectI &updateRect, GuiRenderMan
 
    // Background first
    if (mShowFill)
-      drawUtil->drawRectFill(updateRect, mFillColor.toColorI());
+      drawUtil->drawRectFill(updateRect, mFillColor.toColorI(), manager);
 
    // Convert ms time into hours, minutes and seconds.
    S32 time = S32(getTime());
@@ -132,7 +132,7 @@ void GuiClockHud::onRender(Point2I offset, const RectI &updateRect, GuiRenderMan
    offset.x += (getWidth() - mProfile->mFont->getStrWidth((const UTF8 *)buf)) / 2;
    offset.y += (getHeight() - mProfile->mFont->getHeight()) / 2;
    drawUtil->setBitmapModulation(mTextColor.toColorI());
-   drawUtil->drawText(mProfile->mFont, offset, buf);
+   drawUtil->drawText(manager, mProfile->mFont, offset, buf);
    drawUtil->clearBitmapModulation();
 
    // Border last

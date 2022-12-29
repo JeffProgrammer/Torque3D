@@ -1711,7 +1711,9 @@ void GuiShapeEdPreview::renderNodeName(S32 index, const LinearColorF& textColor)
    Point2I pos( mProjectedNodes[index].x, mProjectedNodes[index].y + sNodeRectSize + 6 );
 
    GFX->getDrawUtil()->setBitmapModulation( LinearColorF(textColor).toColorI());
-   GFX->getDrawUtil()->drawText( mProfile->mFont, pos, nodeName.c_str() );
+   
+   // TODO: Fix me
+   //GFX->getDrawUtil()->drawText( manager, mProfile->mFont, pos, nodeName.c_str() );
 }
 
 void GuiShapeEdPreview::renderCollisionMeshes() const

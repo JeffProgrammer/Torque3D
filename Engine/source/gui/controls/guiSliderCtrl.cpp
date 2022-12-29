@@ -382,8 +382,7 @@ void GuiSliderCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderM
 
    if (mUseFillBar)
    {
-
-      drawUtil->drawRectFill(RectI(offset.x, offset.y, getWidth() * mValue, getHeight()), mFillBarColor);
+      drawUtil->drawRectFill(RectI(offset.x, offset.y, getWidth() * mValue, getHeight()), mFillBarColor, manager);
 
       renderChildControls(offset, updateRect, manager);
       return;
@@ -431,9 +430,9 @@ void GuiSliderCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderM
       drawUtil->clearBitmapModulation();
 
       //left border
-      drawUtil->drawBitmapSR(mProfile->getBitmapResource(), Point2I(offset.x,offset.y), mBitmapBounds[SliderLineLeft]);
+      drawUtil->drawBitmapSR(mProfile->getBitmapResource(), Point2I(offset.x,offset.y), mBitmapBounds[SliderLineLeft], manager);
       //right border
-      drawUtil->drawBitmapSR(mProfile->getBitmapResource(), Point2I(offset.x + getWidth() - mBitmapBounds[SliderLineRight].extent.x, offset.y), mBitmapBounds[SliderLineRight]);
+      drawUtil->drawBitmapSR(mProfile->getBitmapResource(), Point2I(offset.x + getWidth() - mBitmapBounds[SliderLineRight].extent.x, offset.y), mBitmapBounds[SliderLineRight], manager);
 
 
       //draw our center piece to our slider control's border and stretch it
@@ -447,11 +446,11 @@ void GuiSliderCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderM
       stretchRect = mBitmapBounds[SliderLineCenter];
       stretchRect.inset(1,0);
 
-      drawUtil->drawBitmapStretchSR(mProfile->getBitmapResource(), destRect, stretchRect);
+      drawUtil->drawBitmapStretchSR(mProfile->getBitmapResource(), destRect, stretchRect, manager);
 
       //draw our control slider button	
       thumb.point += pos;
-      drawUtil->drawBitmapSR(mProfile->getBitmapResource(),Point2I(thumb.point.x,offset.y ),mBitmapBounds[index]);
+      drawUtil->drawBitmapSR(mProfile->getBitmapResource(),Point2I(thumb.point.x,offset.y ),mBitmapBounds[index], manager);
 
    }
    else if (getWidth() >= getHeight())
@@ -503,7 +502,7 @@ void GuiSliderCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderM
    }
    // draw the thumb
    thumb.point += pos;
-   renderRaisedBox(thumb, mProfile);
+   renderRaisedBox(thumb, mProfile, manager);
 
    if(mDisplayValue)
    {
@@ -523,7 +522,7 @@ void GuiSliderCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderM
    		textStart.x -=((textStart.x + txt_w) - (offset.x+getWidth()));
 
     	drawUtil->setBitmapModulation(mProfile->mFontColor);
-    	drawUtil->drawText(mProfile->mFont, textStart, buf, mProfile->mFontColors);
+    	drawUtil->drawText(manager, mProfile->mFont, textStart, buf, mProfile->mFontColors);
    }
    renderChildControls(offset, updateRect, manager);
 }

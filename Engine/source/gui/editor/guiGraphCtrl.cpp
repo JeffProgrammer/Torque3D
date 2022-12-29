@@ -144,7 +144,7 @@ void GuiGraphCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderMa
 
    GFX->setStateBlock( mBlendSB );
    
-	GFX->getDrawUtil()->drawRectFill( updateRect, mProfile->mFillColor );
+	GFX->getDrawUtil()->drawRectFill( updateRect, mProfile->mFillColor, manager );
    
    GFX->setStateBlock( mSolidSB );
 

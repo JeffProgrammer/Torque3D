@@ -102,7 +102,7 @@ void afxGuiTextHud::onRender(Point2I, const RectI &updateRect, GuiRenderManager*
 {
    // Background fill first
    if (mShowFill)
-      GFX->getDrawUtil()->drawRectFill(updateRect, mFillColor.toColorI());
+      GFX->getDrawUtil()->drawRectFill(updateRect, mFillColor.toColorI(), manager);
 
    // Must be in a TS Control
    GuiTSCtrl *parent = dynamic_cast<GuiTSCtrl*>(getParent());
@@ -301,7 +301,8 @@ void afxGuiTextHud::drawName(Point2I offset, const char *name, F32 opacity, Line
    LinearColorF draw_color = (color) ? *color : mTextColor;
    draw_color.alpha *= opacity;
    GFX->getDrawUtil()->setBitmapModulation(draw_color.toColorI());
-   GFX->getDrawUtil()->drawText(mProfile->mFont, offset, name);
+   // TODO: Fix me
+   //GFX->getDrawUtil()->drawText(mProfile->mFont, offset, name);
    GFX->getDrawUtil()->clearBitmapModulation();
 }
 

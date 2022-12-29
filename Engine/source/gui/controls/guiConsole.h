@@ -70,7 +70,7 @@ class GuiConsole : public GuiArrayCtrl
       // GuiArrayCtrl.
       virtual bool onWake();
       virtual void onPreRender();
-      virtual void onRenderCell(Point2I offset, Point2I cell, bool selected, bool mouseOver);
+      virtual void onRenderCell(Point2I offset, Point2I cell, bool selected, bool mouseOver, GuiRenderManager* manager);
 
       void setDisplayFilters(bool errors, bool warns, bool normal);
       bool getErrorFilter() { return mDisplayErrors; }

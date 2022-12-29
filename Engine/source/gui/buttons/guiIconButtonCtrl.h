@@ -69,7 +69,7 @@ protected:
       stateDisabled,
    };
 
-   void renderBitmapArray(RectI &bounds, S32 state);
+   void renderBitmapArray(RectI &bounds, S32 state, GuiRenderManager* manager);
 
 public:   
    enum TextLocation

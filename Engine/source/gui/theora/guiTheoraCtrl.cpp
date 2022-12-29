@@ -207,7 +207,7 @@ void GuiTheoraCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderM
          
          GFXDrawUtil* drawUtil = GFX->getDrawUtil();
          drawUtil->clearBitmapModulation();
-         drawUtil->drawBitmapStretch( mTheoraTexture.getTexture(), rect );
+         drawUtil->drawBitmapStretch( mTheoraTexture.getTexture(), rect, manager );
          
          // Draw frame info, if requested.
          
@@ -220,7 +220,7 @@ void GuiTheoraCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderM
                mTheoraTexture.getNumDroppedFrames() );
             
             drawUtil->setBitmapModulation( mProfile->mFontColors[ 0 ] );
-            drawUtil->drawText( mProfile->mFont, localToGlobalCoord( Point2I( 0, 0 ) ), info, mProfile->mFontColors );
+            drawUtil->drawText( manager, mProfile->mFont, localToGlobalCoord( Point2I( 0, 0 ) ), info, mProfile->mFontColors );
          }
       }
       else
@@ -234,7 +234,7 @@ void GuiTheoraCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderM
       }
 	}
 	else
- 		GFX->getDrawUtil()->drawRectFill(rect, mBackgroundColor); // black rect
+ 		GFX->getDrawUtil()->drawRectFill(rect, mBackgroundColor, manager); // black rect
 
 	renderChildControls(offset, updateRect, manager);
 }

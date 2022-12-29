@@ -111,7 +111,7 @@ void GuiGameListOptionsCtrl::onRender(Point2I offset, const RectI &updateRect, G
             arrowOffset.y = currentOffset.y + arrowOffsetY;
 
             drawer->clearBitmapModulation();
-            drawer->drawBitmapStretchSR(profile->getBitmapResource(), RectI(arrowOffset, arrowExtent), profile->getBitmapArrayRect((U32)iconIndex));
+            drawer->drawBitmapStretchSR(profile->getBitmapResource(), RectI(arrowOffset, arrowExtent), profile->getBitmapArrayRect((U32)iconIndex), manager);
 
             // render the right arrow
             bool arrowOnR = (isRowSelected || isRowHighlighted) && (myRow->mWrapOptions || (myRow->mSelectedOption < myRow->mOptions.size() - 1));
@@ -120,7 +120,7 @@ void GuiGameListOptionsCtrl::onRender(Point2I offset, const RectI &updateRect, G
             arrowOffset.y = currentOffset.y + arrowOffsetY;
 
             drawer->clearBitmapModulation();
-            drawer->drawBitmapStretchSR(profile->getBitmapResource(), RectI(arrowOffset, arrowExtent), profile->getBitmapArrayRect((U32)iconIndex));
+            drawer->drawBitmapStretchSR(profile->getBitmapResource(), RectI(arrowOffset, arrowExtent), profile->getBitmapArrayRect((U32)iconIndex), manager);
          }
 
          // get the appropriate font color
@@ -154,7 +154,7 @@ void GuiGameListOptionsCtrl::onRender(Point2I offset, const RectI &updateRect, G
          // render the option text itself
          Point2I textExtent(columnWidth, rowHeight);
          drawer->setBitmapModulation(fontColor);
-         renderJustifiedText(currentOffset + textOffset, textExtent, text);
+         renderJustifiedText(manager, currentOffset + textOffset, textExtent, text);
       }
    }
 }

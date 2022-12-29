@@ -1068,43 +1068,43 @@ void GuiListBoxCtrl::onRender( Point2I offset, const RectI &updateRect, GuiRende
          boxColor = ColorI(mItems[i]->color.toColorI());
          // Draw the box first
          ColorI black = ColorI(0, 0, 0);
-         drawBox(  Point2I(offset.x + mProfile->mTextOffset.x + colorBoxSize, offset.y + ( i * mItemSize.y ) + 8), colorBoxSize, black, boxColor );
+         drawBox(  Point2I(offset.x + mProfile->mTextOffset.x + colorBoxSize, offset.y + ( i * mItemSize.y ) + 8), colorBoxSize, black, boxColor, manager );
       }
 
       RectI itemRect = RectI( offset.x + mProfile->mTextOffset.x + (colorBoxSize * 3), offset.y + ( i * mItemSize.y ), mItemSize.x, mItemSize.y );
 
       // Render our item
-      onRenderItem( itemRect, mItems[i] );
+      onRenderItem( itemRect, mItems[i], manager );
    }
 
    GFX->setClipRect( oldClipRect );
 }
 
-void GuiListBoxCtrl::onRenderItem(const RectI& itemRect, LBItem *item)
+void GuiListBoxCtrl::onRenderItem(const RectI& itemRect, LBItem *item, GuiRenderManager* manager)
 {
    if( item->isSelected )
-      GFX->getDrawUtil()->drawRectFill( itemRect, mProfile->mFillColorSEL );
+      GFX->getDrawUtil()->drawRectFill( itemRect, mProfile->mFillColorSEL, manager );
 
    GFX->getDrawUtil()->setBitmapModulation( item->hasColor ? item->color.toColorI() : mProfile->mFontColor);
-   renderJustifiedText(itemRect.point + Point2I( 2, 0 ), itemRect.extent, item->itemText);
+   renderJustifiedText(manager, itemRect.point + Point2I( 2, 0 ), itemRect.extent, item->itemText);
 }
 
-void GuiListBoxCtrl::drawBox(const Point2I &box, S32 size, ColorI &outlineColor, ColorI &boxColor)
+void GuiListBoxCtrl::drawBox(const Point2I &box, S32 size, ColorI &outlineColor, ColorI &boxColor, GuiRenderManager* manager)
 {
    RectI r(box.x - size, box.y - size, 2 * size + 1, 2 * size + 1);
    r.inset(1, 1);
-   GFX->getDrawUtil()->drawRectFill(r, boxColor);
+   GFX->getDrawUtil()->drawRectFill(r, boxColor, manager);
    r.inset(-1, -1);
    GFX->getDrawUtil()->drawRect(r, outlineColor);
 }
 
-bool GuiListBoxCtrl::renderTooltip( const Point2I &hoverPos, const Point2I& cursorPos, const char* tipText )
+bool GuiListBoxCtrl::renderTooltip( const Point2I &hoverPos, const Point2I& cursorPos, GuiRenderManager* manager, const char* tipText )
 {
    S32 hitItemIndex;
    if( hitTest( hoverPos, hitItemIndex ) )
       tipText = mItems[ hitItemIndex ]->itemTooltip;
       
-   return defaultTooltipRender( hoverPos, cursorPos, tipText );
+   return defaultTooltipRender( hoverPos, cursorPos, manager, tipText );
 }
 
 //-----------------------------------------------------------------------------

@@ -590,7 +590,7 @@ bool GuiInspectorTypeImageAssetPtr::updateRects()
    return true;
 }
 
-bool GuiInspectorTypeImageAssetPtr::renderTooltip(const Point2I& hoverPos, const Point2I& cursorPos, const char* tipText)
+bool GuiInspectorTypeImageAssetPtr::renderTooltip(const Point2I& hoverPos, const Point2I& cursorPos, GuiRenderManager* manager, const char* tipText)
 {
    if (!mAwake)
       return false;
@@ -656,7 +656,7 @@ bool GuiInspectorTypeImageAssetPtr::renderTooltip(const Point2I& hoverPos, const
 
    GFXDrawUtil* drawer = GFX->getDrawUtil();
    drawer->clearBitmapModulation();
-   GFX->getDrawUtil()->drawBitmapStretch(texture, rect);
+   GFX->getDrawUtil()->drawBitmapStretch(texture, rect, manager);
 
    GFX->setClipRect(oldClip);
 

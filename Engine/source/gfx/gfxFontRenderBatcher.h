@@ -29,6 +29,8 @@
 
 #define TEXT_MAG 1
 
+class GuiRenderManager;
+
 class FontRenderBatcher
 {
    struct CharMarker 
@@ -51,6 +53,7 @@ class FontRenderBatcher
    GFont *mFont;
    U32 mLength;
    GFXStateBlockRef mFontSB;
+   GFXHandle<GFXSamplerHandle> mSampler;
 
    SheetMarker &getSheetMarker(U32 sheetID);
 
@@ -61,7 +64,7 @@ public:
 
    void queueChar(UTF16 c, S32 &currentX, GFXVertexColor &currentColor);
 
-   void render(F32 rot, const Point2F &offset );
+   void render(GuiRenderManager* manager, F32 rot, const Point2F &offset );
 };
 
 #endif

@@ -347,7 +347,7 @@ void GuiMLTextCtrl::onPreRender()
 }
 
 //--------------------------------------------------------------------------
-void GuiMLTextCtrl::drawAtomText(bool sel, U32 start, U32 end, Atom *atom, Line *line, Point2I offset)
+void GuiMLTextCtrl::drawAtomText(bool sel, U32 start, U32 end, Atom *atom, Line *line, Point2I offset, GuiRenderManager* manager)
 {
    GFont *font = atom->style->font->fontRes;
    U32 xOff = 0;
@@ -382,20 +382,20 @@ void GuiMLTextCtrl::drawAtomText(bool sel, U32 start, U32 end, Atom *atom, Line 
          ColorI shadowColor = atom->style->shadowColor;
          shadowColor.alpha = (S32)(mAlpha * shadowColor.alpha);
          drawer->setBitmapModulation(shadowColor);
-         drawer->drawTextN(font, drawPoint + atom->style->shadowOffset, 
+         drawer->drawTextN(manager, font, drawPoint + atom->style->shadowOffset,
             tmp, tmpLen, mAllowColorChars ? mProfile->mFontColors : NULL);
       }
 
       color.alpha = (S32)(mAlpha * color.alpha);
       drawer->setBitmapModulation(color);
-      drawer->drawTextN(font, drawPoint, tmp, end-start, mAllowColorChars ? mProfile->mFontColors : NULL);
+      drawer->drawTextN(manager, font, drawPoint, tmp, end-start, mAllowColorChars ? mProfile->mFontColors : NULL);
 
       //if the atom was "clipped", see if we need to draw a "..." at the end
       if (atom->isClipped)
       {
          Point2I p2 = drawPoint;
          p2.x += font->getStrNWidthPrecise(tmp, tmpLen);
-         drawer->drawTextN(font, p2, "...", 3, mAllowColorChars ? mProfile->mFontColors : NULL);
+         drawer->drawTextN(manager, font, p2, "...", 3, mAllowColorChars ? mProfile->mFontColors : NULL);
       }
    }
    else
@@ -406,16 +406,16 @@ void GuiMLTextCtrl::drawAtomText(bool sel, U32 start, U32 end, Atom *atom, Line 
       rect.extent.x = font->getStrNWidth(tmp, tmpLen) + 1;
       rect.extent.y = line->height + 1;
       
-      drawer->drawRectFill(rect, mProfile->mFillColorHL);
+      drawer->drawRectFill(rect, mProfile->mFillColorHL, manager);
       drawer->setBitmapModulation( mProfile->mFontColorHL );  // over-ride atom color:
-      drawer->drawTextN(font, drawPoint, tmp, tmpLen, mAllowColorChars ? mProfile->mFontColors : NULL);
+      drawer->drawTextN(manager, font, drawPoint, tmp, tmpLen, mAllowColorChars ? mProfile->mFontColors : NULL);
 
       //if the atom was "clipped", see if we need to draw a "..." at the end
       if (atom->isClipped)
       {
          Point2I p2 = drawPoint;
          p2.x += font->getStrNWidthPrecise(tmp, end - atom->textStart);
-         drawer->drawTextN(font, p2, "...", 3, mAllowColorChars ? mProfile->mFontColors : NULL);
+         drawer->drawTextN(manager, font, p2, "...", 3, mAllowColorChars ? mProfile->mFontColors : NULL);
       }
    }
 
@@ -444,7 +444,7 @@ void GuiMLTextCtrl::onRender(Point2I offset, const RectI& updateRect, GuiRenderM
          continue;
 
       drawer->clearBitmapModulation();
-      drawer->drawBitmap(walk->bitmap->bitmapObject, screenBounds.point);
+      drawer->drawBitmap(walk->bitmap->bitmapObject, screenBounds.point, manager);
       //GFX->drawRectFill(screenBounds, mProfile->mFillColor);
    }
 
@@ -459,12 +459,12 @@ void GuiMLTextCtrl::onRender(Point2I offset, const RectI& updateRect, GuiRenderM
          continue;
 
       if(lwalk->divStyle)
-         drawer->drawRectFill(lineRect, mProfile->mFillColorHL);
+         drawer->drawRectFill(lineRect, mProfile->mFillColorHL, manager);
 
       for(Atom *awalk = lwalk->atomList; awalk; awalk = awalk->next)
       {
          if(!mSelectionActive || mSelectionEnd < awalk->textStart || mSelectionStart >= awalk->textStart + awalk->len)
-            drawAtomText(false, awalk->textStart, awalk->textStart + awalk->len, awalk, lwalk, offset);
+            drawAtomText(false, awalk->textStart, awalk->textStart + awalk->len, awalk, lwalk, offset, manager);
          else
          {
             U32 selectionStart = getMax(awalk->textStart, mSelectionStart);
@@ -472,13 +472,13 @@ void GuiMLTextCtrl::onRender(Point2I offset, const RectI& updateRect, GuiRenderM
 
             // draw some unselected text
             if(selectionStart > awalk->textStart)
-               drawAtomText(false, awalk->textStart, selectionStart, awalk, lwalk, offset);
+               drawAtomText(false, awalk->textStart, selectionStart, awalk, lwalk, offset, manager);
 
             // draw the selection
-            drawAtomText(true, selectionStart, selectionEnd, awalk, lwalk, offset);
+            drawAtomText(true, selectionStart, selectionEnd, awalk, lwalk, offset, manager);
 
             if(selectionEnd < awalk->textStart + awalk->len)
-               drawAtomText(false, selectionEnd, awalk->textStart + awalk->len, awalk, lwalk, offset);
+               drawAtomText(false, selectionEnd, awalk->textStart + awalk->len, awalk, lwalk, offset, manager);
          }
       }
    }

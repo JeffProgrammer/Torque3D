@@ -131,7 +131,7 @@ public:
    virtual void renderWorld(const RectI &updateRect);
 
    /// Subclasses can override this to perform 2D rendering.   
-   virtual void renderGui(Point2I offset, const RectI &updateRect) {}
+   virtual void renderGui(Point2I offset, const RectI &updateRect, GuiRenderManager* manager) {}
 
    static void initPersistFields();
    static void consoleInit();
@@ -192,7 +192,7 @@ public:
    bool shouldRenderChildControls() { return mRenderStyle == RenderStyleStandard; }
 
    void setStereoGui(GuiOffscreenCanvas *canvas);
-   void renderDisplayPreview(const RectI &updateRect, GFXTexHandle &previewTexture);
+   void renderDisplayPreview(const RectI &updateRect, GFXTexHandle &previewTexture, GuiRenderManager* manager);
 
    DECLARE_CONOBJECT(GuiTSCtrl);
    DECLARE_CATEGORY( "Gui 3D" );

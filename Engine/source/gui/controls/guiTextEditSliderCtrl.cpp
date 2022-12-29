@@ -349,7 +349,7 @@ void GuiTextEditSliderCtrl::onRender(Point2I offset, const RectI &updateRect, Gu
    Point2I start(offset.x + getWidth() - 14, offset.y);
    Point2I midPoint(start.x + 7, start.y + (getExtent().y/2));
 
-   GFX->getDrawUtil()->drawRectFill(Point2I(start.x+1,start.y+1), Point2I(start.x+13,start.y+getExtent().y-1) , mProfile->mFillColor);
+   GFX->getDrawUtil()->drawRectFill(Point2I(start.x+1,start.y+1), Point2I(start.x+13,start.y+getExtent().y-1) , mProfile->mFillColor, manager);
 
    GFX->getDrawUtil()->drawLine(start, Point2I(start.x, start.y+getExtent().y),mProfile->mFontColor);
    GFX->getDrawUtil()->drawLine(Point2I(start.x,midPoint.y),

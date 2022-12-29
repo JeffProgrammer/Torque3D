@@ -29,17 +29,18 @@
 
 class GuiControlProfile;
 class ColorI;
+class GuiRenderManager;
 
-void renderRaisedBox( const RectI &bounds, GuiControlProfile *profile);
-void renderSlightlyRaisedBox( const RectI &bounds, GuiControlProfile *profile);
-void renderLoweredBox( const RectI &bounds, GuiControlProfile *profile);
-void renderSlightlyLoweredBox( const RectI &bounds, GuiControlProfile *profile);
-void renderBorder( const RectI &bounds, GuiControlProfile *profile);
-void renderFilledBorder( const RectI &bounds, GuiControlProfile *profile );
-void renderFilledBorder( const RectI &bounds, const ColorI &borderColor, const ColorI &fillColor, U32 thickness = 1 );
-void renderSizableBitmapBordersFilled( const RectI &bounds, S32 baseMultiplier, GuiControlProfile *profile); //  Added
-void renderSizableBitmapBordersFilledIndex( const RectI &bounds, S32 startIndex, GuiControlProfile *profile);
-void renderFixedBitmapBordersFilled( const RectI &bounds, S32 baseMultiplier, GuiControlProfile *profile); //  Added
-void renderFixedBitmapBordersFilled( const RectI &bounds, S32 startIndex, GuiControlProfile *profile);
+void renderRaisedBox( const RectI &bounds, GuiControlProfile *profile, GuiRenderManager* manager);
+void renderSlightlyRaisedBox( const RectI &bounds, GuiControlProfile *profile, GuiRenderManager* manager);
+void renderLoweredBox( const RectI &bounds, GuiControlProfile *profile, GuiRenderManager* manager);
+void renderSlightlyLoweredBox( const RectI &bounds, GuiControlProfile *profile, GuiRenderManager* manager);
+void renderBorder( const RectI &bounds, GuiControlProfile *profile, GuiRenderManager* manager);
+void renderFilledBorder( const RectI &bounds, GuiControlProfile *profile, GuiRenderManager* manager);
+void renderFilledBorder( const RectI &bounds, const ColorI &borderColor, const ColorI &fillColor, GuiRenderManager* manager, U32 thickness = 1 );
+void renderSizableBitmapBordersFilled( const RectI &bounds, S32 baseMultiplier, GuiControlProfile *profile, GuiRenderManager* manager); //  Added
+void renderSizableBitmapBordersFilledIndex( const RectI &bounds, S32 startIndex, GuiControlProfile *profile, GuiRenderManager* manager);
+void renderFixedBitmapBordersFilled( const RectI &bounds, S32 baseMultiplier, GuiControlProfile *profile, GuiRenderManager* manager); //  Added
+void renderFixedBitmapBordersFilled( const RectI &bounds, S32 startIndex, GuiControlProfile *profile, GuiRenderManager* manager);
 
 #endif

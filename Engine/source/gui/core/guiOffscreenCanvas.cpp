@@ -218,7 +218,10 @@ void GuiOffscreenCanvas::renderFrame(bool preRenderOnly, bool bufferSwap /* = tr
          Point2I spot = mouseCursor->getHotSpot();
 
          pos -= spot;
-         mouseCursor->render(pos);
+
+         // TODO
+         GuiRenderManager* manager = nullptr;
+         mouseCursor->render(pos, manager);
       }
 
       GFX->getDrawUtil()->clearBitmapModulation();

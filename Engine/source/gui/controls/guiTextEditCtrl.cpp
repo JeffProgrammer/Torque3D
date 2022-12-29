@@ -1197,22 +1197,22 @@ void GuiTextEditCtrl::onRender( Point2I offset, const RectI &updateRect, GuiRend
    if ( mProfile->mOpaque )
    {
       if ( !mTextValid )
-         GFX->getDrawUtil()->drawRectFill( ctrlRect, mProfile->mFillColorERR );
+         GFX->getDrawUtil()->drawRectFill( ctrlRect, mProfile->mFillColorERR, manager );
       else if ( isFirstResponder() )
-         GFX->getDrawUtil()->drawRectFill( ctrlRect, mProfile->mFillColorHL );
+         GFX->getDrawUtil()->drawRectFill( ctrlRect, mProfile->mFillColorHL, manager );
       else
-         GFX->getDrawUtil()->drawRectFill( ctrlRect, mProfile->mFillColor );
+         GFX->getDrawUtil()->drawRectFill( ctrlRect, mProfile->mFillColor, manager );
    }
 
    //if there's a border, draw the border
    if ( mProfile->mBorder )
    {
-      renderBorder( ctrlRect, mProfile );
+      renderBorder( ctrlRect, mProfile, manager );
       if ( !mTextValid )
-         GFX->getDrawUtil()->drawRectFill( ctrlRect, mProfile->mFillColorERR );
+         GFX->getDrawUtil()->drawRectFill( ctrlRect, mProfile->mFillColorERR, manager );
    }
 
-   drawText( ctrlRect, isFirstResponder() );
+   drawText( ctrlRect, isFirstResponder(), manager );
 }
 
 void GuiTextEditCtrl::onPreRender()
@@ -1240,7 +1240,7 @@ void GuiTextEditCtrl::onPreRender()
    }
 }
 
-void GuiTextEditCtrl::drawText( const RectI &drawRect, bool isFocused )
+void GuiTextEditCtrl::drawText( const RectI &drawRect, bool isFocused, GuiRenderManager* manager)
 {
    StringBuffer textBuffer;
    Point2I drawPoint = drawRect.point;
@@ -1405,7 +1405,7 @@ void GuiTextEditCtrl::drawText( const RectI &drawRect, bool isFocused )
    {
       GFX->getDrawUtil()->setBitmapModulation( fontColor );
       const UTF16* preString2 = textBuffer.getPtr();
-      GFX->getDrawUtil()->drawText( mProfile->mFont, tempOffset, preString2, mProfile->mFontColors );
+      GFX->getDrawUtil()->drawText( manager, mProfile->mFont, tempOffset, preString2, mProfile->mFontColors );
       tempOffset.x += mProfile->mFont->getStrNWidth(preString2, mBlockStart);
    }
 
@@ -1419,10 +1419,11 @@ void GuiTextEditCtrl::drawText( const RectI &drawRect, bool isFocused )
 
       GFX->getDrawUtil()->drawRectFill( Point2I( tempOffset.x, drawRect.point.y ),
          Point2I( tempOffset.x + highlightWidth, drawRect.point.y + drawRect.extent.y - 1),
-         mProfile->mFontColorSEL );
+         mProfile->mFontColorSEL,
+         manager );
 
       GFX->getDrawUtil()->setBitmapModulation( mProfile->mFontColorHL );
-      GFX->getDrawUtil()->drawTextN( mProfile->mFont, tempOffset, highlightBuff, highlightBuffLen, mProfile->mFontColors );
+      GFX->getDrawUtil()->drawTextN( manager, mProfile->mFont, tempOffset, highlightBuff, highlightBuffLen, mProfile->mFontColors );
       tempOffset.x += highlightWidth;
    }
 
@@ -1433,7 +1434,7 @@ void GuiTextEditCtrl::drawText( const RectI &drawRect, bool isFocused )
       U32 finalBuffLen = textBuffer.length() - mBlockEnd;
 
       GFX->getDrawUtil()->setBitmapModulation( fontColor );
-      GFX->getDrawUtil()->drawTextN( mProfile->mFont, tempOffset, finalBuff, finalBuffLen, mProfile->mFontColors );
+      GFX->getDrawUtil()->drawTextN( manager, mProfile->mFont, tempOffset, finalBuff, finalBuffLen, mProfile->mFontColors );
    }
 
    //draw the cursor

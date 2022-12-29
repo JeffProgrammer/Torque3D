@@ -21,10 +21,15 @@ void GFXGLDevice::verifyBeforeDraw()
       const GLPipelineState& pipelineState = mGLPipelineStateTable[mInternalGLState.currentPipeline];
       AssertFatal(mGLPipelineStateTable.find(mInternalGLState.currentPipeline) != mGLPipelineStateTable.end(), "GFXGLDevice Command Buffer :: No Pipeline Bound!");
 
-      for (S32 i = 0; i < pipelineState.inputLayoutState.numberOfAttributes; ++i)
+      U32 count = 0;
+      for (S32 i = 0; i < MAX_ATTRIBUTES; ++i)
       {
-         AssertFatal(mInternalGLState.attributesBound[i], "GFXGLDevice Command Buffer :: Not all Attributes Bound to Vertex Buffers before drawing!");
+         if (mInternalGLState.attributesBound[i])
+            count++;
       }
+
+      AssertFatal(count == pipelineState.inputLayoutState.numberOfAttributes, "GFXGLDevice Command Buffer :: Not all Attributes Bound to Vertex Buffers before drawing!");
+      bool x = 1;
    }
 }
 #else
@@ -61,6 +66,11 @@ void GFXGLDevice::init2()
 
    mGenericPipelineManager = new GFXGLGenericShaderPipelineManager();
    mGenericPipelineManager->init();
+
+   for (U32 i = 0; i < MAX_ATTRIBUTES; ++i)
+   {
+      mInternalGLState.attributesBound[i] = false;
+   }
 }
 
 void GFXGLDevice::executeCmdBuffer(GFXCmdBuffer* cmdBuffer)
@@ -176,13 +186,13 @@ void GFXGLDevice::executeCmdBuffer(GFXCmdBuffer* cmdBuffer)
             // Depth Stencil State
             {
                glDepthMask(state.zWriteEnable);
-               glDepthFunc(state.zFunc);
+               glDepthFunc(GFXGLCmpFunc[state.zFunc]);
 
                if (state.stencilEnable)
                {
                   glEnable(GL_STENCIL_TEST);
-                  glStencilFunc(state.stencilFunc, state.stencilRef, state.stencilMask);
-                  glStencilOp(state.stencilFailOp, state.stencilZFailOp, state.stencilPassOp);
+                  glStencilFunc(GFXGLCmpFunc[state.stencilFunc], state.stencilRef, state.stencilMask);
+                  glStencilOp(GFXGLStencilOp[state.stencilFailOp], GFXGLStencilOp[state.stencilZFailOp], GFXGLStencilOp[state.stencilPassOp]);
                   glStencilMask(state.stencilWriteMask);
                }
                else
@@ -218,8 +228,9 @@ void GFXGLDevice::executeCmdBuffer(GFXCmdBuffer* cmdBuffer)
 
             mInternalGLState.currentStateBlock = stateBlock;
 
+            // TODO?
             // we have to do this after referencing it as we increment it when inserting into the command buffer.
-            stateBlock->decRefCount();
+            //stateBlock->decRefCount();
             break;
          }
       case GFX_CMD_SET_VERTEX_BUFFER:
@@ -228,10 +239,10 @@ void GFXGLDevice::executeCmdBuffer(GFXCmdBuffer* cmdBuffer)
             U32 handle = cmdBuffer->mBuffer.data[cmdBufferOffset++];
             U32 offset = cmdBuffer->mBuffer.data[cmdBufferOffset++];
 
-            const GLPipelineState& pipelineState = mGLPipelineStateTable[mInternalGLState.currentPipeline];
-
             AssertFatal(mGLVertexBufferTable.find(handle) != mGLVertexBufferTable.end(), "GFXGLDevice Command Buffer :: Vertex Buffer not found.");
-            AssertFatal(mGLPipelineStateTable.find(handle) != mGLPipelineStateTable.end(), "GFXGLDevice Command Buffer :: No Pipeline Bound!");
+            AssertFatal(mGLPipelineStateTable.find(mInternalGLState.currentPipeline) != mGLPipelineStateTable.end(), "GFXGLDevice Command Buffer :: No Pipeline Bound!");
+
+            const GLPipelineState& pipelineState = mGLPipelineStateTable[mInternalGLState.currentPipeline];
 
             GLuint buffer = mGLVertexBufferTable[handle];
             U32 stride = pipelineState.inputLayoutState.buffers[slot].stride;
@@ -607,103 +618,128 @@ GFXHandle<GFXGraphicsPipelineHandle> GFXGLDevice::createGraphicsPipeline(const G
       for (U32 j = 0; j < bufferDesc.count; ++j)
       {
          const String& semantic = bufferDesc.elements[j].semanticName;
+         
+         U32 elementCount = 0;
+         GLenum glType = GL_NONE;
+         
+         GFXDeclType type = bufferDesc.elements[j].type;
+         {
+            if (type == GFXDeclType_Float)
+            {
+               elementCount = 1;
+               glType = GL_FLOAT;
+            }
+            else if (type == GFXDeclType_Float2)
+            {
+               elementCount = 2;
+               glType = GL_FLOAT;
+            }
+            else if (type == GFXDeclType_Float3)
+            {
+               elementCount = 3;
+               glType = GL_FLOAT;
+            }
+            else if (type == GFXDeclType_Float4)
+            {
+               elementCount = 4;
+               glType = GL_FLOAT;
+            }
+            else if (type == GFXDeclType_Color)
+            {
+               elementCount = 4;
+               glType = GL_UNSIGNED_BYTE;
+            }
+            else if (type == GFXDeclType_UByte4)
+            {
+               elementCount = 4;
+               glType = GL_UNSIGNED_BYTE;
+            }
+            
+            AssertISV(elementCount != 0, "GFXGLDevice :: Invalid Type Element Count");
+            AssertISV(glType != GL_NONE, "GFXGLDevice :: Invalid GL Type");
+         }
 
          if (semantic == GFXSemantic::POSITION)
          {
             pipelineState.inputLayoutState.buffers[i].elements[j].attributeIndex = Torque::GL_VertexAttrib_Position;
-            pipelineState.inputLayoutState.buffers[i].elements[j].type = GL_FLOAT;
-            pipelineState.inputLayoutState.buffers[i].elements[j].elementCount = 3;
+            pipelineState.inputLayoutState.buffers[i].elements[j].type = glType;
+            pipelineState.inputLayoutState.buffers[i].elements[j].elementCount = elementCount;
             pipelineState.inputLayoutState.buffers[i].elements[j].normalized = false;
-            pipelineState.inputLayoutState.buffers[i].elements[j].localOffset += localOffset;
-            localOffset += 3 * sizeof(F32);
+            pipelineState.inputLayoutState.buffers[i].elements[j].localOffset = localOffset;
+            localOffset += elementCount * sizeof(F32);
          }
          else if (semantic == GFXSemantic::NORMAL)
          {
             pipelineState.inputLayoutState.buffers[i].elements[j].attributeIndex = Torque::GL_VertexAttrib_Normal;
-            pipelineState.inputLayoutState.buffers[i].elements[j].type = GL_FLOAT;
-            pipelineState.inputLayoutState.buffers[i].elements[j].elementCount = 3;
+            pipelineState.inputLayoutState.buffers[i].elements[j].type = glType;
+            pipelineState.inputLayoutState.buffers[i].elements[j].elementCount = elementCount;
             pipelineState.inputLayoutState.buffers[i].elements[j].normalized = false;
-            pipelineState.inputLayoutState.buffers[i].elements[j].localOffset += localOffset;
-            localOffset += 3 * sizeof(F32);
+            pipelineState.inputLayoutState.buffers[i].elements[j].localOffset = localOffset;
+            localOffset += elementCount * sizeof(F32);
          }
          else if (semantic == GFXSemantic::TANGENT)
          {
             pipelineState.inputLayoutState.buffers[i].elements[j].attributeIndex = Torque::GL_VertexAttrib_Tangent;
-            pipelineState.inputLayoutState.buffers[i].elements[j].type = GL_FLOAT;
-            pipelineState.inputLayoutState.buffers[i].elements[j].elementCount = 3;
+            pipelineState.inputLayoutState.buffers[i].elements[j].type = glType;
+            pipelineState.inputLayoutState.buffers[i].elements[j].elementCount = elementCount;
             pipelineState.inputLayoutState.buffers[i].elements[j].normalized = false;
-            pipelineState.inputLayoutState.buffers[i].elements[j].localOffset += localOffset;
-            localOffset += 3 * sizeof(F32);
+            pipelineState.inputLayoutState.buffers[i].elements[j].localOffset = localOffset;
+            localOffset += elementCount * sizeof(F32);
          }
          else if (semantic == GFXSemantic::TANGENTW)
          {
             pipelineState.inputLayoutState.buffers[i].elements[j].attributeIndex = Torque::GL_VertexAttrib_TangentW;
-            pipelineState.inputLayoutState.buffers[i].elements[j].type = GL_FLOAT;
-            pipelineState.inputLayoutState.buffers[i].elements[j].elementCount = 4;
+            pipelineState.inputLayoutState.buffers[i].elements[j].type = glType;
+            pipelineState.inputLayoutState.buffers[i].elements[j].elementCount = elementCount;
             pipelineState.inputLayoutState.buffers[i].elements[j].normalized = false;
-            pipelineState.inputLayoutState.buffers[i].elements[j].localOffset += localOffset;
-            localOffset += 4 * sizeof(F32);
+            pipelineState.inputLayoutState.buffers[i].elements[j].localOffset = localOffset;
+            localOffset += elementCount * sizeof(F32);
          }
          else if (semantic == GFXSemantic::BINORMAL)
          {
             pipelineState.inputLayoutState.buffers[i].elements[j].attributeIndex = Torque::GL_VertexAttrib_Binormal;
-            pipelineState.inputLayoutState.buffers[i].elements[j].type = GL_FLOAT;
-            pipelineState.inputLayoutState.buffers[i].elements[j].elementCount = 3;
+            pipelineState.inputLayoutState.buffers[i].elements[j].type = glType;
+            pipelineState.inputLayoutState.buffers[i].elements[j].elementCount = elementCount;
             pipelineState.inputLayoutState.buffers[i].elements[j].normalized = false;
-            pipelineState.inputLayoutState.buffers[i].elements[j].localOffset += localOffset;
-            localOffset += 3 * sizeof(F32);
+            pipelineState.inputLayoutState.buffers[i].elements[j].localOffset = localOffset;
+            localOffset += elementCount * sizeof(F32);
          }
          else if (semantic == GFXSemantic::COLOR)
          {
             pipelineState.inputLayoutState.buffers[i].elements[j].attributeIndex = Torque::GL_VertexAttrib_Color;
-            pipelineState.inputLayoutState.buffers[i].elements[j].type = GL_UNSIGNED_BYTE;
-            pipelineState.inputLayoutState.buffers[i].elements[j].elementCount = 4;
+            pipelineState.inputLayoutState.buffers[i].elements[j].type = glType;
+            pipelineState.inputLayoutState.buffers[i].elements[j].elementCount = elementCount;
             pipelineState.inputLayoutState.buffers[i].elements[j].normalized = true;
-            pipelineState.inputLayoutState.buffers[i].elements[j].localOffset += localOffset;
-            localOffset += 4 * sizeof(U8);
+            pipelineState.inputLayoutState.buffers[i].elements[j].localOffset = localOffset;
+            localOffset += elementCount * sizeof(U8);
          }
          else if (semantic == GFXSemantic::BLENDWEIGHT)
          {
             pipelineState.inputLayoutState.buffers[i].elements[j].attributeIndex = Torque::GL_VertexAttrib_BlendWeight0 + bufferDesc.elements[j].semanticIndex;
-            pipelineState.inputLayoutState.buffers[i].elements[j].type = GL_FLOAT;
-            pipelineState.inputLayoutState.buffers[i].elements[j].elementCount = 4;
+            pipelineState.inputLayoutState.buffers[i].elements[j].type = glType;
+            pipelineState.inputLayoutState.buffers[i].elements[j].elementCount = elementCount;
             pipelineState.inputLayoutState.buffers[i].elements[j].normalized = false;
-            pipelineState.inputLayoutState.buffers[i].elements[j].localOffset += localOffset;
-            localOffset += 4 * sizeof(F32);
+            pipelineState.inputLayoutState.buffers[i].elements[j].localOffset = localOffset;
+            localOffset += elementCount * sizeof(F32);
          }
          else if (semantic == GFXSemantic::BLENDINDICES)
          {
             pipelineState.inputLayoutState.buffers[i].elements[j].attributeIndex = Torque::GL_VertexAttrib_BlendIndex0 + bufferDesc.elements[j].semanticIndex;
-            pipelineState.inputLayoutState.buffers[i].elements[j].type = GL_UNSIGNED_BYTE;
-            pipelineState.inputLayoutState.buffers[i].elements[j].elementCount = 4;
+            pipelineState.inputLayoutState.buffers[i].elements[j].type = glType;
+            pipelineState.inputLayoutState.buffers[i].elements[j].elementCount = elementCount;
             pipelineState.inputLayoutState.buffers[i].elements[j].normalized = false; // should be true??
-            pipelineState.inputLayoutState.buffers[i].elements[j].localOffset += localOffset;
-            localOffset += 4 * sizeof(U8);
+            pipelineState.inputLayoutState.buffers[i].elements[j].localOffset = localOffset;
+            localOffset += elementCount * sizeof(U8);
          }
          else if (semantic == GFXSemantic::TEXCOORD)
          {
             texCoordIndex = getMax(texCoordIndex, bufferDesc.elements[j].semanticIndex);
-            U32 elementCount = 0;
-            
-            GFXDeclType type = bufferDesc.elements[j].type;
-            if (type == GFXDeclType_Float)
-               elementCount = 1;
-            else if (type == GFXDeclType_Float2)
-               elementCount = 2;
-            else if (type == GFXDeclType_Float3)
-               elementCount = 3;
-            else if (type == GFXDeclType_Float4)
-               elementCount = 4;
-            else
-            {
-               AssertISV(false, "GFXGLDevice :: Invalid type for Texture Semantic");
-            }
             
             pipelineState.inputLayoutState.buffers[i].elements[j].attributeIndex = Torque::GL_VertexAttrib_TexCoord0 + texCoordIndex;
-            pipelineState.inputLayoutState.buffers[i].elements[j].type = GL_FLOAT;
+            pipelineState.inputLayoutState.buffers[i].elements[j].type = glType;
             pipelineState.inputLayoutState.buffers[i].elements[j].elementCount = elementCount;
             pipelineState.inputLayoutState.buffers[i].elements[j].normalized = false;
-            pipelineState.inputLayoutState.buffers[i].elements[j].localOffset += localOffset;
+            pipelineState.inputLayoutState.buffers[i].elements[j].localOffset = localOffset;
             localOffset += elementCount * sizeof(F32);
          }
          else

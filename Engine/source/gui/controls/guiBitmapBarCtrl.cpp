@@ -88,7 +88,7 @@ void GuiBitmapBarCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRend
       offsetDest += offset;
       destRegion.set(offsetDest, modifiedDest);
 
-      GFX->getDrawUtil()->drawBitmapStretchSR(texture, destRegion, srcRegion, GFXBitmapFlip_None, GFXTextureFilterLinear, false);
+      GFX->getDrawUtil()->drawBitmapStretchSR(texture, destRegion, srcRegion, manager, GFXBitmapFlip_None, GFXTextureFilterLinear, false);
    }
 
    if (mProfile->mBorder || !mBitmap)

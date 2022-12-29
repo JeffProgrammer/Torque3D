@@ -258,9 +258,9 @@ class GuiScrollCtrl : public GuiContainer
       virtual void onPreRender();
       virtual void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
       virtual void drawBorder(const Point2I &offset, bool isFirstResponder);
-      virtual void drawVScrollBar(const Point2I &offset);
-      virtual void drawHScrollBar(const Point2I &offset);
-      virtual void drawScrollCorner(const Point2I &offset);
+      virtual void drawVScrollBar(const Point2I &offset, GuiRenderManager* manager);
+      virtual void drawHScrollBar(const Point2I &offset, GuiRenderManager* manager);
+      virtual void drawScrollCorner(const Point2I &offset, GuiRenderManager* manager);
       virtual GuiControl* findHitControl(const Point2I &pt, S32 initialLayer = -1);
 
       static void initPersistFields();

@@ -258,7 +258,7 @@ public:
    static void consoleInit();
 
    virtual GuiControl* constructEditControl();
-   bool renderTooltip( const Point2I &hoverPos, const Point2I &cursorPos, const char *tipText = NULL );
+   bool renderTooltip( const Point2I &hoverPos, const Point2I &cursorPos, GuiRenderManager* manager, const char *tipText = NULL );
 };
 
 //-----------------------------------------------------------------------------

@@ -86,14 +86,14 @@ void GuiRenderTargetVizCtrl::initPersistFields()
 
 //-----------------------------------------------------------------------------
 
-void GuiRenderTargetVizCtrl::onRender(Point2I offset, const RectI& updateRect, GuiRenderManager *manger)
+void GuiRenderTargetVizCtrl::onRender(Point2I offset, const RectI& updateRect, GuiRenderManager *manager)
 {
    GFXDrawUtil* drawer = GFX->getDrawUtil();
 
    RectI boundsRect(offset, getExtent());
 
    //Draw backdrop
-   GFX->getDrawUtil()->drawRectFill(boundsRect, ColorI::BLACK);
+   GFX->getDrawUtil()->drawRectFill(boundsRect, ColorI::BLACK, manager);
 
    if (mCameraObject != nullptr)
    {
@@ -108,7 +108,7 @@ void GuiRenderTargetVizCtrl::onRender(Point2I offset, const RectI& updateRect, G
          if (targ)
          {
             Point2I size = Point2I(targ->getWidth(), targ->getHeight());
-            drawer->drawBitmapStretchSR(targ, boundsRect, RectI(Point2I::Zero, size));
+            drawer->drawBitmapStretchSR(targ, boundsRect, RectI(Point2I::Zero, size), manager);
          }
          return;
       }
@@ -122,6 +122,6 @@ void GuiRenderTargetVizCtrl::onRender(Point2I offset, const RectI& updateRect, G
       GFXTextureObject* theTex = namedTarget->getTexture(0);
       RectI viewport = namedTarget->getViewport();
 
-      drawer->drawBitmapStretchSR(theTex, boundsRect, viewport);
+      drawer->drawBitmapStretchSR(theTex, boundsRect, viewport, manager);
    }
 }

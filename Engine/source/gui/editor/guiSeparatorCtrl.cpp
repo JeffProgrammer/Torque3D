@@ -103,12 +103,12 @@ void GuiSeparatorCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRend
       if( mTextLeftMargin > 0 )
       {
          RectI rect( Point2I( posx, seppos ), Point2I( mTextLeftMargin, 2 ) );
-         renderSlightlyLoweredBox(rect, mProfile);
+         renderSlightlyLoweredBox(rect, mProfile, manager);
          posx += mTextLeftMargin;
       }
 
       GFX->getDrawUtil()->setBitmapModulation( mProfile->mFontColor );
-      posx = GFX->getDrawUtil()->drawText(mProfile->mFont, Point2I(posx,offset.y), mText, mProfile->mFontColors);
+      posx = GFX->getDrawUtil()->drawText(manager, mProfile->mFont, Point2I(posx,offset.y), mText, mProfile->mFontColors);
 
       RectI rect( Point2I( posx, seppos ), Point2I( getWidth() - posx + offset.x, 2 ) );
       
@@ -118,7 +118,7 @@ void GuiSeparatorCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRend
       rect.extent.x -= 2;
       
       if( rect.extent.x > 0 )
-         renderSlightlyLoweredBox( rect, mProfile );
+         renderSlightlyLoweredBox( rect, mProfile, manager );
    }
    else
    {
@@ -126,13 +126,13 @@ void GuiSeparatorCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRend
       {
          S32 seppos = getHeight() / 2 + offset.y; 
          RectI rect(Point2I(offset.x + mMargin ,seppos),Point2I(getWidth() - (mMargin * 2),2));
-         renderSlightlyLoweredBox(rect, mProfile);
+         renderSlightlyLoweredBox(rect, mProfile, manager);
       }
       else
       {
          S32 seppos = getWidth() / 2 + offset.x; 
          RectI rect(Point2I(seppos, offset.y + mMargin),Point2I(2, getHeight() - (mMargin * 2)));
-         renderSlightlyLoweredBox(rect, mProfile);
+         renderSlightlyLoweredBox(rect, mProfile, manager);
       }
    }
 

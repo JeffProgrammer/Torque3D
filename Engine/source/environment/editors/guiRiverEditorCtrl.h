@@ -120,7 +120,7 @@ class GuiRiverEditorCtrl : public EditTSCtrl
       void _renderSelectedRiver( ObjectRenderInst *ri, SceneRenderState *state, BaseMatInstance *matInst );
       void _prepRenderImage( SceneManager* sceneGraph, const SceneRenderState* sceneState );
       void _drawRiverSpline( River *river, const ColorI &color );
-      void _drawRiverControlNodes( River *river, const ColorI &color );
+      void _drawRiverControlNodes( River *river, const ColorI &color, GuiRenderManager* manager);
       void _process3DMouseDown( const Gui3DMouseEvent& event );
 
       void submitUndo( const UTF8 *name = "Action" );

@@ -1301,11 +1301,11 @@ void GuiMenuBar::onRender(Point2I offset, const RectI &updateRect, GuiRenderMana
 
    //if opaque, fill the update rect with the fill color
    if (mProfile->mOpaque)
-      drawUtil->drawRectFill(RectI(offset, extent), mProfile->mFillColor);
+      drawUtil->drawRectFill(RectI(offset, extent), mProfile->mFillColor, manager);
 
    //if there's a border, draw the border
    if (mProfile->mBorder)
-      renderBorder(ctrlRect, mProfile);
+      renderBorder(ctrlRect, mProfile, manager);
 
    for (U32 i = 0; i < mMenuList.size(); ++i)
    {
@@ -1327,9 +1327,9 @@ void GuiMenuBar::onRender(Point2I offset, const RectI &updateRect, GuiRenderMana
          RectI highlightBounds = bounds;
          highlightBounds.inset(1, 1);
          if (&mMenuList[i] == mouseDownMenu)
-            renderFilledBorder(highlightBounds, mProfile->mBorderColorHL, mProfile->mFillColorHL);
+            renderFilledBorder(highlightBounds, mProfile->mBorderColorHL, mProfile->mFillColorHL, manager);
          else if (&mMenuList[i] == mouseOverMenu && mouseDownMenu == NULL)
-            renderFilledBorder(highlightBounds, mProfile->mBorderColorHL, mProfile->mFillColorHL);
+            renderFilledBorder(highlightBounds, mProfile->mBorderColorHL, mProfile->mFillColorHL, manager);
       }
 
       // Do we draw a bitmap?
@@ -1347,20 +1347,20 @@ void GuiMenuBar::onRender(Point2I offset, const RectI &updateRect, GuiRenderMana
          bitmapstart.y = mMenuList[i].bounds.point.y + (mMenuList[i].bounds.extent.y - rect.extent.y) / 2;
 
          drawUtil->clearBitmapModulation();
-         drawUtil->drawBitmapSR(mProfile->getBitmapResource(), offset + bitmapstart, rect);
+         drawUtil->drawBitmapSR(mProfile->getBitmapResource(), offset + bitmapstart, rect, manager);
 
          // Should we also draw the text?
          if (!mMenuList[i].drawBitmapOnly)
          {
             start.x += mBitmapMargin;
             drawUtil->setBitmapModulation(fontColor);
-            drawUtil->drawText(mProfile->mFont, start + offset, mMenuList[i].text, mProfile->mFontColors);
+            drawUtil->drawText(manager, mProfile->mFont, start + offset, mMenuList[i].text, mProfile->mFontColors);
          }
       }
       else
       {
          drawUtil->setBitmapModulation(fontColor);
-         drawUtil->drawText(mProfile->mFont, start + offset, mMenuList[i].text, mProfile->mFontColors);
+         drawUtil->drawText(manager, mProfile->mFont, start + offset, mMenuList[i].text, mProfile->mFontColors);
       }
    }
 

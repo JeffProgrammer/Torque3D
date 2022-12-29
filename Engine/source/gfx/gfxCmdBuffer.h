@@ -62,7 +62,10 @@ private:
 
    struct StateBlockData
    {
-      GFXStateBlockRef stateBlocks[MAX_STATE_BLOCK_RESOURCES];
+      // TODO: use refs?
+      //GFXStateBlockRef stateBlocks[MAX_STATE_BLOCK_RESOURCES];
+
+      GFXStateBlock* stateBlocks[MAX_STATE_BLOCK_RESOURCES];
       U32 count;
    } mStateBlockData;
    

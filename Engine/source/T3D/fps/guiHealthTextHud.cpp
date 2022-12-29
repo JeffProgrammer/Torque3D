@@ -167,7 +167,7 @@ void GuiHealthTextHud::onRender(Point2I offset, const RectI &updateRect, GuiRend
   
    // If enabled draw background first  
    if (mShowFill)  
-      drawUtil->drawRectFill(updateRect, mFillColor.toColorI());
+      drawUtil->drawRectFill(updateRect, mFillColor.toColorI(), manager);
   
    // Prepare text and center it  
    S32 val = (S32)mValue;    
@@ -193,7 +193,7 @@ void GuiHealthTextHud::onRender(Point2I offset, const RectI &updateRect, GuiRend
    }  
   
    drawUtil->setBitmapModulation(tColor.toColorI());
-   drawUtil->drawText(mProfile->mFont, offset, buf);    
+   drawUtil->drawText(manager, mProfile->mFont, offset, buf);    
    drawUtil->clearBitmapModulation();    
   
    // If enabled draw the border last  

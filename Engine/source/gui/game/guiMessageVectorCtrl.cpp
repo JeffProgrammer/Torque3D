@@ -714,14 +714,14 @@ void GuiMessageVectorCtrl::onRender(Point2I offset, const RectI& updateRect, Gui
                if (walkAcross->specialReference == -1) {
                   drawer->setBitmapModulation(lastColor);
                   drawer->setTextAnchorColor(mProfile->mFontColor);
-                  strWidth = drawer->drawTextN(mProfile->mFont, globalStart, &mMessageVector->getLine(i).message[walkAcross->start],
+                  strWidth = drawer->drawTextN(manager, mProfile->mFont, globalStart, &mMessageVector->getLine(i).message[walkAcross->start],
                                           walkAcross->end - walkAcross->start + 1, mProfile->mFontColors, mMaxColorIndex);
                   drawer->getBitmapModulation(&lastColor);	// in case an embedded color tag changed it
                } else {
                   drawer->getBitmapModulation( &lastColor );
                   drawer->setBitmapModulation(mSpecialColor);
                   drawer->setTextAnchorColor(mProfile->mFontColor);
-                  strWidth = drawer->drawTextN(mProfile->mFont, globalStart, &mMessageVector->getLine(i).message[walkAcross->start],
+                  strWidth = drawer->drawTextN(manager, mProfile->mFont, globalStart, &mMessageVector->getLine(i).message[walkAcross->start],
                                           walkAcross->end - walkAcross->start + 1);
 
                   // in case we have 2 in a row...

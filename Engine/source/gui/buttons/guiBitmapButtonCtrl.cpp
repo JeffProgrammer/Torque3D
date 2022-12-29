@@ -542,7 +542,7 @@ void GuiBitmapButtonCtrl::onRender(Point2I offset, const RectI& updateRect, GuiR
    GFXTexHandle& texture = getTextureForCurrentState();
    if( texture )
    {
-      renderButton( texture, offset, updateRect );
+      renderButton( texture, offset, updateRect, manager );
       renderChildControls( offset, updateRect, manager );
    }
    else
@@ -551,7 +551,7 @@ void GuiBitmapButtonCtrl::onRender(Point2I offset, const RectI& updateRect, GuiR
 
 //------------------------------------------------------------------------------
 
-void GuiBitmapButtonCtrl::renderButton( GFXTexHandle &texture, const Point2I &offset, const RectI& updateRect )
+void GuiBitmapButtonCtrl::renderButton( GFXTexHandle &texture, const Point2I &offset, const RectI& updateRect, GuiRenderManager* manager )
 {
    GFX->getDrawUtil()->clearBitmapModulation();
    GFX->getDrawUtil()->setBitmapModulation(mColor);
@@ -561,7 +561,7 @@ void GuiBitmapButtonCtrl::renderButton( GFXTexHandle &texture, const Point2I &of
       case BitmapStretched:
       {
          RectI rect( offset, getExtent() );
-         GFX->getDrawUtil()->drawBitmapStretch( texture, rect );
+         GFX->getDrawUtil()->drawBitmapStretch( texture, rect, manager );
          break;
       }
          
@@ -572,7 +572,7 @@ void GuiBitmapButtonCtrl::renderButton( GFXTexHandle &texture, const Point2I &of
          p.x += getExtent().x / 2 - texture.getWidth() / 2;
          p.y += getExtent().y / 2 - texture.getHeight() / 2;
          
-         GFX->getDrawUtil()->drawBitmap( texture, p );
+         GFX->getDrawUtil()->drawBitmap( texture, p, manager );
          break;
       }
    }
@@ -599,9 +599,9 @@ ConsoleDocClass( GuiBitmapButtonTextCtrl,
 
 //-----------------------------------------------------------------------------
 
-void GuiBitmapButtonTextCtrl::renderButton( GFXTexHandle &texture, const Point2I &offset, const RectI& updateRect )
+void GuiBitmapButtonTextCtrl::renderButton( GFXTexHandle &texture, const Point2I &offset, const RectI& updateRect, GuiRenderManager* manager )
 {
-   Parent::renderButton( texture, offset, updateRect );
+   Parent::renderButton( texture, offset, updateRect, manager );
 
    Point2I textPos = offset;
    if(mDepressed)
@@ -611,7 +611,7 @@ void GuiBitmapButtonTextCtrl::renderButton( GFXTexHandle &texture, const Point2I
    textPos += mProfile->mTextOffset;
 
    GFX->getDrawUtil()->setBitmapModulation( mProfile->mFontColor );
-   renderJustifiedText(textPos, getExtent(), mButtonText);
+   renderJustifiedText(manager, textPos, getExtent(), mButtonText);
 }
 
 bool GuiBitmapButtonCtrl::pointInControl(const Point2I& parentCoordPoint)

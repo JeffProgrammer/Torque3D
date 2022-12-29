@@ -847,28 +847,32 @@ void GFXGLDevice::calcClipRect(const RectI &rect, MatrixF &outProjMatrix, RectI 
    const F32 tx = -(right + left)/(right - left);
    const F32 ty = -(top + bottom)/(top - bottom);
    const F32 tz = -(farPlane + nearPlane)/(farPlane - nearPlane);
-   
-   outProjMatrix = MatrixF(1.0);
-   
+
+   MatrixF projMatrix;
+
    static Point4F pt;
    pt.set(2.0f / (right - left), 0.0f, 0.0f, 0.0f);
-   outProjMatrix.setColumn(0, pt);
+   projMatrix.setColumn(0, pt);
    
    pt.set(0.0f, 2.0f/(top - bottom), 0.0f, 0.0f);
-   outProjMatrix.setColumn(1, pt);
+   projMatrix.setColumn(1, pt);
    
    pt.set(0.0f, 0.0f, -2.0f/(farPlane - nearPlane), 0.0f);
-   outProjMatrix.setColumn(2, pt);
+   projMatrix.setColumn(2, pt);
    
    pt.set(tx, ty, tz, 1.0f);
-   outProjMatrix.setColumn(3, pt);
+   projMatrix.setColumn(3, pt);
    
    // Translate projection matrix.
    static MatrixF translate(true);
    pt.set(0.0f, -outRect.point.y, 0.0f, 1.0f);
    translate.setColumn(3, pt);
    
-   outProjMatrix *= translate;
+   projMatrix *= translate;
+
+   MatrixF mTempMatrix(true);
+
+   outProjMatrix = projMatrix * mTempMatrix;
 }
 
 /// Creates a state block object based on the desc passed in.  This object

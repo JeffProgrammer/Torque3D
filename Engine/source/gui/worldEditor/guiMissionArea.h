@@ -104,8 +104,8 @@ protected:
 
    Point2I convertOrigin(const Point2I &);
 
-   void drawHandle(const Point2F & pos);
-   void drawHandles(RectI & box);
+   void drawHandle(const Point2F & pos, GuiRenderManager* manager);
+   void drawHandles(RectI & box, GuiRenderManager* manager);
 
    bool testWithinHandle(const Point2I & testPoint, S32 handleX, S32 handleY);
    S32 getHitHandles(const Point2I & mousePnt, const RectI & box);

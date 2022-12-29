@@ -47,6 +47,7 @@
 
 class GBitmap;
 class SFXTrack;
+class GuiRenderManager;
 
 /// Represents a single GUI event.
 ///
@@ -366,7 +367,7 @@ public:
 
    bool onAdd(void);
    void onRemove();
-   void render(const Point2I &pos);
+   void render(const Point2I &pos, GuiRenderManager* manager);
 
    void onImageChanged() {}
 };

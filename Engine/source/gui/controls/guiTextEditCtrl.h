@@ -160,7 +160,7 @@ public:
 
    void onPreRender();
    void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
-   virtual void drawText( const RectI &drawRect, bool isFocused );
+   virtual void drawText( const RectI &drawRect, bool isFocused, GuiRenderManager* manager);
 
    bool dealWithEnter( bool clearResponder );
 

@@ -79,7 +79,7 @@ class GuiColorPickerCtrl : public GuiControl
   protected:
    /// @name Core Rendering functions
    /// @{
-   void renderColorBox(RectI &bounds); ///< Function that draws the actual color box
+   void renderColorBox(RectI &bounds, GuiRenderManager* manager); ///< Function that draws the actual color box
    void drawSelector(RectI &bounds, Point2I &selectorPos, SelectorMode mode); /// < Function that draws the selection indicator
    void drawBlendBox(RectI &bounds, LinearColorF &c1, LinearColorF &c2, LinearColorF &c3, LinearColorF &c4);
    void drawBlendRangeBox(RectI &bounds, bool vertical, U8 numColors, ColorI *colors);

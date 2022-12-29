@@ -134,11 +134,11 @@ void GuiConsoleTextCtrl::onRender( Point2I offset, const RectI &updateRect, GuiR
 
    // if opaque, fill the update rect with the fill color
    if ( mProfile->mOpaque )
-      GFX->getDrawUtil()->drawRectFill( ctrlRect, mProfile->mFillColor );
+      GFX->getDrawUtil()->drawRectFill( ctrlRect, mProfile->mFillColor, manager );
 
    // if there's a border, draw the border
    if ( mProfile->mBorder )
-      renderBorder( ctrlRect, mProfile );
+      renderBorder( ctrlRect, mProfile, manager );
 
    // If we have text to render.
    if ( mResult.isNotEmpty() )
@@ -155,7 +155,7 @@ void GuiConsoleTextCtrl::onRender( Point2I offset, const RectI &updateRect, GuiR
          
          const UTF8 *line = mResult.c_str() + mStartLineOffset[i];
          U32 lineLen = mLineLen[i];
-         GFX->getDrawUtil()->drawTextN( font, tempOffset, line, lineLen, mProfile->mFontColors );
+         GFX->getDrawUtil()->drawTextN(manager, font, tempOffset, line, lineLen, mProfile->mFontColors );
       }
    }
 

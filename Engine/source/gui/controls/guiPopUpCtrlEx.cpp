@@ -232,7 +232,7 @@ void GuiPopupTextListCtrlEx::onMouseMove( const GuiEvent &event )
 }
 
 //------------------------------------------------------------------------------
-void GuiPopupTextListCtrlEx::onRenderCell(Point2I offset, Point2I cell, bool selected, bool mouseOver)
+void GuiPopupTextListCtrlEx::onRenderCell(Point2I offset, Point2I cell, bool selected, bool mouseOver, GuiRenderManager* manager)
 {
    Point2I size;
    getCellSize( size );
@@ -241,12 +241,12 @@ void GuiPopupTextListCtrlEx::onRenderCell(Point2I offset, Point2I cell, bool sel
    if ( mouseOver )
    {      
       RectI cellR( offset.x, offset.y, size.x, size.y );
-      GFX->getDrawUtil()->drawRectFill( cellR, mProfile->mFillColorHL );
+      GFX->getDrawUtil()->drawRectFill( cellR, mProfile->mFillColorHL, manager );
    }
    else if ( selected )
    {
       RectI cellR( offset.x, offset.y, size.x, size.y );
-      GFX->getDrawUtil()->drawRectFill( cellR, mProfile->mFillColorSEL );
+      GFX->getDrawUtil()->drawRectFill( cellR, mProfile->mFillColorSEL, manager );
    }
 
    //  Define the default x offset for the text
@@ -259,7 +259,7 @@ void GuiPopupTextListCtrlEx::onRenderCell(Point2I offset, Point2I cell, bool sel
    {
       Point2I coloredboxsize( 15, 10 );
       RectI r( offset.x + mProfile->mTextOffset.x, offset.y + 2, coloredboxsize.x, coloredboxsize.y );
-      GFX->getDrawUtil()->drawRectFill( r, boxColor );
+      GFX->getDrawUtil()->drawRectFill( r, boxColor, manager );
       GFX->getDrawUtil()->drawRect( r, ColorI( 0, 0, 0 ) );
 
       textXOffset += coloredboxsize.x + mProfile->mTextOffset.x;
@@ -269,14 +269,14 @@ void GuiPopupTextListCtrlEx::onRenderCell(Point2I offset, Point2I cell, bool sel
    if ( mList[cell.y].id == -1)
    {
       RectI cellR( offset.x, offset.y, size.x, size.y );
-      GFX->getDrawUtil()->drawRectFill( cellR, mProfile->mFillColorHL );
+      GFX->getDrawUtil()->drawRectFill( cellR, mProfile->mFillColorHL, manager );
    }
 
    ColorI fontColor;
    mPopUpCtrl->getFontColor( fontColor, mList[cell.y].id, selected, mouseOver );
 
    GFX->getDrawUtil()->setBitmapModulation( fontColor );
-   //GFX->drawText( mFont, Point2I( offset.x + 4, offset.y ), mList[cell.y].text );
+   //GFX->drawText( manager, mFont, Point2I( offset.x + 4, offset.y ), mList[cell.y].text );
 
    //  Get the number of columns in the cell
    S32 colcount = getColumnCount(mList[cell.y].text, "\t");
@@ -288,20 +288,20 @@ void GuiPopupTextListCtrlEx::onRenderCell(Point2I offset, Point2I cell, bool sel
 
       // Draw the first column
       getColumn(mList[cell.y].text, buff, 0, "\t");
-      GFX->getDrawUtil()->drawText( mFont, Point2I( textXOffset, offset.y ), buff ); //  Used mTextOffset as a margin for the text list rather than the hard coded value of '4'.
+      GFX->getDrawUtil()->drawText( manager, mFont, Point2I( textXOffset, offset.y ), buff ); //  Used mTextOffset as a margin for the text list rather than the hard coded value of '4'.
 
       // Draw the second column to the right
       getColumn(mList[cell.y].text, buff, 1, "\t");
       S32 txt_w = mFont->getStrWidth(buff);
 
-      GFX->getDrawUtil()->drawText( mFont, Point2I( offset.x+size.x-mProfile->mTextOffset.x-txt_w, offset.y ), buff ); //  Used mTextOffset as a margin for the text list rather than the hard coded value of '4'.
+      GFX->getDrawUtil()->drawText( manager, mFont, Point2I( offset.x+size.x-mProfile->mTextOffset.x-txt_w, offset.y ), buff ); //  Used mTextOffset as a margin for the text list rather than the hard coded value of '4'.
 
    } else
    {
       if ((mList[cell.y].id == -1) || (!hasCategories()))
-         GFX->getDrawUtil()->drawText( mFont, Point2I( textXOffset, offset.y ), mList[cell.y].text ); //  Used mTextOffset as a margin for the text list rather than the hard coded value of '4'.
+         GFX->getDrawUtil()->drawText( manager, mFont, Point2I( textXOffset, offset.y ), mList[cell.y].text ); //  Used mTextOffset as a margin for the text list rather than the hard coded value of '4'.
       else
-         GFX->getDrawUtil()->drawText( mFont, Point2I( textXOffset + 8, offset.y ), mList[cell.y].text ); //  Used mTextOffset as a margin for the text list rather than the hard coded value of '4'.
+         GFX->getDrawUtil()->drawText( manager, mFont, Point2I( textXOffset + 8, offset.y ), mList[cell.y].text ); //  Used mTextOffset as a margin for the text list rather than the hard coded value of '4'.
    }
 }
 
@@ -1063,13 +1063,13 @@ void GuiPopUpMenuCtrlEx::onRender(Point2I offset, const RectI &updateRect, GuiRe
       if ( mProfile->getChildrenProfile() && mProfile->mBitmapArrayRects.size() )
       {
          // Render the fixed, filled in border
-         renderFixedBitmapBordersFilled(r, 3, mProfile );
+         renderFixedBitmapBordersFilled(r, 3, mProfile, manager );
 
       } 
       else
       {
          //renderSlightlyLoweredBox(r, mProfile);
-         drawUtil->drawRectFill( r, mProfile->mFillColor );
+         drawUtil->drawRectFill( r, mProfile->mFillColor, manager );
       }
 
       //  Draw a bitmap over the background?
@@ -1077,13 +1077,13 @@ void GuiPopUpMenuCtrlEx::onRender(Point2I offset, const RectI &updateRect, GuiRe
       {
          RectI rect(offset, mBitmapBounds);
          drawUtil->clearBitmapModulation();
-         drawUtil->drawBitmapStretch(mBitmap[Depressed], rect );
+         drawUtil->drawBitmapStretch(mBitmap[Depressed], rect, manager );
       } 
       else if (mBitmap[Normal])
       {
          RectI rect(offset, mBitmapBounds);
          drawUtil->clearBitmapModulation();
-         drawUtil->drawBitmapStretch(mBitmap[Normal], rect );
+         drawUtil->drawBitmapStretch(mBitmap[Normal], rect, manager );
       }
 
       // Do we render a bitmap border or lines?
@@ -1108,12 +1108,12 @@ void GuiPopUpMenuCtrlEx::onRender(Point2I offset, const RectI &updateRect, GuiRe
          if ( mProfile->getChildrenProfile() && mProfile->mBitmapArrayRects.size() )
          {
             // Render the fixed, filled in border
-            renderFixedBitmapBordersFilled( r, 2, mProfile );
+            renderFixedBitmapBordersFilled( r, 2, mProfile, manager );
 
          } 
          else
          {
-            drawUtil->drawRectFill( r, mProfile->mFillColorHL );
+            drawUtil->drawRectFill( r, mProfile->mFillColorHL, manager );
          }
 
          //  Draw a bitmap over the background?
@@ -1121,7 +1121,7 @@ void GuiPopUpMenuCtrlEx::onRender(Point2I offset, const RectI &updateRect, GuiRe
          {
             RectI rect( offset, mBitmapBounds );
             drawUtil->clearBitmapModulation();
-            drawUtil->drawBitmapStretch(mBitmap[Normal], rect );
+            drawUtil->drawBitmapStretch(mBitmap[Normal], rect, manager );
          }
 
          // Do we render a bitmap border or lines?
@@ -1139,11 +1139,11 @@ void GuiPopUpMenuCtrlEx::onRender(Point2I offset, const RectI &updateRect, GuiRe
          if ( mProfile->getChildrenProfile() && mProfile->mBitmapArrayRects.size() )
          {
             // Render the fixed, filled in border
-            renderFixedBitmapBordersFilled( r, 1, mProfile );
+            renderFixedBitmapBordersFilled( r, 1, mProfile, manager );
          } 
          else
          {
-            drawUtil->drawRectFill( r, mProfile->mFillColorNA );
+            drawUtil->drawRectFill( r, mProfile->mFillColorNA, manager );
          }
 
          //  Draw a bitmap over the background?
@@ -1151,7 +1151,7 @@ void GuiPopUpMenuCtrlEx::onRender(Point2I offset, const RectI &updateRect, GuiRe
          {
             RectI rect(offset, mBitmapBounds);
             drawUtil->clearBitmapModulation();
-            drawUtil->drawBitmapStretch(mBitmap[Normal], rect );
+            drawUtil->drawBitmapStretch(mBitmap[Normal], rect, manager );
          }
 
          // Do we render a bitmap border or lines?
@@ -1228,7 +1228,7 @@ void GuiPopUpMenuCtrlEx::onRender(Point2I offset, const RectI &updateRect, GuiRe
       {
          Point2I coloredboxsize( 15, 10 );
          RectI boxBounds( offset.x + mProfile->mTextOffset.x, offset.y + ( (getHeight() - coloredboxsize.y ) / 2 ), coloredboxsize.x, coloredboxsize.y );
-         drawUtil->drawRectFill(boxBounds, boxColor);
+         drawUtil->drawRectFill(boxBounds, boxColor, manager);
          drawUtil->drawRect(boxBounds, ColorI(0,0,0));
 
          localStart.x += coloredboxsize.x + mProfile->mTextOffset.x;
@@ -1249,7 +1249,7 @@ void GuiPopUpMenuCtrlEx::onRender(Point2I offset, const RectI &updateRect, GuiRe
 
          // Draw the first column
          getColumn( mText, buff, 0, "\t" );
-         drawUtil->drawText( mProfile->mFont, globalStart, buff, mProfile->mFontColors );
+         drawUtil->drawText( manager, mProfile->mFont, globalStart, buff, mProfile->mFontColors );
 
          // Draw the second column to the right
          getColumn( mText, buff, 1, "\t" );
@@ -1260,17 +1260,19 @@ void GuiPopUpMenuCtrlEx::onRender(Point2I offset, const RectI &updateRect, GuiRe
             // right cap of the border.
             RectI* bitmapBounds = mProfile->mBitmapArrayRects.address();
             Point2I textpos = localToGlobalCoord( Point2I( getWidth() - colTxt_w - bitmapBounds[2].extent.x, localStart.y ) );
-            drawUtil->drawText( mProfile->mFont, textpos, buff, mProfile->mFontColors );
+            drawUtil->drawText( manager, mProfile->mFont, textpos, buff, mProfile->mFontColors );
 
-         } else
+         }
+         else
          {
             Point2I textpos = localToGlobalCoord( Point2I( getWidth() - colTxt_w - 12, localStart.y ) );
-            drawUtil->drawText( mProfile->mFont, textpos, buff, mProfile->mFontColors );
+            drawUtil->drawText( manager, mProfile->mFont, textpos, buff, mProfile->mFontColors );
          }
 
-      } else
+      }
+      else
       {
-         drawUtil->drawText( mProfile->mFont, globalStart, mText, mProfile->mFontColors );
+         drawUtil->drawText( manager, mProfile->mFont, globalStart, mText, mProfile->mFontColors );
       }
 
       // If we're rendering a bitmap border, then it will take care of the arrow.

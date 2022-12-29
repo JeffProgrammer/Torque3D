@@ -253,7 +253,7 @@ void GuiSplitContainer::onRender( Point2I offset, const RectI &updateRect, GuiRe
 
       RectI oldClip = GFX->getClipRect();
       GFX->setClipRect( clientRect );
-      GFX->getDrawUtil()->drawRectFill( splitterRect, mProfile->mFillColorHL );
+      GFX->getDrawUtil()->drawRectFill( splitterRect, mProfile->mFillColorHL, manager );
       GFX->setClipRect( oldClip );
 
    }
@@ -261,7 +261,7 @@ void GuiSplitContainer::onRender( Point2I offset, const RectI &updateRect, GuiRe
    {
       RectI splitterRect = mSplitRect;
       splitterRect.point += offset;
-      GFX->getDrawUtil()->drawRectFill( splitterRect, mProfile->mFillColor );
+      GFX->getDrawUtil()->drawRectFill( splitterRect, mProfile->mFillColor, manager );
    }
 }
 

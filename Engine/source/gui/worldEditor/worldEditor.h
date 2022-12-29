@@ -194,8 +194,8 @@ class WorldEditor : public EditTSCtrl
       void renderSelectionWorldBox(Selection*  sel);
 
       void renderPlane(const Point3F & origin);
-      void renderMousePopupInfo();
-      void renderScreenObj( SceneObject * obj, const Point3F& sPos, const Point3F& wPos );
+      void renderMousePopupInfo(GuiRenderManager* manager);
+      void renderScreenObj( SceneObject * obj, const Point3F& sPos, const Point3F& wPos, GuiRenderManager* manager );
 
       void renderPaths(SimObject *obj);
       void renderSplinePath(SimPath::Path *path);

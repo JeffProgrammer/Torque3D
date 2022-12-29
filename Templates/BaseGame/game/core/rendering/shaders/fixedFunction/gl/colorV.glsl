@@ -21,7 +21,7 @@
 //-----------------------------------------------------------------------------
 #include "../../gl/hlslCompat.glsl"
 
-in vec4 vPosition;
+in vec3 vPosition;
 in vec4 vColor;
 
 uniform mat4 modelview;
@@ -29,7 +29,7 @@ out vec4 color;
 
 void main()
 {
-   gl_Position = tMul(modelview, vPosition);
+   gl_Position = tMul(modelview, vec4(vPosition, 1.0));
    correctSSP(gl_Position);
    color = vColor;
 }

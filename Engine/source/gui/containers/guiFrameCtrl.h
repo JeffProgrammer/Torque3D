@@ -139,7 +139,7 @@ protected:
    void computeSizes(bool balanceFrames = false);
    void computeMovableRange(Region hitRegion, S32 vertHit, S32 horzHit, S32 numIndexes, const S32 indexes[], S32 ranges[]);
 
-   void drawDividers(const Point2I &offset);
+   void drawDividers(const Point2I &offset, GuiRenderManager* manager);
 public:
    U32 columns() const                                   { return(mColumnOffsets.size()); }
    U32 rows() const                                      { return(mRowOffsets.size()); }

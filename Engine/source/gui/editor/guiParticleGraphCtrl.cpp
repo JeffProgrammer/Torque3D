@@ -141,7 +141,7 @@ void GuiParticleGraphCtrl::onRender(Point2I offset, const RectI &updateRect, Gui
    GFXVideoMode videoMode = GFXInit::getDesktopResolution();
 
    ColorI color(255, 255, 255, 128);
-   pDrawUtil->drawRectFill(updateRect, color);
+   pDrawUtil->drawRectFill(updateRect, color, manager);
 
    for (S32 k = 0; k < MaxPlots; k++)
    {
@@ -226,7 +226,7 @@ void GuiParticleGraphCtrl::onRender(Point2I offset, const RectI &updateRect, Gui
             } 
 
             // draw the seleciton nut
-            drawNut( Point2I(posX, posY), 3, mOutlineColor, nutColor );
+            drawNut( Point2I(posX, posY), 3, mOutlineColor, nutColor, manager );
 
             if((mLastSelectedPoint != -1) || (mRenderAllPoints == true))
             {
@@ -255,7 +255,7 @@ void GuiParticleGraphCtrl::onRender(Point2I offset, const RectI &updateRect, Gui
                   } 
             
                  pDrawUtil->setBitmapModulation( profile->mFontColor );
-                 pDrawUtil->drawText( font, Point2I(posX, posY + 5) - Point2I(size >> 1, size), number );
+                 pDrawUtil->drawText( manager, font, Point2I(posX, posY + 5) - Point2I(size >> 1, size), number );
                  pDrawUtil->clearBitmapModulation();
                }
             }
@@ -269,7 +269,7 @@ void GuiParticleGraphCtrl::onRender(Point2I offset, const RectI &updateRect, Gui
    
        dSprintf(argBuffer[0], 32, "%s", getGraphName(mTooltipSelectedPlot));
 
-      renderGraphTooltip(mCursorPos, argBuffer[0]);
+      renderGraphTooltip(mCursorPos, argBuffer[0], manager);
    }
 }
 
@@ -565,7 +565,7 @@ void GuiParticleGraphCtrl::setRenderGraphTooltip(bool renderGraphTooltip)
 }
 
 
-void GuiParticleGraphCtrl::drawNut(const Point2I &nut, S32 size, ColorI &outlineColor, ColorI &nutColor)
+void GuiParticleGraphCtrl::drawNut(const Point2I &nut, S32 size, ColorI &outlineColor, ColorI &nutColor, GuiRenderManager* manager)
 {
    // Fetch Draw Utility.
    GFXDrawUtil* pDrawUtil = GFX->getDrawUtil();
@@ -574,7 +574,7 @@ void GuiParticleGraphCtrl::drawNut(const Point2I &nut, S32 size, ColorI &outline
    S32 NUT_SIZE = size;
    RectI r(nut.x - NUT_SIZE, nut.y - NUT_SIZE, 2 * NUT_SIZE + 1, 2 * NUT_SIZE + 1);
    r.inset(1, 1);
-   pDrawUtil->drawRectFill(r, nutColor);
+   pDrawUtil->drawRectFill(r, nutColor, manager);
    r.inset(-1, -1);
    pDrawUtil->drawRect(r, outlineColor);
 }
@@ -940,7 +940,7 @@ void GuiParticleGraphCtrl::clearGraph(S32 plotID)
    mPlots[plotID].mNutList.clear();
 }
 
-bool GuiParticleGraphCtrl::renderGraphTooltip(Point2I cursorPos, StringTableEntry tooltip)
+bool GuiParticleGraphCtrl::renderGraphTooltip(Point2I cursorPos, StringTableEntry tooltip, GuiRenderManager* manager)
 {
    // Short Circuit.
    if (!mAwake) 
@@ -993,14 +993,14 @@ bool GuiParticleGraphCtrl::renderGraphTooltip(Point2I cursorPos, StringTableEntr
    GFXDrawUtil* pDrawUtil = GFX->getDrawUtil();
 
    // Draw Filler bit, then border on top of that
-   pDrawUtil->drawRectFill(rect, ColorI(mTooltipProfile->mFillColor.red, mTooltipProfile->mFillColor.green, mTooltipProfile->mFillColor.blue, 200) );
+   pDrawUtil->drawRectFill(rect, ColorI(mTooltipProfile->mFillColor.red, mTooltipProfile->mFillColor.green, mTooltipProfile->mFillColor.blue, 200), manager);
    pDrawUtil->drawRect( rect, mTooltipProfile->mBorderColor );
 
    // Draw the text centered in the tool tip box
    pDrawUtil->setBitmapModulation( mTooltipProfile->mFontColor );
    Point2I start;
    start.set( ( textBounds.x - textWidth) / 2, ( textBounds.y - font->getHeight() ) / 2 );
-   pDrawUtil->drawText( font, start + offset, tooltip, mProfile->mFontColors );
+   pDrawUtil->drawText( manager, font, start + offset, tooltip, mProfile->mFontColors );
    pDrawUtil->clearBitmapModulation();
 
    return true;

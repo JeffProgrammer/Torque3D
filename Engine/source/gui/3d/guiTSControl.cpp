@@ -589,7 +589,7 @@ void GuiTSCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManag
             GFX->setActiveRenderTarget(origTarget);
             GFX->setCurrentRenderStyle(origStyle);
             GFX->setClipRect(updateRect);
-            renderDisplayPreview(updateRect, previewTexture);
+            renderDisplayPreview(updateRect, previewTexture, manager);
          }
       }
    }
@@ -661,7 +661,7 @@ void GuiTSCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManag
             GFX->setActiveRenderTarget(origTarget);
             GFX->setCurrentRenderStyle(origStyle);
             GFX->setClipRect(updateRect);
-            renderDisplayPreview(updateRect, previewTexture);
+            renderDisplayPreview(updateRect, previewTexture, manager);
          }
       }
    }
@@ -718,7 +718,7 @@ void GuiTSCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManag
    GFX->setActiveRenderTarget(origTarget);
    GFX->setCurrentRenderStyle(origStyle);
    GFX->setClipRect(updateRect);
-   renderGui(offset, updateRect);
+   renderGui(offset, updateRect, manager);
 
    if (shouldRenderChildControls())
    {
@@ -765,13 +765,13 @@ void GuiTSCtrl::setStereoGui(GuiOffscreenCanvas *canvas)
 
 //-----------------------------------------------------------------------------
 
-void GuiTSCtrl::renderDisplayPreview(const RectI &updateRect, GFXTexHandle &previewTexture)
+void GuiTSCtrl::renderDisplayPreview(const RectI &updateRect, GFXTexHandle &previewTexture, GuiRenderManager* manager)
 {
    GFX->setWorldMatrix(MatrixF(1));
    GFX->setViewMatrix(MatrixF::Identity);
    GFX->setClipRect(updateRect);
 
-   GFX->getDrawUtil()->drawRectFill(RectI(Point2I(0, 0), Point2I(1024, 768)), ColorI::BLACK);
+   GFX->getDrawUtil()->drawRectFill(RectI(Point2I(0, 0), Point2I(1024, 768)), ColorI::BLACK, manager);
    GFX->getDrawUtil()->drawRect(RectI(Point2I(0, 0), Point2I(1024, 768)), ColorI::RED);
 
    if (!mStereoPreviewVB.getPointer())

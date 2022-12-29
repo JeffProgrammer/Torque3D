@@ -134,13 +134,14 @@ void GuiCheckBoxCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRende
       }
       xOffset = mProfile->mBitmapArrayRects[0].extent.x + 2 + mIndent;
       S32 y = (getHeight() - mProfile->mBitmapArrayRects[0].extent.y) / 2;
-      GFX->getDrawUtil()->drawBitmapSR(mProfile->getBitmapResource(), offset + Point2I(mIndent, y), mProfile->mBitmapArrayRects[index]);
+      GFX->getDrawUtil()->drawBitmapSR(mProfile->getBitmapResource(), offset + Point2I(mIndent, y), mProfile->mBitmapArrayRects[index], manager);
    }
    
    if(mButtonText[0] != '\0')
    {
 	  GFX->getDrawUtil()->setBitmapModulation( fontColor );
-      renderJustifiedText(Point2I(offset.x + xOffset, offset.y),
+      renderJustifiedText(manager,
+                          Point2I(offset.x + xOffset, offset.y),
                           Point2I(getWidth() - getHeight(), getHeight()),
                           mButtonText);
    }

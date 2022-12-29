@@ -1028,6 +1028,8 @@ void GuiMeshRoadEditorCtrl::renderScene(const RectI & updateRect)
    if(!connection)
       return;
 
+   GuiRenderManager manager;
+
    // Grab the camera's transform
    MatrixF mat;
    connection->getControlCameraTransform(0, &mat);
@@ -1095,9 +1097,9 @@ void GuiMeshRoadEditorCtrl::renderScene(const RectI & updateRect)
    
    // Draw Control nodes for selecting and highlighted rivers
    if ( mHoverRoad )
-      _drawControlNodes( mHoverRoad, mHoverSplineColor );
+      _drawControlNodes( mHoverRoad, mHoverSplineColor, &manager );
    if ( mSelRoad )
-      _drawControlNodes( mSelRoad, mSelectedSplineColor );
+      _drawControlNodes( mSelRoad, mSelectedSplineColor, &manager );
 
    if(MeshRoad::smShowRoadProfile)
    {
@@ -1109,26 +1111,28 @@ void GuiMeshRoadEditorCtrl::renderScene(const RectI & updateRect)
 
       GFX->getDrawUtil()->setBitmapModulation(ColorI(128, 128, 128));
       dStrcpy(buf, "Reset Profile: Double-click Start Node", 64);
-      GFX->getDrawUtil()->drawTextN(mProfile->mFont, posi, buf, dStrlen(buf));
+      GFX->getDrawUtil()->drawTextN(&manager, mProfile->mFont, posi, buf, dStrlen(buf));
       posi.y -= mProfile->mFont->getCharHeight((U8)buf[0]) + 4;
       dStrcpy(buf, "Move Node: Click and Drag Node", 64);
-      GFX->getDrawUtil()->drawTextN(mProfile->mFont, posi, buf, dStrlen(buf));
+      GFX->getDrawUtil()->drawTextN(&manager, mProfile->mFont, posi, buf, dStrlen(buf));
       posi.y -= mProfile->mFont->getCharHeight((U8)buf[0]) + 4;
       dStrcpy(buf, "Select Multiple Nodes: Ctrl-click Nodes", 64);
-      GFX->getDrawUtil()->drawTextN(mProfile->mFont, posi, buf, dStrlen(buf));
+      GFX->getDrawUtil()->drawTextN(&manager, mProfile->mFont, posi, buf, dStrlen(buf));
       posi.y -= mProfile->mFont->getCharHeight((U8)buf[0]) + 4;
       dStrcpy(buf, "Toggle Material: Shift-click Spline Segment", 64);
-      GFX->getDrawUtil()->drawTextN(mProfile->mFont, posi, buf, dStrlen(buf));
+      GFX->getDrawUtil()->drawTextN(&manager, mProfile->mFont, posi, buf, dStrlen(buf));
       posi.y -= mProfile->mFont->getCharHeight((U8)buf[0]) + 4;
       dStrcpy(buf, "Toggle Smoothing: Shift-click Node", 64);
-      GFX->getDrawUtil()->drawTextN(mProfile->mFont, posi, buf, dStrlen(buf));
+      GFX->getDrawUtil()->drawTextN(&manager, mProfile->mFont, posi, buf, dStrlen(buf));
       posi.y -= mProfile->mFont->getCharHeight((U8)buf[0]) + 4;
       dStrcpy(buf, "Delete Node: Alt-click Node", 64);
-      GFX->getDrawUtil()->drawTextN(mProfile->mFont, posi, buf, dStrlen(buf));
+      GFX->getDrawUtil()->drawTextN(&manager, mProfile->mFont, posi, buf, dStrlen(buf));
       posi.y -= mProfile->mFont->getCharHeight((U8)buf[0]) + 4;
       dStrcpy(buf, "Add Node: Ctrl-click Spline", 64);
-      GFX->getDrawUtil()->drawTextN(mProfile->mFont, posi, buf, dStrlen(buf));
+      GFX->getDrawUtil()->drawTextN(&manager, mProfile->mFont, posi, buf, dStrlen(buf));
    }
+
+   // TODO: Execute Manager
 } 
 
 S32 GuiMeshRoadEditorCtrl::_getNodeAtScreenPos( const MeshRoad *pRoad, const Point2I &posi )
@@ -1331,7 +1335,7 @@ void GuiMeshRoadEditorCtrl::_drawSpline( MeshRoad *river, const ColorI &color )
    // Segment 
 }
 
-void GuiMeshRoadEditorCtrl::_drawControlNodes( MeshRoad *river, const ColorI &color )
+void GuiMeshRoadEditorCtrl::_drawControlNodes( MeshRoad *river, const ColorI &color, GuiRenderManager* manager)
 {
    if ( !MeshRoad::smShowSpline )
       return;
@@ -1391,7 +1395,7 @@ void GuiMeshRoadEditorCtrl::_drawControlNodes( MeshRoad *river, const ColorI &co
       if( MeshRoad::smShowRoadProfile && isSelected )
          theColor.set(100,100,100);
 
-      drawer->drawRectFill( posi - nodeHalfSize, posi + nodeHalfSize, theColor );
+      drawer->drawRectFill( posi - nodeHalfSize, posi + nodeHalfSize, theColor, manager );
    }
 
    // Draw profile control nodes
@@ -1425,7 +1429,7 @@ void GuiMeshRoadEditorCtrl::_drawControlNodes( MeshRoad *river, const ColorI &co
          if( mSelProfNodeList.find_next(i) != -1 )
             theColor.set(0,0,255);
 
-         drawer->drawRectFill( posi - mNodeHalfSize, posi + mNodeHalfSize, theColor );
+         drawer->drawRectFill( posi - mNodeHalfSize, posi + mNodeHalfSize, theColor, manager );
       }
    }
 }

@@ -107,7 +107,7 @@ class GuiTextListCtrl : public GuiArrayCtrl
    bool onGamepadAxisUp(const GuiEvent& event);
    bool onGamepadAxisDown(const GuiEvent& event);
 
-   virtual void onRenderCell(Point2I offset, Point2I cell, bool selected, bool mouseOver);
+   virtual void onRenderCell(Point2I offset, Point2I cell, bool selected, bool mouseOver, GuiRenderManager* manager);
 
    void setSize(Point2I newSize);
    void onRemove();

@@ -3655,7 +3655,7 @@ void GuiTreeViewCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRende
 
 //-----------------------------------------------------------------------------
 
-void GuiTreeViewCtrl::onRenderCell(Point2I offset, Point2I cell, bool, bool )
+void GuiTreeViewCtrl::onRenderCell(Point2I offset, Point2I cell, bool, bool, GuiRenderManager* manager)
 {
    if( !mVisibleItems.size() )
       return;
@@ -3698,7 +3698,7 @@ void GuiTreeViewCtrl::onRenderCell(Point2I offset, Point2I cell, bool, bool )
       {
          drawRect.point.x -= mTabSize;
          if ( parent->mNext )
-            drawer->drawBitmapSR( mProfile->mBitmap, drawRect.point, mProfile->mBitmapArrayRects[BmpLine] );
+            drawer->drawBitmapSR( mProfile->mBitmap, drawRect.point, mProfile->mBitmapArrayRects[BmpLine], manager );
 
          parent = parent->mParent;
       }
@@ -3709,7 +3709,7 @@ void GuiTreeViewCtrl::onRenderCell(Point2I offset, Point2I cell, bool, bool )
 
    // First, draw the rollover glow, if it's an inner node.
    if ( item->isParent() && item->mState.test( Item::MouseOverBmp ) )
-      drawer->drawBitmapSR( mProfile->mBitmap, drawRect.point, mProfile->mBitmapArrayRects[BmpGlow] );
+      drawer->drawBitmapSR( mProfile->mBitmap, drawRect.point, mProfile->mBitmapArrayRects[BmpGlow], manager );
 
    // Now, do we draw a treeview-selected item or an item dependent one?
    S32 newOffset = 0; // This is stored so we can render glow, then update render pos.
@@ -3754,7 +3754,7 @@ void GuiTreeViewCtrl::onRenderCell(Point2I offset, Point2I cell, bool, bool )
    if( ( bitmap >= 0 ) && ( bitmap < mProfile->mBitmapArrayRects.size() ) )
    {
       if( drawBitmap )
-         drawer->drawBitmapSR( mProfile->getBitmapResource(), drawRect.point, mProfile->mBitmapArrayRects[bitmap] );
+         drawer->drawBitmapSR( mProfile->getBitmapResource(), drawRect.point, mProfile->mBitmapArrayRects[bitmap], manager );
       newOffset = mProfile->mBitmapArrayRects[bitmap].extent.x;
    }
 
@@ -3770,7 +3770,7 @@ void GuiTreeViewCtrl::onRenderCell(Point2I offset, Point2I cell, bool, bool )
          {
             //drawRect.point.x = offset.x + mTabSize * item->mTabLevel + mIconTable[icon].getWidth();
             drawRect.point.x += mIconTable[icon].getWidth();
-            drawer->drawBitmap( mIconTable[icon], drawRect.point );
+            drawer->drawBitmap( mIconTable[icon], drawRect.point, manager );
          }
       }
 
@@ -3780,7 +3780,7 @@ void GuiTreeViewCtrl::onRenderCell(Point2I offset, Point2I cell, bool, bool )
          {
             //drawRect.point.x = offset.x + mTabSize * item->mTabLevel + mIconTable[icon].getWidth();
             drawRect.point.x += mIconTable[icon2].getWidth();
-            drawer->drawBitmap( mIconTable[icon2], drawRect.point );
+            drawer->drawBitmap( mIconTable[icon2], drawRect.point, manager );
          }
       }
 
@@ -3849,7 +3849,7 @@ void GuiTreeViewCtrl::onRenderCell(Point2I offset, Point2I cell, bool, bool )
          if(iconHeight > 0)
             drawRect.point.y += iconHeight;
          drawRect.point.x += iconHandle.getWidth();
-         drawer->drawBitmap( iconHandle, drawRect.point );
+         drawer->drawBitmap( iconHandle, drawRect.point, manager );
          drawRect.point.y = oldHeight;
       }
    }
@@ -3865,7 +3865,7 @@ void GuiTreeViewCtrl::onRenderCell(Point2I offset, Point2I cell, bool, bool )
             if(iconHeight > 0)
                drawRect.point.y += iconHeight;
             drawRect.point.x += mIconTable[icon].getWidth();
-            drawer->drawBitmap( mIconTable[icon], drawRect.point );
+            drawer->drawBitmap( mIconTable[icon], drawRect.point, manager );
             drawRect.point.y = oldHeight;
          }
       }
@@ -3884,9 +3884,9 @@ void GuiTreeViewCtrl::onRenderCell(Point2I offset, Point2I cell, bool, bool )
    // Draw the rollover/selected bitmap, if one was specified.
    drawRect.extent.x = mProfile->mFont->getStrWidth( displayText ) + ( 2 * mTextOffset );
    if ( item->mState.test( Item::Selected ) && mTexSelected )
-      drawer->drawBitmapStretch( mTexSelected, drawRect );
+      drawer->drawBitmapStretch( mTexSelected, drawRect, manager );
    else if ( item->mState.test( Item::MouseOverText ) && mTexRollover )
-      drawer->drawBitmapStretch( mTexRollover, drawRect );
+      drawer->drawBitmapStretch( mTexRollover, drawRect, manager );
 
    // Offset a bit so as to space text properly.
    drawRect.point.x += mTextOffset;
@@ -3899,11 +3899,11 @@ void GuiTreeViewCtrl::onRenderCell(Point2I offset, Point2I cell, bool, bool )
 
    if (item->mState.test(Item::Selected))
    {
-      drawer->drawRectFill(drawRect, mProfile->mFillColorSEL);
+      drawer->drawRectFill(drawRect, mProfile->mFillColorSEL, manager);
    }
    else if (item->mState.test(Item::MouseOverText))
    {
-      drawer->drawRectFill(drawRect, mProfile->mFillColorHL);
+      drawer->drawRectFill(drawRect, mProfile->mFillColorHL, manager);
    }
 
    if( item->mState.test(Item::MouseOverText) )
@@ -3922,7 +3922,7 @@ void GuiTreeViewCtrl::onRenderCell(Point2I offset, Point2I cell, bool, bool )
    // JDD - offset by two pixels or so to keep the text from rendering RIGHT ONTOP of the outline
    drawRect.point.x += 2;
 
-   drawer->drawText( mProfile->mFont, drawRect.point, displayText, mProfile->mFontColors );
+   drawer->drawText( manager, mProfile->mFont, drawRect.point, displayText, mProfile->mFontColors );
 
    if ( mRenamingItem == item && mRenameCtrl )
    {
@@ -3940,7 +3940,7 @@ void GuiTreeViewCtrl::onRenderCell(Point2I offset, Point2I cell, bool, bool )
 
 //------------------------------------------------------------------------------
 
-bool GuiTreeViewCtrl::renderTooltip( const Point2I &hoverPos, const Point2I& cursorPos, const char* tipText )
+bool GuiTreeViewCtrl::renderTooltip( const Point2I &hoverPos, const Point2I& cursorPos, GuiRenderManager* manager, const char* tipText )
 {
    Item* item;
    BitSet32 flags = 0;
@@ -3999,7 +3999,7 @@ bool GuiTreeViewCtrl::renderTooltip( const Point2I &hoverPos, const Point2I& cur
       }
    }
       
-   return defaultTooltipRender( cursorPos, cursorPos, tipText );
+   return defaultTooltipRender( cursorPos, cursorPos, manager, tipText );
 }
 
 //------------------------------------------------------------------------------

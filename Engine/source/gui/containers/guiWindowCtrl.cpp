@@ -1323,12 +1323,12 @@ void GuiWindowCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderM
 
    GFXDrawUtil* drawUtil = GFX->getDrawUtil();
 
-   drawUtil->drawRectFill(winRect, mProfile->mFillColor);
+   drawUtil->drawRectFill(winRect, mProfile->mFillColor, manager);
 
    drawUtil->clearBitmapModulation();
-   drawUtil->drawBitmapSR(mTextureObject, offset, mBitmapBounds[topBase]);
+   drawUtil->drawBitmapSR(mTextureObject, offset, mBitmapBounds[topBase], manager);
    drawUtil->drawBitmapSR(mTextureObject, Point2I(offset.x + getWidth() - mBitmapBounds[topBase+1].extent.x, offset.y),
-                   mBitmapBounds[topBase + 1]);
+                   mBitmapBounds[topBase + 1], manager);
 
    RectI destRect;
    destRect.point.x = offset.x + mBitmapBounds[topBase].extent.x;
@@ -1337,7 +1337,7 @@ void GuiWindowCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderM
    destRect.extent.y = mBitmapBounds[topBase + 2].extent.y;
    RectI stretchRect = mBitmapBounds[topBase + 2];
    stretchRect.inset(1,0);
-   drawUtil->drawBitmapStretchSR(mTextureObject, destRect, stretchRect);
+   drawUtil->drawBitmapStretchSR(mTextureObject, destRect, stretchRect, manager);
 
    destRect.point.x = offset.x;
    destRect.point.y = offset.y + mBitmapBounds[topBase].extent.y;
@@ -1345,7 +1345,7 @@ void GuiWindowCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderM
    destRect.extent.y = getHeight() - mBitmapBounds[topBase].extent.y - mBitmapBounds[BorderBottomLeft].extent.y;
    stretchRect = mBitmapBounds[BorderLeft];
    stretchRect.inset(0,1);
-   drawUtil->drawBitmapStretchSR(mTextureObject, destRect, stretchRect);
+   drawUtil->drawBitmapStretchSR(mTextureObject, destRect, stretchRect, manager);
 
    destRect.point.x = offset.x + getWidth() - mBitmapBounds[BorderRight].extent.x;
    destRect.extent.x = mBitmapBounds[BorderRight].extent.x;
@@ -1354,10 +1354,10 @@ void GuiWindowCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderM
 
    stretchRect = mBitmapBounds[BorderRight];
    stretchRect.inset(0,1);
-   drawUtil->drawBitmapStretchSR(mTextureObject, destRect, stretchRect);
+   drawUtil->drawBitmapStretchSR(mTextureObject, destRect, stretchRect, manager);
 
-   drawUtil->drawBitmapSR(mTextureObject, offset + Point2I(0, getHeight() - mBitmapBounds[BorderBottomLeft].extent.y), mBitmapBounds[BorderBottomLeft]);
-   drawUtil->drawBitmapSR(mTextureObject, offset + getExtent() - mBitmapBounds[BorderBottomRight].extent, mBitmapBounds[BorderBottomRight]);
+   drawUtil->drawBitmapSR(mTextureObject, offset + Point2I(0, getHeight() - mBitmapBounds[BorderBottomLeft].extent.y), mBitmapBounds[BorderBottomLeft], manager);
+   drawUtil->drawBitmapSR(mTextureObject, offset + getExtent() - mBitmapBounds[BorderBottomRight].extent, mBitmapBounds[BorderBottomRight], manager);
 
    destRect.point.x = offset.x + mBitmapBounds[BorderBottomLeft].extent.x;
    destRect.extent.x = getWidth() - mBitmapBounds[BorderBottomLeft].extent.x - mBitmapBounds[BorderBottomRight].extent.x;
@@ -1367,7 +1367,7 @@ void GuiWindowCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderM
    stretchRect = mBitmapBounds[BorderBottom];
    stretchRect.inset(1,0);
 
-   drawUtil->drawBitmapStretchSR(mTextureObject, destRect, stretchRect);
+   drawUtil->drawBitmapStretchSR(mTextureObject, destRect, stretchRect, manager);
 
    // Draw the title
    // dhc addition: copied/modded from renderJustifiedText, since we enforce a
@@ -1388,7 +1388,7 @@ void GuiWindowCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderM
    if( textWidth > winRect.extent.x ) start.set( 0, 0 );
    // center the vertical
 //   start.y = ( winRect.extent.y - ( font->getHeight() - 2 ) ) / 2;
-   drawUtil->drawText( mProfile->mFont, start + offset + mProfile->mTextOffset, mText );
+   drawUtil->drawText( manager, mProfile->mFont, start + offset + mProfile->mTextOffset, mText );
 
    // Deal with rendering the titlebar controls
    AssertFatal(root, "Unable to get the root GuiCanvas.");
@@ -1408,7 +1408,7 @@ void GuiWindowCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderM
       }
 
       drawUtil->clearBitmapModulation();
-      drawUtil->drawBitmapSR(mTextureObject, offset + mCloseButton.point, mBitmapBounds[bmp]);
+      drawUtil->drawBitmapSR(mTextureObject, offset + mCloseButton.point, mBitmapBounds[bmp], manager);
    }
 
    // Draw the maximize button
@@ -1427,7 +1427,7 @@ void GuiWindowCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderM
       }
 
       drawUtil->clearBitmapModulation();
-      drawUtil->drawBitmapSR( mTextureObject, offset + mMaximizeButton.point, mBitmapBounds[bmp] );
+      drawUtil->drawBitmapSR( mTextureObject, offset + mMaximizeButton.point, mBitmapBounds[bmp], manager );
    }
 
    // Draw the minimize button
@@ -1446,7 +1446,7 @@ void GuiWindowCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderM
       }
 
       drawUtil->clearBitmapModulation();
-      drawUtil->drawBitmapSR( mTextureObject, offset + mMinimizeButton.point, mBitmapBounds[bmp] );
+      drawUtil->drawBitmapSR( mTextureObject, offset + mMinimizeButton.point, mBitmapBounds[bmp], manager );
    }
 
    if( !mMinimized )

@@ -63,7 +63,7 @@ class GuiShapeNameHud : public GuiControl {
    Point2I  mLabelPadding;
 
 protected:
-   void drawName( Point2I offset, const char *buf, F32 opacity);
+   void drawName( Point2I offset, const char *buf, F32 opacity, GuiRenderManager* manager);
 
 public:
    GuiShapeNameHud();
@@ -162,7 +162,7 @@ void GuiShapeNameHud::onRender( Point2I, const RectI &updateRect, GuiRenderManag
 {
    // Background fill first
    if (mShowFill)
-      GFX->getDrawUtil()->drawRectFill(updateRect, mFillColor.toColorI());
+      GFX->getDrawUtil()->drawRectFill(updateRect, mFillColor.toColorI(), manager);
 
    // Must be in a TS Control
    GuiTSCtrl *parent = dynamic_cast<GuiTSCtrl*>(getParent());
@@ -264,7 +264,7 @@ void GuiShapeNameHud::onRender( Point2I, const RectI &updateRect, GuiRenderManag
                1.0 - (shapeDist - fadeDistance) / (visDistance - fadeDistance);
 
             // Render the shape's name
-            drawName(Point2I((S32)projPnt.x, (S32)projPnt.y),shape->getShapeName(),opacity);
+            drawName(Point2I((S32)projPnt.x, (S32)projPnt.y),shape->getShapeName(),opacity, manager);
          }
       }
    }
@@ -288,7 +288,7 @@ void GuiShapeNameHud::onRender( Point2I, const RectI &updateRect, GuiRenderManag
 ///                  specified y position.)
 /// @param   name    String name to display.
 /// @param   opacity Opacity of name (a fraction).
-void GuiShapeNameHud::drawName(Point2I offset, const char *name, F32 opacity)
+void GuiShapeNameHud::drawName(Point2I offset, const char *name, F32 opacity, GuiRenderManager* manager)
 {
    F32 width = mProfile->mFont->getStrWidth((const UTF8 *)name) + mLabelPadding.x * 2;
    F32 height = mProfile->mFont->getHeight() + mLabelPadding.y * 2;
@@ -302,12 +302,12 @@ void GuiShapeNameHud::drawName(Point2I offset, const char *name, F32 opacity)
 
    // Background fill first
    if (mShowLabelFill)
-      drawUtil->drawRectFill(RectI(offset, extent), mLabelFillColor.toColorI());
+      drawUtil->drawRectFill(RectI(offset, extent), mLabelFillColor.toColorI(), manager);
 
    // Deal with opacity and draw.
    mTextColor.alpha = opacity;
    drawUtil->setBitmapModulation(mTextColor.toColorI());
-   drawUtil->drawText(mProfile->mFont, offset + mLabelPadding, name);
+   drawUtil->drawText(manager, mProfile->mFont, offset + mLabelPadding, name);
    drawUtil->clearBitmapModulation();
 
    // Border last

@@ -79,7 +79,7 @@ class GuiRoadEditorCtrl : public EditTSCtrl
       void on3DRightMouseUp(const Gui3DMouseEvent & event);
       void updateGuiInfo();      
       void renderScene(const RectI & updateRect);
-      void renderGui(Point2I offset, const RectI &updateRect);
+      void renderGui(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
 
       bool getTerrainPos( const Gui3DMouseEvent & event, Point3F &tpos );
       void deleteSelectedNode();
@@ -109,7 +109,7 @@ class GuiRoadEditorCtrl : public EditTSCtrl
    protected:
 
       void _drawRoadSpline( DecalRoad *road, const ColorI &color );
-      void _drawRoadControlNodes( DecalRoad *road, const ColorI &color );
+      void _drawRoadControlNodes( DecalRoad *road, const ColorI &color, GuiRenderManager* manager);
 
       void submitUndo( const UTF8 *name );
 

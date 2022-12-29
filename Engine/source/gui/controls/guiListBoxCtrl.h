@@ -128,9 +128,9 @@ public:
 
    // Rendering
    virtual void      onRender( Point2I offset, const RectI &updateRect, GuiRenderManager* manager );
-   virtual void      onRenderItem(const RectI& itemRect, LBItem *item);
-   void              drawBox( const Point2I &box, S32 size, ColorI &outlineColor, ColorI &boxColor );
-   bool              renderTooltip( const Point2I &hoverPos, const Point2I& cursorPos, const char* tipText );
+   virtual void      onRenderItem(const RectI& itemRect, LBItem *item, GuiRenderManager* manager);
+   void              drawBox( const Point2I &box, S32 size, ColorI &outlineColor, ColorI &boxColor, GuiRenderManager* manager );
+   bool              renderTooltip( const Point2I &hoverPos, const Point2I& cursorPos, GuiRenderManager* manager, const char* tipText );
 	void					addFilteredItem( String item );
 	void					removeFilteredItem( String item );
    // Mouse/Key Events

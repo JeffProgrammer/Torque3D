@@ -264,7 +264,7 @@ void afxSpellButton::renderButton(GFXTexHandle &texture, Point2I &offset,
   {
     RectI rect(offset, getExtent());
     GFX->getDrawUtil()->clearBitmapModulation();
-    GFX->getDrawUtil()->drawBitmapStretch(texture, rect);
+    GFX->getDrawUtil()->drawBitmapStretch(texture, rect, manager);
 
     if (spellbook)
     {
@@ -273,7 +273,7 @@ void afxSpellButton::renderButton(GFXTexHandle &texture, Point2I &offset,
       {
 
         if (cooldown_txrs[(int)(36.0f*cooldown)])
-          GFX->getDrawUtil()->drawBitmapStretch(cooldown_txrs[(int)(36.0f*cooldown)], rect);
+          GFX->getDrawUtil()->drawBitmapStretch(cooldown_txrs[(int)(36.0f*cooldown)], rect, manager);
       }
     }
 

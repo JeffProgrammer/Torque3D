@@ -918,6 +918,8 @@ void GuiRiverEditorCtrl::renderScene(const RectI & updateRect)
    if(!connection)
       return;
 
+   GuiRenderManager manager;
+
    // Grab the camera's transform
    MatrixF mat;
    connection->getControlCameraTransform(0, &mat);
@@ -971,9 +973,11 @@ void GuiRiverEditorCtrl::renderScene(const RectI & updateRect)
 
    // Draw Control nodes for selecting and highlighted rivers
    if ( mHoverRiver )
-      _drawRiverControlNodes( mHoverRiver, mHoverSplineColor );
+      _drawRiverControlNodes( mHoverRiver, mHoverSplineColor, &manager );
    if ( mSelRiver )
-      _drawRiverControlNodes( mSelRiver, mSelectedSplineColor );
+      _drawRiverControlNodes( mSelRiver, mSelectedSplineColor, &manager );
+
+   // TODO: execute manager
 } 
 
 void GuiRiverEditorCtrl::_drawRiverSpline( River *river, const ColorI &color )
@@ -1024,7 +1028,7 @@ void GuiRiverEditorCtrl::_drawRiverSpline( River *river, const ColorI &color )
    // Segment 
 }
 
-void GuiRiverEditorCtrl::_drawRiverControlNodes( River *river, const ColorI &color )
+void GuiRiverEditorCtrl::_drawRiverControlNodes( River *river, const ColorI &color, GuiRenderManager* manager)
 {
    if ( !River::smShowSpline )
       return;
@@ -1081,7 +1085,7 @@ void GuiRiverEditorCtrl::_drawRiverControlNodes( River *river, const ColorI &col
          }         
       }
 
-      drawer->drawRectFill( posi - nodeHalfSize, posi + nodeHalfSize, theColor );
+      drawer->drawRectFill( posi - nodeHalfSize, posi + nodeHalfSize, theColor, manager );
    }
 }
 

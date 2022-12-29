@@ -14,10 +14,14 @@ class GFXDevice;
 
 struct GuiVertexList
 {
+   friend class GuiRenderManager;
+
    GFXVertexPCT *vertices;
-   
-   U32 count;
+
    U32 drawVboStart;
+
+private:
+   U32 count;
 };
 
 enum class GuiRenderInstType
@@ -43,6 +47,7 @@ struct GuiRenderInstDraw : public GuiRenderInst
    
    GuiVertexList vertexList;
    GFXPrimitiveType primitiveType;
+   U32 primitiveCount = 0;
 };
 
 struct GuiRenderInstClipRect : public GuiRenderInst
@@ -73,7 +78,12 @@ public:
    GuiRenderInstDraw* allocRenderInstDraw(U32 numberOfVertices);
    GuiRenderInstClipRect* allocRenderInstClipRect();
    GuiRenderInstStateBlock* allocRenderInstStateBlock();
-   
+
+   inline void pushInst(GuiRenderInst* inst)
+   {
+      mRenderInsts.push_back(inst);
+   }
+
    void clear();
    
    inline void* vertexData()
@@ -112,9 +122,9 @@ public:
    GuiRenderBin();
    ~GuiRenderBin();
    void fillCommandBuffer(GFXCmdBuffer *cmdBuffer, GuiRenderManager* renderManager);
-   
-private:   
    void createVertexBuffer();
+
+private:   
    void uploadVertexData(void* vertexData);
    
    GFXHandle<GFXVertexBufferHandle2> mVertexBufferHandle;

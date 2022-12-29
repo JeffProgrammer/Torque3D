@@ -137,14 +137,14 @@ public:
                      ((texture->mBitmapSize.y*y)+offset.y)-yshift,
                      texture->mBitmapSize.x,
                      texture->mBitmapSize.y);
-                  GFX->getDrawUtil()->drawBitmapStretchSR(texture,dstRegion, srcRegion);
+                  GFX->getDrawUtil()->drawBitmapStretchSR(texture,dstRegion, srcRegion, manager);
                }
 
          }
          else
          {
             RectI rect(offset, getExtent());
-            GFX->getDrawUtil()->drawBitmapStretch(mBitmap, rect);
+            GFX->getDrawUtil()->drawBitmapStretch(mBitmap, rect, manager);
          }
       }
 

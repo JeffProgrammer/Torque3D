@@ -128,7 +128,7 @@ class GuiBitmapButtonCtrl : public GuiButtonCtrl
       Textures mTextures[ NumModifiers ];
       ColorI   mColor;
       
-      virtual void renderButton( GFXTexHandle &texture, const Point2I& offset, const RectI& updateRect );
+      virtual void renderButton( GFXTexHandle &texture, const Point2I& offset, const RectI& updateRect, GuiRenderManager* manager );
       
       static bool _setAutoFitExtents( void *object, const char *index, const char *data );
       //static bool _setBitmap( void *object, const char *index, const char *data );
@@ -207,7 +207,7 @@ class GuiBitmapButtonTextCtrl : public GuiBitmapButtonCtrl
       
    protected:
    
-      virtual void renderButton( GFXTexHandle &texture, const Point2I& offset, const RectI& updateRect );
+      virtual void renderButton( GFXTexHandle &texture, const Point2I& offset, const RectI& updateRect, GuiRenderManager* manager);
 
    public:
 

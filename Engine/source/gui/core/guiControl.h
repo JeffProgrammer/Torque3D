@@ -68,7 +68,7 @@ DECLARE_SCOPE( GuiAPI );
 /// @return  Returns true if the tooltip was rendered.
 ///
 /// @see GuiControl::mRenderTooltipDelegate
-typedef Delegate<bool( const Point2I &hoverPos, const Point2I &cursorPos, const char *tipText )> RenderTooltipDelegate; 
+typedef Delegate<bool( const Point2I &hoverPos, const Point2I &cursorPos, GuiRenderManager* manager, const char *tipText )> RenderTooltipDelegate;
 
 /// @defgroup gui_group Gui System
 /// The GUI system in Torque provides a powerful way of creating
@@ -171,7 +171,7 @@ class GuiControl : public SimGroup
       
       /// The default tooltip rendering function.
       /// @see RenderTooltipDelegate
-      bool defaultTooltipRender( const Point2I &hoverPos, const Point2I &cursorPos, const char* tipText = NULL );
+      bool defaultTooltipRender( const Point2I &hoverPos, const Point2I &cursorPos, GuiRenderManager* manager, const char* tipText = NULL );
       
       bool    mVisible;
       bool    mActive;
@@ -821,7 +821,7 @@ class GuiControl : public SimGroup
       /// Renders justified text using the profile.
       ///
       /// @note This should move into the graphics library at some point
-      void renderJustifiedText(Point2I offset, Point2I extent, const char *text);
+      void renderJustifiedText(GuiRenderManager* manager, Point2I offset, Point2I extent, const char *text);
       
       /// Returns text clipped to fit within a pixel width. The clipping 
       /// occurs on the right side and "..." is appended.  It returns width

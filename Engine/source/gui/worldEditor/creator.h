@@ -111,7 +111,7 @@ class CreatorTree : public GuiArrayCtrl
       bool onWake();
 
       // GuiArrayCtrl
-      void onRenderCell(Point2I offset, Point2I cell, bool, bool);
+      void onRenderCell(Point2I offset, Point2I cell, bool, bool, GuiRenderManager* manager);
 
       DECLARE_CONOBJECT(CreatorTree);
       DECLARE_CATEGORY( "Gui Editor" );

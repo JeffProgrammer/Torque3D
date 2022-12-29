@@ -111,7 +111,7 @@ public:
    bool onWake();
 
    void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
-   bool renderGraphTooltip(Point2I cursorPos, StringTableEntry tooltip);
+   bool renderGraphTooltip(Point2I cursorPos, StringTableEntry tooltip, GuiRenderManager* manager);
 
    // Graph interface
    S32 addPlotPoint(S32 plotID, Point2F v, bool setAdded = true);
@@ -166,7 +166,7 @@ public:
 
    // Selection nuts.
    bool inNut( const Point2I &pt, S32 x, S32 y );
-   void drawNut( const Point2I &nut, S32 size, ColorI &outlineColor, ColorI &nutColor );
+   void drawNut( const Point2I &nut, S32 size, ColorI &outlineColor, ColorI &nutColor, GuiRenderManager* manager );
 };
 
 typedef GuiParticleGraphCtrl::GraphType GuiParticleGraphType;

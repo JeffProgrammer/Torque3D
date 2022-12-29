@@ -36,14 +36,14 @@ static ColorI colorDarkGray(64, 64, 64);
 static ColorI colorWhite(255,255,255);
 static ColorI colorBlack(0,0,0);
 
-void renderRaisedBox( const RectI &bounds, GuiControlProfile *profile )
+void renderRaisedBox( const RectI &bounds, GuiControlProfile *profile, GuiRenderManager* manager )
 {
    S32 l = bounds.point.x, r = bounds.point.x + bounds.extent.x - 1;
    S32 t = bounds.point.y, b = bounds.point.y + bounds.extent.y - 1;
 
    GFXDrawUtil* drawUtil = GFX->getDrawUtil();
 
-   drawUtil->drawRectFill( bounds, profile->mFillColor);
+   drawUtil->drawRectFill( bounds, profile->mFillColor, manager );
    drawUtil->drawLine(l, t, l, b - 1, colorWhite);
    drawUtil->drawLine(l, t, r - 1, t, colorWhite);
 
@@ -54,27 +54,27 @@ void renderRaisedBox( const RectI &bounds, GuiControlProfile *profile )
    drawUtil->drawLine(r - 1, b - 2, r - 1, t + 1, profile->mBorderColor);
 }
 
-void renderSlightlyRaisedBox( const RectI &bounds, GuiControlProfile *profile )
+void renderSlightlyRaisedBox( const RectI &bounds, GuiControlProfile *profile, GuiRenderManager* manager )
 {
    S32 l = bounds.point.x + 1, r = bounds.point.x + bounds.extent.x - 1;
    S32 t = bounds.point.y + 1, b = bounds.point.y + bounds.extent.y - 1;
 
    GFXDrawUtil *drawer = GFX->getDrawUtil();
-   drawer->drawRectFill( bounds, profile->mFillColor);
+   drawer->drawRectFill( bounds, profile->mFillColor, manager );
    drawer->drawLine(l, t, l, b, profile->mBorderColor);
    drawer->drawLine(l, t, r, t, profile->mBorderColor);
    drawer->drawLine(l + 1, b, r, b, profile->mBorderColor);
    drawer->drawLine(r, t + 1, r, b - 1, profile->mBorderColor);
 }
 
-void renderLoweredBox( const RectI &bounds, GuiControlProfile *profile )
+void renderLoweredBox( const RectI &bounds, GuiControlProfile *profile, GuiRenderManager* manager )
 {
    S32 l = bounds.point.x, r = bounds.point.x + bounds.extent.x - 1;
    S32 t = bounds.point.y, b = bounds.point.y + bounds.extent.y - 1;
 
    GFXDrawUtil* drawUtil = GFX->getDrawUtil();
 
-   drawUtil->drawRectFill( bounds, profile->mFillColor);
+   drawUtil->drawRectFill( bounds, profile->mFillColor, manager );
 
    drawUtil->drawLine(l, b, r, b, colorWhite);
    drawUtil->drawLine(r, b - 1, r, t, colorWhite);
@@ -86,21 +86,21 @@ void renderLoweredBox( const RectI &bounds, GuiControlProfile *profile )
    drawUtil->drawLine(l + 1, t + 2, l + 1, b - 2, profile->mBorderColor);
 }
 
-void renderSlightlyLoweredBox( const RectI &bounds, GuiControlProfile *profile )
+void renderSlightlyLoweredBox( const RectI &bounds, GuiControlProfile *profile, GuiRenderManager* manager )
 {
    S32 l = bounds.point.x + 1, r = bounds.point.x + bounds.extent.x - 1;
    S32 t = bounds.point.y + 1, b = bounds.point.y + bounds.extent.y - 1;
 
    GFXDrawUtil* drawUtil = GFX->getDrawUtil();
 
-   drawUtil->drawRectFill( bounds, profile->mFillColor);
+   drawUtil->drawRectFill( bounds, profile->mFillColor, manager );
    drawUtil->drawLine(l, b, r, b, profile->mBorderColor);
    drawUtil->drawLine(r, t, r, b - 1, profile->mBorderColor);
    drawUtil->drawLine(l, t, l, b - 1, profile->mBorderColor);
    drawUtil->drawLine(l + 1, t, r - 1, t, profile->mBorderColor);
 }
 
-void renderBorder( const RectI &bounds, GuiControlProfile *profile )
+void renderBorder( const RectI &bounds, GuiControlProfile *profile, GuiRenderManager* manager )
 {
    S32 l = bounds.point.x, r = bounds.point.x + bounds.extent.x - 1;
    S32 t = bounds.point.y, b = bounds.point.y + bounds.extent.y - 1;
@@ -141,7 +141,7 @@ void renderBorder( const RectI &bounds, GuiControlProfile *profile )
       drawer->drawLine(r - 1, t + 1, r - 1, b - 2, profile->mBorderColor);
       break;
    case 5:
-      renderFilledBorder( bounds, profile );
+      renderFilledBorder( bounds, profile, manager );
       break;
       // 
    case -1:
@@ -173,17 +173,17 @@ void renderBorder( const RectI &bounds, GuiControlProfile *profile )
          // Draw all corners first.
 
          //top left border
-         drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x,bounds.point.y),mBitmapBounds[BorderTopLeft]);
+         drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x,bounds.point.y),mBitmapBounds[BorderTopLeft], manager);
          //top right border
-         drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x + bounds.extent.x - mBitmapBounds[BorderTopRight].extent.x,bounds.point.y),mBitmapBounds[BorderTopRight]);
+         drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x + bounds.extent.x - mBitmapBounds[BorderTopRight].extent.x,bounds.point.y),mBitmapBounds[BorderTopRight], manager);
 
          //bottom left border
-         drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x,bounds.point.y + bounds.extent.y - mBitmapBounds[BorderBottomLeft].extent.y),mBitmapBounds[BorderBottomLeft]);
+         drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x,bounds.point.y + bounds.extent.y - mBitmapBounds[BorderBottomLeft].extent.y),mBitmapBounds[BorderBottomLeft], manager);
          //bottom right border
          drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(
             bounds.point.x + bounds.extent.x - mBitmapBounds[BorderBottomRight].extent.x,
             bounds.point.y + bounds.extent.y - mBitmapBounds[BorderBottomRight].extent.y),
-            mBitmapBounds[BorderBottomRight]);
+            mBitmapBounds[BorderBottomRight], manager);
 
          // End drawing corners
 
@@ -198,7 +198,7 @@ void renderBorder( const RectI &bounds, GuiControlProfile *profile )
          stretchRect = mBitmapBounds[BorderTop];
          stretchRect.inset(1,0);
          //draw it
-         drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect);
+         drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect, manager);
          //bottom line stretch
          destRect.point.x = bounds.point.x + mBitmapBounds[BorderBottomLeft].extent.x;
          destRect.extent.x = bounds.extent.x - mBitmapBounds[BorderBottomRight].extent.x - mBitmapBounds[BorderBottomLeft].extent.x;
@@ -208,7 +208,7 @@ void renderBorder( const RectI &bounds, GuiControlProfile *profile )
          stretchRect = mBitmapBounds[BorderBottom];
          stretchRect.inset(1,0);
          //draw it
-         drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect);
+         drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect, manager);
          //left line stretch
          destRect.point.x = bounds.point.x;
          destRect.extent.x = mBitmapBounds[BorderLeft].extent.x;
@@ -218,7 +218,7 @@ void renderBorder( const RectI &bounds, GuiControlProfile *profile )
          stretchRect = mBitmapBounds[BorderLeft];
          stretchRect.inset(0,1);
          //draw it
-         drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect);
+         drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect, manager);
          //right line stretch
          destRect.point.x = bounds.point.x + bounds.extent.x - mBitmapBounds[BorderRight].extent.x;
          destRect.extent.x = mBitmapBounds[BorderRight].extent.x;
@@ -228,40 +228,40 @@ void renderBorder( const RectI &bounds, GuiControlProfile *profile )
          stretchRect = mBitmapBounds[BorderRight];
          stretchRect.inset(0,1);
          //draw it
-         drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect);
+         drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect, manager);
 
          // End drawing sides and top stretched borders
          break;
       }
    case -2:
       // Draw a simple sizable border with corners that is filled in
-      renderSizableBitmapBordersFilled(bounds, 1, profile);
+      renderSizableBitmapBordersFilled(bounds, 1, profile, manager);
       break;
    case -3:
       // Draw a simple fixed height border with center fill horizontally.
-      renderFixedBitmapBordersFilled( bounds, 1, profile );
+      renderFixedBitmapBordersFilled( bounds, 1, profile, manager );
       break;
 
    }
 }
 
-void renderFilledBorder( const RectI &bounds, GuiControlProfile *profile )
+void renderFilledBorder( const RectI &bounds, GuiControlProfile *profile, GuiRenderManager* manager )
 {
-   renderFilledBorder( bounds, profile->mBorderColor, profile->mFillColor, profile->mBorderThickness );
+   renderFilledBorder( bounds, profile->mBorderColor, profile->mFillColor, manager, profile->mBorderThickness );
 }
 
-void renderFilledBorder( const RectI &bounds, const ColorI &borderColor, const ColorI &fillColor, U32 thickness )
+void renderFilledBorder( const RectI &bounds, const ColorI &borderColor, const ColorI &fillColor, GuiRenderManager* manager, U32 thickness )
 {
    RectI fillBounds = bounds;
    fillBounds.inset( thickness, thickness );
 
-   GFX->getDrawUtil()->drawRectFill( bounds, borderColor ); 
-   GFX->getDrawUtil()->drawRectFill( fillBounds, fillColor );
+   GFX->getDrawUtil()->drawRectFill( bounds, borderColor, manager ); 
+   GFX->getDrawUtil()->drawRectFill( fillBounds, fillColor, manager );
 }
 
 //  Render out the sizable bitmap borders based on a multiplier into the bitmap array
 // Based on the 'Skinnable GUI Controls in TGE' resource by Justin DuJardin
-void renderSizableBitmapBordersFilled( const RectI &bounds, S32 baseMultiplier, GuiControlProfile *profile)
+void renderSizableBitmapBordersFilled( const RectI &bounds, S32 baseMultiplier, GuiControlProfile *profile, GuiRenderManager* manager )
 {
    //  Indices into the bitmap array
    S32 numBitmaps = 9;
@@ -288,17 +288,17 @@ void renderSizableBitmapBordersFilled( const RectI &bounds, S32 baseMultiplier, 
       // Draw all corners first.
 
       //top left border
-      drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x,bounds.point.y),mBitmapBounds[borderTopLeft]);
+      drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x,bounds.point.y),mBitmapBounds[borderTopLeft], manager);
       //top right border
-      drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x + bounds.extent.x - mBitmapBounds[borderTopRight].extent.x,bounds.point.y),mBitmapBounds[borderTopRight]);
+      drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x + bounds.extent.x - mBitmapBounds[borderTopRight].extent.x,bounds.point.y),mBitmapBounds[borderTopRight], manager);
 
       //bottom left border
-      drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x,bounds.point.y + bounds.extent.y - mBitmapBounds[borderBottomLeft].extent.y),mBitmapBounds[borderBottomLeft]);
+      drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x,bounds.point.y + bounds.extent.y - mBitmapBounds[borderBottomLeft].extent.y),mBitmapBounds[borderBottomLeft], manager);
       //bottom right border
       drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(
          bounds.point.x + bounds.extent.x - mBitmapBounds[borderBottomRight].extent.x,
          bounds.point.y + bounds.extent.y - mBitmapBounds[borderBottomRight].extent.y),
-         mBitmapBounds[borderBottomRight]);
+         mBitmapBounds[borderBottomRight], manager);
 
       // End drawing corners
 
@@ -313,7 +313,7 @@ void renderSizableBitmapBordersFilled( const RectI &bounds, S32 baseMultiplier, 
       stretchRect = mBitmapBounds[borderTop];
       stretchRect.inset(1,0);
       //draw it
-      drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect);
+      drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect, manager);
       //bottom line stretch
       destRect.point.x = bounds.point.x + mBitmapBounds[borderBottomLeft].extent.x;
       destRect.extent.x = bounds.extent.x - mBitmapBounds[borderBottomRight].extent.x - mBitmapBounds[borderBottomLeft].extent.x;
@@ -323,7 +323,7 @@ void renderSizableBitmapBordersFilled( const RectI &bounds, S32 baseMultiplier, 
       stretchRect = mBitmapBounds[borderBottom];
       stretchRect.inset(1,0);
       //draw it
-      drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect);
+      drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect, manager);
       //left line stretch
       destRect.point.x = bounds.point.x;
       destRect.extent.x = mBitmapBounds[borderLeft].extent.x;
@@ -333,7 +333,7 @@ void renderSizableBitmapBordersFilled( const RectI &bounds, S32 baseMultiplier, 
       stretchRect = mBitmapBounds[borderLeft];
       stretchRect.inset(0,1);
       //draw it
-      drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect);
+      drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect, manager);
       //right line stretch
       destRect.point.x = bounds.point.x + bounds.extent.x - mBitmapBounds[borderRight].extent.x;
       destRect.extent.x = mBitmapBounds[borderRight].extent.x;
@@ -343,7 +343,7 @@ void renderSizableBitmapBordersFilled( const RectI &bounds, S32 baseMultiplier, 
       stretchRect = mBitmapBounds[borderRight];
       stretchRect.inset(0,1);
       //draw it
-      drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect);
+      drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect, manager);
       //fill stretch
       destRect.point.x = bounds.point.x + mBitmapBounds[borderLeft].extent.x;
       destRect.extent.x = (bounds.extent.x) - mBitmapBounds[borderLeft].extent.x - mBitmapBounds[borderRight].extent.x;
@@ -353,7 +353,7 @@ void renderSizableBitmapBordersFilled( const RectI &bounds, S32 baseMultiplier, 
       stretchRect = mBitmapBounds[fill];
       stretchRect.inset(1,1);
       //draw it
-      drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect);
+      drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect, manager);
 
       // End drawing sides and top stretched borders
    }
@@ -362,7 +362,7 @@ void renderSizableBitmapBordersFilled( const RectI &bounds, S32 baseMultiplier, 
 
 //  Render out the sizable bitmap borders based on a multiplier into the bitmap array
 // Based on the 'Skinnable GUI Controls in TGE' resource by Justin DuJardin
-void renderSizableBitmapBordersFilledIndex( const RectI &bounds, S32 startIndex, GuiControlProfile *profile )
+void renderSizableBitmapBordersFilledIndex( const RectI &bounds, S32 startIndex, GuiControlProfile *profile, GuiRenderManager* manager )
 {
    //  Indices into the bitmap array
    S32 numBitmaps = 9;
@@ -388,17 +388,17 @@ void renderSizableBitmapBordersFilledIndex( const RectI &bounds, S32 startIndex,
       // Draw all corners first.
 
       //top left border
-      drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x,bounds.point.y),mBitmapBounds[borderTopLeft]);
+      drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x,bounds.point.y),mBitmapBounds[borderTopLeft], manager);
       //top right border
-      drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x + bounds.extent.x - mBitmapBounds[borderTopRight].extent.x,bounds.point.y),mBitmapBounds[borderTopRight]);
+      drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x + bounds.extent.x - mBitmapBounds[borderTopRight].extent.x,bounds.point.y),mBitmapBounds[borderTopRight], manager);
 
       //bottom left border
-      drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x,bounds.point.y + bounds.extent.y - mBitmapBounds[borderBottomLeft].extent.y),mBitmapBounds[borderBottomLeft]);
+      drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x,bounds.point.y + bounds.extent.y - mBitmapBounds[borderBottomLeft].extent.y),mBitmapBounds[borderBottomLeft], manager);
       //bottom right border
       drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(
          bounds.point.x + bounds.extent.x - mBitmapBounds[borderBottomRight].extent.x,
          bounds.point.y + bounds.extent.y - mBitmapBounds[borderBottomRight].extent.y),
-         mBitmapBounds[borderBottomRight]);
+         mBitmapBounds[borderBottomRight], manager);
 
       // End drawing corners
 
@@ -413,7 +413,7 @@ void renderSizableBitmapBordersFilledIndex( const RectI &bounds, S32 startIndex,
       stretchRect = mBitmapBounds[borderTop];
       stretchRect.inset(1,0);
       //draw it
-      drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect);
+      drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect, manager);
       //bottom line stretch
       destRect.point.x = bounds.point.x + mBitmapBounds[borderBottomLeft].extent.x;
       destRect.extent.x = bounds.extent.x - mBitmapBounds[borderBottomRight].extent.x - mBitmapBounds[borderBottomLeft].extent.x;
@@ -423,7 +423,7 @@ void renderSizableBitmapBordersFilledIndex( const RectI &bounds, S32 startIndex,
       stretchRect = mBitmapBounds[borderBottom];
       stretchRect.inset(1,0);
       //draw it
-      drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect);
+      drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect, manager);
       //left line stretch
       destRect.point.x = bounds.point.x;
       destRect.extent.x = mBitmapBounds[borderLeft].extent.x;
@@ -433,7 +433,7 @@ void renderSizableBitmapBordersFilledIndex( const RectI &bounds, S32 startIndex,
       stretchRect = mBitmapBounds[borderLeft];
       stretchRect.inset(0,1);
       //draw it
-      drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect);
+      drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect, manager);
       //left line stretch
       destRect.point.x = bounds.point.x + bounds.extent.x - mBitmapBounds[borderRight].extent.x;
       destRect.extent.x = mBitmapBounds[borderRight].extent.x;
@@ -443,7 +443,7 @@ void renderSizableBitmapBordersFilledIndex( const RectI &bounds, S32 startIndex,
       stretchRect = mBitmapBounds[borderRight];
       stretchRect.inset(0,1);
       //draw it
-      drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect);
+      drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect, manager);
       //fill stretch
       destRect.point.x = bounds.point.x + mBitmapBounds[borderLeft].extent.x;
       destRect.extent.x = (bounds.extent.x) - mBitmapBounds[borderLeft].extent.x - mBitmapBounds[borderRight].extent.x;
@@ -453,18 +453,16 @@ void renderSizableBitmapBordersFilledIndex( const RectI &bounds, S32 startIndex,
       stretchRect = mBitmapBounds[fill];
       stretchRect.inset(1,1);
       //draw it
-      drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect);
+      drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect, manager);
 
       // End drawing sides and top stretched borders
    }
 }
 
-
-
 //  Render out the fixed bitmap borders based on a multiplier into the bitmap array
 // It renders left and right caps, with a sizable fill area in the middle to reach
 // the x extent.  It does not stretch in the y direction.
-void renderFixedBitmapBordersFilled( const RectI &bounds, S32 baseMultiplier, GuiControlProfile *profile )
+void renderFixedBitmapBordersFilled( const RectI &bounds, S32 baseMultiplier, GuiControlProfile *profile, GuiRenderManager* manager)
 {
    //  Indices into the bitmap array
    S32 numBitmaps = 3;
@@ -484,9 +482,9 @@ void renderFixedBitmapBordersFilled( const RectI &bounds, S32 baseMultiplier, Gu
       // Draw all corners first.
 
       //left border
-      drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x,bounds.point.y),mBitmapBounds[borderLeft]);
+      drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x,bounds.point.y),mBitmapBounds[borderLeft], manager);
       //right border
-      drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x + bounds.extent.x - mBitmapBounds[borderRight].extent.x,bounds.point.y),mBitmapBounds[borderRight]);
+      drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x + bounds.extent.x - mBitmapBounds[borderRight].extent.x,bounds.point.y),mBitmapBounds[borderRight], manager);
 
       // End drawing corners
 
@@ -501,7 +499,7 @@ void renderFixedBitmapBordersFilled( const RectI &bounds, S32 baseMultiplier, Gu
       stretchRect = mBitmapBounds[fill];
       stretchRect.inset(1,0);
       //draw it
-      drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect);
+      drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect, manager);
 
       // End drawing fill
    }
@@ -510,7 +508,7 @@ void renderFixedBitmapBordersFilled( const RectI &bounds, S32 baseMultiplier, Gu
 //  Render out the fixed bitmap borders based on a multiplier into the bitmap array
 // It renders left and right caps, with a sizable fill area in the middle to reach
 // the x extent.  It does not stretch in the y direction.
-void renderFixedBitmapBordersFilledIndex( const RectI &bounds, S32 startIndex, GuiControlProfile *profile )
+void renderFixedBitmapBordersFilledIndex( const RectI &bounds, S32 startIndex, GuiControlProfile *profile, GuiRenderManager* manager )
 {
    //  Indices into the bitmap array
    S32 numBitmaps = 3;
@@ -529,9 +527,9 @@ void renderFixedBitmapBordersFilledIndex( const RectI &bounds, S32 startIndex, G
       // Draw all corners first.
 
       //left border
-      drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x,bounds.point.y),mBitmapBounds[borderLeft]);
+      drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x,bounds.point.y),mBitmapBounds[borderLeft], manager);
       //right border
-      drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x + bounds.extent.x - mBitmapBounds[borderRight].extent.x,bounds.point.y),mBitmapBounds[borderRight]);
+      drawer->drawBitmapSR(profile->getBitmapResource(),Point2I(bounds.point.x + bounds.extent.x - mBitmapBounds[borderRight].extent.x,bounds.point.y),mBitmapBounds[borderRight], manager);
 
       // End drawing corners
 
@@ -546,7 +544,7 @@ void renderFixedBitmapBordersFilledIndex( const RectI &bounds, S32 startIndex, G
       stretchRect = mBitmapBounds[fill];
       stretchRect.inset(1,0);
       //draw it
-      drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect);
+      drawer->drawBitmapStretchSR(profile->getBitmapResource(),destRect,stretchRect, manager);
 
       // End drawing fill
    }

@@ -92,7 +92,7 @@ void GuiPanel::onRender(Point2I offset, const RectI &updateRect, GuiRenderManage
 
       if( mProfile->mBorder != 0 )
       {
-         GFX->getDrawUtil()->drawRectFill( ctrlRect, mProfile->mBorderColor );
+         GFX->getDrawUtil()->drawRectFill( ctrlRect, mProfile->mBorderColor, manager );
          ctrlRect.inset( mProfile->mBorderThickness, mProfile->mBorderThickness );
       }
 

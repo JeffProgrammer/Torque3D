@@ -112,10 +112,10 @@ void GuiGradientSwatchCtrl::onRender( Point2I offset, const RectI &updateRect, G
 	
    // Draw background transparency grid texture...
    if ( mGrid.isValid() )
-      drawer->drawBitmapStretch( mGrid, renderRect );
+      drawer->drawBitmapStretch( mGrid, renderRect, manager );
 
    // Draw swatch color as fill...
-   drawer->drawRectFill( renderRect, mSwatchColor.toColorI());
+   drawer->drawRectFill( renderRect, mSwatchColor.toColorI(), manager);
 
    // Draw any borders...
    drawer->drawRect( renderRect, borderColor );

@@ -163,7 +163,7 @@ void GuiHealthBarHud::onRender(Point2I offset, const RectI &updateRect, GuiRende
 
    // Background first
    if (mShowFill)
-      GFX->getDrawUtil()->drawRectFill(updateRect, mFillColor.toColorI());
+      GFX->getDrawUtil()->drawRectFill(updateRect, mFillColor.toColorI(), manager);
 
    // Pulse the damage fill if it's below the threshold
    if (mPulseRate != 0)
@@ -196,7 +196,7 @@ void GuiHealthBarHud::onRender(Point2I offset, const RectI &updateRect, GuiRende
       else
          rect.point.y = bottomY - rect.extent.y;
    }
-   GFX->getDrawUtil()->drawRectFill(rect, mDamageFillColor.toColorI());
+   GFX->getDrawUtil()->drawRectFill(rect, mDamageFillColor.toColorI(), manager);
 
    // Border last
    if (mShowFrame)

@@ -323,7 +323,8 @@ struct ObjectRenderInst : public RenderInst
    ///                     support override materials it shouldn't render at all.
    Delegate<void( ObjectRenderInst *ri, 
                   SceneRenderState *state, 
-                  BaseMatInstance *overrideMat )> renderDelegate;
+                  BaseMatInstance *overrideMat
+                )> renderDelegate;
 
    // Clear this instance.
    void clear();

@@ -153,12 +153,12 @@ class GuiTabBookCtrl : public GuiContainer
       /// Tab rendering routine, iterates through all tabs rendering one at a time
       /// @param   offset   the render offset to accomodate global coords
       /// @param   tabRect  the Rectangle in which these tabs are to be rendered
-      void renderTabs( const Point2I &offset, const RectI &tabRect );
+      void renderTabs( const Point2I &offset, const RectI &tabRect, GuiRenderManager* manager );
 
       /// Tab rendering subroutine, renders one tab with specified options
       /// @param   tabRect   the rectangle to render the tab into
       /// @param   tab   pointer to the tab page control for which to render the tab
-      void renderTab(const RectI& tabRect, GuiTabPageCtrl* tab);
+      void renderTab(const RectI& tabRect, GuiTabPageCtrl* tab, GuiRenderManager* manager);
 
       /// @}
 

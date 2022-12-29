@@ -559,11 +559,9 @@ bool GuiFrameSetCtrl::onWake()
 //-----------------------------------------------------------------------------
 void GuiFrameSetCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager )
 {
-
    Parent::onRender( offset, updateRect, manager );
  
-   drawDividers(offset);
-
+   drawDividers(offset, manager);
 }
 
 //-----------------------------------------------------------------------------
@@ -1073,7 +1071,7 @@ void GuiFrameSetCtrl::computeMovableRange(Region hitRegion, S32 vertHit, S32 hor
 }
 
 //-----------------------------------------------------------------------------
-void GuiFrameSetCtrl::drawDividers(const Point2I &offset)
+void GuiFrameSetCtrl::drawDividers(const Point2I &offset, GuiRenderManager* manager)
 {
    // draw the frame dividers, if they are enabled
    if (mFramesetDetails.mBorderEnable != FRAME_STATE_OFF)
@@ -1084,13 +1082,13 @@ void GuiFrameSetCtrl::drawDividers(const Point2I &offset)
       {
          r.point = Point2I(*itr - mFramesetDetails.mBorderWidth, mFudgeFactor) + offset;
          r.extent.set(mFramesetDetails.mBorderWidth, getHeight() - ( 2 * mFudgeFactor ) );
-         GFX->getDrawUtil()->drawRectFill(r, mFramesetDetails.mBorderColor);
+         GFX->getDrawUtil()->drawRectFill(r, mFramesetDetails.mBorderColor, manager);
       }
       for (itr = mRowOffsets.begin() + 1; itr < mRowOffsets.end(); itr++)
       {
          r.point = Point2I(mFudgeFactor, *itr - mFramesetDetails.mBorderWidth) + offset;
          r.extent.set(getWidth() - ( 2 * mFudgeFactor ), mFramesetDetails.mBorderWidth);
-         GFX->getDrawUtil()->drawRectFill(r, mFramesetDetails.mBorderColor);
+         GFX->getDrawUtil()->drawRectFill(r, mFramesetDetails.mBorderColor, manager);
       }
    }
 }

@@ -150,12 +150,12 @@ void GuiBitmapBorderCtrl::onRender(Point2I offset, const RectI &updateRect, GuiR
       winRect.extent.y -= mBitmapBounds[BorderTop].extent.y + mBitmapBounds[BorderBottom].extent.y;
 
       if(mProfile->mOpaque)
-        drawUtil->drawRectFill(winRect, mProfile->mFillColor);
+        drawUtil->drawRectFill(winRect, mProfile->mFillColor, manager);
 
       drawUtil->clearBitmapModulation();
-      drawUtil->drawBitmapSR(mTextureObject, offset, mBitmapBounds[BorderTopLeft]);
+      drawUtil->drawBitmapSR(mTextureObject, offset, mBitmapBounds[BorderTopLeft], manager);
       drawUtil->drawBitmapSR(mTextureObject, Point2I(offset.x + getWidth() - mBitmapBounds[BorderTopRight].extent.x, offset.y),
-                      mBitmapBounds[BorderTopRight]);
+                      mBitmapBounds[BorderTopRight], manager);
 
       RectI destRect;
       destRect.point.x = offset.x + mBitmapBounds[BorderTopLeft].extent.x;
@@ -164,7 +164,7 @@ void GuiBitmapBorderCtrl::onRender(Point2I offset, const RectI &updateRect, GuiR
       destRect.extent.y = mBitmapBounds[BorderTop].extent.y;
       RectI stretchRect = mBitmapBounds[BorderTop];
       stretchRect.inset(1,0);
-      drawUtil->drawBitmapStretchSR(mTextureObject, destRect, stretchRect);
+      drawUtil->drawBitmapStretchSR(mTextureObject, destRect, stretchRect, manager);
 
       destRect.point.x = offset.x;
       destRect.point.y = offset.y + mBitmapBounds[BorderTopLeft].extent.y;
@@ -172,7 +172,7 @@ void GuiBitmapBorderCtrl::onRender(Point2I offset, const RectI &updateRect, GuiR
       destRect.extent.y = getHeight() - mBitmapBounds[BorderTopLeft].extent.y - mBitmapBounds[BorderBottomLeft].extent.y;
       stretchRect = mBitmapBounds[BorderLeft];
       stretchRect.inset(0,1);
-      drawUtil->drawBitmapStretchSR(mTextureObject, destRect, stretchRect);
+      drawUtil->drawBitmapStretchSR(mTextureObject, destRect, stretchRect, manager);
 
       destRect.point.x = offset.x + getWidth() - mBitmapBounds[BorderRight].extent.x;
       destRect.extent.x = mBitmapBounds[BorderRight].extent.x;
@@ -181,10 +181,10 @@ void GuiBitmapBorderCtrl::onRender(Point2I offset, const RectI &updateRect, GuiR
 
       stretchRect = mBitmapBounds[BorderRight];
       stretchRect.inset(0,1);
-      drawUtil->drawBitmapStretchSR(mTextureObject, destRect, stretchRect);
+      drawUtil->drawBitmapStretchSR(mTextureObject, destRect, stretchRect, manager);
 
-      drawUtil->drawBitmapSR(mTextureObject, offset + Point2I(0, getHeight() - mBitmapBounds[BorderBottomLeft].extent.y), mBitmapBounds[BorderBottomLeft]);
-      drawUtil->drawBitmapSR(mTextureObject, offset + getExtent() - mBitmapBounds[BorderBottomRight].extent, mBitmapBounds[BorderBottomRight]);
+      drawUtil->drawBitmapSR(mTextureObject, offset + Point2I(0, getHeight() - mBitmapBounds[BorderBottomLeft].extent.y), mBitmapBounds[BorderBottomLeft], manager);
+      drawUtil->drawBitmapSR(mTextureObject, offset + getExtent() - mBitmapBounds[BorderBottomRight].extent, mBitmapBounds[BorderBottomRight], manager);
 
       destRect.point.x = offset.x + mBitmapBounds[BorderBottomLeft].extent.x;
       destRect.extent.x = getWidth() - mBitmapBounds[BorderBottomLeft].extent.x - mBitmapBounds[BorderBottomRight].extent.x;
@@ -194,6 +194,6 @@ void GuiBitmapBorderCtrl::onRender(Point2I offset, const RectI &updateRect, GuiR
       stretchRect = mBitmapBounds[BorderBottom];
       stretchRect.inset(1,0);
 
-      drawUtil->drawBitmapStretchSR(mTextureObject, destRect, stretchRect);
+      drawUtil->drawBitmapStretchSR(mTextureObject, destRect, stretchRect, manager);
    }
 }

@@ -676,7 +676,7 @@ GuiControl* GuiInspectorTypeImageFileName::constructEditControl()
    return retCtrl;
 }
 
-bool GuiInspectorTypeImageFileName::renderTooltip( const Point2I &hoverPos, const Point2I &cursorPos, const char *tipText )
+bool GuiInspectorTypeImageFileName::renderTooltip( const Point2I &hoverPos, const Point2I &cursorPos, GuiRenderManager* manager, const char *tipText )
 {
    if ( !mAwake ) 
       return false;
@@ -724,7 +724,7 @@ bool GuiInspectorTypeImageFileName::renderTooltip( const Point2I &hoverPos, cons
 
    GFXDrawUtil *drawer = GFX->getDrawUtil();
    drawer->clearBitmapModulation();
-   GFX->getDrawUtil()->drawBitmapStretch( texture, rect );
+   GFX->getDrawUtil()->drawBitmapStretch( texture, rect, manager );
 
    GFX->setClipRect( oldClip );
 

@@ -48,7 +48,7 @@ class GuiCrossHairHud : public GuiBitmapCtrl
    Point2I  mDamageOffset;
 
 protected:
-   void drawDamage(Point2I offset, F32 damage, F32 opacity);
+   void drawDamage(Point2I offset, F32 damage, F32 opacity, GuiRenderManager* manager);
 
 public:
    GuiCrossHairHud();
@@ -151,7 +151,7 @@ void GuiCrossHairHud::onRender(Point2I offset, const RectI &updateRect, GuiRende
          if (obj->getShapeName()) {
             offset.x = updateRect.point.x + updateRect.extent.x / 2;
             offset.y = updateRect.point.y + updateRect.extent.y / 2;
-            drawDamage(offset + mDamageOffset, obj->getDamageValue(), 1);
+            drawDamage(offset + mDamageOffset, obj->getDamageValue(), 1, manager);
          }
    }
 
@@ -165,7 +165,7 @@ void GuiCrossHairHud::onRender(Point2I offset, const RectI &updateRect, GuiRende
    Display a damage bar ubove the shape.
    This is a support funtion, called by onRender.
 */
-void GuiCrossHairHud::drawDamage(Point2I offset, F32 damage, F32 opacity)
+void GuiCrossHairHud::drawDamage(Point2I offset, F32 damage, F32 opacity, GuiRenderManager* manager)
 {
    mDamageFillColor.alpha = mDamageFrameColor.alpha = opacity;
 
@@ -187,5 +187,5 @@ void GuiCrossHairHud::drawDamage(Point2I offset, F32 damage, F32 opacity)
    if (rect.extent.x == 1)
       rect.extent.x = 2;
    if (rect.extent.x > 0)
-      GFX->getDrawUtil()->drawRectFill(rect, mDamageFillColor.toColorI());
+      GFX->getDrawUtil()->drawRectFill(rect, mDamageFillColor.toColorI(), manager);
 }

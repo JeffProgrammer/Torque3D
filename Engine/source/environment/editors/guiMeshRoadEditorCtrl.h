@@ -121,7 +121,7 @@ class GuiMeshRoadEditorCtrl : public EditTSCtrl
       S32 _getNodeAtScreenPos( const MeshRoad *pRoad, const Point2I &posi );
       S32 _getProfileNodeAtScreenPos( MeshRoadProfile *pProfile, const Point2I &posi);
       void _drawSpline( MeshRoad *road, const ColorI &color );
-      void _drawControlNodes( MeshRoad *road, const ColorI &color );
+      void _drawControlNodes( MeshRoad *road, const ColorI &color, GuiRenderManager* manager);
 
       void submitUndo( const UTF8 *name = "Action" );
 

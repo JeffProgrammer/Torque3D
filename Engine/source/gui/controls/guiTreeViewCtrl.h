@@ -618,10 +618,10 @@ class GuiTreeViewCtrl : public GuiArrayCtrl
 		bool objectSearch( const SimObject *object, Item **item );
 
       // GuiArrayCtrl
-      void onRenderCell(Point2I offset, Point2I cell, bool, bool);
+      void onRenderCell(Point2I offset, Point2I cell, bool, bool, GuiRenderManager* manager);
       void onRender(Point2I offset, const RectI &updateRect, GuiRenderManager* manager);
       
-      bool renderTooltip( const Point2I &hoverPos, const Point2I& cursorPos, const char* tipText );
+      bool renderTooltip( const Point2I &hoverPos, const Point2I& cursorPos, GuiRenderManager* manager, const char* tipText );
 
       static void initPersistFields();
 

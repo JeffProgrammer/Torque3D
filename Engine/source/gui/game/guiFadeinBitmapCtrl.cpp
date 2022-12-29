@@ -203,5 +203,5 @@ void GuiFadeinBitmapCtrl::onRender(Point2I offset, const RectI &updateRect, GuiR
    ColorI color = mFadeColor.toColorI();
    color.alpha = alpha;
    
-   GFX->getDrawUtil()->drawRectFill( offset, getExtent() + offset, color );
+   GFX->getDrawUtil()->drawRectFill( offset, getExtent() + offset, color, manager );
 }

@@ -294,7 +294,7 @@ void VTimeLineControl::onRender( Point2I offset, const RectI &updateRect, GuiRen
     const Point2I textOffset( 4, -mProfile->mFontSize );
 
     // Render Border.
-    GFX->getDrawUtil()->drawRectFill( RectI( offset + Point2I( tickOffset + 1, 1 ), Point2I( timeLineWidth - 1, getHeight() - 1 ) ), mProfile->mFillColorHL );
+    GFX->getDrawUtil()->drawRectFill( RectI( offset + Point2I( tickOffset + 1, 1 ), Point2I( timeLineWidth - 1, getHeight() - 1 ) ), mProfile->mFillColorHL, manager );
     
     // Font Color.
     GFX->getDrawUtil()->setBitmapModulation( mProfile->mFontColor );
@@ -313,7 +313,7 @@ void VTimeLineControl::onRender( Point2I offset, const RectI &updateRect, GuiRen
         if ( mIsController )
         {
             // Render Times.
-            renderJustifiedText( tickPosition + tickExtent + textOffset, textExtent, avar( "%.2f", ( F32 )( i * tickStep ) ) );
+            renderJustifiedText( manager, tickPosition + tickExtent + textOffset, textExtent, avar( "%.2f", ( F32 )( i * tickStep ) ) );
         }
     }
 
@@ -333,7 +333,7 @@ void VTimeLineControl::onRender( Point2I offset, const RectI &updateRect, GuiRen
         const Point2I selectionPosition = offset + Point2I( selectionPositionX, 0 );
 
         // Render Time Cue.
-        GFX->getDrawUtil()->drawRectFill( RectI( selectionPosition, selectionExtent ), ColorI( 0, 0, 0, 128 ) );
+        GFX->getDrawUtil()->drawRectFill( RectI( selectionPosition, selectionExtent ), ColorI( 0, 0, 0, 128 ), manager );
 
         if ( mIsController )
         {
@@ -352,8 +352,8 @@ void VTimeLineControl::onRender( Point2I offset, const RectI &updateRect, GuiRen
                 const Point2I endText   = Point2I( getMin( ( S32 )( selectionPosition.x + selectionWidth + 4 ), updateRect.point.x + updateRect.extent.x - ( textWidth + 2 ) ), selectionPosition.y + 2 );
 
                 // Render Time Text.
-                renderJustifiedText( startText, textExtent, buffer[0] );
-                renderJustifiedText( endText, textExtent, buffer[1] );
+                renderJustifiedText( manager, startText, textExtent, buffer[0] );
+                renderJustifiedText( manager, endText, textExtent, buffer[1] );
             }
             else
             {
@@ -365,8 +365,8 @@ void VTimeLineControl::onRender( Point2I offset, const RectI &updateRect, GuiRen
                 const Point2I endText   = Point2I( getMin( ( S32 )( selectionPosition.x + selectionWidth + 4 ), updateRect.point.x + updateRect.extent.x - ( textWidth + 2 ) ), selectionPosition.y + 2 );
 
                 // Render Time Text.
-                renderJustifiedText( startText, textExtent, buffer[1] );
-                renderJustifiedText( endText, textExtent, buffer[0] );
+                renderJustifiedText( manager, startText, textExtent, buffer[1] );
+                renderJustifiedText( manager, endText, textExtent, buffer[0] );
             }
         }
     }
@@ -378,7 +378,7 @@ void VTimeLineControl::onRender( Point2I offset, const RectI &updateRect, GuiRen
         const Point2I timeCuePosition = offset + Point2I( toPoint( mController->getTime() ) - ( timeCueExtent.x / 2 ), 0 );
 
         // Render Time Cue.
-        GFX->getDrawUtil()->drawRectFill( RectI( timeCuePosition, timeCueExtent ), ColorI( 0,0,0,128 ) );
+        GFX->getDrawUtil()->drawRectFill( RectI( timeCuePosition, timeCueExtent ), ColorI( 0,0,0,128 ), manager );
 
         if ( mIsController )
         {
@@ -393,7 +393,7 @@ void VTimeLineControl::onRender( Point2I offset, const RectI &updateRect, GuiRen
             const Point2I textPosition( getMin( getMax( timeCuePosition.x + 6, updateRect.point.x + 4 ), updateRect.point.x + updateRect.extent.x - ( textWidth + 2 ) ), timeCuePosition.y + 2 );
 
             // Render Time Text.
-            renderJustifiedText( textPosition, textExtent, buffer );
+            renderJustifiedText( manager, textPosition, textExtent, buffer );
         }
     }
 }

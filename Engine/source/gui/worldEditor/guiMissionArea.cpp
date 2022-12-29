@@ -414,13 +414,13 @@ void GuiMissionAreaCtrl::setArea(const RectI & area)
 
 //------------------------------------------------------------------------------
 
-void GuiMissionAreaCtrl::drawHandle(const Point2F & pos)
+void GuiMissionAreaCtrl::drawHandle(const Point2F & pos, GuiRenderManager* manager)
 {
    Point2F pnt(pos.x-mHandleTextureHalfSize.x, pos.y-mHandleTextureHalfSize.y);
-   GFX->getDrawUtil()->drawBitmap(mHandleBitmap, pnt);
+   GFX->getDrawUtil()->drawBitmap(mHandleBitmap, pnt, manager);
 }
 
-void GuiMissionAreaCtrl::drawHandles(RectI & box)
+void GuiMissionAreaCtrl::drawHandles(RectI & box, GuiRenderManager* manager)
 {
    F32 fillOffset = GFX->getFillConventionOffset();
 
@@ -430,14 +430,14 @@ void GuiMissionAreaCtrl::drawHandles(RectI & box)
    F32 cy = (ty + by) * 0.5f;
 
    GFX->getDrawUtil()->clearBitmapModulation();
-   drawHandle(Point2F(lx, ty));
-   drawHandle(Point2F(lx, cy));
-   drawHandle(Point2F(lx, by));
-   drawHandle(Point2F(rx, ty));
-   drawHandle(Point2F(rx, cy));
-   drawHandle(Point2F(rx, by));
-   drawHandle(Point2F(cx, ty));
-   drawHandle(Point2F(cx, by));
+   drawHandle(Point2F(lx, ty), manager);
+   drawHandle(Point2F(lx, cy), manager);
+   drawHandle(Point2F(lx, by), manager);
+   drawHandle(Point2F(rx, ty), manager);
+   drawHandle(Point2F(rx, cy), manager);
+   drawHandle(Point2F(rx, by), manager);
+   drawHandle(Point2F(cx, ty), manager);
+   drawHandle(Point2F(cx, by), manager);
 }
 
 bool GuiMissionAreaCtrl::testWithinHandle(const Point2I & testPoint, S32 handleX, S32 handleY)
@@ -601,7 +601,7 @@ void GuiMissionAreaCtrl::onRender(Point2I offset, const RectI & updateRect, GuiR
 
    GFXDrawUtil *drawer = GFX->getDrawUtil();
    drawer->clearBitmapModulation();
-   drawer->drawBitmapStretch(mBitmap, rect, GFXBitmapFlip_Y, GFXTextureFilterLinear, false);
+   drawer->drawBitmapStretch(mBitmap, rect, manager, GFXBitmapFlip_Y, GFXTextureFilterLinear, false);
 
    GFX->setStateBlock(mSolidStateBlock);
    drawer->clearBitmapModulation();
@@ -671,7 +671,7 @@ void GuiMissionAreaCtrl::onRender(Point2I offset, const RectI & updateRect, GuiR
    // render the handles
    RectI iArea;
    getScreenMissionArea(iArea);
-   drawHandles(iArea);
+   drawHandles(iArea, manager);
 
    renderChildControls(offset, updateRect, manager);
 }

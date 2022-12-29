@@ -23,7 +23,7 @@ public:
 
    virtual GuiControl* constructEditControl();
    virtual bool updateRects();
-   bool renderTooltip(const Point2I& hoverPos, const Point2I& cursorPos, const char* tipText = NULL);
+   bool renderTooltip(const Point2I& hoverPos, const Point2I& cursorPos, GuiRenderManager* manager, const char* tipText = NULL);
 
    virtual void updateValue();
 

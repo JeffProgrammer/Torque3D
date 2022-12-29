@@ -20,7 +20,7 @@ GFXCmdBuffer::~GFXCmdBuffer()
 
 void GFXCmdBuffer::setViewport(const RectI &rect)
 {
-   AssertFatal(!mRecording, "GFXCmdBuffer is not currently recording!");
+   AssertFatal(mRecording, "GFXCmdBuffer is not currently recording!");
 
    mBuffer.append(GFX_CMD_VIEWPORT);
    mBuffer.append(rect.point.x);
@@ -31,7 +31,7 @@ void GFXCmdBuffer::setViewport(const RectI &rect)
 
 void GFXCmdBuffer::setGraphicsPipeline(GFXHandle<GFXGraphicsPipelineHandle> pipeline)
 {
-   AssertFatal(!mRecording, "GFXCmdBuffer is not currently recording!");
+   AssertFatal(mRecording, "GFXCmdBuffer is not currently recording!");
 
    mBuffer.append(GFX_CMD_SET_GRAPHICS_PIPELINE);
    mBuffer.append(pipeline);
@@ -39,7 +39,7 @@ void GFXCmdBuffer::setGraphicsPipeline(GFXHandle<GFXGraphicsPipelineHandle> pipe
 
 void GFXCmdBuffer::setStateBlock(GFXStateBlockRef state)
 {
-   AssertFatal(!mRecording, "GFXCmdBuffer is not currently recording!");
+   AssertFatal(mRecording, "GFXCmdBuffer is not currently recording!");
    AssertFatal(mStateBlockData.count < MAX_STATE_BLOCK_RESOURCES, avar("GFXCmdBuffer cannot call setStateBlock more than %d times in a single command buffer", MAX_STATE_BLOCK_RESOURCES));
 
    U32 stateBlockHandle = mStateBlockData.count++;
@@ -51,7 +51,7 @@ void GFXCmdBuffer::setStateBlock(GFXStateBlockRef state)
 
 void GFXCmdBuffer::setVertexBuffer(U32 slot, GFXHandle<GFXVertexBufferHandle2> buffer, U32 offset)
 {
-   AssertFatal(!mRecording, "GFXCmdBuffer is not currently recording!");
+   AssertFatal(mRecording, "GFXCmdBuffer is not currently recording!");
    
    mBuffer.append(GFX_CMD_SET_VERTEX_BUFFER);
    mBuffer.append(slot);
@@ -61,7 +61,7 @@ void GFXCmdBuffer::setVertexBuffer(U32 slot, GFXHandle<GFXVertexBufferHandle2> b
 
 void GFXCmdBuffer::setIndexBuffer(GFXHandle<GFXIndexBufferHandle> buffer, bool is16Bit)
 {
-   AssertFatal(!mRecording, "GFXCmdBuffer is not currently recording!");
+   AssertFatal(mRecording, "GFXCmdBuffer is not currently recording!");
    
    mBuffer.append(GFX_CMD_SET_INDEX_BUFFER);
    mBuffer.append(buffer);
@@ -70,7 +70,7 @@ void GFXCmdBuffer::setIndexBuffer(GFXHandle<GFXIndexBufferHandle> buffer, bool i
 
 void GFXCmdBuffer::setTexture(U32 slot, GFXTextureObject *texture, GFXHandle<GFXSamplerHandle> sampler)
 {
-   AssertFatal(!mRecording, "GFXCmdBuffer is not currently recording!");
+   AssertFatal(mRecording, "GFXCmdBuffer is not currently recording!");
    
    U32 textureHandle = mTextureData.count++;
    mTextureData.textures[textureHandle] = texture;
@@ -83,7 +83,7 @@ void GFXCmdBuffer::setTexture(U32 slot, GFXTextureObject *texture, GFXHandle<GFX
 
 void GFXCmdBuffer::setConstantBuffer(U32 slot, GFXHandle<GFXConstantBufferHandle> buffer)
 {
-   AssertFatal(!mRecording, "GFXCmdBuffer is not currently recording!");
+   AssertFatal(mRecording, "GFXCmdBuffer is not currently recording!");
    
    mBuffer.append(GFX_CMD_SET_CONSTANT_BUFFER);
    mBuffer.append(slot);
@@ -92,7 +92,7 @@ void GFXCmdBuffer::setConstantBuffer(U32 slot, GFXHandle<GFXConstantBufferHandle
 
 void GFXCmdBuffer::setDynamicConstantBuffer(U32 slot, GFXHandle<GFXConstantBufferHandle> buffer, U32 offset)
 {
-   AssertFatal(!mRecording, "GFXCmdBuffer is not currently recording!");
+   AssertFatal(mRecording, "GFXCmdBuffer is not currently recording!");
    
    mBuffer.append(GFX_CMD_SET_DYNAMIC_CONSTANT_BUFFER);
    mBuffer.append(slot);
@@ -106,7 +106,7 @@ void GFXCmdBuffer::setPushConstants(GFXShaderStageFlags stageFlags, U32 size, vo
    // For example, if we are using a fully bindless mode of the CmdBuffer, we will want to expose the
    // full push constant range. For emulating binding slots, however, we need to reserve some space needed
    // for the push constants.
-   AssertFatal(!mRecording, "GFXCmdBuffer is not currently recording!");
+   AssertFatal(mRecording, "GFXCmdBuffer is not currently recording!");
    AssertFatal(size < 128, "Push Constant size must be no more than 128 bytes. Use a buffer for bigger data.");
 
    S32 sizeOfPushConstant = mDevice->mSizeOfPushConstant;
@@ -121,7 +121,7 @@ void GFXCmdBuffer::setPushConstants(GFXShaderStageFlags stageFlags, U32 size, vo
 
 void GFXCmdBuffer::drawPrimitives(GFXPrimitiveType type, U32 start, U32 count)
 {
-   AssertFatal(!mRecording, "GFXCmdBuffer is not currently recording!");
+   AssertFatal(mRecording, "GFXCmdBuffer is not currently recording!");
 
    mBuffer.append(GFX_CMD_DRAW_PRIMITIVES);
    mBuffer.append(type);
@@ -131,7 +131,7 @@ void GFXCmdBuffer::drawPrimitives(GFXPrimitiveType type, U32 start, U32 count)
 
 void GFXCmdBuffer::drawPrimitivesInstanced(GFXPrimitiveType type, U32 start, U32 count, U32 instanceCount)
 {
-   AssertFatal(!mRecording, "GFXCmdBuffer is not currently recording!");
+   AssertFatal(mRecording, "GFXCmdBuffer is not currently recording!");
 
    mBuffer.append(GFX_CMD_DRAW_PRIMITIVES_INSTANCED);
    mBuffer.append(type);
@@ -142,7 +142,7 @@ void GFXCmdBuffer::drawPrimitivesInstanced(GFXPrimitiveType type, U32 start, U32
 
 void GFXCmdBuffer::drawIndexedPrimitives(GFXPrimitiveType type, U32 count, U32 indexBufferOffset, U32 baseVertex)
 {
-   AssertFatal(!mRecording, "GFXCmdBuffer is not currently recording!");
+   AssertFatal(mRecording, "GFXCmdBuffer is not currently recording!");
 
    mBuffer.append(GFX_CMD_DRAW_INDEXED_PRIMITIVES);
    mBuffer.append(type);
@@ -153,7 +153,7 @@ void GFXCmdBuffer::drawIndexedPrimitives(GFXPrimitiveType type, U32 count, U32 i
 
 void GFXCmdBuffer::drawIndexedPrimitivesInstanced(GFXPrimitiveType type, U32 count, U32 indexBufferOffset, U32 baseVertex, U32 instanceCount)
 {
-   AssertFatal(!mRecording, "GFXCmdBuffer is not currently recording!");
+   AssertFatal(mRecording, "GFXCmdBuffer is not currently recording!");
 
    mBuffer.append(GFX_CMD_DRAW_INDEXED_PRIMITIVES_INSTANCED);
    mBuffer.append(type);
@@ -165,7 +165,7 @@ void GFXCmdBuffer::drawIndexedPrimitivesInstanced(GFXPrimitiveType type, U32 cou
 
 void GFXCmdBuffer::endRecording()
 {
-   AssertFatal(!mRecording, "GFXCmdBuffer is not currently recording!");
+   AssertFatal(mRecording, "GFXCmdBuffer is not currently recording!");
    mRecording = false;
 
    mBuffer.append(GFX_CMD_END);

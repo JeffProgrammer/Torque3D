@@ -64,7 +64,7 @@ public:
    bool onKeyDown(const GuiEvent &event);
    void onMouseDown(const GuiEvent &event);
    void onMouseUp(const GuiEvent &event);
-   void onRenderCell(Point2I offset, Point2I cell, bool selected, bool mouseOver);
+   void onRenderCell(Point2I offset, Point2I cell, bool selected, bool mouseOver, GuiRenderManager* manager);
 
    virtual void onCellHighlighted(Point2I cell); //  Added
 };

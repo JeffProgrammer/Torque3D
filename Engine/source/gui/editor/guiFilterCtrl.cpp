@@ -178,7 +178,7 @@ void GuiFilterCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderM
    Point2I ext = getExtent();
 
    RectI bgRect(pos, ext);
-   GFX->getDrawUtil()->drawRectFill(bgRect, ColorI(255,255,255));
+   GFX->getDrawUtil()->drawRectFill(bgRect, ColorI(255,255,255), manager);
    GFX->getDrawUtil()->drawRect(bgRect, ColorI(0,0,0));
 
    // shrink by 2 pixels
@@ -224,7 +224,7 @@ void GuiFilterCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderM
 	  knotRect.point += pos + Point2I(-2,-2);
 	  knotRect.extent = Point2I(5,5);
 
-      GFX->getDrawUtil()->drawRectFill(knotRect, ColorI(255,0,0));
+      GFX->getDrawUtil()->drawRectFill(knotRect, ColorI(255,0,0), manager);
    }
 
    renderChildControls(offset, updateRect, manager);

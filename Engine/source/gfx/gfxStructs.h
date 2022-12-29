@@ -210,12 +210,48 @@ struct GFXSamplerDesc2 // remove 2 after we drop old one
    GFXCmpFunc samplerFunc = GFXCmpNever;
    U32 maxAnisotropy = 1;
    F32 mipLODBias = 0.0;
+
+   static GFXSamplerDesc2 getWrapLinear()
+   {
+      GFXSamplerDesc2 desc = {};
+      return desc; // default...
+   }
+
+   static GFXSamplerDesc2 getWrapPoint()
+   {
+      GFXSamplerDesc2 desc = {};
+      desc.magFilter = GFXTextureFilterPoint;
+      desc.minFilter = GFXTextureFilterPoint;
+      desc.mipFilter = GFXTextureFilterPoint;
+      return desc;
+   }
+
+   static GFXSamplerDesc2 getClampLinear()
+   {
+      GFXSamplerDesc2 desc = {};
+      desc.addressModeU = GFXAddressClamp;
+      desc.addressModeV = GFXAddressClamp;
+      desc.addressModeW = GFXAddressClamp;
+      return desc;
+   }
+
+   static GFXSamplerDesc2 getClampPoint()
+   {
+      GFXSamplerDesc2 desc = {};
+      desc.addressModeU = GFXAddressClamp;
+      desc.addressModeV = GFXAddressClamp;
+      desc.addressModeW = GFXAddressClamp;
+      desc.magFilter = GFXTextureFilterPoint;
+      desc.minFilter = GFXTextureFilterPoint;
+      desc.mipFilter = GFXTextureFilterPoint;
+      return desc;
+   }
 };
 
 struct GFXInputLayoutElementDesc
 {
    String semanticName;
-   U32 semanticIndex;
+   U32 semanticIndex = 0; // only used when theres more than 1 index for same semantic name like TEXCOORD 0, TEXCOORD 1...
    GFXDeclType type;
 };
 
