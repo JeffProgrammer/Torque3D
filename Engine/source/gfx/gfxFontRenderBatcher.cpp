@@ -62,9 +62,6 @@ void FontRenderBatcher::render(GuiRenderManager* manager, F32 rot, const Point2F
 {
    if( mLength == 0 )
       return;
-
-   GuiRenderInstStateBlock* stateBlockInst = manager->allocRenderInstStateBlock();
-   stateBlockInst->stateBlock = mFontSB;
    
    Vector<GuiRenderInstDraw*> drawInsts;
    
@@ -184,10 +181,10 @@ void FontRenderBatcher::render(GuiRenderManager* manager, F32 rot, const Point2F
       }
    }
 
-   manager->pushInst(stateBlockInst);
+   manager->pushStateBlock(mFontSB);
    for (U32 i = 0; i < drawInsts.size(); i++)
    {
-      manager->pushInst(drawInsts[i]);
+      manager->pushDrawInst(drawInsts[i]);
    }
 }
 

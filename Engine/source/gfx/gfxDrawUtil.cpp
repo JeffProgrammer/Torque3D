@@ -341,9 +341,6 @@ void GFXDrawUtil::drawBitmapStretchSR( GFXTextureObject* texture, const RectF &d
    if(!texture)
       return;   
 
-   GuiRenderInstStateBlock* stateBlockInst = manager->allocRenderInstStateBlock();
-   stateBlockInst->stateBlock = mBitmapSB;
-
    GuiRenderInstDraw* drawInst = manager->allocRenderInstDraw(4);
    drawInst->pipeline = GFX->getShaderPipelineManager()->getShaderPipeline(GFXGenericShaderPipelineType::GSPModColorTexture);
    drawInst->primitiveType = GFXTriangleStrip;
@@ -426,8 +423,8 @@ void GFXDrawUtil::drawBitmapStretchSR( GFXTextureObject* texture, const RectF &d
       }
    }
 
-   manager->pushInst(stateBlockInst);
-   manager->pushInst(drawInst);
+   manager->pushStateBlock(mBitmapSB);
+   manager->pushDrawInst(drawInst);
 }
 
 //-----------------------------------------------------------------------------
@@ -536,9 +533,6 @@ void GFXDrawUtil::drawRectFill( const Point2F &upperLeft, const Point2F &lowerRi
 
    F32 ulOffset = 0.5f - mDevice->getFillConventionOffset();
 
-   GuiRenderInstStateBlock* stateBlockInst = manager->allocRenderInstStateBlock();
-   stateBlockInst->stateBlock = mRectFillSB;
-
    GuiRenderInstDraw* drawInst = manager->allocRenderInstDraw(4);
    drawInst->pipeline = GFX->getShaderPipelineManager()->getShaderPipeline(GFXGenericShaderPipelineType::GSPColor);
    drawInst->primitiveType = GFXTriangleStrip;
@@ -554,8 +548,8 @@ void GFXDrawUtil::drawRectFill( const Point2F &upperLeft, const Point2F &lowerRi
       drawInst->vertexList.vertices[i].color = color;
    }
 
-   manager->pushInst(stateBlockInst);
-   manager->pushInst(drawInst);
+   manager->pushStateBlock(mRectFillSB);
+   manager->pushDrawInst(drawInst);
 }
 
 void GFXDrawUtil::draw2DSquare( const Point2F &screenPoint, F32 width, F32 spinAngle )

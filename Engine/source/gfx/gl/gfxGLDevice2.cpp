@@ -294,11 +294,19 @@ void GFXGLDevice::executeCmdBuffer(GFXCmdBuffer* cmdBuffer)
             U32 samplerHandle = cmdBuffer->mBuffer.data[cmdBufferOffset++];
             
             AssertFatal(mGLSamplerStateTable.find(samplerHandle) != mGLSamplerStateTable.end(), avar("GFXGLDevice Command Buffer :: Sampler [%u] is not found!", (U32)samplerHandle));
+            
+            const GLPipelineState &pipelineState = mGLPipelineStateTable[mInternalGLState.currentPipeline];
 
             
             GLuint samplerGLHandle = mGLSamplerStateTable[samplerHandle];
 
             GFXGLTextureObject* textureObject = static_cast<GFXGLTextureObject*>(cmdBuffer->mTextureData.textures[textureHandle]);
+            
+            // todo: do this when setting the pipeline automatically and dont hardcode the texture name
+            //
+            // Note: This is only necessary for less than GL 4.3 / ES 3.1
+            GLuint uniformLocation = glGetUniformLocation(pipelineState.program, "diffuseMap");
+            glUniform1i(uniformLocation, textureUnit);
             
             glBindSampler(textureUnit, samplerGLHandle);
             

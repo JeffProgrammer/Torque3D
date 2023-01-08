@@ -826,20 +826,20 @@ void GFXGLDevice::setClipRect( const RectI &inRect )
    setViewport(viewport);
 }
 
-void GFXGLDevice::calcClipRect(const RectI &rect, MatrixF &outProjMatrix, RectI &outRect) const
+void GFXGLDevice::calcClipRect(const RectI &rect, GFXGuiClipRect &clipRect) const
 {
    AssertFatal(mCurrentRT.isValid(), "GFXGLDevice::setClipRect - must have a render target set to do any rendering operations!");
 
    // Clip the rect against the renderable size.
    Point2I size = mCurrentRT->getSize();
    RectI maxRect(Point2I(0,0), size);
-   outRect = rect;
-   outRect.intersect(maxRect);
+   clipRect.rect = rect;
+   clipRect.rect.intersect(maxRect);
    
    // Create projection matrix.  See http://www.opengl.org/documentation/specs/man_pages/hardcopy/GL/html/gl/ortho.html
-   const F32 left = outRect.point.x;
-   const F32 right = outRect.point.x + outRect.extent.x;
-   const F32 bottom = outRect.extent.y;
+   const F32 left = clipRect.rect.point.x;
+   const F32 right = clipRect.rect.point.x + clipRect.rect.extent.x;
+   const F32 bottom = clipRect.rect.extent.y;
    const F32 top = 0.0f;
    const F32 nearPlane = 0.0f;
    const F32 farPlane = 1.0f;
@@ -865,14 +865,14 @@ void GFXGLDevice::calcClipRect(const RectI &rect, MatrixF &outProjMatrix, RectI 
    
    // Translate projection matrix.
    static MatrixF translate(true);
-   pt.set(0.0f, -outRect.point.y, 0.0f, 1.0f);
+   pt.set(0.0f, -clipRect.rect.point.y, 0.0f, 1.0f);
    translate.setColumn(3, pt);
    
    projMatrix *= translate;
 
    MatrixF mTempMatrix(true);
 
-   outProjMatrix = projMatrix * mTempMatrix;
+   clipRect.projectionMatrix = projMatrix * mTempMatrix;
 }
 
 /// Creates a state block object based on the desc passed in.  This object

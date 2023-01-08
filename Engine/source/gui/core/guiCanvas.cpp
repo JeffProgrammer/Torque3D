@@ -1942,19 +1942,11 @@ void GuiCanvas::renderFrame(bool preRenderOnly, bool bufferSwap /* = true */)
          // Get the control
          GuiControl *contentCtrl = static_cast<GuiControl*>(*i);
 
-         RectI clipRect;
-         MatrixF projMatrix;
-         GFX->calcClipRect(updateUnion, projMatrix, clipRect);
-
-         GuiRenderInstClipRect *clipRectInst = renderManager.allocRenderInstClipRect();
-         clipRectInst->projMatrix = projMatrix;
-         clipRectInst->rect = clipRect;
-
-         GuiRenderInstStateBlock* stateBlockInst = renderManager.allocRenderInstStateBlock();
-         stateBlockInst->stateBlock = mDefaultGuiSB;
-
-         renderManager.pushInst(clipRectInst);
-         renderManager.pushInst(stateBlockInst);
+         GFXGuiClipRect gfxClip;
+         GFX->calcClipRect(updateUnion, gfxClip);
+         renderManager.pushClipRect(gfxClip);
+         
+         renderManager.pushStateBlock(mDefaultGuiSB);
          
          contentCtrl->onRender(contentCtrl->getPosition(), updateUnion, &renderManager);
       }
@@ -1991,9 +1983,11 @@ void GuiCanvas::renderFrame(bool preRenderOnly, bool bufferSwap /* = true */)
             mHoverControlStart = curTime;
          }
       }
-
-      GFX->setClipRect( updateUnion );
-
+      
+      GFXGuiClipRect gfxClip;
+      GFX->calcClipRect(updateUnion, gfxClip);
+      renderManager.pushClipRect(gfxClip);
+      
       // Draw an ugly box if we don't have a cursor available...
       //if (mCursorEnabled && mShowCursor && !mouseCursor)
       //{

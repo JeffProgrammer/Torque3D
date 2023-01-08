@@ -1060,8 +1060,10 @@ void GuiScrollCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderM
    {
       // Reset the ClipRect as the parent call can modify it when rendering
       // the child controls
-      GFX->setClipRect( updateRect );
-
+      GFXGuiClipRect clipRect;
+      GFX->calcClipRect(updateRect, clipRect);
+      manager->pushClipRect(clipRect);
+      
       //draw the scroll corner
       if (mHasVScrollBar && mHasHScrollBar)
          drawScrollCorner(offset, manager);

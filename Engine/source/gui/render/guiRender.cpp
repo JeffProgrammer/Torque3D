@@ -2,8 +2,27 @@
 #include "gfx/gfxDevice.h"
 #include "gfx/gfxCmdBuffer.h"
 
+namespace Internal
+{
+   struct GuiRenderInstClipRect : public GuiRenderInst
+   {
+      RectI rect;
+      MatrixF projMatrix;
+   };
+
+   struct GuiRenderInstStateBlock : public GuiRenderInst
+   {
+      GFXStateBlock* stateBlock = nullptr;
+   };
+};
+
 GuiRenderManager::GuiRenderManager()
 {
+   mClipState = {
+      .rect = RectI::Zero,
+      .projectionMatrix = MatrixF::Identity
+   };
+   
    mRenderInsts.reserve(2048);
    mCurrentVertexData.data = (char*)dMalloc_aligned(VERTEX_BUFFER_SIZE_MB, 16);
    clear();
@@ -22,26 +41,6 @@ GuiRenderInstDraw* GuiRenderManager::allocRenderInstDraw(U32 numberOfVertices)
    inst->type = GuiRenderInstType::DRAW;
    inst->vertexList = allocVertices(numberOfVertices);
    
-   return inst;
-}
-
-GuiRenderInstClipRect* GuiRenderManager::allocRenderInstClipRect()
-{
-   GuiRenderInstClipRect* inst = mRenderInstMemory.alloc<GuiRenderInstClipRect>();
-   constructInPlace(inst);
-   
-   inst->type = GuiRenderInstType::CLIP_RECT;
-   
-   return inst;
-}
-
-GuiRenderInstStateBlock* GuiRenderManager::allocRenderInstStateBlock()
-{
-   GuiRenderInstStateBlock* inst = mRenderInstMemory.alloc<GuiRenderInstStateBlock>();
-   constructInPlace(inst);
-
-   inst->type = GuiRenderInstType::STATEBLOCK;
-
    return inst;
 }
 
@@ -72,10 +71,40 @@ GuiVertexList GuiRenderManager::allocVertices(U32 numberOfVertices)
    return list;
 }
 
+void GuiRenderManager::pushDrawInst(GuiRenderInstDraw* inst)
+{
+   mRenderInsts.push_back(inst);
+}
+
+void GuiRenderManager::pushClipRect(const GFXGuiClipRect& clipRect)
+{
+   mClipState = clipRect;
+   
+   Internal::GuiRenderInstClipRect* inst = mRenderInstMemory.alloc<Internal::GuiRenderInstClipRect>();
+   constructInPlace(inst);
+   
+   inst->type = GuiRenderInstType::CLIP_RECT;
+   inst->rect = clipRect.rect;
+   inst->projMatrix = clipRect.projectionMatrix;
+   
+   mRenderInsts.push_back(inst);
+}
+
+void GuiRenderManager::pushStateBlock(GFXStateBlock *stateBlock)
+{
+   Internal::GuiRenderInstStateBlock* inst = mRenderInstMemory.alloc<Internal::GuiRenderInstStateBlock>();
+   constructInPlace(inst);
+
+   inst->type = GuiRenderInstType::STATEBLOCK;
+   inst->stateBlock = stateBlock;
+   
+   mRenderInsts.push_back(inst);
+}
+
 //-----------------------------------------------------------------------------
 
 static TORQUE_FORCEINLINE
-void processClipRectInst(GFXCmdBuffer* cmdBuffer, const GuiRenderInstClipRect* clipRectInst)
+void processClipRectInst(GFXCmdBuffer* cmdBuffer, const Internal::GuiRenderInstClipRect* clipRectInst)
 {
    const RectI rect = clipRectInst->rect;
    const float* matrix = (const float*)clipRectInst->projMatrix;
@@ -85,7 +114,7 @@ void processClipRectInst(GFXCmdBuffer* cmdBuffer, const GuiRenderInstClipRect* c
 }
 
 static TORQUE_FORCEINLINE
-void processStateBlockInst(GFXCmdBuffer* cmdBuffer, const GuiRenderInstStateBlock* stateBlockInst)
+void processStateBlockInst(GFXCmdBuffer* cmdBuffer, const Internal::GuiRenderInstStateBlock* stateBlockInst)
 {
    if (stateBlockInst->stateBlock != nullptr)
       cmdBuffer->setStateBlock(stateBlockInst->stateBlock);
@@ -139,14 +168,14 @@ void GuiRenderBin::fillCommandBuffer(GFXCmdBuffer *cmdBuffer, GuiRenderManager *
       {
          case GuiRenderInstType::CLIP_RECT:
          {
-            const auto clipRectInst = static_cast<const GuiRenderInstClipRect*>(inst);
+            const auto clipRectInst = static_cast<const Internal::GuiRenderInstClipRect*>(inst);
             processClipRectInst(cmdBuffer, clipRectInst);
             break;
          }
 
          case GuiRenderInstType::STATEBLOCK:
          {
-            const auto stateBlockInst = static_cast<const GuiRenderInstStateBlock*>(inst);
+            const auto stateBlockInst = static_cast<const Internal::GuiRenderInstStateBlock*>(inst);
             processStateBlockInst(cmdBuffer, stateBlockInst);
             break;
          }

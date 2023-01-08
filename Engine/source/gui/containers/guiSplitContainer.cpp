@@ -251,11 +251,16 @@ void GuiSplitContainer::onRender( Point2I offset, const RectI &updateRect, GuiRe
          splitterRect.point.y = splitterPoint.y;
       }
 
-      RectI oldClip = GFX->getClipRect();
-      GFX->setClipRect( clientRect );
+      GFXGuiClipRect oldClip = manager->getClipRect();
+      
+      GFXGuiClipRect clipRect;
+      GFX->calcClipRect(clientRect, clipRect);
+      manager->pushClipRect(clipRect);
+      
       GFX->getDrawUtil()->drawRectFill( splitterRect, mProfile->mFillColorHL, manager );
-      GFX->setClipRect( oldClip );
-
+      
+      // Reset clip rect
+      manager->pushClipRect( oldClip );
    }
    else
    {

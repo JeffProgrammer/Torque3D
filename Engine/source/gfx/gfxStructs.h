@@ -302,4 +302,10 @@ struct GFXTextureDesc
    U32 numMipLevels = 1;
 };
 
+struct GFXGuiClipRect
+{
+   RectI rect;
+   MatrixF projectionMatrix;
+};
+
 #endif // _GFXSTRUCTS_H_

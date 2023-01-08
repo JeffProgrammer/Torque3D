@@ -528,11 +528,14 @@ bool GuiControl::defaultTooltipRender( const Point2I &hoverPos, const Point2I &c
    if ( screensize.y < offset.y + textBounds.y + 5 )
       offset.y = hoverPos.y - textBounds.y - 5;
    
-   RectI oldClip = GFX->getClipRect();
+   GFXGuiClipRect oldClip = manager->getClipRect();
 
    // Set rectangle for the box, and set the clip rectangle.
    RectI rect( offset, textBounds );
-   GFX->setClipRect( rect );
+   
+   GFXGuiClipRect clipRect;
+   GFX->calcClipRect(rect, clipRect);
+   manager->pushClipRect(clipRect);
 
    // Draw Filler bit, then border on top of that
    drawUtil->drawRectFill( rect, mTooltipProfile->mFillColor, manager );
@@ -551,7 +554,7 @@ bool GuiControl::defaultTooltipRender( const Point2I &hoverPos, const Point2I &c
       drawUtil->drawTextN( manager, font, start + offset, line, lineLen, mProfile->mFontColors );
    }
 
-   GFX->setClipRect( oldClip );
+   manager->pushClipRect(oldClip);
 
    return true;
 }
@@ -562,7 +565,7 @@ void GuiControl::renderChildControls(Point2I offset, const RectI &updateRect, Gu
 {
    // Save the current clip rect 
    // so we can restore it at the end of this method.
-   RectI savedClipRect = GFX->getClipRect();
+   GFXGuiClipRect savedClipRect = manager->getClipRect();
 
    // offset is the upper-left corner of this control in screen coordinates
    // updateRect is the intersection rectangle in screen coords of the control
@@ -580,19 +583,11 @@ void GuiControl::renderChildControls(Point2I offset, const RectI &updateRect, Gu
 
          if (childClip.intersect(clipRect))
          {
-            RectI calculatedClip;
-            MatrixF projMatrix;
-            GFX->calcClipRect(childClip, projMatrix, calculatedClip);
-
-            GuiRenderInstClipRect* clipRectInst = manager->allocRenderInstClipRect();
-            clipRectInst->projMatrix = projMatrix;
-            clipRectInst->rect = calculatedClip;
-
-            GuiRenderInstStateBlock* stateBlockInst = manager->allocRenderInstStateBlock();
-            stateBlockInst->stateBlock = mDefaultGuiSB;
-
-            manager->pushInst(clipRectInst);
-            manager->pushInst(stateBlockInst);
+            GFXGuiClipRect clipRect;
+            GFX->calcClipRect(childClip, clipRect);
+            manager->pushClipRect(clipRect);
+            
+            manager->pushStateBlock(mDefaultGuiSB);
 
             ctrl->onRender(childPosition, childClip, manager);
          }
@@ -601,7 +596,7 @@ void GuiControl::renderChildControls(Point2I offset, const RectI &updateRect, Gu
 
    // Restore the clip rect to what it was at the start
    // of this method.
-   GFX->setClipRect( savedClipRect );
+   manager->pushClipRect(savedClipRect);
 }
 
 //-----------------------------------------------------------------------------

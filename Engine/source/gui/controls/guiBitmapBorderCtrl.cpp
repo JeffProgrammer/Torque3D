@@ -134,8 +134,10 @@ void GuiBitmapBorderCtrl::onRender(Point2I offset, const RectI &updateRect, GuiR
    
    if( mBitmapBounds )
    {
-      GFX->setClipRect(updateRect);
-
+      GFXGuiClipRect clipRect;
+      GFX->calcClipRect(updateRect, clipRect);
+      manager->pushClipRect(clipRect);
+      
       GFXDrawUtil* drawUtil = GFX->getDrawUtil();
 
       //draw the outline

@@ -50,17 +50,6 @@ struct GuiRenderInstDraw : public GuiRenderInst
    U32 primitiveCount = 0;
 };
 
-struct GuiRenderInstClipRect : public GuiRenderInst
-{
-   RectI rect;
-   MatrixF projMatrix;
-};
-
-struct GuiRenderInstStateBlock : public GuiRenderInst
-{
-   GFXStateBlock* stateBlock = nullptr;
-};
-
 enum GuiRenderConstants
 {
    MEGABYTE = 1 << 20,
@@ -74,15 +63,11 @@ public:
    GuiRenderManager();
    ~GuiRenderManager();
    
-   
    GuiRenderInstDraw* allocRenderInstDraw(U32 numberOfVertices);
-   GuiRenderInstClipRect* allocRenderInstClipRect();
-   GuiRenderInstStateBlock* allocRenderInstStateBlock();
 
-   inline void pushInst(GuiRenderInst* inst)
-   {
-      mRenderInsts.push_back(inst);
-   }
+   void pushDrawInst(GuiRenderInstDraw* inst);
+   void pushClipRect(const GFXGuiClipRect& clipRect);
+   void pushStateBlock(GFXStateBlock* stateBlock);
 
    void clear();
    
@@ -96,6 +81,11 @@ public:
       return mRenderInsts;
    }
    
+   inline GFXGuiClipRect getClipRect() const
+   {
+      return mClipState;
+   }
+   
 private:
    struct VertexData
    {
@@ -107,6 +97,8 @@ private:
    GuiVertexList allocVertices(U32 numberOfVertices);
    
    VertexData mCurrentVertexData;
+   
+   GFXGuiClipRect mClipState;
    
    // TODO: make this a vector so we can use more than 1 4MB buffer
    //Vector<VertexData> mVertexData;

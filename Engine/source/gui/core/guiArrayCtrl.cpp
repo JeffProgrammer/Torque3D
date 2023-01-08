@@ -278,7 +278,9 @@ void GuiArrayCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderMa
 
       if (headerClip.intersect(clipRect))
       {
-         GFX->setClipRect(headerClip);
+         GFXGuiClipRect gfxClip;
+         GFX->calcClipRect(headerClip, gfxClip);
+         manager->pushClipRect(gfxClip);
 
          //now render the header
          onRenderColumnHeaders(offset, parentOffset, mHeaderDim, manager);
@@ -318,7 +320,9 @@ void GuiArrayCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderMa
          headerClip.extent.y = mCellSize.y;
          if (headerClip.intersect(origClipRect))
          {
-            GFX->setClipRect(headerClip);
+            GFXGuiClipRect gfxClip;
+            GFX->calcClipRect(headerClip, gfxClip);
+            manager->pushClipRect(gfxClip);
 
             //render the row header
             onRenderRowHeader(Point2I(0, offset.y + j * mCellSize.y),
@@ -346,8 +350,9 @@ void GuiArrayCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderMa
          //make sure the cell is within the update region
          if (cellClip.intersect(clipRect))
          {
-            //set the clip rect
-            GFX->setClipRect(cellClip);
+            GFXGuiClipRect gfxClip;
+            GFX->calcClipRect(headerClip, gfxClip);
+            manager->pushClipRect(gfxClip);
 
             //render the cell
             onRenderCell(Point2I(cellx, celly), Point2I(i, j),
