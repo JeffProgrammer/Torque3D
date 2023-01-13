@@ -848,7 +848,7 @@ void GFXGLDevice::calcClipRect(const RectI &rect, GFXGuiClipRect &clipRect) cons
    const F32 ty = -(top + bottom)/(top - bottom);
    const F32 tz = -(farPlane + nearPlane)/(farPlane - nearPlane);
 
-   MatrixF projMatrix;
+   MatrixF projMatrix(true);
 
    static Point4F pt;
    pt.set(2.0f / (right - left), 0.0f, 0.0f, 0.0f);
@@ -870,9 +870,7 @@ void GFXGLDevice::calcClipRect(const RectI &rect, GFXGuiClipRect &clipRect) cons
    
    projMatrix *= translate;
 
-   MatrixF mTempMatrix(true);
-
-   clipRect.projectionMatrix = projMatrix * mTempMatrix;
+   clipRect.projectionMatrix = projMatrix;
 }
 
 /// Creates a state block object based on the desc passed in.  This object

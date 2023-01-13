@@ -21,6 +21,8 @@
 //-----------------------------------------------------------------------------
 #include "../../gl/hlslCompat.glsl"
 
+layout(row_major) uniform;
+
 layout(location = 0) in vec3 vPosition;
 layout(location = 2) in vec4 vColor;
 layout(location = 6) in vec2 vTexCoord0;
