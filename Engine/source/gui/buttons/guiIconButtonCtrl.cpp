@@ -247,7 +247,7 @@ void GuiIconButtonCtrl::renderButton( Point2I &offset, const RectI& updateRect, 
       else
       {
          drawer->drawRectFill(boundsRect, mProfile->mFillColorHL, manager);
-         drawer->drawRect(boundsRect, mProfile->mBorderColorHL);
+         drawer->drawRect(manager, boundsRect, mProfile->mBorderColorHL);
       }
    }
    else
@@ -266,12 +266,12 @@ void GuiIconButtonCtrl::renderButton( Point2I &offset, const RectI& updateRect, 
          if (mActive)
          {
             drawer->drawRectFill(boundsRect, mProfile->mFillColor, manager);
-            drawer->drawRect(boundsRect, mProfile->mBorderColor);
+            drawer->drawRect(manager, boundsRect, mProfile->mBorderColor);
          }
          else
          {
             drawer->drawRectFill(boundsRect, mProfile->mFillColorNA, manager);
-            drawer->drawRect(boundsRect, mProfile->mBorderColorNA);
+            drawer->drawRect(manager, boundsRect, mProfile->mBorderColorNA);
          }
       }
    }

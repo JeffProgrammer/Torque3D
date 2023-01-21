@@ -351,7 +351,7 @@ void GuiArrayCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderMa
          if (cellClip.intersect(clipRect))
          {
             GFXGuiClipRect gfxClip;
-            GFX->calcClipRect(headerClip, gfxClip);
+            GFX->calcClipRect(cellClip, gfxClip);
             manager->pushClipRect(gfxClip);
 
             //render the cell

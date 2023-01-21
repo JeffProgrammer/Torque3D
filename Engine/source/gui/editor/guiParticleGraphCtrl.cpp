@@ -133,7 +133,7 @@ void GuiParticleGraphCtrl::onRender(Point2I offset, const RectI &updateRect, Gui
    {
       const RectI bounds = getBounds();
       RectI rect(offset.x, offset.y, bounds.extent.x, bounds.extent.y);    
-      pDrawUtil->drawRect(rect, mProfile->mBorderColor);
+      pDrawUtil->drawRect(manager, rect, mProfile->mBorderColor);
    }
 
    GuiControlProfile* profile = dynamic_cast<GuiControlProfile*>(Sim::findObject("GuiDefaultProfile"));
@@ -576,7 +576,7 @@ void GuiParticleGraphCtrl::drawNut(const Point2I &nut, S32 size, ColorI &outline
    r.inset(1, 1);
    pDrawUtil->drawRectFill(r, nutColor, manager);
    r.inset(-1, -1);
-   pDrawUtil->drawRect(r, outlineColor);
+   pDrawUtil->drawRect(manager, r, outlineColor);
 }
 
 bool GuiParticleGraphCtrl::inNut(const Point2I &pt, S32 x, S32 y)
@@ -994,7 +994,7 @@ bool GuiParticleGraphCtrl::renderGraphTooltip(Point2I cursorPos, StringTableEntr
 
    // Draw Filler bit, then border on top of that
    pDrawUtil->drawRectFill(rect, ColorI(mTooltipProfile->mFillColor.red, mTooltipProfile->mFillColor.green, mTooltipProfile->mFillColor.blue, 200), manager);
-   pDrawUtil->drawRect( rect, mTooltipProfile->mBorderColor );
+   pDrawUtil->drawRect( manager, rect, mTooltipProfile->mBorderColor );
 
    // Draw the text centered in the tool tip box
    pDrawUtil->setBitmapModulation( mTooltipProfile->mFontColor );

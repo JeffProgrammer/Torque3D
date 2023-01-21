@@ -100,7 +100,7 @@ class ForestSelectionTool : public ForestTool
       virtual void on3DMouseMove( const Gui3DMouseEvent &evt );
       virtual void on3DMouseDragged( const Gui3DMouseEvent &evt );
       virtual void onRender3D();
-      virtual void onRender2D();
+      virtual void onRender2D(GuiRenderManager* manager);
       virtual bool updateGuiInfo();
       virtual void updateGizmo();
       virtual void onUndoAction();

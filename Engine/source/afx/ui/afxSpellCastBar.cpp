@@ -146,7 +146,7 @@ void afxSpellCastBar::onRender(Point2I offset, const RectI &updateRect, GuiRende
   if (want_border)
   {
     color.set(rgba_border.red, rgba_border.green, rgba_border.blue, rgba_border.alpha*fade_amt);
-    GFX->getDrawUtil()->drawRect(updateRect, color.toColorI());
+    GFX->getDrawUtil()->drawRect(manager, updateRect, color.toColorI());
   }
 }
 

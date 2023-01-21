@@ -159,9 +159,9 @@ void GuiGameListOptionsCtrl::onRender(Point2I offset, const RectI &updateRect, G
    }
 }
 
-void GuiGameListOptionsCtrl::onDebugRender(Point2I offset)
+void GuiGameListOptionsCtrl::onDebugRender(GuiRenderManager* manager, Point2I offset)
 {
-   Parent::onDebugRender(offset);
+   Parent::onDebugRender(manager, offset);
    GuiGameListOptionsProfile * profile = (GuiGameListOptionsProfile *) mProfile;
 
    F32 xScale = (float) getWidth() / profile->getRowWidth();
@@ -197,13 +197,13 @@ void GuiGameListOptionsCtrl::onDebugRender(Point2I offset)
       upperLeft = currentOffset + hitAreaOffset;
       borderRect.point = upperLeft;
       borderRect.extent = column1Extent;
-      GFX->getDrawUtil()->drawRect(borderRect, column1Color);
+      GFX->getDrawUtil()->drawRect(manager, borderRect, column1Color);
 
       // draw the box around column 2
       upperLeft.x += column1Extent.x + 1;
       borderRect.point = upperLeft;
       borderRect.extent = column2Extent;
-      GFX->getDrawUtil()->drawRect(borderRect, column2Color);
+      GFX->getDrawUtil()->drawRect(manager, borderRect, column2Color);
    }
 }
 

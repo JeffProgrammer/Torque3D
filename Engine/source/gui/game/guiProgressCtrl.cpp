@@ -107,7 +107,7 @@ void GuiProgressCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRende
 
    //now draw the border
    if (mProfile->mBorder)
-      GFX->getDrawUtil()->drawRect(ctrlRect, mProfile->mBorderColor);
+      GFX->getDrawUtil()->drawRect(manager, ctrlRect, mProfile->mBorderColor);
 
    Parent::onRender( offset, updateRect, manager );
 

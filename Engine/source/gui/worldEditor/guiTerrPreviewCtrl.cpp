@@ -228,6 +228,8 @@ void GuiTerrPreviewCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRe
    mCamera.set(cameraRot.x, -cameraRot.y);
 	matrix.getRow(1,&cameraRot);              // get camera rotation
 
+   // TODO: Replace me! GFX2
+
    if (mTerrainEditor != NULL)
       terrBlock = mTerrainEditor->getActiveTerrain();
 
@@ -281,8 +283,10 @@ void GuiTerrPreviewCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRe
    else
    {
       RectI rect(offset.x, offset.y, getWidth(), getHeight());
-       GFX->getDrawUtil()->drawRect(rect, ColorI(0,0,0));
+       GFX->getDrawUtil()->drawRect(manager, rect, ColorI(0,0,0));
    }
+
+   // TODO: Replace me! GFX2
 
    GFX->setStateBlock(mControlsStateBlock);
 

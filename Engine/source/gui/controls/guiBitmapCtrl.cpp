@@ -202,7 +202,7 @@ void GuiBitmapCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderM
    if (mProfile->mBorder || !mBitmap)
    {
       RectI rect(offset.x, offset.y, getExtent().x, getExtent().y);
-      GFX->getDrawUtil()->drawRect(rect, mProfile->mBorderColor);
+      GFX->getDrawUtil()->drawRect(manager, rect, mProfile->mBorderColor);
    }
 
    renderChildControls(offset, updateRect, manager);

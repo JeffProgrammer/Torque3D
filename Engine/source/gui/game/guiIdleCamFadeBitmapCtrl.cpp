@@ -153,7 +153,7 @@ public:
          RectI rect(offset.x, offset.y, getExtent().x, getExtent().y);
          ColorI borderCol(mProfile->mBorderColor);
          borderCol.alpha = alpha;
-         GFX->getDrawUtil()->drawRect(rect, borderCol);
+         GFX->getDrawUtil()->drawRect(manager, rect, borderCol);
       }
 
       renderChildControls(offset, updateRect, manager);

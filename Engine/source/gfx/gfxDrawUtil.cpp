@@ -430,22 +430,22 @@ void GFXDrawUtil::drawBitmapStretchSR( GFXTextureObject* texture, const RectF &d
 //-----------------------------------------------------------------------------
 // Draw Rectangle
 //-----------------------------------------------------------------------------
-void GFXDrawUtil::drawRect( const Point2I &upperLeft, const Point2I &lowerRight, const ColorI &color ) 
+void GFXDrawUtil::drawRect( GuiRenderManager* manager, const Point2I &upperLeft, const Point2I &lowerRight, const ColorI &color )
 {
-   drawRect( Point2F((F32)upperLeft.x,(F32)upperLeft.y),Point2F((F32)lowerRight.x,(F32)lowerRight.y),color);
+   drawRect( manager, Point2F((F32)upperLeft.x,(F32)upperLeft.y),Point2F((F32)lowerRight.x,(F32)lowerRight.y),color);
 }
 
-void GFXDrawUtil::drawRect( const RectI &rect, const ColorI &color )
+void GFXDrawUtil::drawRect( GuiRenderManager* manager, const RectI &rect, const ColorI &color )
 {
-   drawRect( rect.point, Point2I(rect.point.x + rect.extent.x - 1, rect.point.y + rect.extent.y - 1), color );
+   drawRect( manager, rect.point, Point2I(rect.point.x + rect.extent.x - 1, rect.point.y + rect.extent.y - 1), color );
 }
 
-void GFXDrawUtil::drawRect( const RectF &rect, const ColorI &color )
+void GFXDrawUtil::drawRect( GuiRenderManager* manager, const RectF &rect, const ColorI &color )
 {
-   drawRect( rect.point, Point2F(rect.point.x + rect.extent.x - 1, rect.point.y + rect.extent.y - 1), color );
+   drawRect( manager, rect.point, Point2F(rect.point.x + rect.extent.x - 1, rect.point.y + rect.extent.y - 1), color );
 }
 
-void GFXDrawUtil::drawRect( const Point2F &upperLeft, const Point2F &lowerRight, const ColorI &color )
+void GFXDrawUtil::drawRect( GuiRenderManager* manager, const Point2F &upperLeft, const Point2F &lowerRight, const ColorI &color )
 {
    //
    // Convert Box   a----------x
@@ -468,8 +468,12 @@ void GFXDrawUtil::drawRect( const Point2F &upperLeft, const Point2F &lowerRight,
    Point2F nw(-0.5f,-0.5f); /*  \  */
    Point2F ne(0.5f,-0.5f); /*  /  */
 
-   GFXVertexBufferHandle<GFXVertexPCT> verts (mDevice, 10, GFXBufferTypeVolatile );
-   verts.lock();
+   GuiRenderInstDraw* drawInst = manager->allocRenderInstDraw(10);
+   drawInst->pipeline = GFX->getShaderPipelineManager()->getShaderPipeline(GFXGenericShaderPipelineType::GSPColor);
+   drawInst->primitiveType = GFXTriangleStrip;
+   drawInst->primitiveCount = 10;
+
+   GFXVertexPCT* verts = drawInst->vertexList.vertices;
 
    F32 ulOffset = 0.5f - mDevice->getFillConventionOffset();
 
@@ -487,12 +491,8 @@ void GFXDrawUtil::drawRect( const Point2F &upperLeft, const Point2F &lowerRight,
    for (S32 i = 0; i < 10; i++)
       verts[i].color = color;
 
-   verts.unlock();
-   mDevice->setVertexBuffer( verts );
-
-   mDevice->setStateBlock(mRectFillSB);
-   mDevice->setupGenericShaders();
-   mDevice->drawPrimitive( GFXTriangleStrip, 0, 8 );
+   manager->pushStateBlock(mRectFillSB);
+   manager->pushDrawInst(drawInst);
 }
 
 //-----------------------------------------------------------------------------
@@ -552,14 +552,18 @@ void GFXDrawUtil::drawRectFill( const Point2F &upperLeft, const Point2F &lowerRi
    manager->pushDrawInst(drawInst);
 }
 
-void GFXDrawUtil::draw2DSquare( const Point2F &screenPoint, F32 width, F32 spinAngle )
+void GFXDrawUtil::draw2DSquare( GuiRenderManager* manager, const Point2F &screenPoint, F32 width, F32 spinAngle )
 {
    width *= 0.5;
 
    Point3F offset( screenPoint.x, screenPoint.y, 0.0 );
 
-   GFXVertexBufferHandle<GFXVertexPCT> verts( mDevice, 4, GFXBufferTypeVolatile );
-   verts.lock();
+   GuiRenderInstDraw* drawInst = manager->allocRenderInstDraw(4);
+   drawInst->pipeline = GFX->getShaderPipelineManager()->getShaderPipeline(GFXGenericShaderPipelineType::GSPColor);
+   drawInst->primitiveType = GFXTriangleStrip;
+   drawInst->primitiveCount = 4;
+
+   GFXVertexPCT* verts = drawInst->vertexList.vertices;
 
    verts[0].point.set( -width, -width, 0.0f );
    verts[1].point.set( -width, width, 0.0f );
@@ -584,13 +588,8 @@ void GFXDrawUtil::draw2DSquare( const Point2F &screenPoint, F32 width, F32 spinA
       }
    }
 
-   verts.unlock();
-   mDevice->setVertexBuffer( verts );
-
-   mDevice->setStateBlock(mRectFillSB);
-   mDevice->setupGenericShaders();
-
-   mDevice->drawPrimitive( GFXTriangleStrip, 0, 2 );
+   manager->pushStateBlock(mRectFillSB);
+   manager->pushDrawInst(drawInst);
 }
 
 //-----------------------------------------------------------------------------

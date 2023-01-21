@@ -729,15 +729,15 @@ void GuiEditCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderMan
          RectI box(ctOffset.x, ctOffset.y, cext.x, cext.y);
 
          box.inset( -5, -5 );
-         drawer->drawRect( box, ColorI( 50, 101, 152, 128 ) );
+         drawer->drawRect( manager, box, ColorI( 50, 101, 152, 128 ) );
          box.inset( 1, 1 );
-         drawer->drawRect( box, ColorI( 50, 101, 152, 128 ) );
+         drawer->drawRect( manager, box, ColorI( 50, 101, 152, 128 ) );
          box.inset( 1, 1 );
-         drawer->drawRect( box, ColorI( 50, 101, 152, 128 ) );
+         drawer->drawRect( manager, box, ColorI( 50, 101, 152, 128 ) );
          box.inset( 1, 1 );
-         drawer->drawRect( box, ColorI( 50, 101, 152, 128 ) );
+         drawer->drawRect( manager, box, ColorI( 50, 101, 152, 128 ) );
          box.inset( 1, 1 );
-         drawer->drawRect( box, ColorI( 50, 101, 152, 128 ) );
+         drawer->drawRect( manager, box, ColorI( 50, 101, 152, 128 ) );
       }
       Vector<GuiControl *>::iterator i;
       bool multisel = mSelectedControls.size() > 1;
@@ -768,7 +768,7 @@ void GuiEditCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderMan
       
       // Draw outline.
       
-      drawer->drawRect( b, ColorI( 100, 100, 100, 128 ) );
+      drawer->drawRect( manager, b, ColorI( 100, 100, 100, 128 ) );
       
       // Draw fill.
       
@@ -777,6 +777,8 @@ void GuiEditCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderMan
    }
 
    // Draw grid.
+
+   // TODO: Replace me GFX2
 
    if(   mActive &&
          ( mMouseDownMode == MovingSelection || mMouseDownMode == SizingSelection ) &&
@@ -860,7 +862,7 @@ void GuiEditCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderMan
             if( mSnapTargets[ axis ] )
             {
                RectI snapBounds = mSnapTargets[ axis ]->getGlobalBounds();
-               drawer->drawRect(snapBounds, ColorI( 128, 128, 128, 128 ) );
+               drawer->drawRect(manager, snapBounds, ColorI( 128, 128, 128, 128 ) );
             }
          }
       }
@@ -932,7 +934,7 @@ void GuiEditCtrl::drawNuts(RectI &box, ColorI &outlineColor, ColorI &nutColor, G
 void GuiEditCtrl::drawNut(const Point2I &nut, ColorI &outlineColor, ColorI &nutColor, GuiRenderManager* manager)
 {
    RectI r( nut.x, nut.y, NUT_SIZE * 2, NUT_SIZE * 2 );
-   GFX->getDrawUtil()->drawRect( r, outlineColor );
+   GFX->getDrawUtil()->drawRect( manager, r, outlineColor );
    r.inset( 1, 1 );
    GFX->getDrawUtil()->drawRectFill( r, nutColor, manager);
 }

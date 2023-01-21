@@ -421,11 +421,11 @@ void ForestSelectionTool::onRender3D()
 
 static Frustum gDragFrustum;
 
-void ForestSelectionTool::onRender2D()
+void ForestSelectionTool::onRender2D(GuiRenderManager* manager)
 {
    // Draw drag selection rect.
    if ( mDragSelect && mDragRect.extent.x > 1 && mDragRect.extent.y > 1 )
-      GFX->getDrawUtil()->drawRect( mDragRect, mDragRectColor );
+      GFX->getDrawUtil()->drawRect( manager, mDragRect, mDragRectColor );
 
    // update what is in the selection
    if ( mDragSelect )

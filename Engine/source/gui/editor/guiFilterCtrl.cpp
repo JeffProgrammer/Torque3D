@@ -179,7 +179,7 @@ void GuiFilterCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderM
 
    RectI bgRect(pos, ext);
    GFX->getDrawUtil()->drawRectFill(bgRect, ColorI(255,255,255), manager);
-   GFX->getDrawUtil()->drawRect(bgRect, ColorI(0,0,0));
+   GFX->getDrawUtil()->drawRect(manager, bgRect, ColorI(0,0,0));
 
    // shrink by 2 pixels
    pos.x += 2;

@@ -2484,6 +2484,7 @@ void WorldEditor::renderScene( const RectI &updateRect )
    if (mActiveEditorTool != nullptr)
       mActiveEditorTool->render();
 
+   // TODO: GFX2
    GuiRenderManager manager;
 	
    // Grab this before anything here changes it.
@@ -2772,7 +2773,7 @@ void WorldEditor::renderScene( const RectI &updateRect )
       renderMousePopupInfo(&manager);
 
    if ( mDragSelect && mDragRect.extent.x > 1 && mDragRect.extent.y > 1 )
-      GFX->getDrawUtil()->drawRect( mDragRect, mDragRectColor );
+      GFX->getDrawUtil()->drawRect( &manager, mDragRect, mDragRectColor );
 
    if ( selection && selection->size() )
       mGizmo->renderText( mSaveViewport, mSaveModelview, mSaveProjection );

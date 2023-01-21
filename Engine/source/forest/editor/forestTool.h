@@ -74,7 +74,7 @@ class ForestTool : public SimObject
       virtual void on3DMouseLeave( const Gui3DMouseEvent &evt ) {}
       virtual bool onMouseWheel( const GuiEvent &evt ) { return false; }      
       virtual void onRender3D() {}
-      virtual void onRender2D() {}      
+      virtual void onRender2D(GuiRenderManager* manager) {}      
       virtual void updateGizmo() {}
       virtual bool updateGuiInfo() { return false; }
       virtual void onUndoAction() {}

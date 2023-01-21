@@ -249,7 +249,7 @@ void GuiGraphCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRenderMa
 	if( mProfile->mBorder )
 	{
 		RectI rect( offset.x, offset.y, getWidth(), getHeight() );
-		GFX->getDrawUtil()->drawRect( rect, mProfile->mBorderColor );
+		GFX->getDrawUtil()->drawRect( manager, rect, mProfile->mBorderColor );
 	}
    
    renderChildControls( offset, updateRect, manager );

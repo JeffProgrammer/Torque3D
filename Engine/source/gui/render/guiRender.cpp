@@ -155,41 +155,62 @@ GuiRenderBin::~GuiRenderBin()
    
 }
 
-void GuiRenderBin::fillCommandBuffer(GFXCmdBuffer *cmdBuffer, GuiRenderManager *renderManager)
+Vector<GFXCmdBuffer*> GuiRenderBin::fillCommandBuffer(GuiRenderManager *renderManager)
 {
+   Vector<GFXCmdBuffer*> cmdBuffers;
+   GFXCmdBuffer* currentCmdBuffer = nullptr;
+   
    const Vector<GuiRenderInst*>& renderInsts = renderManager->getRenderInsts();
    void* vertexData = renderManager->vertexData();
    
    uploadVertexData(vertexData);
-
-   for (const GuiRenderInst* inst : renderInsts)
+   
+   for (U32 i = 0; i < renderInsts.size(); ++i)
    {
+      const GuiRenderInst* inst = renderInsts[i];
+      
+      if ((i % CMD_BUFFER_CHUNK_SIZE) == 0)
+      {
+         if (currentCmdBuffer)
+         {
+            currentCmdBuffer->endRecording();
+         }
+         
+         currentCmdBuffer = new GFXCmdBuffer(GFX);
+         cmdBuffers.push_back(currentCmdBuffer);
+      }
+      
       switch (inst->type)
       {
          case GuiRenderInstType::CLIP_RECT:
          {
             const auto clipRectInst = static_cast<const Internal::GuiRenderInstClipRect*>(inst);
-            processClipRectInst(cmdBuffer, clipRectInst);
+            processClipRectInst(currentCmdBuffer, clipRectInst);
             break;
          }
 
          case GuiRenderInstType::STATEBLOCK:
          {
             const auto stateBlockInst = static_cast<const Internal::GuiRenderInstStateBlock*>(inst);
-            processStateBlockInst(cmdBuffer, stateBlockInst);
+            processStateBlockInst(currentCmdBuffer, stateBlockInst);
             break;
          }
          
          case GuiRenderInstType::DRAW:
          {
             const auto drawInst = static_cast<const GuiRenderInstDraw*>(inst);
-            processDrawInst(cmdBuffer, drawInst, mVertexBufferHandle);
+            processDrawInst(currentCmdBuffer, drawInst, mVertexBufferHandle);
             break;
          }
       }
    }
    
-   cmdBuffer->endRecording();
+   if (currentCmdBuffer)
+   {
+      currentCmdBuffer->endRecording();
+   }
+   
+   return cmdBuffers;
 }
 
 void GuiRenderBin::createVertexBuffer()

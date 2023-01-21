@@ -137,7 +137,7 @@ void GuiClockHud::onRender(Point2I offset, const RectI &updateRect, GuiRenderMan
 
    // Border last
    if (mShowFrame)
-      drawUtil->drawRect(updateRect, mFrameColor.toColorI());
+      drawUtil->drawRect(manager, updateRect, mFrameColor.toColorI());
 }
 
 

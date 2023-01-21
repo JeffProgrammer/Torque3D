@@ -200,5 +200,5 @@ void GuiHealthBarHud::onRender(Point2I offset, const RectI &updateRect, GuiRende
 
    // Border last
    if (mShowFrame)
-      GFX->getDrawUtil()->drawRect(updateRect, mFrameColor.toColorI());
+      GFX->getDrawUtil()->drawRect(manager, updateRect, mFrameColor.toColorI());
 }

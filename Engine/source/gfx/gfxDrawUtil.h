@@ -48,17 +48,17 @@ public:
    //-----------------------------------------------------------------------------
    // Draw Rectangles
    //-----------------------------------------------------------------------------
-   void drawRect( const Point2F &upperLeft, const Point2F &lowerRight, const ColorI &color );
-   void drawRect( const RectF &rect, const ColorI &color );
-   void drawRect( const Point2I &upperLeft, const Point2I &lowerRight, const ColorI &color );
-   void drawRect( const RectI &rect, const ColorI &color );
+   void drawRect( GuiRenderManager* manager, const Point2F &upperLeft, const Point2F &lowerRight, const ColorI &color );
+   void drawRect( GuiRenderManager* manager, const RectF &rect, const ColorI &color );
+   void drawRect( GuiRenderManager* manager, const Point2I &upperLeft, const Point2I &lowerRight, const ColorI &color );
+   void drawRect( GuiRenderManager* manager, const RectI &rect, const ColorI &color );
 
    void drawRectFill( const Point2F &upperL, const Point2F &lowerR, const ColorI &color, GuiRenderManager* manager );
    void drawRectFill( const RectF &rect, const ColorI &color, GuiRenderManager* manager);
    void drawRectFill( const Point2I &upperLeft, const Point2I &lowerRight, const ColorI &color, GuiRenderManager* manager);
    void drawRectFill( const RectI &rect, const ColorI &color, GuiRenderManager* manager);
 
-   void draw2DSquare( const Point2F &screenPoint, F32 width, F32 spinAngle = 0.0f );
+   void draw2DSquare(GuiRenderManager* manager, const Point2F &screenPoint, F32 width, F32 spinAngle = 0.0f );
 
    //-----------------------------------------------------------------------------
    // Draw Lines

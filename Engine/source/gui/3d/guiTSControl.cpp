@@ -772,7 +772,7 @@ void GuiTSCtrl::renderDisplayPreview(const RectI &updateRect, GFXTexHandle &prev
    GFX->setClipRect(updateRect);
 
    GFX->getDrawUtil()->drawRectFill(RectI(Point2I(0, 0), Point2I(1024, 768)), ColorI::BLACK, manager);
-   GFX->getDrawUtil()->drawRect(RectI(Point2I(0, 0), Point2I(1024, 768)), ColorI::RED);
+   GFX->getDrawUtil()->drawRect(manager, RectI(Point2I(0, 0), Point2I(1024, 768)), ColorI::RED);
 
    if (!mStereoPreviewVB.getPointer())
    {

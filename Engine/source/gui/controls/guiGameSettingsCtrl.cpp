@@ -368,7 +368,7 @@ void GuiGameSettingsCtrl::onRenderSliderOption(Point2I currentOffset, GuiRenderM
 
    drawer->drawRectFill(fillRect, barColor, manager);
 
-   drawer->drawRect(sliderRect, barOutlineColor);
+   drawer->drawRect(manager, sliderRect, barOutlineColor);
 
    // get the appropriate font color
    ColorI fontColor;

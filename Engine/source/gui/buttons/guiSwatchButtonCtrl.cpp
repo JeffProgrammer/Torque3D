@@ -109,7 +109,7 @@ void GuiSwatchButtonCtrl::onRender( Point2I offset, const RectI &updateRect, Gui
    drawer->drawRectFill(renderRect, mSwatchColor.toColorI(), manager);
 
    // Draw any borders...
-   drawer->drawRect( renderRect, borderColor );
+   drawer->drawRect( manager, renderRect, borderColor );
 }
 
 //-----------------------------------------------------------------------------

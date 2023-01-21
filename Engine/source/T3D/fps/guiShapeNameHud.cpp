@@ -274,7 +274,7 @@ void GuiShapeNameHud::onRender( Point2I, const RectI &updateRect, GuiRenderManag
 
    // Border last
    if (mShowFrame)
-      GFX->getDrawUtil()->drawRect(updateRect, mFrameColor.toColorI());
+      GFX->getDrawUtil()->drawRect(manager, updateRect, mFrameColor.toColorI());
 }
 
 
@@ -312,6 +312,6 @@ void GuiShapeNameHud::drawName(Point2I offset, const char *name, F32 opacity, Gu
 
    // Border last
    if (mShowLabelFrame)
-      drawUtil->drawRect(RectI(offset, extent), mLabelFrameColor.toColorI());
+      drawUtil->drawRect(manager, RectI(offset, extent), mLabelFrameColor.toColorI());
 }
 

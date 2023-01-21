@@ -178,7 +178,7 @@ void GuiPopupMenuTextListCtrl::onRenderCell(Point2I offset, Point2I cell, bool s
    //check if we're checked
    if (mPopup->mMenuItems[cell.y].mIsChecked)
    {
-      GFX->getDrawUtil()->draw2DSquare(Point2F(offset.x + mCellSize.y / 2, offset.y + mCellSize.y / 2), 5);
+      GFX->getDrawUtil()->draw2DSquare(manager, Point2F(offset.x + mCellSize.y / 2, offset.y + mCellSize.y / 2), 5);
    }
 }
 

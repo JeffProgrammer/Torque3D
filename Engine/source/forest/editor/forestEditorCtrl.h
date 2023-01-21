@@ -81,7 +81,7 @@ class ForestEditorCtrl : public EditTSCtrl
       void updateGuiInfo();      
       void updateGizmo();
       void renderScene( const RectI &updateRect );
-      void renderGui( Point2I offset, const RectI &updateRect );
+      void renderGui( GuiRenderManager* manager, Point2I offset, const RectI &updateRect );
 
       /// Causes the editor to reselect the active forest.
       bool updateActiveForest( bool createNew );

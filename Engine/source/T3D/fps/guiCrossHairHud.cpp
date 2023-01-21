@@ -178,7 +178,7 @@ void GuiCrossHairHud::drawDamage(Point2I offset, F32 damage, F32 opacity, GuiRen
    rect.point.x -= mDamageRectSize.x / 2;
 
    // Draw the border
-   GFX->getDrawUtil()->drawRect(rect, mDamageFrameColor.toColorI());
+   GFX->getDrawUtil()->drawRect(manager, rect, mDamageFrameColor.toColorI());
 
    // Draw the damage % fill
    rect.point += Point2I(1, 1);

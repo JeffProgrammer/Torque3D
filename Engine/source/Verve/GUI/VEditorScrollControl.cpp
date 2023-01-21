@@ -93,5 +93,5 @@ void VEditorScrollControl::onRender( Point2I pOffset, const RectI &pUpdateRect, 
     RectI contentRect( pOffset.x + 1, pOffset.y + 1, getWidth() - offsetX - 1, getHeight() - offsetY - 1 );
     contentRect.intersect( pUpdateRect );
 
-    GFX->getDrawUtil()->drawRect( contentRect, mProfile->mBorderColor );
+    GFX->getDrawUtil()->drawRect( manager, contentRect, mProfile->mBorderColor );
 }

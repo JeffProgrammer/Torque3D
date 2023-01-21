@@ -198,5 +198,5 @@ void GuiHealthTextHud::onRender(Point2I offset, const RectI &updateRect, GuiRend
   
    // If enabled draw the border last  
    if (mShowFrame)  
-      drawUtil->drawRect(updateRect, mFrameColor.toColorI());
+      drawUtil->drawRect(manager, updateRect, mFrameColor.toColorI());
 }  

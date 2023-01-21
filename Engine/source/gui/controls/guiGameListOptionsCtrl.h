@@ -148,7 +148,7 @@ protected:
 
    /// Adds lines around the column divisions to the feedback already provided
    /// in the Parent.
-   void onDebugRender(Point2I offset);
+   void onDebugRender(GuiRenderManager* manager, Point2I offset);
 
 private:
    /// Performs a click on the current option row. The x position is used to

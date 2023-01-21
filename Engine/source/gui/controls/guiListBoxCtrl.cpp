@@ -1095,7 +1095,7 @@ void GuiListBoxCtrl::drawBox(const Point2I &box, S32 size, ColorI &outlineColor,
    r.inset(1, 1);
    GFX->getDrawUtil()->drawRectFill(r, boxColor, manager);
    r.inset(-1, -1);
-   GFX->getDrawUtil()->drawRect(r, outlineColor);
+   GFX->getDrawUtil()->drawRect(manager, r, outlineColor);
 }
 
 bool GuiListBoxCtrl::renderTooltip( const Point2I &hoverPos, const Point2I& cursorPos, GuiRenderManager* manager, const char* tipText )

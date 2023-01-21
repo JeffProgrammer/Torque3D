@@ -251,7 +251,7 @@ void GuiProgressBitmapCtrl::onRender(Point2I offset, const RectI &updateRect, Gu
 
 	//if there's a border, draw it
    if (mProfile->mBorder)
-      drawUtil->drawRect(ctrlRect, mProfile->mBorderColor);
+      drawUtil->drawRect(manager, ctrlRect, mProfile->mBorderColor);
 
    Parent::onRender( offset, updateRect, manager );
 

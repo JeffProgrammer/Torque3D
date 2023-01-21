@@ -277,10 +277,10 @@ void ForestEditorCtrl::updateGizmo()
       mTool->updateGizmo();
 }
 
-void ForestEditorCtrl::renderGui( Point2I offset, const RectI &updateRect )
+void ForestEditorCtrl::renderGui( GuiRenderManager* manager, Point2I offset, const RectI &updateRect )
 {
    if ( mTool )
-      mTool->onRender2D();
+      mTool->onRender2D(manager);
 }
 
 static ForestItemData* sKey = NULL;

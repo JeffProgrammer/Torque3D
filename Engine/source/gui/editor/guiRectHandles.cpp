@@ -290,7 +290,7 @@ void GuiRectHandles::onRender(Point2I offset, const RectI &updateRect, GuiRender
    GFXDrawUtil* drawUtil = GFX->getDrawUtil();
 
    // Draw border
-   drawUtil->drawRect(box, handleColor);
+   drawUtil->drawRect(manager, box, handleColor);
 
    // Draw each handle
    Point2I handleSize(mHandleSize, mHandleSize);

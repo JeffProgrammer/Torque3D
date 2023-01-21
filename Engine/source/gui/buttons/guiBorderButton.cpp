@@ -62,7 +62,7 @@ void GuiBorderButtonCtrl::onRender(Point2I offset, const RectI &updateRect, GuiR
       RectI bounds( offset, getExtent() );
       for ( S32 i=0; i < mProfile->mBorderThickness; i++ )
       {
-         GFX->getDrawUtil()->drawRect( bounds, mProfile->mBorderColor );
+         GFX->getDrawUtil()->drawRect( manager, bounds, mProfile->mBorderColor );
          bounds.inset( 1, 1 );
       }      
    }
@@ -74,7 +74,7 @@ void GuiBorderButtonCtrl::onRender(Point2I offset, const RectI &updateRect, GuiR
          RectI bounds( offset, getExtent() );
          for ( S32 i=0; i < mProfile->mBorderThickness; i++ )
          {
-            GFX->getDrawUtil()->drawRect( bounds, mProfile->mFontColorSEL );
+            GFX->getDrawUtil()->drawRect( manager, bounds, mProfile->mFontColorSEL );
             bounds.inset( 1, 1 );
          }
       }
@@ -84,7 +84,7 @@ void GuiBorderButtonCtrl::onRender(Point2I offset, const RectI &updateRect, GuiR
          RectI bounds( offset, getExtent() );
          for ( S32 i=0; i < mProfile->mBorderThickness; i++ )
          {
-            GFX->getDrawUtil()->drawRect( bounds, mProfile->mFontColorHL );
+            GFX->getDrawUtil()->drawRect( manager, bounds, mProfile->mFontColorHL );
             bounds.inset( 1, 1 );
          }
       }

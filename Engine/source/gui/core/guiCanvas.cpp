@@ -2015,9 +2015,11 @@ void GuiCanvas::renderFrame(bool preRenderOnly, bool bufferSwap /* = true */)
          mouseCursor->render(pos, &renderManager);
       }
 
-      GFXCmdBuffer cmdBuffer(GFX);
-      renderBin.fillCommandBuffer(&cmdBuffer, &renderManager);
-      GFX->executeCmdBuffer(&cmdBuffer);
+      Vector<GFXCmdBuffer*> cmdBuffers = renderBin.fillCommandBuffer(&renderManager);
+      for (GFXCmdBuffer* cmdBuffer : cmdBuffers)
+      {
+         GFX->executeCmdBuffer(cmdBuffer);
+      }
    }
 
    // Render all RTT end of frame updates HERE

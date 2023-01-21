@@ -29,7 +29,7 @@ public:
    enum
    {
       MEMORY_BUFFER_PAGE_SIZE = 16384,
-      MEMORY_CONSTANT_PAGE_SIZE = 16384 * 4,
+      MEMORY_CONSTANT_PAGE_SIZE = 16384 * 4 * 4,
       MAX_STATE_BLOCK_RESOURCES = 4096,
       MAX_TEXTURE_RESOURCES = 8912 // TODO: Remove once we use GFXTextureHandle
    };

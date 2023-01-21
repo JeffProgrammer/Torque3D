@@ -380,7 +380,7 @@ protected:
 
    /// Called to implement debug rendering which displays colored lines to
    /// provide visual feedback on extents and hit zones.
-   virtual void onDebugRender(Point2I offset);
+   virtual void onDebugRender(GuiRenderManager* manager, Point2I offset);
 
    /// Looks up the row having a hit area at the given global point.
    ///

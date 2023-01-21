@@ -299,7 +299,7 @@ void GuiColorPickerCtrl::renderColorBox(RectI &bounds, GuiRenderManager* manager
    pickerBounds.extent.y = bounds.extent.y-1;
 
    if (mProfile->mBorder)
-      GFX->getDrawUtil()->drawRect(bounds, mProfile->mBorderColor);
+      GFX->getDrawUtil()->drawRect(manager, bounds, mProfile->mBorderColor);
 
    Point2I selectorPos = Point2I(bounds.point.x+mSelectorPos.x+1, bounds.point.y+mSelectorPos.y+1);
 
@@ -325,7 +325,7 @@ void GuiColorPickerCtrl::renderColorBox(RectI &bounds, GuiRenderManager* manager
       drawBlendBox( blendRect, colorAlpha, colorAlpha, colorBlack, colorBlack );
       blendRect.point.y += blendRect.extent.y - 1;
       blendRect.extent.y = 2;
-      GFX->getDrawUtil()->drawRect( blendRect, colorBlack.toColorI());
+      GFX->getDrawUtil()->drawRect( manager, blendRect, colorBlack.toColorI());
       drawSelector( pickerBounds, selectorPos, sHorizontal );
       drawSelector( pickerBounds, selectorPos, sVertical );
    break;

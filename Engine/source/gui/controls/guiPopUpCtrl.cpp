@@ -192,7 +192,7 @@ void GuiPopupTextListCtrl::onRenderCell(Point2I offset, Point2I cell, bool selec
       Point2I coloredboxsize(15,10);
       RectI boxBounds(offset.x + mProfile->mTextOffset.x, offset.y+2, coloredboxsize.x, coloredboxsize.y);
       GFX->getDrawUtil()->drawRectFill(boxBounds, boxColor, manager);
-      GFX->getDrawUtil()->drawRect(boxBounds, ColorI(0,0,0));
+      GFX->getDrawUtil()->drawRect(manager, boxBounds, ColorI(0,0,0));
 
       textXOffset += coloredboxsize.x + mProfile->mTextOffset.x;
    }
@@ -999,7 +999,7 @@ void GuiPopUpMenuCtrl::onRender( Point2I offset, const RectI &updateRect, GuiRen
                U32 nudge = (baseRect.extent.y - mProfile->mBitmapArrayRects[0].extent.y) / 2;
                baseRect.point.y += nudge;
             }
-            drawUtil->drawRect( baseRect, mProfile->mBorderColorNA );
+            drawUtil->drawRect( manager, baseRect, mProfile->mBorderColorNA );
          }
       }
       //      renderSlightlyRaisedBox(r, mProfile); //  Used to be the only 'else' condition to mInAction above.
@@ -1071,7 +1071,7 @@ void GuiPopUpMenuCtrl::onRender( Point2I offset, const RectI &updateRect, GuiRen
          Point2I coloredboxsize( 15, 10 );
          RectI boxBounds( offset.x + mProfile->mTextOffset.x, offset.y + ( (getHeight() - coloredboxsize.y ) / 2 ), coloredboxsize.x, coloredboxsize.y );
          drawUtil->drawRectFill(boxBounds, boxColor, manager);
-         drawUtil->drawRect(boxBounds, ColorI(0,0,0));
+         drawUtil->drawRect(manager, boxBounds, ColorI(0,0,0));
 
          localStart.x += coloredboxsize.x + mProfile->mTextOffset.x;
       }

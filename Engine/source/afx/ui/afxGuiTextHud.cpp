@@ -276,7 +276,7 @@ void afxGuiTextHud::onRender(Point2I, const RectI &updateRect, GuiRenderManager*
 
    // Border last
    if (mShowFrame)
-      GFX->getDrawUtil()->drawRect(updateRect, mFrameColor.toColorI());
+      GFX->getDrawUtil()->drawRect(manager, updateRect, mFrameColor.toColorI());
 
    reset();
 }

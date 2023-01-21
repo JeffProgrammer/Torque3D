@@ -429,7 +429,7 @@ void CreatorTree::onRenderCell(Point2I offset, Point2I cell, bool, bool, GuiRend
    { 
       // If we need a box...
       drawer->drawRectFill( boxStart, boxEnd, mProfile->mFillColor, manager ); // Box background
-      drawer->drawRect( boxStart, boxEnd, mProfile->mFontColor );     // Border
+      drawer->drawRect( manager, boxStart, boxEnd, mProfile->mFontColor );     // Border
 
       // Cross line
       drawer->drawLine( boxStart.x + 2, boxStart.y + 4, boxStart.x + 7, boxStart.y + 4, mProfile->mFontColor );

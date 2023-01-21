@@ -86,9 +86,9 @@ private:
    
    /// @name Core Rendering functions
    /// @{
-   void renderColorBox(RectI &bounds);			///< Function that draws the actual color box
+   void renderColorBox(GuiRenderManager* manager, RectI &bounds);			///< Function that draws the actual color box
    //void drawSelector(RectI &bounds, Point2I &selectorPos, SelectorMode mode);	///< Function that draws the selection indicator
-   void drawBlendRangeBox(RectI &bounds, bool vertical, Vector<ColorRange> colorRange);
+   void drawBlendRangeBox(GuiRenderManager* manager, RectI &bounds, bool vertical, Vector<ColorRange> colorRange);
    /// @}
 
    /// @name Core Variables

@@ -110,7 +110,7 @@ void renderBorder( const RectI &bounds, GuiControlProfile *profile, GuiRenderMan
    switch(profile->mBorder)
    {
    case 1:
-      drawer->drawRect(bounds, profile->mBorderColor);
+      drawer->drawRect(manager, bounds, profile->mBorderColor);
       break;
    case 2:
       drawer->drawLine(l + 1, t + 1, l + 1, b - 2, profile->mBevelColorHL);

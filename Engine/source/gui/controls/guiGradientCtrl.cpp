@@ -118,7 +118,7 @@ void GuiGradientSwatchCtrl::onRender( Point2I offset, const RectI &updateRect, G
    drawer->drawRectFill( renderRect, mSwatchColor.toColorI(), manager);
 
    // Draw any borders...
-   drawer->drawRect( renderRect, borderColor );
+   drawer->drawRect( manager, renderRect, borderColor );
 }
 
 void GuiGradientSwatchCtrl::onMouseDown(const GuiEvent &event)
@@ -285,7 +285,7 @@ void GuiGradientCtrl::onRender(Point2I offset, const RectI& updateRect, GuiRende
    }
 
    RectI boundsRect(offset, getExtent()); 
-   renderColorBox(boundsRect);
+   renderColorBox(manager, boundsRect);
 
    if (mPositionChanged) 
    {
@@ -301,21 +301,21 @@ void GuiGradientCtrl::onRender(Point2I offset, const RectI& updateRect, GuiRende
 }
 
 /// Function to invoke calls to draw the picker box and swatch controls
-void GuiGradientCtrl::renderColorBox(RectI &bounds)
+void GuiGradientCtrl::renderColorBox(GuiRenderManager* manager, RectI &bounds)
 {   
    // Draw color box differently depending on mode
 	if( mDisplayMode == pHorizColorRange )
 	{
-      drawBlendRangeBox( bounds, false, mColorRange);
+      drawBlendRangeBox( manager, bounds, false, mColorRange);
 	}
 	else if( mDisplayMode == pHorizAlphaRange )
 	{
-      drawBlendRangeBox( bounds, false, mAlphaRange);
+      drawBlendRangeBox( manager, bounds, false, mAlphaRange);
    }
 }
 
 /// Function to draw a set of boxes blending throughout an array of colors
-void GuiGradientCtrl::drawBlendRangeBox(RectI &bounds, bool vertical, Vector<ColorRange> colorRange)
+void GuiGradientCtrl::drawBlendRangeBox(GuiRenderManager* manager, RectI &bounds, bool vertical, Vector<ColorRange> colorRange)
 {
    GFX->setStateBlock(mStateBlock);
 
@@ -325,7 +325,7 @@ void GuiGradientCtrl::drawBlendRangeBox(RectI &bounds, bool vertical, Vector<Col
 
    // Draw border using new global dimensions
    if (mProfile->mBorder)
-      GFX->getDrawUtil()->drawRect(RectI(Point2I(l, t), Point2I(r, b)), mProfile->mBorderColor);
+      GFX->getDrawUtil()->drawRect(manager, RectI(Point2I(l, t), Point2I(r, b)), mProfile->mBorderColor);
 
    // Update local dimensions
    mBlendRangeBox.point = globalToLocalCoord(Point2I(l, t));

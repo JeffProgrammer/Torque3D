@@ -539,7 +539,7 @@ bool GuiControl::defaultTooltipRender( const Point2I &hoverPos, const Point2I &c
 
    // Draw Filler bit, then border on top of that
    drawUtil->drawRectFill( rect, mTooltipProfile->mFillColor, manager );
-   drawUtil->drawRect( rect, mTooltipProfile->mBorderColor );
+   drawUtil->drawRect( manager, rect, mTooltipProfile->mBorderColor );
 
    // Draw the text centered in the tool tip box...
 
@@ -583,9 +583,9 @@ void GuiControl::renderChildControls(Point2I offset, const RectI &updateRect, Gu
 
          if (childClip.intersect(clipRect))
          {
-            GFXGuiClipRect clipRect;
-            GFX->calcClipRect(childClip, clipRect);
-            manager->pushClipRect(clipRect);
+            GFXGuiClipRect childClipRect;
+            GFX->calcClipRect(childClip, childClipRect);
+            manager->pushClipRect(childClipRect);
             
             manager->pushStateBlock(mDefaultGuiSB);
 

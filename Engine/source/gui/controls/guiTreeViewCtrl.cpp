@@ -3640,7 +3640,7 @@ void GuiTreeViewCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRende
       squarePt.y = (F32)tempY;
       squarePt.x = 125.f+offset.x;
       GFX->getDrawUtil()->drawLine(0+offset.x, tempY, 250+offset.x, tempY,greyLine);
-      GFX->getDrawUtil()->draw2DSquare(squarePt, 6, 90 );
+      GFX->getDrawUtil()->draw2DSquare(manager, squarePt, 6, 90 );
 
    }
    if (mDragMidPoint == BelowmDragMidPoint)
@@ -3649,7 +3649,7 @@ void GuiTreeViewCtrl::onRender(Point2I offset, const RectI &updateRect, GuiRende
       squarePt.y = (F32)tempY2;
       squarePt.x = 125.f+offset.x;
       GFX->getDrawUtil()->drawLine(0+offset.x, tempY2, 250+offset.x, tempY2,greyLine);
-      GFX->getDrawUtil()->draw2DSquare(squarePt,6, 90 );
+      GFX->getDrawUtil()->draw2DSquare(manager, squarePt,6, 90 );
    }
 }
 

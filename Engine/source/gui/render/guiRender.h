@@ -110,10 +110,15 @@ private:
 // This class actually converts GuiRenderInst into GFXCmdBuffer calls.
 class GuiRenderBin
 {
+   enum
+   {
+      CMD_BUFFER_CHUNK_SIZE = 1000
+   };
+   
 public:
    GuiRenderBin();
    ~GuiRenderBin();
-   void fillCommandBuffer(GFXCmdBuffer *cmdBuffer, GuiRenderManager* renderManager);
+   Vector<GFXCmdBuffer*> fillCommandBuffer(GuiRenderManager* renderManager);
    void createVertexBuffer();
 
 private:   

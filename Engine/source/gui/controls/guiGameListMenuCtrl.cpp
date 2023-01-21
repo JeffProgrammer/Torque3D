@@ -159,7 +159,7 @@ void GuiGameListMenuCtrl::onRender(Point2I offset, const RectI &updateRect, GuiR
 
    if (mDebugRender)
    {
-      onDebugRender(offset);
+      onDebugRender(manager, offset);
    }
 
    renderChildControls(offset, updateRect, manager);
@@ -334,7 +334,7 @@ void GuiGameListMenuCtrl::onRenderSliderOption(Row* row, Point2I currentOffset, 
 
       drawer->drawRectFill(fillRect, barColor, manager);
 
-      drawer->drawRect(sliderRect, barOutlineColor);
+      drawer->drawRect(manager, sliderRect, barOutlineColor);
    }
 
    // get the appropriate font color
@@ -404,7 +404,7 @@ void GuiGameListMenuCtrl::onRenderKeybindOption(Row* row, Point2I currentOffset,
    //drawer->drawRectFill(button, ColorI::BLUE);
 }
 
-void GuiGameListMenuCtrl::onDebugRender(Point2I offset)
+void GuiGameListMenuCtrl::onDebugRender(GuiRenderManager* manager, Point2I offset)
 {
    GuiGameListMenuProfile * profile = (GuiGameListMenuProfile *) mProfile;
 
@@ -418,7 +418,7 @@ void GuiGameListMenuCtrl::onDebugRender(Point2I offset)
 
    // render a border around the entire control
    RectI borderRect(offset, extent + shrinker);
-   GFX->getDrawUtil()->drawRect(borderRect, controlBorderColor);
+   GFX->getDrawUtil()->drawRect(manager, borderRect, controlBorderColor);
 
    S32 rowHeight = profile->getRowHeight();
    Point2I currentOffset(offset);
@@ -444,13 +444,13 @@ void GuiGameListMenuCtrl::onDebugRender(Point2I offset)
       upperLeft = currentOffset;
       borderRect.point = upperLeft;
       borderRect.extent = rowExtent;
-      GFX->getDrawUtil()->drawRect(borderRect, rowBorderColor);
+      GFX->getDrawUtil()->drawRect(manager, borderRect, rowBorderColor);
 
       // draw the box around the hit area of the row
       upperLeft = currentOffset + hitAreaOffset;
       borderRect.point = upperLeft;
       borderRect.extent = hitAreaExtent;
-      GFX->getDrawUtil()->drawRect(borderRect, hitBorderColor);
+      GFX->getDrawUtil()->drawRect(manager, borderRect, hitBorderColor);
    }
 }
 

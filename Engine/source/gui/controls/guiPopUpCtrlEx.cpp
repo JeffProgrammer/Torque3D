@@ -260,7 +260,7 @@ void GuiPopupTextListCtrlEx::onRenderCell(Point2I offset, Point2I cell, bool sel
       Point2I coloredboxsize( 15, 10 );
       RectI r( offset.x + mProfile->mTextOffset.x, offset.y + 2, coloredboxsize.x, coloredboxsize.y );
       GFX->getDrawUtil()->drawRectFill( r, boxColor, manager );
-      GFX->getDrawUtil()->drawRect( r, ColorI( 0, 0, 0 ) );
+      GFX->getDrawUtil()->drawRect( manager, r, ColorI( 0, 0, 0 ) );
 
       textXOffset += coloredboxsize.x + mProfile->mTextOffset.x;
    }
@@ -1157,7 +1157,7 @@ void GuiPopUpMenuCtrlEx::onRender(Point2I offset, const RectI &updateRect, GuiRe
          // Do we render a bitmap border or lines?
          if ( !( mProfile->getChildrenProfile() && mProfile->mBitmapArrayRects.size() ) )
          {
-            drawUtil->drawRect( r, mProfile->mBorderColorNA );
+            drawUtil->drawRect( manager, r, mProfile->mBorderColorNA );
          }
       }
       //      renderSlightlyRaisedBox(r, mProfile); //  Used to be the only 'else' condition to mInAction above.
@@ -1229,7 +1229,7 @@ void GuiPopUpMenuCtrlEx::onRender(Point2I offset, const RectI &updateRect, GuiRe
          Point2I coloredboxsize( 15, 10 );
          RectI boxBounds( offset.x + mProfile->mTextOffset.x, offset.y + ( (getHeight() - coloredboxsize.y ) / 2 ), coloredboxsize.x, coloredboxsize.y );
          drawUtil->drawRectFill(boxBounds, boxColor, manager);
-         drawUtil->drawRect(boxBounds, ColorI(0,0,0));
+         drawUtil->drawRect(manager, boxBounds, ColorI(0,0,0));
 
          localStart.x += coloredboxsize.x + mProfile->mTextOffset.x;
       }
